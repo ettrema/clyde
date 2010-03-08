@@ -1,0 +1,10 @@
+<html>
+<body>
+<h1>Stats @{parent.hostName}</h1>
+<ul>
+@foreach{parent.years as year}
+    <li><a href="@{year.name}/index.html">@{year.name}</a></li>
+@end{}
+</ul>
+</body>
+</html>

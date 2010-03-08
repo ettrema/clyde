@@ -1,0 +1,19 @@
+<html>
+<body>
+<h1>Stats @{parent.parent.hostName} - @{parent.name}</h1>
+<table cellspacing="0" cellpadding="5" border="1">
+    <tr>
+        <th>Month</th>
+        <th>Hits</th>
+        <th>Kilobytes</th>
+    </tr>
+@foreach{parent.summaryMonths as summary}
+    <tr>
+        <td><a href="@{summary.month}/index.html">@{summary.month}</a></td>
+        <td align="right">@{summary.hits}</td>
+        <td align="right">@{summary.kbytes}</td>
+    </tr>
+@end{}
+</table>
+</body>
+</html>

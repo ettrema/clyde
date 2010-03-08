@@ -1,0 +1,68 @@
+package com.bradmcevoy.web;
+
+import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
+import com.bradmcevoy.http.Resource;
+import java.util.HashMap;
+import java.util.Map;
+
+public class RequestParams {
+
+    private static final ThreadLocal<RequestParams> tlCurrent = new ThreadLocal<RequestParams>();
+    
+    public static RequestParams current() {
+        return tlCurrent.get();
+    }
+    
+    public static void setCurrent(RequestParams rp) {
+        tlCurrent.set(rp);
+    }
+
+    public final Resource resource;
+    public final String href;
+    public final Auth auth;
+    public final Map<String, String> parameters;
+    public final Map<String, FileItem> files;
+    public final Map<String, Object> attributes;
+    public final Method method;
+
+    public RequestParams(Resource resource, Request request, Map<String, String> parameters, Map<String, FileItem> files) {
+        this.resource = resource;
+        this.href = request.getAbsolutePath();
+        this.auth = request.getAuthorization();
+        this.method = request.getMethod();
+        this.parameters = parameters;
+        this.files = files;
+        attributes = new HashMap<String, Object>();
+
+    }
+
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public Map<String, FileItem> getFiles() {
+        return files;
+    }
+
+    public Auth getAuth() {
+        return auth;
+    }
+
+    public String getHref() {
+        return href;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    
+}

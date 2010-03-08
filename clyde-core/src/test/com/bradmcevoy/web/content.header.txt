@@ -1,0 +1,6 @@
+    <title>@{invoke('title',false)}</title>
+      <script type='text/javascript' src='/dwr/interface/RemoteController.js'></script>
+      <script type='text/javascript' src='/dwr/engine.js'></script>
+      <script type='text/javascript' src='/dwr/util.js'></script>
+      <script type='text/javascript' src='/fckeditor.js'></script>
+      <script type='text/javascript' src='/create_editor.js'></script>
