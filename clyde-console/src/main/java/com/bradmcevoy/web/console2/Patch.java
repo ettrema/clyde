@@ -4,7 +4,6 @@ package com.bradmcevoy.web.console2;
 import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.console.PatchApplicator;
 import com.ettrema.console.Result;
 import java.util.ArrayList;
 import java.util.List;

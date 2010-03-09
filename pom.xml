@@ -81,5 +81,11 @@
             <name>mvnrepository.com</name>
             <url>http://www.mvnrepository.com/artifacts</url>
         </repository>
+        <repository>
+            <!-- needed for java2html -->
+            <id>java.net2</id>
+            <name>java.net2</name>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
     </repositories>
 </project>
