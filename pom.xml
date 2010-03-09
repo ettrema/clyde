@@ -4,7 +4,7 @@
 	<artifactId>clyde</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Clyde</name>
+	<name>Clyde Parent</name>
 	<url>http://clyde.ettrema.com</url>
 	<scm>
 		<connection>scm:svn:svn://www.ettrema.com/clyde/trunk</connection>
@@ -28,7 +28,14 @@
 		</developer>
 	</developers>
 	<modules>
+        <module>clyde-ant</module>
+        <module>clyde-console</module>
 		<module>clyde-core</module>
+        <module>clyde-ecom</module>
+        <module>clyde-media</module>
+        <module>clyde-office</module>
+        <module>clyde-patches</module>
+        <module>clyde-process</module>
 	</modules>
 	<build>
 		<plugins>
