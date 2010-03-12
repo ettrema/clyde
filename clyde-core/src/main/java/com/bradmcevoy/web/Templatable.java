@@ -11,6 +11,7 @@ import com.bradmcevoy.web.component.Addressable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -54,4 +55,6 @@ public interface Templatable extends Resource, Addressable, Comparable<Resource>
     Params getParams();
 
     String getContentType( String accepts );
+
+    Date getCreateDate();
 }

@@ -21,7 +21,7 @@ public class Calc {
         this.list = list;
     }
 
-    private Object eval(String mvelExpr, Object r) {
+    public Object eval(String mvelExpr, Object r) {
         Object o = org.mvel.MVEL.eval(mvelExpr, r);
         if( o instanceof ComponentValue ) {
             ComponentValue cv = (ComponentValue) o;

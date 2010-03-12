@@ -28,7 +28,7 @@ public class JGroupsNonceProvider implements NonceProvider, ChannelListener {
 
     public JGroupsNonceProvider( Channel channel, int nonceValiditySeconds ) {
         this.nonces = new ConcurrentHashMap<UUID, Nonce>();
-        this.wrapped = null; //new SimpleMemoryNonceProvider( nonceValiditySeconds, nonces );
+        this.wrapped = new SimpleMemoryNonceProvider( nonceValiditySeconds, nonces );
         this.channel = channel;
         channel.registerListener( this );
     }
@@ -41,7 +41,7 @@ public class JGroupsNonceProvider implements NonceProvider, ChannelListener {
     @Override
     public String createNonce( Resource resource, Request request ) {
         log.debug( "createNonce" );
-        Nonce nonce = null; //wrapped.createNonceObject( resource, request );
+        Nonce nonce = wrapped.createNonceObject( resource, request );
         notifyNewNonce( nonce );
         return nonce.getValue().toString();
     }
@@ -73,6 +73,7 @@ public class JGroupsNonceProvider implements NonceProvider, ChannelListener {
         public final Nonce nonce;
 
         public NewNonce( Nonce nonce ) {
+            if( nonce == null) throw new IllegalArgumentException( "nonce cannot be null");
             this.nonce = nonce;
         }
     }

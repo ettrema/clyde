@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 public class BaseResourceList extends ArrayList<Templatable> {
 
     private static final Logger log = Logger.getLogger(BaseResourceList.class);
+    
     private static final long serialVersionUID = 1L;
     
     private final Map<String,Templatable> map = new HashMap<String,Templatable>();
@@ -119,7 +120,21 @@ public class BaseResourceList extends ArrayList<Templatable> {
         Collections.reverse(list);
         return list;
     }
-    
+
+    public BaseResourceList getSortByCreatedDate() {
+        BaseResourceList list = new BaseResourceList(this);
+        Collections.sort(list, new Comparator<Templatable>() {
+            @Override
+            public int compare(Templatable o1, Templatable o2) {
+                Date dt1 = o1.getCreateDate();
+                Date dt2 = o2.getCreateDate();
+                if( dt1 == null ) return -1;
+                return -1*dt1.compareTo(dt2);
+            }
+        });
+        return list;
+    }
+
     public BaseResourceList getSortByModifiedDate() {
         BaseResourceList list = new BaseResourceList(this);
         Collections.sort(list, new Comparator<Templatable>() {
@@ -182,6 +197,54 @@ public class BaseResourceList extends ArrayList<Templatable> {
             }
         });
         return list;        
+    }
+
+    /**
+     * Sort by a MVEL expression
+     *
+     * @param expr - the expression, evaluated in the context of each member of the list
+     * @return
+     */
+    public BaseResourceList sortBy(final String expr) {
+        BaseResourceList list = new BaseResourceList(this);
+        Collections.sort(list, new Comparator<Templatable>() {
+            @Override
+            public int compare(Templatable o1, Templatable o2) {
+                if( o1 instanceof Page && o2 instanceof Page ) {
+                    Page p1 = (Page) o1;
+                    Page p2 = (Page) o2;
+                    Object val1 = getCalc().eval( expr, p1);
+                    Object val2 = getCalc().eval( expr, p2);
+                    if( val1 == null ) {
+                        if( val2 == null ) {
+                            return 0;
+                        } else {
+                            return -1;
+                        }
+                    } else {
+                        if( val1 instanceof Comparable ) {
+                            try{
+                                Comparable c1 = (Comparable) val1;
+                                if( val2 != null ) {
+                                    return c1.compareTo(val2);
+                                } else {
+                                    return 1;
+                                }
+                            } catch(Throwable e) {
+                                log.warn("failed to compare: " + val1 + " - " + val2);
+                                return -1;
+                            }
+                        } else {
+                            return -1;
+                        }
+                    }
+                } else {
+                    return 0;
+                }
+
+            }
+        });
+        return list;
     }
 
     public BaseResourceList exclude(String s) {
