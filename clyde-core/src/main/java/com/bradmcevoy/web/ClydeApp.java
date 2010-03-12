@@ -8,7 +8,6 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
 import com.bradmcevoy.web.stats.StatsFilter;
-import com.ettrema.mail.MailServer;
 import java.util.Map;
 
 /**
@@ -18,13 +17,7 @@ import java.util.Map;
 public class ClydeApp implements EventListener{
     public final RootContext rootContext;
 
-    private final MailServer mailServer;
-
     public ClydeApp( RootContext rootContext, HttpManager manager) {
-        this(rootContext, manager, null);
-    }
-
-    public ClydeApp( RootContext rootContext, HttpManager manager, MailServer mailServer ) {
         this.rootContext = rootContext;
 
         ClydeFilter clydeFilter = new ClydeFilter(rootContext);
@@ -36,10 +29,6 @@ public class ClydeApp implements EventListener{
         manager.addFilter(0, statsFilter);
         manager.addFilter(0, clydeFilter);
         manager.addEventListener(this);
-
-        this.mailServer = mailServer;
-//      moved to berry service
-//        mailServer.start();
     }
 
 

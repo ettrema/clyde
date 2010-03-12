@@ -118,6 +118,13 @@ public class WrappedTemplate implements ITemplate{
     }
 
     @Override
+    public Date getCreateDate() {
+        return physicalTemplate.getCreateDate();
+    }
+
+
+
+    @Override
     public String checkRedirect( Request arg0 ) {
         return physicalTemplate.checkRedirect( arg0 );
     }
