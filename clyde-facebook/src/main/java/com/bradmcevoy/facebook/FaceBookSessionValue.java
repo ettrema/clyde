@@ -95,7 +95,7 @@ public class FaceBookSessionValue extends ComponentValue {
     }
 
     public static class FaceBookSession implements Serializable {
-        private static final long serialVersionUID = -3105915036236958531L;
+        private static final long serialVersionUID = -229426431884516164L;
         private String sessionId;
         private String secretId;
         private Long userId;
