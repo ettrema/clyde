@@ -36,9 +36,11 @@ public class ThumbResourceFactory implements ResourceFactory {
                     return null;
                 } else {
                     HtmlImage thumb = firstImage.thumb( thumbType );
-                    return (Resource) thumb;
-//                    log.debug( "got thumb: " + thumb.getHref());
-//                    return new RedirectResource( thumb.getHref(), col.getRealm() );
+                    if( thumb instanceof Resource ) {
+                        return (Resource) thumb;
+                    } else {
+                        return new RedirectResource( thumb.getHref(), col.getRealm() );
+                    }
                 }
             } else {
                 return null;

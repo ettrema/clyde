@@ -190,12 +190,19 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 Folder trashFolder = getTrashFolder();
                 if( isTrash() ) {
                     log.debug( "physically delete trash item" );
-                    nameNode.delete();
+                    deletePhysically();
                 } else {
                     moveWithRename( this, trashFolder );
                 }
             }
         }
+    }
+
+    /**
+     * Physically delete by calling delete on the namenode
+     */
+    void deletePhysically() {
+        nameNode.delete();
     }
 
     /**

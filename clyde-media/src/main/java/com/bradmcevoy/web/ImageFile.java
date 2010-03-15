@@ -67,7 +67,7 @@ public class ImageFile extends BinaryFile {
             if( skipIfExists ) {
                 return;
             } else {
-                resExisting.delete();
+                resExisting.deletePhysically();
             }
         }
         ImageFile thumb = new ImageFile( "image/jpeg", folder, this.getName() );
