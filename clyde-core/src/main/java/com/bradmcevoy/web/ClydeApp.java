@@ -11,6 +11,10 @@ import com.bradmcevoy.web.stats.StatsFilter;
 import java.util.Map;
 
 /**
+ * Just sets up the clyde transactional filter and stats filters on
+ * the milton httpmanager
+ *
+ * And sets request params into thread locals on get and post
  *
  * @author brad
  */
