@@ -13,6 +13,12 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
     protected Host getHost(String hostName) {
         Host h = hostFinder.getHost( hostName );
         if( h == null) {
+            if( !hostName.startsWith( "www.")) {
+                String h2 = "www." + hostName;
+                h = hostFinder.getHost( h2 );
+            }
+        }
+        if( h == null) {
             throw new RuntimeException( "Unknown host: " + hostName);
         }
         return h;

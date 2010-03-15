@@ -91,6 +91,9 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
 
     private Boolean checkAccess( Resource resource, Request request ) {
         log.trace( "checkAccess" );
+        if(RequestParams.current() == null ) {
+            return null;
+        }
         String reqNum = RequestParams.current().parameters.get( magicNumberParameterName );
         if( reqNum == null || reqNum.length() == 0 ) {
             log.trace( "no request param" );

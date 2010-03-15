@@ -25,6 +25,7 @@ import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.WrappableComponent;
 import com.bradmcevoy.web.component.WrappedComponent;
+import com.bradmcevoy.web.error.HtmlExceptionFormatter;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import java.io.IOException;
@@ -521,7 +522,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         tlTargetPage.set( this );
-        String s = render( null );
+        String s = null;
+        try {
+            s = render( null );
+        } catch( Throwable e ) {
+            // TODO move to context
+            HtmlExceptionFormatter formatter = new HtmlExceptionFormatter();
+            s = formatter.formatExceptionAsHtml(e);
+        }
         out.write( s.getBytes() );
     }
 
@@ -778,6 +786,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         RenderContext rc = new RenderContext( this.getTemplate(), this, null, false );
         return c.render( rc );
     }
+
 
     public class Params implements Map<String, Component> {
 

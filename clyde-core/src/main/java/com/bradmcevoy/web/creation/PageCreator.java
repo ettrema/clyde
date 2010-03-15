@@ -25,6 +25,7 @@ public class PageCreator implements Creator {
     public BaseResource createResource(Folder folder, String ct, InputStream in, String newName) throws ReadingException, WritingException {
         Page page = new Page(folder, newName);
         HtmlInput root = new HtmlInput(page, "root");
+        root.setDisAllowTemplating( true );
         if (in != null) {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             StreamUtils.readTo(in, bout);

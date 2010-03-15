@@ -7,7 +7,6 @@ import com.bradmcevoy.http.http11.auth.NonceProvider;
 import com.bradmcevoy.http.http11.auth.SimpleMemoryNonceProvider;
 import com.ettrema.channel.Channel;
 import com.ettrema.channel.ChannelListener;
-import com.ettrema.channel.MemberInfo;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
@@ -51,20 +50,20 @@ public class JGroupsNonceProvider implements NonceProvider, ChannelListener {
     }
 
     @Override
-    public void handleNotification( Serializable srlzbl ) {
-        if( srlzbl instanceof NewNonce ) {
-            NewNonce newNonce = (NewNonce) srlzbl;
+    public void handleNotification( UUID sourceId, Serializable msg ) {
+        if( msg instanceof NewNonce ) {
+            NewNonce newNonce = (NewNonce) msg;
             log.debug( "got new nonce: " + newNonce.nonce.getValue() );
             nonces.put( newNonce.nonce.getValue(), newNonce.nonce );
         }
     }
 
-    @Override
-    public void memberJoined( MemberInfo mi ) {
+    public void memberRemoved( UUID sourceId ) {
+
     }
 
-    @Override
-    public void memberLeft( MemberInfo mi ) {
+    public void onConnect() {
+
     }
 
     public static class NewNonce implements Serializable {
