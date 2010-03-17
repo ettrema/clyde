@@ -1,6 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 
@@ -32,14 +33,16 @@ public class ThumbResourceFactory implements ResourceFactory {
                 Folder col = (Folder) r;
                 ImageFile firstImage = col.findFirst( ImageFile.class );
                 if( firstImage == null ) {
-                    log.debug( "no image in folder" );
+                    log.warn( "no image in folder" );
                     return null;
                 } else {
                     HtmlImage thumb = firstImage.thumb( thumbType );
-                    if( thumb instanceof Resource ) {
+                    if( thumb instanceof GetableResource ) {
                         return (Resource) thumb;
                     } else {
-                        return new RedirectResource( thumb.getHref(), col.getRealm() );
+                        String href = thumb.getHref();
+                        log.warn("thumb isnt a GetableResource, redirect to: " + href);
+                        return new RedirectResource( href, col.getRealm() );
                     }
                 }
             } else {

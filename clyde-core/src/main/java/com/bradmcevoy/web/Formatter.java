@@ -25,7 +25,7 @@ public class Formatter {
 
     public BigDecimal toDecimal( Object o, int places ) {
         if( o == null ) {
-            return null;
+            return BigDecimal.ZERO;
         } else if( o instanceof Double ) {
             Double d = (Double) o;
             return BigDecimal.valueOf( d ).setScale( places, RoundingMode.HALF_UP );
@@ -35,6 +35,46 @@ public class Formatter {
         } else if( o instanceof Float ) {
             Float f = (Float) o;
             return BigDecimal.valueOf( f.doubleValue() ).setScale( places, RoundingMode.HALF_UP );
+        } else if( o instanceof String ) {
+            String s = (String) o;
+            s = s.trim();
+            if( s.length() == 0 ){
+                return BigDecimal.ZERO;
+            } else {
+                try {
+                    return new BigDecimal( s ).setScale( places, RoundingMode.HALF_UP  );
+                } catch( NumberFormatException numberFormatException ) {
+                    throw new RuntimeException( "Non-numeric data: " + s);
+                }
+            }
+        } else {
+            throw new RuntimeException( "Unsupported value type, should be numeric: " + o.getClass() );
+        }
+    }
+
+    public Double toDouble(Object o) {
+        if( o == null ) {
+            return 0d;
+        } else if( o instanceof String ) {
+            String s = (String) o;
+            s = s.trim();
+            if( s.length() == 0 ){
+                return 0d;
+            } else {
+                try {
+                    return Double.valueOf( s );
+                } catch( NumberFormatException numberFormatException ) {
+                    throw new RuntimeException( "Non-numeric data: " + s);
+                }
+            }
+        } else if( o instanceof Double ) {
+            return (Double) o;
+        } else if( o instanceof Integer ) {
+            Integer i = (Integer) o;
+            return (double)i;
+        } else if( o instanceof Float ) {
+            Float f = (Float) o;
+            return f.doubleValue();
         } else {
             throw new RuntimeException( "Unsupported value type, should be numeric: " + o.getClass() );
         }

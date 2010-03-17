@@ -101,6 +101,7 @@ public class Expression implements Component, WrappableComponent{
         try {
             BaseResource targetContainer = CommonTemplated.getTargetContainer();
             map.put( "targetPage", targetContainer);
+            map.put( "formatter", Formatter.getInstance());
             Object o = org.mvel.MVEL.eval(expr, ct, map);
             return o;
         } catch (Exception e) {

@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Map;
+import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -141,7 +142,11 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
     class ContentSender extends FrameworkBase {
 
         void send(OutputStream out, Map<String, String> parameters) {
-            Document doc = new Document(new Element("res"));
+            DocType docType = new DocType("res",
+                 "-//W3C//ENTITIES Latin 1 for XHTML//EN",
+                 "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent");
+
+            Document doc = new Document(new Element("res"), docType);
             res.toXml(doc.getRootElement(), parameters);
             utilXml().saveXMLDocument(out, doc);
         }

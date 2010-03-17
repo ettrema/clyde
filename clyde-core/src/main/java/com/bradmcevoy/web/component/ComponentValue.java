@@ -3,10 +3,24 @@ package com.bradmcevoy.web.component;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.*;
 import com.bradmcevoy.xml.XmlHelper;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
+import org.jdom.Content;
+import org.jdom.DocType;
+import org.jdom.Document;
 import org.jdom.Element;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.EntityResolver2;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ComponentValue implements Component, Serializable, ValueHolder {
 
@@ -24,13 +38,14 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     public ComponentValue( Element el, CommonTemplated container ) {
         this.name = el.getAttributeValue( "name" );
-        log.debug( "created: " + this.name);
+        log.debug( "created: " + this.name );
         String sVal = InitUtils.getValue( el );
         ComponentDef def = getDef( container );
         if( def == null ) {
+            log.warn( "no container for CV " + name + ", cant' parse value so it will be a String!!!" );
             this.value = sVal;
         } else {
-            log.debug( "parse val");
+            log.debug( "parse value of CV" );
             this.value = def.parseValue( this, container, sVal );
         }
     }
@@ -78,16 +93,47 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         Element e2 = new Element( "componentValue" );
         el.addContent( e2 );
         String clazzName = this.getClass().getName();
-        log.debug( "toXml: " + name);
+        log.debug( "toXml: " + name );
         if( !clazzName.equals( ComponentValue.class.getName() ) ) { // for brevity, only add class where not default
             e2.setAttribute( "class", clazzName );
         }
         e2.setAttribute( "name", name );
         String v = getFormattedValue( (CommonTemplated) container );
+//        List l = formatContentToXmlList( v );
+//        e2.setContent( l );
+
         XmlHelper helper = new XmlHelper();
         List content = helper.getContent( v );
         e2.setContent( content );
         return e2;
+    }
+
+    List formatContentToXmlList( String content ) {
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            try {
+                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            try{
+                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes",true);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println( "using reader: " + reader.getClass());
+//            reader.setEntityResolver( new MyEntityResolver());
+            ContentParsingSaxHandler hnd = new ContentParsingSaxHandler();
+            reader.setContentHandler( hnd );
+            String xml = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE root PUBLIC '-//MyDT//DTD MYDTD-XML//MYDTD' 'xhtml-lat1.ent'><root>" + content + "</root>";
+            reader.parse( new InputSource( new ByteArrayInputStream( xml.getBytes() ) ) );
+            return hnd.getContent();
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        } catch( SAXException ex ) {
+            throw new RuntimeException( ex );
+        }
+
     }
 
     @Override
@@ -121,10 +167,19 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     @Override
     public Object getValue() {
         return value;
+//        if( parent == null ) {
+//            log.warn( "no parent set. Value might not be typed correctly");
+//        }
+//        // In some rare (and inexplicable) cases the value is not typed correctly
+//        if( parent != null && parent instanceof Page ) {
+//            return typedValue( (Page) parent);
+//        } else {
+//            return value;
+//        }
     }
 
     public Object typedValue( Page page ) {
-        Object val = getValue();
+        Object val = this.value;
         if( val == null ) return null;
         if( val instanceof String ) {
             return getDef( page ).parseValue( this, page, (String) val );
@@ -216,5 +271,89 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     public int getMonth() {
         return Formatter.getInstance().getMonth( getValue() );
+    }
+
+    public class MyEntityResolver implements EntityResolver2 {
+
+        public InputSource resolveEntity( String publicId, String systemId ) throws SAXException, IOException {
+            System.out.println( "resolveEntity: " + publicId + " - " + systemId );
+//            return new InputSource( new ByteArrayInputStream( "".getBytes()));
+            return null;
+        }
+
+        public InputSource getExternalSubset( String name, String baseURI ) throws SAXException, IOException {
+            System.out.println( "getExternalSubset: " + name);
+            return null;
+        }
+
+        public InputSource resolveEntity( String name, String publicId, String baseURI, String systemId ) throws SAXException, IOException {
+            System.out.println( "resolveEntity: name: " + name + " publicid: " + publicId + " - " + systemId );
+            //return new InputSource( new ByteArrayInputStream( "".getBytes()));
+            return null;
+        }
+    }
+
+    public class ContentParsingSaxHandler extends DefaultHandler {
+
+        private Document doc;
+        private StringBuilder sb = new StringBuilder();
+        private Stack<Element> elementPath = new Stack<Element>();
+
+        public ContentParsingSaxHandler() {
+            DocType docType = new DocType( "root", "-//MyDT//DTD MYDTD-XML//MYDTD", "xhtml-lat1.ent");
+            doc = new Document(new Element( "root" ), docType);
+        }
+
+        @Override
+        public void startElement( String uri, String localName, String name, Attributes attributes ) throws SAXException {
+            Element el = new Element( name );
+            for( int i = 0; i < attributes.getLength(); i++ ) {
+                String attName = attributes.getQName( i );
+                String val = attributes.getValue( i );
+                el.setAttribute( attName, val );
+            }
+            Element parent = null;
+            if( elementPath.size() > 0 ) {
+                parent = elementPath.peek();
+                if( sb.length() > 0 ) {
+                    String content = sb.toString();
+                    parent.addContent( content );
+                }
+                parent.addContent( el );
+            } else {
+                doc.setRootElement( el );
+            }
+            elementPath.push( el );
+            super.startElement( uri, localName, name, attributes );
+        }
+
+        @Override
+        public void characters( char[] ch, int start, int length ) throws SAXException {
+            sb.append( ch, start, length );
+        }
+
+        @Override
+        public void endElement( String uri, String localName, String name ) throws SAXException {
+            String content = sb.toString();
+            Element el = elementPath.pop();
+            el.addContent( content );
+            sb.delete( 0, sb.length() );
+
+            super.endElement( uri, localName, name );
+        }
+
+        List getContent() {
+            List contents = new ArrayList();
+            List rootContents = doc.getRootElement().getContent();
+            rootContents = new ArrayList( rootContents );
+            for( Object o : rootContents ) {
+                if( o instanceof Content ) {
+                    Content c = (Content) o;
+                    c.detach();
+                }
+                contents.add( o );
+            }
+            return contents;
+        }
     }
 }

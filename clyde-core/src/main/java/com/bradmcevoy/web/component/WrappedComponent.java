@@ -9,6 +9,7 @@ import org.jdom.Element;
 
 public class WrappedComponent implements Component, WrappableComponent, ValueHolder {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(WrappedComponent.class);
+    private static final long serialVersionUID = 1L;
     
     private final Addressable container;
     private final WrappableComponent wrapped;
