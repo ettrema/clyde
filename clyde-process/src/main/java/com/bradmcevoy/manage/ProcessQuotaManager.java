@@ -40,8 +40,9 @@ public class ProcessQuotaManager extends VfsCommon implements EventListener {
         this.rootContext.put( this );
 
         EventManager eventManager = rootContext.get( EventManager.class );
-        if( eventManager == null )
+        if( eventManager == null ) {
             throw new RuntimeException( "Not available in config: " + EventManager.class );
+        }
         eventManager.registerEventListener( this, PutEvent.class );
         eventManager.registerEventListener( this, DeleteEvent.class );
 

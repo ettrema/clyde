@@ -23,7 +23,7 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
 
     @Override
     public User authenticate( Resource r, String user, String password ) {
-        log.debug("authenticate: " + user);
+        //log.debug("authenticate: " + user);
         Templatable resource = (Templatable) r;
         NameAndAuthority na = NameAndAuthority.parse( user );
         User u = null;
@@ -81,13 +81,13 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
     private User authenticateRecursive( Host h, String name, String password ) {
         User u = h.doAuthenticate( name, password );
         if( u != null ) {
-            log.debug( "found user: " + u.getName());
+            //log.debug( "found user: " + u.getName());
             return u;
         }
 
         Host hParent = h.getParentHost();
         if( hParent == null ) {
-            log.warn( "authentication failed");
+            //log.warn( "authentication failed");
             return null;
         } else {
             return authenticateRecursive( hParent, name, password);
@@ -97,15 +97,15 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
     private User authenticateRecursive( Host h, String name, DigestResponse digestRequest ) {
         User u = h.doAuthenticate( name, digestRequest );
         if( u != null ) {
-            log.debug( "found user: " + u.getName());
+            //log.debug( "found user: " + u.getName());
             return u;
         } else {
-            log.warn("failed to login: " + name + " to host: " + h.getName());
+            //log.warn("failed to login: " + name + " to host: " + h.getName());
         }
 
         Host hParent = h.getParentHost();
         if( hParent == null ) {
-            log.warn( "authentication failed");
+            //log.warn( "authentication failed");
             return null;
         } else {
             return authenticateRecursive( hParent, name, digestRequest);

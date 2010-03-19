@@ -28,7 +28,7 @@ public class Root extends Template {
     private Root(Folder templates) {
         super(templates, "root");
       
-        log.debug("creating new root -------------------");
+        //log.debug("creating new root -------------------");
         
         HtmlInput root = new HtmlInput(this, "root");
         root.cols = 80;

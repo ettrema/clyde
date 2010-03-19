@@ -56,11 +56,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         return find( t.getParent() );
     }
-
     protected boolean secureRead;
-
     private String redirect;
-
+    /**
+     * The href of a thumb nail image for this folder, or null if none exists.
+     */
+    private String thumbHref;
     /**
      * The allowed and disallowed specs
      */
@@ -85,6 +86,19 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         return fNew;
     }
+
+    /**
+     *
+     * @return - the persisted thumb href
+     */
+    public String getThumbHref() {
+        return thumbHref;
+    }
+
+    public void setThumbHref( String thumbHref ) {
+        this.thumbHref = thumbHref;
+    }
+       
 
     /**
      * If this folder is not defined as secureRead, recursively check parents until Web
@@ -209,9 +223,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         super.loadFromXml( el );
         String s = el.getAttributeValue( "secureRead" );
         secureRead = ( s == null ? false : Boolean.valueOf( s ) );
-
-        redirect = InitUtils.getValue( el, "redirect");
-
+        redirect = InitUtils.getValue( el, "redirect" );
+        thumbHref = InitUtils.getValue( el, "thumbHref" );
         s = el.getAttributeValue( "allowedTemplates" );
         templateSpecs = TemplateSpecs.parse( s );
     }
@@ -220,7 +233,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         e2.setAttribute( "secureRead", secureRead + "" );
-        InitUtils.setString( e2, "redirect", redirect);
+        InitUtils.setString( e2, "redirect", redirect );
+        InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
             templateSpecs = new TemplateSpecs( "" );
         }
@@ -369,7 +383,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    public <T> T findFirst(Class<T> c) {
+    public <T> T findFirst( Class<T> c ) {
         for( NameNode n : nameNode.children() ) {
             if( c.isAssignableFrom( n.getDataClass() ) ) {
                 return (T) n.getData();
@@ -682,7 +696,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return "<a href='" + getHref() + "index.html'>" + text + "</a>";
     }
 
-
     /**
      * TODO: using this as the name node until save is called. better solution then
      *  relying on connections closing to flush transient data
@@ -756,15 +769,13 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             if( persistedNameNode == null ) {
                 return null;
             }
-            return persistedNameNode.children(true);
+            return persistedNameNode.children( true );
         }
 
         @Override
         public List<NameNode> children( boolean preloadDataNodes ) {
             return children();
         }
-
-
 
         @Override
         public DataNode getData() {
@@ -866,7 +877,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             if( persistedNameNode == null ) {
                 throw new RuntimeException( "TransientNameNode not yet saved" );
             }
-            return persistedNameNode.makeRelation(toNode, relationshipName );
+            return persistedNameNode.makeRelation( toNode, relationshipName );
         }
 
         @Override

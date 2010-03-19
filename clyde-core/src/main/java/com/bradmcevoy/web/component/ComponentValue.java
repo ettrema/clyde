@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -28,16 +30,20 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     private static final long serialVersionUID = 1L;
     public String name;
     public Object value;
+
+    private List<OldValue> oldValues;
     private Addressable parent;
     private transient String validationMessage;
 
     public ComponentValue( String name, Object value ) {
         this.name = name;
         this.value = value;
+        this.oldValues = new ArrayList<OldValue>();
     }
 
     public ComponentValue( Element el, CommonTemplated container ) {
         this.name = el.getAttributeValue( "name" );
+        this.oldValues = new ArrayList<OldValue>();
         log.debug( "created: " + this.name );
         String sVal = InitUtils.getValue( el );
         ComponentDef def = getDef( container );
@@ -49,6 +55,16 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             this.value = def.parseValue( this, container, sVal );
         }
     }
+
+    public List<OldValue> getOldValues() {
+        if( oldValues == null ) {
+            return Collections.EMPTY_LIST;
+        } else {
+            return Collections.unmodifiableList( oldValues );
+        }
+    }
+
+
 
     public void setValidationMessage( String validationMessage ) {
         this.validationMessage = validationMessage;
@@ -189,6 +205,18 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     public void setValue( Object value ) {
+        if( this.value != null && !this.value.equals( value )) {
+            RequestParams cur = RequestParams.current();
+            String userName = null;
+            if( cur != null && cur.getAuth() != null ) {
+                User user = (User) cur.getAuth().getTag();
+                if( user != null ) {
+                    userName = user.getEmailAddress().toString();
+                }
+            }
+            OldValue old = new OldValue( value, new Date(), userName);
+            oldValues.add( old );
+        }
         this.value = value;
     }
 
@@ -354,6 +382,30 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
                 contents.add( o );
             }
             return contents;
+        }
+    }
+
+    public static class OldValue {
+        private final Object value;
+        private final Date dateModified;
+        private final String user;
+
+        public OldValue( Object value, Date dateModified, String user ) {
+            this.value = value;
+            this.dateModified = dateModified;
+            this.user = user;
+        }
+
+        public Date getDateModified() {
+            return dateModified;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public Object getValue() {
+            return value;
         }
     }
 }

@@ -1,18 +1,24 @@
 package com.bradmcevoy.media;
 
+import com.bradmcevoy.event.Event;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.context.Context;
 import com.bradmcevoy.context.Factory;
 import com.bradmcevoy.context.Registration;
 import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.context.RootContext;
+import com.bradmcevoy.event.EventListener;
+import com.bradmcevoy.event.EventManager;
+import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.grid.Processable;
+import com.bradmcevoy.thumbs.ThumbSelector;
 import com.bradmcevoy.vfs.CommitListener;
 import com.bradmcevoy.vfs.DataNode;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsProvider;
 import com.bradmcevoy.vfs.VfsSession;
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Thumb;
 import java.io.Serializable;
 import java.util.List;
@@ -24,9 +30,9 @@ import java.util.UUID;
  * 
  * @author brad
  */
-public class CtxThumbnailGenerator implements Factory<Object>, CommitListener {
+public class CtxThumbnailGenerator implements Factory<Object>, CommitListener, EventListener {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CtxThumbnailGenerator.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CtxThumbnailGenerator.class );
     private static final long serialVersionUID = 1L;
     public static Class[] classes = {};
 
@@ -41,35 +47,62 @@ public class CtxThumbnailGenerator implements Factory<Object>, CommitListener {
         return null;
     }
 
-    public Registration<Object> insert(RootContext context, Context requestContext) {
+    public Registration<Object> insert( RootContext context, Context requestContext ) {
         return null;
     }
 
-    public void init(RootContext context) {
-        log.info("Starting thumbnail generator..");
-        VfsProvider vfsProvider = context.get(VfsProvider.class);
-        vfsProvider.addCommitListener(this);
+    public void init( RootContext rootContext ) {
+        log.info( "Starting thumbnail generator.." );
+        VfsProvider vfsProvider = rootContext.get( VfsProvider.class );
+        vfsProvider.addCommitListener( this );
+
+        log.info( "registering to listen for save events" );
+        EventManager eventManager = rootContext.get( EventManager.class );
+        if( eventManager == null ) {
+            throw new RuntimeException( "Not available in config: " + EventManager.class );
+        }
+        eventManager.registerEventListener( this, PostSaveEvent.class );
+    }
+
+    public void onEvent( Event e ) {
+        if( e instanceof PostSaveEvent ) {
+            PostSaveEvent pse = (PostSaveEvent) e;
+            if( pse.getResource() instanceof ImageFile ) {
+                ImageFile img = (ImageFile) pse.getResource();
+                log.debug( "PostSaveEvent: " + img.getHref() );
+                ThumbSelector sel = new ThumbSelector( "thumbs" );
+                Folder parentFolder = img.getParentFolder();
+                if( parentFolder.getName().equals( "thumbs" ) ) {
+                    parentFolder = parentFolder.getParent();
+                    log.debug( "is a thumb, so check parent parent");
+                    if( sel.checkThumbHref( parentFolder ) ) {
+                        log.debug( "folder modified by checking thumbs" );
+                        parentFolder.save();
+                    }
+                }
+            }
+        }
     }
 
     public void destroy() {
     }
 
-    public void onRemove(Object item) {
+    public void onRemove( Object item ) {
     }
 
-    public void onCommit(NameNode n) throws Exception {
+    public void onCommit( NameNode n ) throws Exception {
         DataNode dn = n.getData();
-        if (dn instanceof ImageFile) {
+        if( dn instanceof ImageFile ) {
             RequestContext context = RequestContext.getCurrent();
             ImageFile f = (ImageFile) dn;
             if( f.getParentFolder() != null ) {
-                List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder());
+                List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder() );
                 if( thumbSpecs == null || thumbSpecs.size() == 0 ) return;
-                ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable(n.getId(), n.getName());
-                AsynchProcessor asynchProc = context.get(AsynchProcessor.class);
-                asynchProc.enqueue(proc);
+                ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( n.getId(), n.getName() );
+                AsynchProcessor asynchProc = context.get( AsynchProcessor.class );
+                asynchProc.enqueue( proc );
             } else {
-                log.warn("image has no parent folder! " + f.getName());
+                log.warn( "image has no parent folder! " + f.getName() );
             }
         }
     }
@@ -80,41 +113,41 @@ public class CtxThumbnailGenerator implements Factory<Object>, CommitListener {
         final String targetName;
         final UUID imageFileNameNodeId;
 
-        public ThumbnailGeneratorProcessable(UUID imageFileNameNodeId, String name) {
+        public ThumbnailGeneratorProcessable( UUID imageFileNameNodeId, String name ) {
             this.targetName = name;
             this.imageFileNameNodeId = imageFileNameNodeId;
         }
 
-        public void doProcess(Context context) {
-            log.debug("generating thumbs: " + targetName + "...");
-            VfsSession vfs = context.get(VfsSession.class);
-            NameNode pageNameNode = vfs.get(imageFileNameNodeId);
+        public void doProcess( Context context ) {
+            log.debug( "generating thumbs: " + targetName + "..." );
+            VfsSession vfs = context.get( VfsSession.class );
+            NameNode pageNameNode = vfs.get( imageFileNameNodeId );
             if( pageNameNode == null ) {
-                log.debug("..name node not found. prolly deleted: " + targetName);
-                return ;
+                log.debug( "..name node not found. prolly deleted: " + targetName );
+                return;
             }
             DataNode dn = pageNameNode.getData();
-            if (dn == null) {
-                log.warn("Could not find target: " + imageFileNameNodeId);
+            if( dn == null ) {
+                log.warn( "Could not find target: " + imageFileNameNodeId );
                 return;
             }
             ImageFile targetPage;
-            if (dn instanceof ImageFile) {
+            if( dn instanceof ImageFile ) {
                 targetPage = (ImageFile) dn;
             } else {
-                log.warn("Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName());
+                log.warn( "Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName() );
                 return;
             }
             try {
-                int count = generate(targetPage);
+                int count = generate( targetPage );
                 if( count > 0 ) {
                     vfs.commit();
                 } else {
                     vfs.rollback();
                 }
-            } catch(Exception e) {
+            } catch( Exception e ) {
                 // consume exception so we don't keep trying to process same message
-                log.error( "failed to generate thumbs for: " + targetPage.getHref(), e);
+                log.error( "failed to generate thumbs for: " + targetPage.getHref(), e );
                 vfs.rollback();
             }
         }
@@ -124,9 +157,18 @@ public class CtxThumbnailGenerator implements Factory<Object>, CommitListener {
          * @param targetPage
          * @return - number of thumbs generated
          */
-        private int generate(ImageFile targetPage) {
-            log.debug("...doing generation...");
-            return targetPage.generateThumbs();
+        private int generate( ImageFile targetPage ) {
+            log.debug( "...doing generation..." );
+            int num = targetPage.generateThumbs();
+            if( num > 0 ) {
+                ThumbSelector sel = new ThumbSelector( "thumbs" );
+                Folder parentFolder = targetPage.getParentFolder();
+                log.debug( "checking thumbs: " + parentFolder.getHref() );
+                sel.checkThumbHref( parentFolder );
+            } else {
+                log.debug( "not checking thumbs because no thumbs generated" );
+            }
+            return num;
         }
 
         public void pleaseImplementSerializable() {

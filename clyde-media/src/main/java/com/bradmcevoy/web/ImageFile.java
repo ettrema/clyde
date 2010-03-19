@@ -71,6 +71,7 @@ public class ImageFile extends BinaryFile {
             }
         }
         ImageFile thumb = new ImageFile( "image/jpeg", folder, this.getName() );
+        log.debug( "create thumb: " + thumb.getHref());
         thumb.save();
         in = new ByteArrayInputStream( out.toByteArray() );
         thumb.setContent( in );
@@ -85,8 +86,6 @@ public class ImageFile extends BinaryFile {
         if( this.isTrash() ) {
             log.debug( "in trash, not generating: : " + this.getPath() );
             return 0;
-        } else {
-            log.debug( "generateThumbs: " + this.getPath() );
         }
         List<Thumb> thumbs = Thumb.getThumbSpecs( getParent() );
         int count = 0;

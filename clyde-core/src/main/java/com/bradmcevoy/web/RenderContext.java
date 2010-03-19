@@ -185,7 +185,7 @@ public class RenderContext implements Map<String, Component> {
     /** Returns the rendered body component value for this page
      */
     public String doBody( RenderContext rcChild ) {
-        log.debug( "doBody: page: " + rcChild.page.getName());
+        //log.debug( "doBody: page: " + rcChild.page.getName());
         Templatable childPage = rcChild.page;
         ComponentValue cvBody = childPage.getValues().get( "body" );
         if( cvBody == null ) {
@@ -193,10 +193,10 @@ public class RenderContext implements Map<String, Component> {
             childPage.getValues().add( cvBody );
         }
         if( rcChild.editMode ) {
-            log.debug( "edit");
+            //log.debug( "edit");
             return cvBody.renderEdit( rcChild );
         } else {
-            log.debug( "not edit: isTemplate" + (rcChild.page instanceof Template) + " - child is null: " + (rcChild.child == null));
+            //log.debug( "not edit: isTemplate" + (rcChild.page instanceof Template) + " - child is null: " + (rcChild.child == null));
             if( rcChild.child == null && rcChild.page instanceof Template) {
                 log.debug( "output source");
                 Object val = cvBody.getValue();
@@ -221,7 +221,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     private String invoke( String paramName, boolean editable, boolean markers ) {
-        log.debug("invoke: " + paramName + " on " + this.page.getName());
+//        log.debug("invoke: " + paramName + " on " + this.page.getName());
         try {
             RenderContext childRc = this.child == null ? this : this.child;
             Path p = Path.path( paramName );
@@ -231,7 +231,7 @@ public class RenderContext implements Map<String, Component> {
                 log.debug( "component not found: " + p + " in: " + page.getHref() );
                 return "";
             }
-            log.debug("found component: " + c.getClass() + " - " + c.getName() + " from path: " + p);
+//            log.debug("found component: " + c.getClass() + " - " + c.getName() + " from path: " + p);
             String s;
             if( c instanceof ComponentDef ) {
                 ComponentDef def = (ComponentDef) c;
@@ -245,7 +245,7 @@ public class RenderContext implements Map<String, Component> {
                     log.debug( "Didnt find: " + paramName );
                     return "";
                 } else {
-                    log.debug("rendering cv:" + getEditMode() + " - " + editable);
+//                    log.debug("rendering cv:" + getEditMode() + " - " + editable);
                     if( editable ) {
                         s = cv.renderEdit( childRc );
                     } else {
@@ -254,7 +254,7 @@ public class RenderContext implements Map<String, Component> {
                     if( s == null ) {
                         s = "";
                     }
-                    log.debug( "!editmod " + !getEditMode() + " markers:" + markers);
+                    //log.debug( "!editmod " + !getEditMode() + " markers:" + markers);
                     if( !getEditMode() && markers ) {
                         return wrapWithIdentifier( s, def.getName() );
                     } else {
@@ -262,7 +262,7 @@ public class RenderContext implements Map<String, Component> {
                     }
                 }
             } else {
-                log.debug("not a componentdef: " + c.getClass());
+//                log.debug("not a componentdef: " + c.getClass());
                 if( editable ) {
                     s = c.renderEdit( childRc );
                 } else {
