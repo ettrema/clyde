@@ -51,6 +51,7 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
     }
 
     private static void close(InputStream in) {
+        if( in == null ) return ;
         try {
             in.close();
         } catch( IOException ex ) {
@@ -59,6 +60,7 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
     }
 
     private static void close( FFMPEGConverter converter ) {
+        if( converter == null ) return ;
         try{
             converter.close();
         } catch(Exception e) {

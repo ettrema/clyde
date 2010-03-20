@@ -8,7 +8,6 @@ import com.bradmcevoy.thumbs.ThumbSelector;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ImageFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -80,10 +79,6 @@ public class ThumbChecker implements PatchApplicator {
                 log.debug( "emqueue folder: " + f.getHref() );
                 ThumbChecker checker = new ThumbChecker( childsParentPath, child.getId() );
                 asynchProc.enqueue( checker );
-            } else if( dn instanceof ImageFile ) {
-                ImageFile img = (ImageFile) dn;
-                log.debug( "process image: " + img.getHref() );
-                img.generateThumbs( true );
             }
         }
         processItem( node );
