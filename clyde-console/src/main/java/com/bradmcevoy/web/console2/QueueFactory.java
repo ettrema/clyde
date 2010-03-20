@@ -2,7 +2,7 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.http.Auth;
 import com.ettrema.console.ConsoleCommand;
-import com.ettrema.grid.aws.QueueManager;
+import com.bradmcevoy.grid.QueueManager;
 import java.util.List;
 
 /**
