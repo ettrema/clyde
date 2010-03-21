@@ -120,6 +120,7 @@ public class StatsFilter extends VfsCommon implements Filter {
 
     private void log(Request request, Response response, long duration, int size, String method) {
         String host = request.getHostHeader();
+        if( host == null ) host = "";
         String h = host.replace("test.", "www."); // TODO: nasty little hack. need to bring statsfilter together with statsresourcefactory
         String path = request.getAbsolutePath();
         String referrerUrl = request.getRefererHeader();

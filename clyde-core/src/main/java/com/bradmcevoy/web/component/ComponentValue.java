@@ -215,6 +215,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
                 }
             }
             OldValue old = new OldValue( value, new Date(), userName);
+            if( oldValues == null ) {
+                oldValues = new ArrayList<OldValue>();
+            }
             oldValues.add( old );
         }
         this.value = value;
@@ -385,7 +388,8 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
     }
 
-    public static class OldValue {
+    public static class OldValue implements Serializable{
+        private static final long serialVersionUID = 1L;
         private final Object value;
         private final Date dateModified;
         private final String user;

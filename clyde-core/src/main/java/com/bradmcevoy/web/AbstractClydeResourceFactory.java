@@ -59,6 +59,7 @@ public abstract class AbstractClydeResourceFactory extends VfsCommon implements 
     }
     
     private String stripPort(final String host) {
+        if( host == null ) return "";
         String h = host;
         if( h.contains(":")) {
             String[] arr = h.split(":");
