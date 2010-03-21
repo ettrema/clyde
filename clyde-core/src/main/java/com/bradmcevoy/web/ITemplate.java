@@ -11,7 +11,7 @@ public interface ITemplate extends Templatable{
 
     Folder createFolderFromTemplate( Folder location, String name );
 
-    BaseResource createPageFromTemplate( Folder location, String name, InputStream in );
+    BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length );
 
     /**
      *

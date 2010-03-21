@@ -521,7 +521,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                             log.warn( "Couldnt find template associated with type mapping: type mapping: " + tm.contentType + " template: " + tm.templateName );
                         } else {
                             log.debug( "found template: " + t.getName() + " from content type: " + tm.contentType );
-                            res = t.createPageFromTemplate( this, newName, in );
+                            res = t.createPageFromTemplate( this, newName, in, length );
                             res.save();
                             break;
                         }
@@ -531,7 +531,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         if( res == null ) {
 //            log.debug("res was not created through type mappings. falling back to default");
-            res = defaultCreateItem( ct, in, newName );
+            res = defaultCreateItem( ct, in, newName, length );
         }
 
         return res;
@@ -663,18 +663,35 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    private BaseResource defaultCreateItem( String ct, InputStream in, String newName ) throws ReadingException, WritingException {
+    private BaseResource defaultCreateItem( String ct, InputStream in, String newName, Long length ) throws ReadingException, WritingException {
         log.debug( "defaultCreateItem: " + ct );
         ResourceCreator rc = requestContext().get( ResourceCreator.class );
 
         // buffer the upload before writing to db
         BufferingOutputStream bufOut = new BufferingOutputStream( 100000 );
-        StreamUtils.readTo( in, bufOut, false, true );
+        long bytesWritten = StreamUtils.readTo( in, bufOut, false, true );
+        if( bytesWritten != bufOut.getSize() ) {
+            throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " bufOut reports: " + bufOut.getSize());
+        }
+        if( length != null ) {
+            if( bytesWritten != length.longValue()) {
+                throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " content length header: " + length );
+            }
+        }
         log.debug( "uploaded bytes: " + bufOut.getSize() );
         in = bufOut.getInputStream();
         BaseResource res = rc.createResource( this, ct, in, newName );
         if( res != null ) {
             log.debug( "created a: " + res.getClass() );
+            if( res instanceof BinaryFile ) {
+                BinaryFile bf = (BinaryFile) res;
+                Long actualLength = bf.getContentLength();
+                if( actualLength != null && length != null ) {
+                    if( actualLength.longValue() != length.longValue() ) {
+                        throw new RuntimeException( "Content length mismatch: persisted: " + actualLength + " header: " + length);
+                    }
+                }
+            }
         } else {
             log.debug( "resourcecreator returned null" );
         }

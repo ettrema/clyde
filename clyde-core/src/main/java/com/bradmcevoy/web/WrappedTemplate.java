@@ -45,8 +45,8 @@ public class WrappedTemplate implements ITemplate{
     }
 
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in ) {
-        return physicalTemplate.createPageFromTemplate( location, name, in );
+    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length ) {
+        return physicalTemplate.createPageFromTemplate( location, name, in, length );
     }
 
     @Override

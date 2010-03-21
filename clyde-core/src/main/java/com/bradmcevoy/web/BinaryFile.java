@@ -4,9 +4,12 @@ import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
+import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.vfs.OutputStreamWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -74,10 +77,42 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
-        InputStream in = getInputStream();
-        if( in == null ) return;
-        StreamUtils.readTo( in, out, true, false );
+        try {
+            if( log.isDebugEnabled() ) {
+                log.debug( "sendContent: " + getHref() );
+            }
+            InputStream in = getInputStream();
+            if( in == null ) {
+                log.warn( "Failed to get an inputstream for: " + getHref());
+                return;
+            }
+            long bytes = StreamUtils.readTo( in, out, true, false );
+            if( log.isDebugEnabled() ) {
+                log.debug( "sent bytes: " + bytes );
+            }
+        } catch( ReadingException readingException ) {
+            log.error( "exception reading data: " + getHref(), readingException);
+        } catch( WritingException writingException ) {
+            log.error( "exception writing data: " + getHref(), writingException);
+        } catch(Throwable e) {
+            log.error( "Exception sending content", e);
+        }
+    }
 
+    /**
+     * Read the inputstream to find the persisted content size. This is for debugging
+     * only.
+     *
+     * @return
+     */
+    public int getActualPersistedContentSize() {
+       ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        try {
+            sendContent( bout, null, null, null );
+            return bout.size();
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        }
     }
 
     /**

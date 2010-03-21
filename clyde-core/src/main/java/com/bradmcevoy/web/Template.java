@@ -134,7 +134,7 @@ public class Template extends Page implements ITemplate {
     }
 
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in ) {
+    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length ) {
         BaseResource res = createPageFromTemplate( location, name );
         res.save();
         res.setContent( in );
