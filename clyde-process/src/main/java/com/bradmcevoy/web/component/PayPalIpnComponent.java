@@ -31,6 +31,8 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PayPalIpnComponent.class);
     private static final long serialVersionUID = 1L;
 
+    public static final String RECEIVER_EMAIL_PARAM = "receiver_email";
+
     private String name;
     private Addressable container;
     private BigDecimal amount;
@@ -63,7 +65,7 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
         log.debug( "process");
-        if(!parameters.containsKey( "receiver_email")) return null;
+        if(!parameters.containsKey( RECEIVER_EMAIL_PARAM)) return null;
 
         log.debug( "process - doing ipn validation");
         InstantPaymentNotificationProcessor ipn = RequestContext.getCurrent().get( InstantPaymentNotificationProcessor.class);
