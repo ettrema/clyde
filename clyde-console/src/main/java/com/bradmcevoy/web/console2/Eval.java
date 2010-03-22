@@ -50,6 +50,7 @@ public class Eval extends AbstractConsoleCommand {
     }
     
     private class EvalComponent extends CommonComponent {
+        private static final long serialVersionUID = 1L;
 
         final String template;
 

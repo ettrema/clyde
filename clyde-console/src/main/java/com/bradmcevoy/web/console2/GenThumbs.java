@@ -2,6 +2,7 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.context.Context;
 import com.bradmcevoy.context.RequestContext;
+import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.grid.LocalAsynchProcessor;
 import com.bradmcevoy.grid.Processable;
 import com.bradmcevoy.http.Resource;
@@ -31,13 +32,13 @@ public class GenThumbs extends AbstractConsoleCommand {
     public Result execute() {
         Resource r = currentResource();
         Folder f = (Folder) r;
-        LocalAsynchProcessor proc = RequestContext.getCurrent().get(LocalAsynchProcessor.class);
+        AsynchProcessor proc = RequestContext.getCurrent().get(AsynchProcessor.class);
         int files = crawl(f, proc);
 
         return result( "Processing image files: " + files );
     }
 
-    private int crawl(Folder f, LocalAsynchProcessor proc) {
+    private int crawl(Folder f, AsynchProcessor proc) {
         log.debug("crawl: " + f.getHref());
         int cnt = 0;
         for( Resource r : f.getChildren() ) {
