@@ -148,6 +148,9 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public void setContent( InputStream in ) {
         CheckedInputStream cin = new CheckedInputStream( in, new CRC32() );
         contentLength = (int) this.nameNode.setBinaryContent( cin );
+        if( contentLength == 0 ) {
+            log.warn("zero size file: " + getHref());
+        }
         this.crc = cin.getChecksum().getValue();
         log.debug( "setContent: new contentLength: " + this.getContentLength() + " crc=" + crc );
 

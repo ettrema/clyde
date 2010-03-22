@@ -162,13 +162,16 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void delete() {
+        deleteNoTx();
+        commit();
+    }
+    public void deleteNoTx() {
         log.debug( "delete: " + this.getName() );
         _delete();
         EventManager mgr = requestContext().get( EventManager.class );
         if( mgr != null ) {
             mgr.fireEvent( new DeleteEvent( this ) );
-        }
-        commit();
+        }        
     }
 
     /**
@@ -201,7 +204,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     /**
      * Physically delete by calling delete on the namenode
      */
-    void deletePhysically() {
+    public void deletePhysically() {
         nameNode.delete();
     }
 
