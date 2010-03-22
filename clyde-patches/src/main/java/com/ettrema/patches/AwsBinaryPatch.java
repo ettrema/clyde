@@ -27,23 +27,23 @@ public class AwsBinaryPatch implements PatchApplicator {
     }
 
     public void doProcess(Context context) {
-        VfsSession sess = context.get(VfsSession.class);
-
-        JdbcBinaryManager from = new JdbcBinaryManager();
-        AwsBinaryManager to = new AwsBinaryManager(null);
-
-        NameNode node;
-        if( args == null || args.length == 0 ) {
-            node = sess.root();
-        } else {
-            String sId = args[0];
-            UUID id = UUID.fromString(sId);
-            node = sess.get(id);
-            if( node == null ) throw new RuntimeException("Could not find node: " + id);
-        }
-
-        BinaryMigrator migrator = new BinaryMigrator(from, to);
-        migrator.migrate(node);
+//        VfsSession sess = context.get(VfsSession.class);
+//
+//        JdbcBinaryManager from = new JdbcBinaryManager();
+//        AwsBinaryManager to = new AwsBinaryManager(null);
+//
+//        NameNode node;
+//        if( args == null || args.length == 0 ) {
+//            node = sess.root();
+//        } else {
+//            String sId = args[0];
+//            UUID id = UUID.fromString(sId);
+//            node = sess.get(id);
+//            if( node == null ) throw new RuntimeException("Could not find node: " + id);
+//        }
+//
+//        BinaryMigrator migrator = new BinaryMigrator(from, to);
+//        migrator.migrate(node);
     }
 
     public void pleaseImplementSerializable() {

@@ -11,6 +11,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Organisation;
 import com.bradmcevoy.web.RootFolder;
+import com.ettrema.common.Service;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author brad
  */
-public class RootHostCreator {
+public class RootHostCreator implements Service{
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RootHostCreator.class);
     private final RootContext rootContext;
     private String hostName;
@@ -27,7 +28,6 @@ public class RootHostCreator {
     public RootHostCreator( RootContext rootContext, String hostName ) {
         this.rootContext = rootContext;
         this.hostName = hostName;
-        checkAndCreate();
     }
 
     private void checkAndCreate( Context context ) {
@@ -81,5 +81,13 @@ public class RootHostCreator {
                 }
             }
         }
+    }
+
+    public void start() {
+        checkAndCreate();
+    }
+
+    public void stop() {
+
     }
 }

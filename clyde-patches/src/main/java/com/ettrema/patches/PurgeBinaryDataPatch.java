@@ -57,26 +57,26 @@ public class PurgeBinaryDataPatch implements PatchApplicator {
     private void purge( String path, NameNode node, JdbcBinaryManager from, AwsBinaryManager to, VfsSession sess, Connection con, BinaryMigrator bm ) {
         log.debug( "purge: " + node.getId() );
 
-        if( from.exists( node ) ) {
-            if( to.exists( node ) ) {
-                log.debug( "deleting redundant from data" );
-                from.delete( sess, node );
-                commit( con );
-            } else {
-                log.debug( "data has not been migrated. migrating now...");
-                boolean didMigrate = bm._migrate( node, false);
-                if( !didMigrate ) throw new RuntimeException( "expected migration to occur");
-                log.debug( "migration completed, deleting source data...");
-                from.delete( sess, node );
-                log.debug( "done delete, commit");
-                commit( con );
-
-            }
-        }
-
-        for( NameNode child : node.children() ) {
-            purge( path + "/" + child.getName(), child, from, to, sess, con, bm );
-        }
+//        if( from.exists( node ) ) {
+//            if( to.exists( node ) ) {
+//                log.debug( "deleting redundant from data" );
+//                from.delete( sess, node );
+//                commit( con );
+//            } else {
+//                log.debug( "data has not been migrated. migrating now...");
+//                boolean didMigrate = bm._migrate( node, false);
+//                if( !didMigrate ) throw new RuntimeException( "expected migration to occur");
+//                log.debug( "migration completed, deleting source data...");
+//                from.delete( sess, node );
+//                log.debug( "done delete, commit");
+//                commit( con );
+//
+//            }
+//        }
+//
+//        for( NameNode child : node.children() ) {
+//            purge( path + "/" + child.getName(), child, from, to, sess, con, bm );
+//        }
     }
 
     private void commit( Connection con ) {

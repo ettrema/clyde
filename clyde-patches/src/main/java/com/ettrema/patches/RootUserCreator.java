@@ -8,13 +8,14 @@ import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.Organisation;
 import com.bradmcevoy.web.User;
+import com.ettrema.common.Service;
 import java.util.List;
 
 /**
  *
  * @author brad
  */
-public class RootUserCreator {
+public class RootUserCreator implements Service {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RootUserCreator.class);
     private final RootContext rootContext;
     private String hostName;
@@ -26,7 +27,6 @@ public class RootUserCreator {
         this.hostName = hostName;
         this.userName = userName;
         this.password = password;
-        checkAndCreate();
     }
 
     private void checkAndCreate( Context context ) {
@@ -64,5 +64,13 @@ public class RootUserCreator {
             }
         } );
 
+    }
+
+    public void start() {
+        checkAndCreate();
+    }
+
+    public void stop() {
+        
     }
 }
