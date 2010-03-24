@@ -259,6 +259,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public String render( RenderContext rc ) {
         ComponentDef def = getDef( rc );
         if( def == null ) return "";
+        if( this.parent == null ) {
+            this.parent = rc.page;
+        }
         return def.render( this, rc );
     }
 
@@ -267,6 +270,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         ComponentDef def = getDef( rc );
         if( def == null ) {
             return "";
+        }
+        if( this.parent == null ) {
+            this.parent = rc.page;
         }
         return def.renderEdit( this, rc );
     }

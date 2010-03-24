@@ -722,6 +722,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         final UUID id;
         final String name;
         final DataNode data;
+        final List<Relationship> relations = new ArrayList<Relationship>();
         RelationalNameNode persistedNameNode;
 
         public TransientNameNode( String name, BaseResource data ) {
@@ -829,6 +830,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             persistedNameNode = (RelationalNameNode) Folder.this.nameNode.add( name, data );
             persistedNameNode.save();
             ( (BaseResource) data ).nameNode = persistedNameNode;
+            for( Relationship r : relations ) {
+                persistedNameNode.makeRelation( (RelationalNameNode) r.to(),r.relationship());
+            }
         }
 
         @Override
@@ -890,17 +894,37 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
 
         @Override
-        public Relationship makeRelation( RelationalNameNode toNode, String relationshipName ) {
-            if( persistedNameNode == null ) {
-                throw new RuntimeException( "TransientNameNode not yet saved" );
+        public Relationship makeRelation( final RelationalNameNode toNode, final String relationshipName ) {
+            if( persistedNameNode == null ) {                
+                Relationship r = new Relationship() {
+
+                    public NameNode from() {
+                        return getNameNode();
+                    }
+
+                    public NameNode to() {
+                        return toNode;
+                    }
+
+                    public String relationship() {
+                        return relationshipName;
+                    }
+
+                    public void delete() {
+                        relations.remove( relationshipName);
+                    }
+                };
+                relations.add(r);
+                return r;
+            } else {
+                return persistedNameNode.makeRelation( toNode, relationshipName );
             }
-            return persistedNameNode.makeRelation( toNode, relationshipName );
         }
 
         @Override
         public List<Relationship> findToRelations( String relationshipName ) {
             if( persistedNameNode == null ) {
-                throw new RuntimeException( "TransientNameNode not yet saved" );
+                return new ArrayList<Relationship>();
             }
             return persistedNameNode.findToRelations( relationshipName );
         }
@@ -908,9 +932,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         @Override
         public List<Relationship> findFromRelations( String relationshipName ) {
             if( persistedNameNode == null ) {
-                throw new RuntimeException( "TransientNameNode not yet saved" );
+                return relations;
+            } else {
+                return persistedNameNode.findFromRelations( relationshipName );
             }
-            return persistedNameNode.findFromRelations( relationshipName );
         }
 
         @Override

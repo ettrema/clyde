@@ -192,8 +192,27 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         UUID id = (UUID) parseValue( componentValue, rc.page, s );
 //        BaseResource dest =
         BaseResource res = (BaseResource) componentValue.getContainer();
-        BaseResource dest = res.findByNameNodeId( id );
-        res.createRelationship( relationName, dest );
+        boolean found = false;
+        BaseResource existingBaseRes = res.getRelation( relationName );
+        if( existingBaseRes != null ) {
+            if( !existingBaseRes.getNameNodeId().equals( id )) {
+                // same relationship to somewhere else, so remove it
+                if( log.isDebugEnabled()) {
+                    log.debug( "remove relationship: " + relationName + " from: " + existingBaseRes.getHref());
+                }
+                res.removeRelationship( relationName );
+            } else {
+                // already exists, do nothing
+                found = true;
+            }
+        }
+        if( !found) {
+            BaseResource dest = res.findByNameNodeId( id );
+            if( log.isDebugEnabled()) {
+                log.debug( "create relationship: " + relationName + " to: " + dest.getHref());
+            }
+            res.createRelationship( relationName, dest );
+        }
     }
 
     @Override

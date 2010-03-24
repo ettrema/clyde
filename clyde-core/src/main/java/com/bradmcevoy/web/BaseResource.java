@@ -496,6 +496,19 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return resList;
     }
 
+    public BaseResourceList getToRelations( String relationName ) {
+        BaseResourceList resList = new BaseResourceList();
+        List<Relationship> list = nameNode.findToRelations( relationName );
+        if( list == null || list.size() == 0 ) return resList;
+
+        for( Relationship r : list ) {
+            BaseResource res = (BaseResource) r.from().getData();
+            resList.add( res );
+        }
+        return resList;
+    }
+
+
     public void createRelationship( String relationName, BaseResource to ) {
         removeRelationship( relationName );
         this.nameNode.makeRelation( to.nameNode, relationName );

@@ -313,6 +313,9 @@ public class RenderContext implements Map<String, Component> {
         }
         ComponentValue cv = page.getValues().get( name );
         if( cv != null ) {
+            if( cv.getContainer() == null ) {
+                cv.init( page );
+            }
             return cv;
         }
         return getComponentValue( name, page.getTemplate() );

@@ -37,15 +37,21 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     private Boolean authoriseClydeResource( Templatable templatable, Request request ) {
         if( templatable instanceof Folder ) {
             Folder folder = (Folder) templatable;
+            boolean isWrite = isWriteMethod(request.getMethod());
             if( folder.isSecureRead() || isWriteMethod(request.getMethod()) ) {
-//                log.debug( "requires logged in user" );
                 // is secure, so if not logged in definitely not
                 if( request.getAuthorization() == null ) {
-//                    log.debug( "not logged in. deny access" );
+                    if(log.isDebugEnabled()) {
+                        log.debug( "not logged in. deny access. secureread:" + folder.isSecureRead() + " isWrite:" + isWrite + " folder:" + folder.getHref() );
+                    }
                     return false;
                 } else {
 //                    log.debug( "delegating authorisation" );
-                    return wrapped.authorise( folder, request );
+                    boolean result = wrapped.authorise( folder, request );
+                    if( !result && log.isDebugEnabled() ) {
+                        log.debug( "wrapped authoriser said deny access: " + wrapped.getClass() + " folder:" + folder.getHref());
+                    }
+                    return result;
                 }
             } else {
 //                log.debug( "not secureRead, so dont care" );
@@ -53,7 +59,11 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
             // is secure, and logged in so might be ok. up to someone else to decide
             return null;
         } else {
-            return authoriseClydeResource( templatable.getParentFolder(), request );
+            Folder folder = templatable.getParentFolder();
+            if( log.isDebugEnabled()) {
+                log.debug( "Can't check type:" + templatable.getClass().getCanonicalName() + ", try:" + folder.getHref());
+            }
+            return authoriseClydeResource( folder, request );
         }
     }
 
