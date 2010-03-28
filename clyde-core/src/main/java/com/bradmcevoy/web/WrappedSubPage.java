@@ -3,7 +3,6 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Request;
@@ -54,6 +53,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public Object authenticate( DigestResponse digestRequest ) {
+        log.debug( "authenticate(digest)");
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( actualParent, digestRequest );
         if( o == null ) {
@@ -64,6 +64,9 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public User authenticate( String user, String password ) {
+        if( log.isDebugEnabled()) {
+            log.debug( "authenticate(basic): actualParent: " + actualParent.getHref());
+        }
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         User o = authenticator.authenticate( actualParent, user, password );
         if( o == null ) {
@@ -75,9 +78,16 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     @Override
     public boolean authorise( Request request, Method method, Auth auth ) {
         if( this.subPage.isSecure()) {
-            if( auth == null ) return false;
+            if( auth == null ) {
+                log.debug( "authorisation declined, because subpage is secure, and there is no current user");
+                return false;
+            }
         }
-        return super.authorise( request, method, auth );
+        return actualParent.authorise( request, method, auth );
+
+        // Invitations failed authorisation, because authorisation was delegated
+        // to the physical resource which do not allow anonymous access
+        //return super.authorise( request, method, auth );
     }
 
 

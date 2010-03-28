@@ -37,7 +37,11 @@ public class PermissionsAuthoriser implements ClydeAuthoriser{
             return null;
         } else {
 //            log.debug( "requires: " + requiredRole);
-            return permissionChecker.hasRole( requiredRole, resource, request.getAuthorization() );
+            Boolean bb = permissionChecker.hasRole( requiredRole, resource, request.getAuthorization() );
+            if( bb != null && !bb.booleanValue()) {
+                log.warn( "denying access due to permissionChecker: " + permissionChecker.getClass() + " for role: " + requiredRole.name());
+            }
+            return bb;
         }
     }
 

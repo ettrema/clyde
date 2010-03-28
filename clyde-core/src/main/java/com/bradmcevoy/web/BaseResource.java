@@ -155,6 +155,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     protected BaseResource copyInstance( Folder parent, String newName ) {
         BaseResource newRes = newInstance( parent, newName );
+        newRes.setContentType( this.contentType );
         newRes.valueMap.addAll( this.valueMap );
         newRes.componentMap.addAll( this.componentMap );
         return newRes;
@@ -165,13 +166,14 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         deleteNoTx();
         commit();
     }
+
     public void deleteNoTx() {
         log.debug( "delete: " + this.getName() );
         _delete();
         EventManager mgr = requestContext().get( EventManager.class );
         if( mgr != null ) {
             mgr.fireEvent( new DeleteEvent( this ) );
-        }        
+        }
     }
 
     /**
@@ -427,6 +429,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return contentType;
     }
 
+    public void setContentType( String contentType ) {
+        this.contentType = contentType;
+    }
+
     @Override
     public UUID getId() {
         return id;
@@ -507,7 +513,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         return resList;
     }
-
 
     public void createRelationship( String relationName, BaseResource to ) {
         removeRelationship( relationName );

@@ -336,6 +336,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public User authenticate( String user, String password ) {
+        log.debug( "authenticate(basic");
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         User o = authenticator.authenticate( this, user, password );
         if( o == null ) {
@@ -346,7 +347,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Object authenticate( DigestResponse digestRequest ) {
-        log.warn( "authenticate: resource: " + this.getName());
+        log.warn( "authenticate(digest): resource: " + this.getName());
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( this, digestRequest );
         if( o == null ) {

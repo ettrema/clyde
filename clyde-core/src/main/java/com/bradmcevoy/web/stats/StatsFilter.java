@@ -4,6 +4,7 @@ import com.bradmcevoy.context.Context;
 import com.bradmcevoy.context.Executable2;
 import com.bradmcevoy.context.RootContext;
 import com.bradmcevoy.http.AbstractResponse;
+import com.bradmcevoy.http.Cookie;
 import com.bradmcevoy.http.Filter;
 import com.bradmcevoy.http.FilterChain;
 import com.bradmcevoy.http.Request;
@@ -115,6 +116,14 @@ public class StatsFilter extends VfsCommon implements Filter {
         @Override
         public void setAuthenticateHeader( List<String> challenges ) {
             wrapped.setAuthenticateHeader( challenges );
+        }
+
+        public Cookie setCookie( Cookie cookie ) {
+            return wrapped.setCookie( cookie );
+        }
+
+        public Cookie setCookie( String name, String value ) {
+            return wrapped.setCookie( name, value );
         }
     }
 
