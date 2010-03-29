@@ -24,7 +24,7 @@ public class ImageUtilities {
         ImageIO.setCacheDirectory(f);
     }
     
-    public static synchronized Dimensions getImageDimensions( File in ) {
+    public static Dimensions getImageDimensions( File in ) {
         try {
             Dimensions d = null;
             BufferedImage image = ImageIO.read(in);
@@ -44,7 +44,7 @@ public class ImageUtilities {
      * @param height the new image's height
      * @return the new image scaled
      */
-    public static synchronized BufferedImage getScaleImage(BufferedImage source,int width, int height) {
+    public static BufferedImage getScaleImage(BufferedImage source,int width, int height) {
         //assert(source != null && width > 0 && height > 0);
         long t = System.currentTimeMillis();
         Image img = source.getScaledInstance(width, height ,Image.SCALE_FAST);
@@ -69,7 +69,7 @@ public class ImageUtilities {
      * @param yscale the percentage of the source image's height
      * @return the new image scaled
      */
-    public static synchronized BufferedImage getScaleImage(BufferedImage source,double xscale, double yscale) {
+    public static BufferedImage getScaleImage(BufferedImage source,double xscale, double yscale) {
         //assert(source != null && width > 0 && height > 0);
         System.out.println("scaling: " + xscale + " - " + yscale);
         return getScaleImage(source,(int)(source.getWidth() * xscale), (int)(source.getHeight() * yscale));
@@ -79,7 +79,7 @@ public class ImageUtilities {
         return name.substring(name.lastIndexOf('.')+1);
     }
     
-    public static synchronized boolean scaleProportionallyWithMax(File input, File output,int maxHeight, int maxWidth) throws IOException {
+    public static boolean scaleProportionallyWithMax(File input, File output,int maxHeight, int maxWidth) throws IOException {
         String name= input.getName();
         String format = name.substring(name.lastIndexOf('.')+1);
         FileInputStream fin = null;
@@ -98,7 +98,7 @@ public class ImageUtilities {
     }
         
     
-    public static synchronized boolean scaleProportionallyWithMax(InputStream in, OutputStream out,int maxHeight, int maxWidth, String format) throws IOException {
+    public static boolean scaleProportionallyWithMax(InputStream in, OutputStream out,int maxHeight, int maxWidth, String format) throws IOException {
         format = format.toLowerCase();
         BufferedImage image = read(in);
         if (image == null)  return false;
@@ -122,7 +122,7 @@ public class ImageUtilities {
         return true;
     }
     
-    public synchronized static boolean scaleProportionallyFromHeight(File input, File output,int height) throws IOException {
+    public static boolean scaleProportionallyFromHeight(File input, File output,int height) throws IOException {
         BufferedImage image = ImageIO.read(input);
         return scaleProportionallyFromHeight(image,output,height);
     }
@@ -135,7 +135,7 @@ public class ImageUtilities {
         return true;
     }
     
-    private static synchronized  void write(BufferedImage image, File output) {
+    private static  void write(BufferedImage image, File output) {
         String name = output.getName();
         FileOutputStream fileOutputStream = null;
         try {
@@ -156,7 +156,7 @@ public class ImageUtilities {
         }
     }
 
-    private static synchronized  void write(BufferedImage image, OutputStream out, String format) {        
+    private static void write(BufferedImage image, OutputStream out, String format) {        
         try {
             BufferedOutputStream buffOut = new BufferedOutputStream(out);            
             ImageIO.write(image, format, buffOut);
@@ -165,10 +165,7 @@ public class ImageUtilities {
             throw new UnrecoverableException(ex);
         }
     }    
-    private static BufferedImage read(File input) throws FileNotFoundException, IOException {
-        FileInputStream is = new FileInputStream(input);
-        return read(is);
-    }
+
 
     private static BufferedImage read(InputStream is) throws FileNotFoundException, IOException {
 //        Iterator readers = ImageIO.getImageReadersByFormatName("jpg");

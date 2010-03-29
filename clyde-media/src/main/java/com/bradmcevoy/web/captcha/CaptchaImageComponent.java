@@ -64,7 +64,7 @@ public class CaptchaImageComponent implements GetableResource, Component{
 
     public String render( RenderContext rc ) {
         log.debug( "render" );
-        String ch = (String) rc.get(CaptchaComponent.PARAM_CHALLENGE);
+        String ch = (String) rc.getAttribute(CaptchaComponent.PARAM_CHALLENGE);
         String html = "<img src='" + href( ch ) + "' />";
         return html;
     }
