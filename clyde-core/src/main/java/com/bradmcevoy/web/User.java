@@ -198,7 +198,24 @@ public class User extends Folder implements Mailbox, PermissionRecipient {
         } else {
             mailProc.forwardEmail( mm, emailRecip, requestContext() );
         }
+    }
 
+    /**
+     * Pants way of stopping people from reading each others passwords...
+     *
+     * @param secretNumber - i'm not telling
+     * @return
+     */
+    public String getPassword(int secretNumber) {
+        if( secretNumber == 847202) {
+            if( this.password == null ) {
+                return null;
+            } else {
+                return this.password.getValue();
+            }
+        } else {
+            throw new RuntimeException( "Illegal secret number");
+        }
     }
 
     boolean checkPassword( String password ) {
@@ -236,25 +253,33 @@ public class User extends Folder implements Mailbox, PermissionRecipient {
      * @return - the user's specified external email address as a string. Null if not specified
      */
     public String getExternalEmailText() {
-        ComponentValue cvEmail = this.getValues().get( "email" );
-        if( cvEmail == null || cvEmail.getValue() == null ) {
-            return null;
+        String s = getExternalEmailTextV2("default");
+        if( s != null ) {
+            return s;
+        } else {
+            ComponentValue cvEmail = this.getValues().get( "email" );
+            if( cvEmail == null || cvEmail.getValue() == null ) {
+                return null;
+            }
+            s = cvEmail.getValue().toString();
+            if( s.trim().length() == 0 ) {
+                return null;
+            }
+            return s;
         }
-        String s = cvEmail.getValue().toString();
-        if( s.trim().length() == 0 ) {
-            return null;
-        }
-        return s;
     }
 
     public void setExternalEmailText( String email ) {
         ComponentValue cvEmail = this.getValues().get( "email" );
         if( cvEmail == null ) {
-            cvEmail = new ComponentValue( "email", email );
+            cvEmail = new ComponentValue( "email", this );
+            cvEmail.init( this );
+            cvEmail.setValue( email );
             this.getValues().add( cvEmail );
         } else {
             cvEmail.setValue( email );
         }
+        setExternalEmailTextV2( "default", email );
     }
 
     @Override

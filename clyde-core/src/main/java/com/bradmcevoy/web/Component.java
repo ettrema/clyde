@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;
 
+@SuppressWarnings( "serial" )
 public interface Component extends Serializable {
 
     public void init(Addressable container);

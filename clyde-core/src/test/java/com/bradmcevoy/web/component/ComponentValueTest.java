@@ -18,7 +18,8 @@ public class ComponentValueTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        cv = new ComponentValue( "test", "val" );
+        cv = new ComponentValue( "test", null );
+        cv.setValue( "abc");
     }
 
     public void testToXml_Simpletext() {

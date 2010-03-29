@@ -8,6 +8,7 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.vfs.DataNode;
+import com.bradmcevoy.vfs.EmptyDataNode;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.RelationalNameNode;
 import com.bradmcevoy.vfs.Relationship;
@@ -19,6 +20,7 @@ import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.security.Permissions;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -158,6 +160,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         newRes.setContentType( this.contentType );
         newRes.valueMap.addAll( this.valueMap );
         newRes.componentMap.addAll( this.componentMap );
+        String email = this.getExternalEmailTextV2( "default");
+        newRes.setExternalEmailTextV2( "default", email);
         return newRes;
     }
 
@@ -617,5 +621,52 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public String getMagicNumber() {
         return this.getNameNodeId().hashCode() + "";
+    }
+
+
+
+    /**
+     * Get the email address persisted in a child name node for the given category
+     *
+     * @param emailCategory - eg default, personal, business
+     * @return
+     */
+    public String getExternalEmailTextV2(String emailCategory) {
+        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
+        if( nEmailContainer == null ) {
+            return null;
+        }
+        for( NameNode child : nEmailContainer.children() ) {
+            DataNode childData = child.getData();
+            if( childData instanceof EmailAddress ) {
+                return child.getName();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Stores the email address in a child namenode for fast efficient lookups
+     *
+     * @param emailCategory - the category of this email address. Eg default, personal, business
+     * @param email
+     */
+    public void setExternalEmailTextV2( String emailCategory, String email ) {
+        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
+        if( nEmailContainer == null ) {
+            nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode());
+            nEmailContainer.save();
+        }
+        List<NameNode> children = new ArrayList<NameNode>(nEmailContainer.children());
+        for( NameNode child : children ) {
+            DataNode childData = child.getData();
+            if( childData instanceof EmailAddress ) {
+                child.delete();
+            }
+        }
+        if( email != null && email.length() > 0) {
+            NameNode nEmail = nEmailContainer.add( email, new EmailAddress() );
+            nEmail.save();
+        }
     }
 }

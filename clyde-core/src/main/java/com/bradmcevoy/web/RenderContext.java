@@ -67,16 +67,16 @@ public class RenderContext implements Map<String, Component> {
         this.editMode = editMode;
     }
 
-    public boolean hasRole(String s) {
-        PermissionChecker permissionChecker = RequestContext.getCurrent().get( PermissionChecker.class);
+    public boolean hasRole( String s ) {
+        PermissionChecker permissionChecker = RequestContext.getCurrent().get( PermissionChecker.class );
         Role r = Role.valueOf( s );
-        return permissionChecker.hasRole( r, getTargetPage(), RequestParams.current().getAuth());
+        return permissionChecker.hasRole( r, getTargetPage(), RequestParams.current().getAuth() );
     }
 
     public DateTime toJodaDate( Date dt ) {
         return new DateTime( dt.getTime() );
     }
-    
+
     public void addAttribute( String key, Object val ) {
         attributes.put( key, val );
     }
@@ -87,12 +87,16 @@ public class RenderContext implements Map<String, Component> {
      * @param key
      * @return
      */
-    public Object get( String key ) {
+    public Object getAttribute( String key ) {
         Object o = attributes.get( key );
         if( o == null ) {
-            log.warn( "not found: " + key );
+            log.warn( "not found: " + key + " size:" + attributes.size() );
         }
         return o;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
     public String getFormStart() {
@@ -189,7 +193,8 @@ public class RenderContext implements Map<String, Component> {
         Templatable childPage = rcChild.page;
         ComponentValue cvBody = childPage.getValues().get( "body" );
         if( cvBody == null ) {
-            cvBody = new ComponentValue( "body", "" );
+            cvBody = new ComponentValue( "body", childPage );
+            cvBody.init( childPage );
             childPage.getValues().add( cvBody );
         }
         if( rcChild.editMode ) {
@@ -197,8 +202,8 @@ public class RenderContext implements Map<String, Component> {
             return cvBody.renderEdit( rcChild );
         } else {
             //log.debug( "not edit: isTemplate" + (rcChild.page instanceof Template) + " - child is null: " + (rcChild.child == null));
-            if( rcChild.child == null && rcChild.page instanceof Template) {
-                log.debug( "output source");
+            if( rcChild.child == null && rcChild.page instanceof Template ) {
+                log.debug( "output source" );
                 Object val = cvBody.getValue();
                 if( val == null ) {
                     return "";
@@ -217,7 +222,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public String invoke( String paramName, boolean editable ) {
-        return invoke(paramName, editable, editable);
+        return invoke( paramName, editable, editable );
     }
 
     private String invoke( String paramName, boolean editable, boolean markers ) {
@@ -398,22 +403,22 @@ public class RenderContext implements Map<String, Component> {
 
     @Override
     public int size() {
-        throw new UnsupportedOperationException( "Not supported yet." );
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isEmpty() {
-        throw new UnsupportedOperationException( "Not supported yet." );
+        return false;
     }
 
     @Override
     public boolean containsKey( Object key ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+        return false;
     }
 
     @Override
     public boolean containsValue( Object value ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+        return false;
     }
 
     @Override
@@ -526,13 +531,13 @@ public class RenderContext implements Map<String, Component> {
 //            return s;
 //        }
         Templatable t = getTargetPage();
-        String ct = t.getContentType( null);
-        if( ct == null || ct.trim().length()==0 || ct.equals( "text/html")) { // ct==null means prolly template
-        // interfere's with xml
-            log.debug( "ct: " + ct);
-            return PARSER.addMarkers(s, name);
+        String ct = t.getContentType( null );
+        if( ct == null || ct.trim().length() == 0 || ct.equals( "text/html" ) ) { // ct==null means prolly template
+            // interfere's with xml
+            log.debug( "ct: " + ct );
+            return PARSER.addMarkers( s, name );
         } else {
-            log.debug( "not ct: " + ct);
+            log.debug( "not ct: " + ct );
             return s;
         }
     }

@@ -47,7 +47,7 @@ public class PermissionSecurityComponent implements Component, Serializable {
     public String render( RenderContext rc ) {
         log.debug( "render" );
         Resource resource = rc.getTargetPage();
-        Request request = (Request) rc.get( "request" );
+        Request request = (Request) rc.getAttribute( "request" );
         if( request == null )
             throw new RuntimeException( "expected to find request in RenderContext attribute" );
 

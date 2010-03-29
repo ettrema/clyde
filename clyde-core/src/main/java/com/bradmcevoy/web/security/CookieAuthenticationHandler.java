@@ -83,11 +83,15 @@ public class CookieAuthenticationHandler implements AuthenticationHandler {
             AuthenticationHandler hnd = (AuthenticationHandler) request.getAttributes().get( "_delegatedAuthenticationHandler" );
             Object tag = hnd.authenticate( resource, request );
             if( tag != null ) {
-                User user = (User) tag;
-                authId = generateAuthId();
-                log.info( "created authId: " + authId );
-                request.getAttributes().put( requestParamName, authId );
-                authIdMap.put( authId, user.getNameNodeId() );
+                if( tag instanceof User) {
+                    User user = (User) tag;
+                    authId = generateAuthId();
+                    log.info( "created authId: " + authId );
+                    request.getAttributes().put( requestParamName, authId );
+                    authIdMap.put( authId, user.getNameNodeId() );
+                } else {
+                    log.warn("auth.tag is not a user, is: " + tag);
+                }
             }
             return tag;
         }

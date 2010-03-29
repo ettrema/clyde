@@ -18,13 +18,6 @@ public class ComponentValueMap extends LinkedHashMap<String, ComponentValue> {
         put( parameterValue.name, parameterValue );
     }
 
-    public ComponentValue create( Addressable page, String name, String value ) {
-        ComponentValue pv = new ComponentValue( name, value );
-        pv.init( page );
-        add( pv );
-        return pv;
-    }
-
     public Element toXml( Addressable container, Element el ) {
         log.debug( "************ to xml");
         if( this.size() > 0 ) {

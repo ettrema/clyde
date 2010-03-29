@@ -11,6 +11,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import java.util.Collection;
 import java.util.Date;
@@ -212,7 +213,8 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
             lTemplate.preProcess(rc,parameters,files);
             for( ComponentDef def : lTemplate.getComponentDefs().values() ) {
                 if( !this.getValues().containsKey(def.getName())) {
-                    this.getValues().create(this,def.getName(), null);
+                    ComponentValue cv = def.createComponentValue( this );
+                    this.getValues().add( cv );
                 }
             }
         }

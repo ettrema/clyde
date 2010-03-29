@@ -94,7 +94,9 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
      */
     @Override
     public ComponentValue createComponentValue( Templatable newPage ) {
-        ComponentValue cv = new ComponentValue( name, "" );
+        ComponentValue cv = new ComponentValue( name, newPage );
+        cv.init( newPage );
+        cv.setValue( "" );
         return cv;
     }
 
@@ -168,8 +170,6 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         return UUID.class;
     }
 
-
-
     @Override
     public String formatValue( Object v ) {
         if( v == null ) {
@@ -195,10 +195,10 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         boolean found = false;
         BaseResource existingBaseRes = res.getRelation( relationName );
         if( existingBaseRes != null ) {
-            if( !existingBaseRes.getNameNodeId().equals( id )) {
+            if( !existingBaseRes.getNameNodeId().equals( id ) ) {
                 // same relationship to somewhere else, so remove it
-                if( log.isDebugEnabled()) {
-                    log.debug( "remove relationship: " + relationName + " from: " + existingBaseRes.getHref());
+                if( log.isDebugEnabled() ) {
+                    log.debug( "remove relationship: " + relationName + " from: " + existingBaseRes.getHref() );
                 }
                 res.removeRelationship( relationName );
             } else {
@@ -206,10 +206,10 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 found = true;
             }
         }
-        if( !found) {
+        if( !found ) {
             BaseResource dest = res.findByNameNodeId( id );
-            if( log.isDebugEnabled()) {
-                log.debug( "create relationship: " + relationName + " to: " + dest.getHref());
+            if( log.isDebugEnabled() ) {
+                log.debug( "create relationship: " + relationName + " to: " + dest.getHref() );
             }
             res.createRelationship( relationName, dest );
         }

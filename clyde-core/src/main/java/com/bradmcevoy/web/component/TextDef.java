@@ -11,46 +11,43 @@ import org.jdom.Element;
 
 public class TextDef extends CommonComponent implements ComponentDef, Addressable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TextDef.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TextDef.class );
     private static final long serialVersionUID = 1L;
-    
     protected Addressable container;
-    protected final Text name = new Text(this, "name");
-    protected String validationMessage;
-    NumberInput rows = new NumberInput(this, "rows");
-    NumberInput cols = new NumberInput(this, "cols");
-    
+    protected final Text name = new Text( this, "name" );
+    NumberInput rows = new NumberInput( this, "rows" );
+    NumberInput cols = new NumberInput( this, "cols" );
     private boolean required;
     private List<String> choices;
     private String description;
     private boolean disAllowTemplating;
 
-    public TextDef(Addressable container, String name) {
+    public TextDef( Addressable container, String name ) {
         this.container = container;
-        this.name.setValue(name);
+        this.name.setValue( name );
     }
 
-    public TextDef(Addressable container, String name, int cols, int rows) {
-        this(container, name);
-        this.rows.setValue(rows);
-        this.cols.setValue(cols);
+    public TextDef( Addressable container, String name, int cols, int rows ) {
+        this( container, name );
+        this.rows.setValue( rows );
+        this.cols.setValue( cols );
     }
 
-    public TextDef(Addressable container, Element el) {
+    public TextDef( Addressable container, Element el ) {
         this.container = container;
-        this.name.setValue(el.getAttributeValue("name"));
-        Integer r = IntegerUtils.parseInteger(el.getAttributeValue("rows"));
-        this.rows.setValue(r);
-        Integer c = IntegerUtils.parseInteger(el.getAttributeValue("cols"));
-        this.cols.setValue(c);
-        required = InitUtils.getBoolean(el, "required");
-        choices = InitUtils.getList(el, "choices");
-        description = InitUtils.getValue(el, "description");
-        disAllowTemplating = InitUtils.getBoolean(el, "disAllowTemplating");
+        this.name.setValue( el.getAttributeValue( "name" ) );
+        Integer r = IntegerUtils.parseInteger( el.getAttributeValue( "rows" ) );
+        this.rows.setValue( r );
+        Integer c = IntegerUtils.parseInteger( el.getAttributeValue( "cols" ) );
+        this.cols.setValue( c );
+        required = InitUtils.getBoolean( el, "required" );
+        choices = InitUtils.getList( el, "choices" );
+        description = InitUtils.getValue( el, "description" );
+        disAllowTemplating = InitUtils.getBoolean( el, "disAllowTemplating" );
     }
 
     @Override
-    public void init(Addressable container) {
+    public void init( Addressable container ) {
         this.container = container;
     }
 
@@ -59,20 +56,14 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         return this.container;
     }
 
-    
     @Override
-    public boolean validate(ComponentValue c, RenderContext rc) {
+    public boolean validate( ComponentValue c, RenderContext rc ) {
         return true;
     }
 
     @Override
-    public boolean validate(RenderContext rc) {
-        if (name.getValue() == null || name.getValue().trim().length() == 0) {
-            validationMessage = "Please enter a name";
-            return false;
-        } else {
-            return true;
-        }
+    public boolean validate( RenderContext rc ) {
+        return true;
     }
 
     public NumberInput getRows() {
@@ -82,26 +73,25 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     public NumberInput getCols() {
         return cols;
     }
-    
-    
+
     @Override
-    public Element toXml(Addressable container, Element el) {
-        Element e2 = new Element("componentDef");
-        el.addContent(e2);
-        e2.setAttribute("class", getClass().getName());
-        e2.setAttribute("name", getName());
-        e2.setAttribute("rows", rows == null ? "" : rows.toString());
-        e2.setAttribute("cols", cols == null ? "" : cols.toString());
-        InitUtils.setBoolean(e2, "required", required);
-        InitUtils.setList(e2,"choices",choices);
-        InitUtils.setString(e2,"description",description);
-        InitUtils.setBoolean(e2, "disAllowTemplating", disAllowTemplating);
+    public Element toXml( Addressable container, Element el ) {
+        Element e2 = new Element( "componentDef" );
+        el.addContent( e2 );
+        e2.setAttribute( "class", getClass().getName() );
+        e2.setAttribute( "name", getName() );
+        e2.setAttribute( "rows", rows == null ? "" : rows.toString() );
+        e2.setAttribute( "cols", cols == null ? "" : cols.toString() );
+        InitUtils.setBoolean( e2, "required", required );
+        InitUtils.setList( e2, "choices", choices );
+        InitUtils.setString( e2, "description", description );
+        InitUtils.setBoolean( e2, "disAllowTemplating", disAllowTemplating );
         return e2;
     }
 
     @Override
     public Path getPath() {
-        return container.getPath().child(name.getValue());
+        return container.getPath().child( name.getValue() );
     }
 
     /**
@@ -111,36 +101,38 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
      * for this def
      */
     @Override
-    public ComponentValue createComponentValue(Templatable newPage) {
-        ComponentValue cv = new ComponentValue(name.getValue(), "");
+    public ComponentValue createComponentValue( Templatable newPage ) {
+        ComponentValue cv = new ComponentValue( name.getValue(), newPage );
+        cv.init( newPage );
+        cv.setValue( "" );
         return cv;
     }
 
     public List<String> getChoices() {
         return choices;
-    }    
-    
+    }
+
     protected String editChildTemplate() {
-        String template = "";        
-        if( choices != null && choices.size()>0 ) {
-            StringBuffer sb = new StringBuffer("<select name='${path}' >");
-            sb.append("#foreach($choice in $def.choices)");            
-            sb.append("<option #if($value==$choice)selected #end>$choice</option>");
-            sb.append("#end");
-            sb.append("</select>");
+        String template = "";
+        if( choices != null && choices.size() > 0 ) {
+            StringBuffer sb = new StringBuffer( "<select name='${path}' >" );
+            sb.append( "#foreach($choice in $def.choices)" );
+            sb.append( "<option #if($value==$choice)selected #end>$choice</option>" );
+            sb.append( "#end" );
+            sb.append( "</select>" );
             template = sb.toString();
         } else {
-            if (rows == null || rows.getValue() == null) {
+            if( rows == null || rows.getValue() == null || rows.getValue() == 1 ) {
                 template = "<input type='text' name='${path}' value='${value}' size='${def.cols}' />";
             } else {
                 template = "<textarea name='${path}' rows='${def.rows}' cols='${def.cols}'>${value}</textarea>";
                 //template = "<div id='${path}' class='editDiv' onclick='enableEdit(this)'>${value}</div>";
             }
         }
-        if (validationMessage != null) {
-            template = template + "<font color='red'>${input.validationMessage}</font>";
-        }
-        template = "<acronym title='${path}'>" + template + "</acronym>";
+        template = template + "#if($cv.validationMessage)";
+        template = template + "<font color='red'>${cv.validationMessage}</font>";
+        template = template + "#end";
+//        template = "<acronym title='${path}'>" + template + "</acronym>";
         return template;
     }
 
@@ -150,24 +142,24 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     }
 
     @Override
-    public String render(RenderContext rc) {
-        return renderEdit(rc);
+    public String render( RenderContext rc ) {
+        return renderEdit( rc );
     }
 
     @Override
-    public String renderEdit(RenderContext rc) {
-        return "name: " + name.renderEdit(rc);
+    public String renderEdit( RenderContext rc ) {
+        return "name: " + name.renderEdit( rc );
     }
 
     @Override
-    public String render(ComponentValue c, RenderContext rc) {
-        if (c.getValue() == null) {
+    public String render( ComponentValue c, RenderContext rc ) {
+        if( c.getValue() == null ) {
             return "";
         }
         String template = c.getValue().toString();
         if( !disAllowTemplating ) {
-            VelocityContext vc = velocityContext(rc, c);
-            return _render(template, vc);
+            VelocityContext vc = velocityContext( rc, c );
+            return _render( template, vc );
         } else {
             return template;
         }
@@ -175,39 +167,38 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     }
 
     @Override
-    public String renderEdit(ComponentValue c, RenderContext rc) {
+    public String renderEdit( ComponentValue c, RenderContext rc ) {
         String t = editChildTemplate();
-        VelocityContext vc = velocityContext(rc, c);        
-        return _render(t, vc);
+        VelocityContext vc = velocityContext( rc, c );
+        return _render( t, vc );
     }
 
-    protected VelocityContext velocityContext(RenderContext rc, ComponentValue c) {
-        VelocityContext vc = velocityContext(rc, c.getValue());
-        EditSource es = new EditSource(c, rc);
-        vc.put("val", es);
+    protected VelocityContext velocityContext( RenderContext rc, ComponentValue c ) {
+        VelocityContext vc = velocityContext( rc, c.getValue() );
+        EditSource es = new EditSource( c, rc );
+        vc.put( "val", es );
+        vc.put( "cv", c );
         return vc;
     }
 
-    
-    
     @Override
-    public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        name.onPreProcess(rc, parameters, files);
-        if (rows != null) {
-            rows.onPreProcess(rc, parameters, files);
+    public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
+        name.onPreProcess( rc, parameters, files );
+        if( rows != null ) {
+            rows.onPreProcess( rc, parameters, files );
         }
-        if (cols != null) {
-            cols.onPreProcess(rc, parameters, files);
+        if( cols != null ) {
+            cols.onPreProcess( rc, parameters, files );
         }
     }
 
     @Override
-    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+    public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
         return null;
     }
 
     @Override
-    public Object parseValue(ComponentValue cv, Templatable ct,String s) {
+    public Object parseValue( ComponentValue cv, Templatable ct, String s ) {
         return s;
     }
 
@@ -216,11 +207,9 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         return String.class;
     }
 
-
-
     @Override
-    public String formatValue(Object v) {
-        if (v == null) {
+    public String formatValue( Object v ) {
+        if( v == null ) {
             return "";
         }
         return v.toString();
@@ -230,15 +219,15 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
      *  parameter and set the value on the child
      */
     @Override
-    public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        Path compPath = getPath(rc);
+    public void onPreProcess( ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
+        Path compPath = getPath( rc );
         String key = compPath.toString();
-        if (!parameters.containsKey(key)) {
+        if( !parameters.containsKey( key ) ) {
             return;
         }
-        String s = parameters.get(key);
-        Object value = parseValue(componentValue, rc.page,s);
-        componentValue.setValue(value);
+        String s = parameters.get( key );
+        Object value = parseValue( componentValue, rc.page, s );
+        componentValue.setValue( value );
     }
 
     public class EditSource {
@@ -246,7 +235,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         ComponentValue c;
         RenderContext rc;
 
-        EditSource(ComponentValue c, RenderContext rc) {
+        EditSource( ComponentValue c, RenderContext rc ) {
             this.c = c;
             this.rc = rc;
         }
@@ -256,11 +245,11 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         }
 
         public String getFormattedValue() {
-            return formatValue(c.getValue());
+            return formatValue( c.getValue() );
         }
 
         public Path getPath() {
-            Path p = TextDef.this.getPath(rc);
+            Path p = TextDef.this.getPath( rc );
             return p;
         }
 
@@ -270,7 +259,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     }
 
     @Override
-    public void changedValue(ComponentValue cv) {
+    public void changedValue( ComponentValue cv ) {
         // big whoop
     }
 }

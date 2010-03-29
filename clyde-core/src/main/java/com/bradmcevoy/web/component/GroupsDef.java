@@ -79,7 +79,7 @@ public class GroupsDef extends TextDef {
     public boolean validate(ComponentValue c, RenderContext rc) {
         User u = parent(c,rc);
         
-        List<String> oldNames = (List<String>) rc.get("old.group.names");
+        List<String> oldNames = (List<String>) rc.getAttribute("old.group.names");
         String sNames = (String) c.getValue();        
         List<String> newNames = parseNames(sNames);
         for( String n : newNames ) {

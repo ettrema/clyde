@@ -46,7 +46,11 @@ public class SaveCommand extends Command {
             throw new NotAuthorizedException(rc.getTargetPage());
         }
         Templatable ct = doProcess( rc, parameters );
-        return ct.getHref();// if all ok, force redirect to ensure changes saved
+        if( ct != null ) {
+            return ct.getHref();// if all ok, force redirect to ensure changes saved
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -60,11 +64,13 @@ public class SaveCommand extends Command {
     }
 
     protected Templatable doProcess( RenderContext rc, Map<String, String> parameters ) {
+        log.debug( "doProcess");
         RenderContext rcTarget = rc.getTarget();
         Set<BaseResource> pages = new HashSet<BaseResource>();
         if( rcTarget.page instanceof BaseResource ) {
             pages.add( (BaseResource) rcTarget.page );
         }
+        boolean valid = true;
         for( String paramName : parameters.keySet() ) {
             Path path = Path.path( paramName );
             Component c = rcTarget.findComponent( path );
@@ -75,18 +81,26 @@ public class SaveCommand extends Command {
                         log.debug( ".. component: " + c.getName() + " mapped to page: " + res.getPath() );
                         pages.add( res );
                     }
+                    if( !c.validate( rc ) ) {
+                        valid = false;
+                    }
                 }
             } else {
                 log.debug( "Failed to find component: " + path );
             }
         }
 
-        for( BaseResource page : pages ) {
-            page.save();
+        if( valid ) {
+            log.debug( "valid, save pages and commit");
+            for( BaseResource page : pages ) {
+                page.save();
+            }
+            commit();
+            return rcTarget.page;
+        } else {
+            log.debug( "not valid, not saving");
+            return null;
         }
-        commit();
-
-        return rcTarget.page;
     }
 
     /**
@@ -117,10 +131,10 @@ public class SaveCommand extends Command {
      * @return - the first physical resource in this components parent hierarchy
      */
     private BaseResource findPage( Component c ) {
-        Addressable container = c.getContainer();
-        if( container == null ) {
+        Addressable a = c.getContainer();
+        if( a == null ) {
             return null;
         }
-        return findPage( container );
+        return findPage( a );
     }
 }

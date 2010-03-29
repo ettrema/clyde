@@ -33,17 +33,18 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     private List<OldValue> oldValues;
     private Addressable parent;
-    private transient String validationMessage;
+    private transient ThreadLocal<String> thValidationMessage = new ThreadLocal<String>();
 
-    public ComponentValue( String name, Object value ) {
+    public ComponentValue(String name, Addressable container ) {
         this.name = name;
-        this.value = value;
+        this.parent = container;
         this.oldValues = new ArrayList<OldValue>();
     }
 
-    public ComponentValue( Element el, CommonTemplated container ) {
+    public ComponentValue( Element el, Templatable container ) {
         this.name = el.getAttributeValue( "name" );
         this.oldValues = new ArrayList<OldValue>();
+        this.parent = container;
         log.debug( "created: " + this.name );
         String sVal = InitUtils.getValue( el );
         ComponentDef def = getDef( container );
@@ -67,11 +68,18 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
 
     public void setValidationMessage( String validationMessage ) {
-        this.validationMessage = validationMessage;
+        log.debug( "setValidationMessage: " + validationMessage);
+        if( thValidationMessage == null ) {
+            thValidationMessage = new ThreadLocal<String>();
+        }
+        thValidationMessage.set( validationMessage);
     }
 
     public String getValidationMessage() {
-        return validationMessage;
+        if( thValidationMessage == null ) {
+            return null;
+        }
+        return thValidationMessage.get();
     }
 
     /**

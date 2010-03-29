@@ -38,6 +38,15 @@ public interface Templatable extends Resource, Addressable, Comparable<Resource>
 
     void preProcess( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files );
 
+    /**
+     * Process a form
+     *
+     * @param rcChild
+     * @param parameters
+     * @param files
+     * @return
+     * @throws NotAuthorizedException
+     */
     String process( RenderContext rcChild,Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException;
 
     String getHref();
