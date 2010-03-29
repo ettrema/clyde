@@ -1,10 +1,10 @@
 package com.bradmcevoy.facebook;
 
-import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.Templatable;
+import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import java.io.Serializable;
@@ -20,11 +20,11 @@ public class FaceBookSessionValue extends ComponentValue {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FaceBookSessionValue.class );
     private static final long serialVersionUID = 1L;
 
-    public FaceBookSessionValue( String name, String value ) {
-        super( name, value );
+    public FaceBookSessionValue( String name, Addressable container ) {
+        super( name, container );
     }
 
-    public FaceBookSessionValue( Element el, CommonTemplated container ) {
+    public FaceBookSessionValue( Element el, Templatable container ) {
         super( el, container );
     }
 

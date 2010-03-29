@@ -98,7 +98,7 @@ public class FaceBookDef implements ComponentDef, Serializable {
     }
 
     public ComponentValue createComponentValue( Templatable newRes ) {
-        FaceBookSessionValue cv = new FaceBookSessionValue( name, "" );
+        FaceBookSessionValue cv = new FaceBookSessionValue( name, newRes );
         return cv;
     }
 
