@@ -16,18 +16,18 @@ import java.io.InputStream;
 public class TextFileCreator implements Creator {
 
     @Override
-    public boolean accepts(String ct) {
-        return ct.contains("text");
+    public boolean accepts( String ct ) {
+        return ct.contains( "text" ) || ct.contains( "javascript" );
     }
 
     @Override
-    public BaseResource createResource(Folder folder, String ct, InputStream in, String newName) throws ReadingException, WritingException {
-        TextFile tf = new TextFile(ct, folder, newName);
+    public BaseResource createResource( Folder folder, String ct, InputStream in, String newName ) throws ReadingException, WritingException {
+        TextFile tf = new TextFile( ct, folder, newName );
         tf.save();
-        if (in != null) {
+        if( in != null ) {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            StreamUtils.readTo(in, bout);
-            tf.setContent(bout.toString());
+            StreamUtils.readTo( in, bout );
+            tf.setContent( bout.toString() );
             tf.save();
         }
         return tf;
