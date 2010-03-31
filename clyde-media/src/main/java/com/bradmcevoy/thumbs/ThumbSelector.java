@@ -2,11 +2,7 @@ package com.bradmcevoy.thumbs;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.HtmlImage;
 import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.NoImageResource;
-import com.bradmcevoy.web.Templatable;
-import java.util.List;
 
 /**
  * Populates a folder with a thumb href based on the contents of the folder
