@@ -23,7 +23,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 
     public Resource findPage(String host, Path path) {
 //        log.debug("findPage: " + path);
-        if( host.contains( ":")) {
+        if( host != null && host.contains( ":")) {
             host = host.substring( 0, host.indexOf( ":"));
         }
         Host theHost = getHost(host);

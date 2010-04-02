@@ -34,7 +34,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private static final long serialVersionUID = 1L;
     UUID id;
     transient RelationalNameNode nameNode;
-    protected String contentType;
     protected NameInput nameInput;
 
     protected abstract BaseResource newInstance( Folder parent, String newName );
@@ -57,13 +56,13 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /** Usual constructor;
      */
-    public BaseResource( String contentType, Folder parentFolder, String newName ) {
-        this();
-        this.contentType = contentType;
+    public BaseResource( String contentType, Folder parentFolder, String newName ) {        
         if( newName.contains( "/" ) )
             throw new IllegalArgumentException( "Names cannot contain forward slashes" );
         this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
+        setContentType( contentType );
         initName();
+
     }
 
     @Override
@@ -157,7 +156,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     protected BaseResource copyInstance( Folder parent, String newName ) {
         BaseResource newRes = newInstance( parent, newName );
-        newRes.setContentType( this.contentType );
+        newRes.setContentType( this.getContentType( null) );
         newRes.valueMap.addAll( this.valueMap );
         newRes.componentMap.addAll( this.componentMap );
         String email = this.getExternalEmailTextV2( "default");
@@ -233,12 +232,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     }
 
-    @Override
-    public void loadFromXml( Element el ) {
-        super.loadFromXml( el );
-        this.contentType = el.getAttributeValue( "contentType" );
-    }
-
     public final Element toXml( Element el ) {
         log.debug( "toXml" );
         Element e2 = new Element( "res" );
@@ -267,12 +260,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void populateXml( Element e2 ) {
         e2.setAttribute( "name", getName() );
         e2.setAttribute( "id", getId().toString() );
-        e2.setAttribute( "nameNodeId", getNameNodeId().toString() );
-        if( contentType != null ) {
-            e2.setAttribute( "contentType", contentType );
-        } else {
-            e2.setAttribute( "contentType", "" );
-        }
+        e2.setAttribute( "nameNodeId", getNameNodeId().toString() );        
         Element elRels = new Element( "relations" );
         e2.addContent( elRels );
         Element elFrom = new Element( "from" );
@@ -426,15 +414,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     @Override
     public Date getCreateDate() {
         return nameNode.getCreatedDate();
-    }
-
-    @Override
-    public String getContentType( String accept ) {
-        return contentType;
-    }
-
-    public void setContentType( String contentType ) {
-        this.contentType = contentType;
     }
 
     @Override

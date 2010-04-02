@@ -39,7 +39,7 @@ public class PluggableResourceCreator implements ResourceCreator {
             if( c.accepts( ct ) ) {
                 BaseResource res = c.createResource( folder, ct, in, newName );
                 if( res != null ) {
-                    log.debug( "   creator: " + c.getClass() + " - " + res.getClass() );
+                    log.debug( "   creator: " + c.getClass() + " - " + res.getClass() + " ct:" + res.getContentType( null) );
                     return res;
                 }
             }

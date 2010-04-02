@@ -14,7 +14,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-api</artifactId>
-            <version>1.5.2-SNAPSHOT</version>
+            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-ftp</artifactId>
-            <version>1.5.2-SNAPSHOT</version>
+            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-console</artifactId>
-            <version>1.5.2-SNAPSHOT</version>
+            <version>1.5.2</version>
         </dependency>
     </dependencies>
 </project>

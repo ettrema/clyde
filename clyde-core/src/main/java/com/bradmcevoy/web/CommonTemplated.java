@@ -413,9 +413,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( this.contentType != null && contentType.length() > 0 ) {
             return contentType;
         } else {
-            return "text/html";
+            return null;
         }
     }
+
+    public void setContentType( String contentType ) {
+        this.contentType = contentType;
+    }
+
 
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {

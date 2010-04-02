@@ -35,7 +35,7 @@ public class CombiningTextFile extends File {
 
     @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
-        return new CombiningTextFile( this.contentType, parent, newName );
+        return new CombiningTextFile( this.getContentType( null ), parent, newName );
     }
 
     @Override

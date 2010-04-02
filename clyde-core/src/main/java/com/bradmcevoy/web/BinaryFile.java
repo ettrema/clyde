@@ -58,8 +58,10 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public boolean is( String type ) {
         if( type == null ) return false;
         if( type.equals( "binary" ) ) return true;
-        if( this.contentType != null && this.contentType.contains( type ) )
+        String contentType = getContentType( null );
+        if( contentType != null && contentType.contains( type ) ) {
             return true;
+        }
         return super.is( type );
     }
 

@@ -17,7 +17,7 @@ public class TextFileCreator implements Creator {
 
     @Override
     public boolean accepts( String ct ) {
-        return ct.contains( "text" ) || ct.contains( "javascript" );
+        return ct.contains( "text" ); // || ct.contains( "javascript" );
     }
 
     @Override
