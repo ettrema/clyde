@@ -28,7 +28,7 @@ public class Du extends AbstractConsoleCommand{
             return result("current dir not found: " + currentDir);
         }        
         if( cur instanceof Folder ) {
-            Folder col = (Folder) cur;
+            Folder col = cur;
             StringBuffer sb = new StringBuffer();
             sb.append("<table border='0' cellpadding='2' cellspacing='2'>").append("\n");
             for( Entry e : getSizes(col) ) {
