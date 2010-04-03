@@ -98,7 +98,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void setThumbHref( String thumbHref ) {
         this.thumbHref = thumbHref;
     }
-       
 
     /**
      * If this folder is not defined as secureRead, recursively check parents until Web
@@ -671,10 +670,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         BufferingOutputStream bufOut = new BufferingOutputStream( 100000 );
         long bytesWritten = StreamUtils.readTo( in, bufOut, false, true );
         if( bytesWritten != bufOut.getSize() ) {
-            throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " bufOut reports: " + bufOut.getSize());
+            throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " bufOut reports: " + bufOut.getSize() );
         }
         if( length != null ) {
-            if( bytesWritten != length.longValue()) {
+            if( bytesWritten != length.longValue() ) {
                 throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " content length header: " + length );
             }
         }
@@ -688,7 +687,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                 Long actualLength = bf.getContentLength();
                 if( actualLength != null && length != null ) {
                     if( actualLength.longValue() != length.longValue() ) {
-                        throw new RuntimeException( "Content length mismatch: persisted: " + actualLength + " header: " + length);
+                        throw new RuntimeException( "Content length mismatch: persisted: " + actualLength + " header: " + length );
                     }
                 }
             }
@@ -831,7 +830,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             persistedNameNode.save();
             ( (BaseResource) data ).nameNode = persistedNameNode;
             for( Relationship r : relations ) {
-                persistedNameNode.makeRelation( (RelationalNameNode) r.to(),r.relationship());
+                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
             }
         }
 
@@ -895,7 +894,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
         @Override
         public Relationship makeRelation( final RelationalNameNode toNode, final String relationshipName ) {
-            if( persistedNameNode == null ) {                
+            if( persistedNameNode == null ) {
                 Relationship r = new Relationship() {
 
                     public NameNode from() {
@@ -911,10 +910,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                     }
 
                     public void delete() {
-                        relations.remove( relationshipName);
+                        relations.remove( this );
                     }
                 };
-                relations.add(r);
+                relations.add( r );
                 return r;
             } else {
                 return persistedNameNode.makeRelation( toNode, relationshipName );

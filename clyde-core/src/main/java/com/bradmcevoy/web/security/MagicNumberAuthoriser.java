@@ -77,7 +77,7 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
         if( contentType != null ) {
             GetableResource gr = (GetableResource) resource;
             String actualContentType = gr.getContentType( null );
-            if( actualContentType.contains( contentType ) ) {
+            if( actualContentType != null && actualContentType.contains( contentType ) ) {
                 log.trace( "matching contenttype" );
                 return checkAccess( resource, request );
             } else {
