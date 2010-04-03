@@ -10,8 +10,10 @@ import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class S3List extends AbstractConsoleCommand {
 
@@ -59,23 +61,44 @@ public class S3List extends AbstractConsoleCommand {
     }
 
     private Result listBucket( AWSAuthConnection con, String bucketName ) {
-        ListBucketResponse resp = con.listBucket( bucketName, null, null, 100000, null );
-        if( resp.entries != null && resp.entries.size() > 0 ) {
-            StringBuffer sb = new StringBuffer( "<p>Found: " + resp.entries.size() + " items</p>" );
+        Collection<ListEntry> items = findItems(con, bucketName);
+        if( items.size() > 0 ) {
+            StringBuffer sb = new StringBuffer( "<p>Found: " + items.size() + " items</p>" );
             sb.append( "<table>" );
             sb.append("<tr><th>Name</th><th>Size</th></tr>");
-            for( Object o : resp.entries ) {
-                if( o instanceof ListEntry) {
-                    ListEntry e = (ListEntry) o;
-                    sb.append("<tr><td>" + e.key + "</td><td>" + e.size + "</td></tr>");
-                } else {
-                    return result("Not a ListEntry. Is a: " + o.getClass());
-                }
+            for( ListEntry e : items ) {
+                sb.append("<tr><td>" + e.key + "</td><td>" + e.size + "</td></tr>");
             }
             sb.append( "</table>" );
             return result( sb.toString() );
         } else {
-            return result( "no buckets in bucket" );
+            return result( "no items in bucket" );
+        }
+    }
+
+    public static Collection<ListEntry> findItems( AWSAuthConnection con, String bucketName ) {
+        Map<String,ListEntry> items = new HashMap<String,ListEntry>();
+        findItems( con, bucketName, items, null );
+        return items.values();
+    }
+
+    public static void findItems( AWSAuthConnection con, String bucketName, Map<String,ListEntry> items, String marker ) {
+        log.debug( "find: from marker: " + marker);
+        ListBucketResponse resp = con.listBucket( bucketName, null, marker, 1000, null );
+        String lastKey = null;
+        for( Object o : resp.entries ) {
+            if( o instanceof ListEntry) {
+                ListEntry e = (ListEntry) o;
+                items.put( e.key, e );
+                lastKey = e.key;
+            } else {
+                throw new RuntimeException( "Not a: " + ListEntry.class);
+            }
+        }
+
+        if( resp.isTruncated ) {
+            resp = null;
+            findItems( con, bucketName, items, lastKey);
         }
     }
 }

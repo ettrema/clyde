@@ -2,12 +2,15 @@ package com.bradmcevoy.web.console2;
 
 import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.AWSAuthConnection.CopyFailedException;
-import com.amazon.s3.ListBucketResponse;
 import com.amazon.s3.ListEntry;
 import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class S3Copy extends AbstractConsoleCommand {
 
@@ -39,24 +42,39 @@ public class S3Copy extends AbstractConsoleCommand {
     }
 
     private Result copy( AWSAuthConnection con, String source, String dest ) throws Exception {
-        ListBucketResponse resp = con.listBucket( source, null, null, 100000, null );
-        if( resp.entries != null && resp.entries.size() > 0 ) {
+        Collection<ListEntry> items = S3List.findItems( con, source );
+        Collection<ListEntry> existingDestItems = S3List.findItems( con, dest );
+        Set<String> setExisting = new HashSet<String>();
+        for( ListEntry e : existingDestItems ) {
+            setExisting.add( e.key );
+        }
+        List<String> failedItems = new ArrayList<String>();
+        if( items.size() > 0 ) {
             int num = 0;
-            for( Object o : resp.entries ) {
-                if( o instanceof ListEntry ) {
-                    ListEntry e = (ListEntry) o;
-                    try {
-                        log.debug( "copying: " + e.key);
-                        num++;
+            int numExisting = 0;
+            for( ListEntry e : items ) {
+                try {                    
+                    num++;
+                    if( !setExisting.contains( e.key) ) {
+                        log.debug( "copying: " + e.key );
                         con.copyItem( source, e.key, dest, e.key );
-                    } catch( CopyFailedException ex ) {
-                        throw new RuntimeException( "Failed to copy item: " + e.key + " Http Status: " + ex.getHttpStatus() );
+                    } else {
+                        log.debug( "already exists, not copying: " + e.key );
+                        numExisting++;
                     }
-                } else {
-                    return result( "Not a ListEntry. Is a: " + o.getClass() );
+                } catch( CopyFailedException ex ) {
+                    log.error( "Failed to copy item: " + e.key + " Http Status: " + ex.getHttpStatus() );
+                    failedItems.add( e.key );
                 }
             }
-            return result( "Copied " + num + " items from " + source + " to " + dest );
+            StringBuffer sbFailed = new StringBuffer();
+            if( failedItems.size() > 0 ) {
+                sbFailed.append( "<br/>Failed Items<br/>" );
+                for( String key : failedItems ) {
+                    sbFailed.append( key ).append( ',' );
+                }
+            }
+            return result( "Copied " + num + " items from " + source + " to " + dest + ", not copied existing items: " + numExisting + sbFailed );
         } else {
             return result( "no items in bucket" );
         }
