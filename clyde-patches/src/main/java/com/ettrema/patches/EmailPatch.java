@@ -36,26 +36,40 @@ public class EmailPatch implements PatchApplicator {
         ComponentDef def;
         for( NameNode nn : userNodes ) {
             User user = (User) nn.getData();
+            log.debug( "patch: " + cnt++ + " - " + user.getHref() );
+            String email = user.getExternalEmailText();
+            log.debug( "email1: " + email);
+
+            log.debug( "listing cvs");
+            for( ComponentValue cv : user.getValues().values()) {
+                log.debug( "cv: " + cv.getName() + " = " + cv.getValue());
+            }
+
             ComponentValue cv = user.getValues().get( "email" );
-            if( cv != null ) {
+            log.debug( "cv : " + cv);
+            if( cv != null && cv.getValue() != null ) {
+                log.debug( "cv.val: " + cv.getValue());
+                Object oEmail = cv.getValue();
+                if( oEmail instanceof String) {
+                    log.debug( " is string");
+                    email = (String) oEmail;
+                }
                 user.getValues().remove( "email" );
             }
-            log.debug( "patch: " + cnt++ + " - " + user.getHref() );
-            if( user.getValues().get( "email" ) != null ) {
-                throw new RuntimeException( "email not null");
-            }
-            String email = user.getExternalEmailText();
-            user.setExternalEmailTextV2( "default", email );
-            ITemplate template = user.getTemplate();
-            if( template != null ) {
-                def = template.getComponentDef( "email");
-                if( def != null && def instanceof EmailDef ) {
-                    EmailVal ev = (EmailVal) def.createComponentValue( user );
-                    user.getValues().add( ev );
-                    ev.setValue( email );
+            log.debug( " email2: " + email);
+            if( email != null )  {
+                user.setExternalEmailTextV2( "default", email );
+                ITemplate template = user.getTemplate();
+                if( template != null ) {
+                    def = template.getComponentDef( "email");
+                    if( def != null && def instanceof EmailDef ) {
+                        EmailVal ev = (EmailVal) def.createComponentValue( user );
+                        user.getValues().add( ev );
+                        ev.setValue( email );
+                    }
                 }
+                user.save();
             }
-            user.save();
         }
         sess.commit();
         log.debug( "Done!" );

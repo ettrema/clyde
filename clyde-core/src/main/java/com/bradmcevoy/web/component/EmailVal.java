@@ -1,7 +1,6 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import org.jdom.Element;
 

@@ -62,6 +62,10 @@ public class User extends Folder implements Mailbox, PermissionRecipient {
         String sGroupNames = StringUtils.toString( groupNames );
         e2.setAttribute( "groupNames", sGroupNames );
         InitUtils.setBoolean( e2, "emailDisabled", emailDisabled );
+
+        Element elEmail = new Element("email");
+        elEmail.setText(getExternalEmailText() );
+        e2.addContent( elEmail);
     }
 
     @Override
@@ -71,6 +75,11 @@ public class User extends Folder implements Mailbox, PermissionRecipient {
         String s = el.getAttributeValue( "groupNames" );
         this.groupNames = StringUtils.fromString( s );
         this.emailDisabled = InitUtils.getBoolean( el, "emailDisabled" );
+        Element elEmail = el.getChild( "email");
+        if( elEmail != null ) {
+            String newEmail = elEmail.getText();
+            setExternalEmailText( newEmail );
+        }
     }
 
     @Override

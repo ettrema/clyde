@@ -90,7 +90,12 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
             }
             long bytes = StreamUtils.readTo( in, out, true, false );
             if( log.isDebugEnabled() ) {
-                log.debug( "sent bytes: " + bytes );
+                if( bytes > 0 ) {
+                    log.debug( "sent bytes: " + bytes );
+                }
+            }
+            if( bytes == 0) {
+                log.warn( "zero length binary file: " + getNameNodeId() + " - " + getHref());
             }
         } catch( ReadingException readingException ) {
             log.error( "exception reading data: " + getHref(), readingException);

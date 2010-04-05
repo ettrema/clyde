@@ -303,11 +303,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     private String getFormattedValue( CommonTemplated container ) {
         ComponentDef def = getDef( container );
+        Object v = getValue();
         if( def == null ) {
-            if( value == null ) return "";
-            return value.toString();
+            if( v == null ) return "";
+            return v.toString();
         }
-        return def.formatValue( value );
+        return def.formatValue( v );
     }
 
     public int getYear() {

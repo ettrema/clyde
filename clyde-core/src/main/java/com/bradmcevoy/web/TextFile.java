@@ -32,8 +32,12 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
 
     @Override
     public boolean is( String type ) {
+        if( type == null ) return false;
         if( super.is( type ) ) return true;
-        return type.equals( "text" ) || this.getContentType( null ).contains( type );
+        if( type.equals( "text" ) ) return true;
+        String ct = getContentType( null );
+        if( ct == null ) return false;
+        return ct.contains( type );
     }
 
     @Override

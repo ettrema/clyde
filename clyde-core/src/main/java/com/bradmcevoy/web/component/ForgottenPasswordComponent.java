@@ -12,6 +12,7 @@ import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.User;
 import com.ettrema.mail.MailboxAddress;
+import com.ettrema.mail.StandardMessageImpl;
 import com.ettrema.mail.send.MailSender;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +61,9 @@ public class ForgottenPasswordComponent implements Component {
     public boolean validate( RenderContext rc ) {
         String email = RequestParams.current().getParameters().get( "email" );
         try {
+            // Parsing validates the email
             MailboxAddress add = MailboxAddress.parse( email );
+            RequestParams.current().attributes.put( "parsedEmail", add);
             VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
             List<NameNode> list = vfs.find( EmailAddress.class, email );
             if( list == null || list.size() == 0 ) {
@@ -110,18 +113,32 @@ public class ForgottenPasswordComponent implements Component {
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "onProcess" );
+        if( subject == null )
+            throw new NullPointerException( "subject is null" );
+        if( fromAdd == null )
+            throw new NullPointerException( "from Address is null" );
+
         if( !validate( rc ) ) {
             log.debug( "not valid" );
             return null;
         }
         MailSender sender = RequestContext.getCurrent().get( MailSender.class );
-        String email = (String) rc.getAttribute( name + "_email" );
         List<User> list = (List<User>) rc.getAttribute( name + "_found" );
-        List<String> to = Arrays.asList( email );
+        MailboxAddress to = (MailboxAddress) RequestParams.current().attributes.get( "parsedEmail");
         for( User user : list ) {
             String password = user.getPassword( 847202 );
             String text = evalTemplate( user, password );
-            sender.sendMail( fromAdd, null, to, replyTo, subject, text );
+            if( text == null ) {
+                throw new NullPointerException( "Template evaluated to null" );
+            }
+            String rt = ( replyTo == null ) ? fromAdd : replyTo;
+            StandardMessageImpl sm = new StandardMessageImpl();
+            sm.setFrom( MailboxAddress.parse( fromAdd ) );
+            sm.setReplyTo( MailboxAddress.parse( rt ) );
+            sm.setTo( Arrays.asList( to ) );
+            sm.setSubject( subject );
+            sm.setText( text );
+            sender.sendMail( sm );
         }
         RequestParams.current().getAttributes().put( name + "_confirmed", Boolean.TRUE );
         return null;
@@ -146,9 +163,13 @@ public class ForgottenPasswordComponent implements Component {
 
         InitUtils.setString( e2, "from", fromAdd );
         InitUtils.setString( e2, "replyTo", replyTo );
-        Element elContent = e2.addContent( new Element( "subject" ) );
-        elContent.setText( subject );
-        Element elBody = e2.addContent( new Element( "body" ) );
+
+        Element elSubject = new Element( "subject" );
+        e2.addContent( elSubject );
+        elSubject.setText( subject );
+
+        Element elBody = new Element( "body" );
+        e2.addContent( elBody );
         elBody.setText( bodyTemplate );
 
     }
