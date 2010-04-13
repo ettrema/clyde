@@ -39,6 +39,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected abstract BaseResource newInstance( Folder parent, String newName );
     transient boolean nameInited;
 
+    private transient User creator;
+
     public static BaseResource importResource( BaseResource parent, Element el, String filename ) {
         String className = el.getAttributeValue( "class" );
         if( className == null || className.length() == 0 )
@@ -583,6 +585,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param user
      */
     public void setCreator( User user ) {
+        this.creator = user;
         this.nameNode.makeRelation( user.getNameNode(), "creator" );
     }
 
@@ -593,9 +596,14 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @return
      */
     public User getCreator() {
-        List<Relationship> rels = this.nameNode.findFromRelations( "creator" );
-        if( rels == null || rels.size() == 0 ) return null;
-        return (User) rels.get( 0 ).to().getData();
+        // Something dodgy going on here. Seem to get different results wihthout
+        // the transient variable
+        if( this.creator == null ) {
+            List<Relationship> rels = this.nameNode.findFromRelations( "creator" );
+            if( rels == null || rels.size() == 0 ) return null;
+            creator = (User) rels.get( 0 ).to().getData();
+        }
+        return creator;
     }
 
     public String getMagicNumber() {
@@ -611,8 +619,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @return
      */
     public String getExternalEmailTextV2(String emailCategory) {
+//        log.debug( "getExternalEmailTextV2: " + emailCategory + " nnid: " + this.getNameNodeId());
         NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
         if( nEmailContainer == null ) {
+            log.warn( "no container");
             return null;
         }
         for( NameNode child : nEmailContainer.children() ) {
@@ -631,6 +641,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param email
      */
     public void setExternalEmailTextV2( String emailCategory, String email ) {
+//        log.debug( "setExternalEmailTextV2: " + emailCategory + " email:" + email);
+
         NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
         if( nEmailContainer == null ) {
             nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode());

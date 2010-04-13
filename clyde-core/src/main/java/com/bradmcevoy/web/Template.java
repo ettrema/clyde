@@ -102,14 +102,11 @@ public class Template extends Page implements ITemplate {
 
     }
 
-
     @Override
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         componentDefs.toXml( this, e2 );
     }
-
-
 
     @Override
     public Component getAnyComponent( String childName ) {
@@ -149,6 +146,7 @@ public class Template extends Page implements ITemplate {
      */
     @Override
     public BaseResource createPageFromTemplate( Folder location, String name ) {
+        log.debug( "createPageFromTemplate" );
         BaseResource newRes;
         if( location.getName().equals( this.getParent().getName() ) ) {
 //            log.debug("  creating a template, because in templates folder"); // hack alert
@@ -156,10 +154,10 @@ public class Template extends Page implements ITemplate {
         } else {
             newRes = newInstanceFromTemplate( location, name );
             if( newRes == null ) {
-//                log.debug("  creating a page because nothing else specified");
+                log.debug("  creating a page because nothing else specified");
                 newRes = new Page( location, name );
             } else {
-//                log.debug("  created a: " + newRes.getClass());
+                log.debug("  created a: " + newRes.getClass());
             }
         }
         newRes.setTemplate( this );
@@ -172,6 +170,7 @@ public class Template extends Page implements ITemplate {
 
     @Override
     public Folder createFolderFromTemplate( Folder location, String name ) {
+        log.debug( "createFolderFromTemplate" );
         Folder newRes;
         newRes = (Folder) newInstanceFromTemplate( location, name );
         if( newRes == null ) {
@@ -182,6 +181,7 @@ public class Template extends Page implements ITemplate {
 
         for( ComponentDef def : componentDefs.values() ) {
             ComponentValue cv = def.createComponentValue( newRes );
+            log.debug( "createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName());
             newRes.getValues().add( cv );
         }
         return newRes;
@@ -205,7 +205,7 @@ public class Template extends Page implements ITemplate {
         if( c != null ) {
             Text t = (Text) c;
             sClass = t.getValue();
-            log.debug( "component source: " + t.getPath());
+            log.debug( "component source: " + t.getPath() );
         }
         if( sClass == null ) {
             return null;

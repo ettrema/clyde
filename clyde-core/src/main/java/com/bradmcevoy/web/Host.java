@@ -288,7 +288,7 @@ public class Host extends Web implements BucketOwner {
     public User createUser( String name, String pwd, Group group, String templateName ) {
         Folder users = getUsers( true );
         if( users.childExists( name )) {
-            throw new RuntimeException( "Resource already exists: " + name + " users");
+            throw new RuntimeException( "Resource already exists: " + name);
         }
         ITemplate template = null;
         if( templateName != null && templateName.length()>0 ) {
