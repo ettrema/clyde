@@ -10,6 +10,8 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.SubPage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.jdom.Document;
@@ -47,8 +49,17 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
             throw new RuntimeException( "Excessive rescannign detected, aborting");
         }
         boolean didChange = false;
+        List<ProcessContext> contexts = new ArrayList<ProcessContext>();
         for (ComponentValue cv : res.getValues().values()) {
-            boolean b = scan(cv, res);
+            ProcessContext context = createContext(cv, res);
+            if( context != null ) {
+                contexts.add( context );
+            }
+        }
+
+        for (ProcessContext context : contexts) {
+            Boolean b = context.scan();
+            log.debug( "state: " + context.token.getStateName() );
             didChange = didChange || b;
         }
         if( didChange) {
@@ -65,15 +76,23 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         ProcessContext context = createContext(cv, res);
         if( context == null ) return false;
 
-        log.debug( "scanning context: current state: " + context.token.getStateName());
+        if( context.token == null ) {
+            log.warn( "context.token is null, can't scan " + cv.getName());
+            return false;
+        } else {
+            log.debug( "scanning context: current state: " + context.token.getStateName());
+        }
         boolean b = context.scan();
         log.debug( "state: " + context.token.getStateName() );
         return b;
     }
 
     public static ProcessContext createContext(ComponentValue cv, BaseResource res) {
-        ComponentDef def = cv.getDef(res);
+        ComponentDef def = cv.getDef(res);        
         if( !(def instanceof ProcessDef) ) return null;
+        if( cv.getValue() == null ) {
+            throw new RuntimeException( "CV does not contain a value: " + cv.getName());
+        }
         
         ProcessDef pdef = (ProcessDef) def;
         Object o = cv.getValue();
@@ -157,7 +176,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     }
 
     public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, com.bradmcevoy.http.FileItem> files) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     @Override
@@ -166,6 +185,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         TokenValue t = startProcess(newRes);
         t.getVariables().put(VAR_RES_ID, newRes.getId());
         ComponentValue cv = new ComponentValue(getName(), t);
+        cv.setValue( t );
         t.setComponentValue(cv);
         return cv;
     }
