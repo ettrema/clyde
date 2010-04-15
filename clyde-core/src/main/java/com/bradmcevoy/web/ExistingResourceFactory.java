@@ -2,116 +2,189 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.context.RequestContext;
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.Range;
+import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsSession;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 public class ExistingResourceFactory extends CommonResourceFactory implements ResourceFactory {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ExistingResourceFactory.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ExistingResourceFactory.class );
 
     @Override
-    public Resource getResource(String host, String url) {
+    public Resource getResource( String host, String url ) {
         String sPath = url;
-        Path path = Path.path(sPath);
+        Path path = Path.path( sPath );
 
-        return findPage(host, path);
+        return findPage( host, path );
     }
 
-    public Resource findPage(String host, Path path) {
+    public Resource findPage( String host, Path path ) {
 //        log.debug("findPage: " + path);
-        if( host != null && host.contains( ":")) {
-            host = host.substring( 0, host.indexOf( ":"));
+        if( host != null && host.contains( ":" ) ) {
+            host = host.substring( 0, host.indexOf( ":" ) );
         }
-        Host theHost = getHost(host);
+        Host theHost = getHost( host );
         if( theHost == null ) {
-            log.error("host name not found: " + host);
-            return null;
+            log.error( "host name not found: " + host );
+            return new HostNotFoundResource( host );
         }
-        Resource r = findChild(theHost, path);
+        Resource r = findChild( theHost, path );
         return r;
-    }    
-    
-    public static Resource findChild(Resource parent, Path path) {
-        return findChild(parent, path.getParts(),0);
     }
-    
-    public static Resource findChild(Resource parent, String childSpec) {
+
+    public static Resource findChild( Resource parent, Path path ) {
+        return findChild( parent, path.getParts(), 0 );
+    }
+
+    public static Resource findChild( Resource parent, String childSpec ) {
 //        log.debug("findChild: " + parent.getName() + " - " + childSpec);
-        if( childSpec.equals(".") ) {
+        if( childSpec.equals( "." ) ) {
             return parent;
-        } else if( childSpec.equals("..") ) {
+        } else if( childSpec.equals( ".." ) ) {
             if( parent instanceof CommonTemplated ) {
                 CommonTemplated ct = (CommonTemplated) parent;
                 return ct.getParent();
             } else {
-                log.warn("Can't find parent of non CommonTemplated resource");
+                log.warn( "Can't find parent of non CommonTemplated resource" );
                 return null;
             }
-        } else {            
+        } else {
             Resource child = null;
             if( parent instanceof CollectionResource ) {
-                CollectionResource col = (CollectionResource) parent;                        
-                child = col.child(childSpec);
-                child = checkAndWrap(child, parent);
+                CollectionResource col = (CollectionResource) parent;
+                child = col.child( childSpec );
+                child = checkAndWrap( child, parent );
             }
 
             if( child == null && parent instanceof CommonTemplated ) {
                 CommonTemplated t = (CommonTemplated) parent;
-                child = t.getChildResource(childSpec); 
-                child = checkAndWrap(child, parent);
+                child = t.getChildResource( childSpec );
+                child = checkAndWrap( child, parent );
             }
-            
+
             return child;
-        }        
+        }
     }
-    
-    public static Resource findChild(Resource parent, String[] arr, int i) {
+
+    public static Resource findChild( Resource parent, String[] arr, int i ) {
         if( arr.length == 0 ) return parent;
 //        log.debug("findChild: "  + parent.getName() + " - " + arr[i] + " - " + i);        
 
-        String childName = arr[i];    
-        Resource child = findChild(parent, childName);
-        
+        String childName = arr[i];
+        Resource child = findChild( parent, childName );
+
         if( child == null ) {
             return null;
-        } else {            
-            if( i < arr.length-1) {
-                return findChild(child, arr, i+1);
+        } else {
+            if( i < arr.length - 1 ) {
+                return findChild( child, arr, i + 1 );
             } else {
                 return child;
             }
         }
-    }    
-    
-    static Resource checkAndWrap(Resource r, Resource parent) {
+    }
+
+    static Resource checkAndWrap( Resource r, Resource parent ) {
         if( r == null ) return null;
-        
+
 //        log.debug("checkAndWrap: " + r.getHref());
-        Resource r2;        
+        Resource r2;
         if( r instanceof SubPage ) {
             SubPage sub = (SubPage) r;
             if( sub.getParent() == parent ) { // don't wrap if the request parent is same as physical parent
                 r2 = sub;
             } else {
-                r2 = new WrappedSubPage((SubPage) r,(CommonTemplated) parent);
+                r2 = new WrappedSubPage( (SubPage) r, (CommonTemplated) parent );
             }
         } else if( r instanceof WrappedSubPage ) {
-            r2 = new WrappedSubPage((WrappedSubPage) r,(CommonTemplated) parent);
+            r2 = new WrappedSubPage( (WrappedSubPage) r, (CommonTemplated) parent );
         } else {
             r2 = r;
-        }                               
+        }
         return r2;
     }
-    
-    public static BaseResource get(UUID id) {
-        VfsSession vfs = RequestContext.getCurrent().get(VfsSession.class);
-        if( vfs == null ) throw new NullPointerException("No VFS session in context");
-        NameNode nn = vfs.get(id);
+
+    public static BaseResource get( UUID id ) {
+        VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
+        if( vfs == null )
+            throw new NullPointerException( "No VFS session in context" );
+        NameNode nn = vfs.get( id );
         if( nn == null ) return null;
         return (BaseResource) nn.getData();
+    }
+
+    public static class HostNotFoundResource implements GetableResource {
+
+        private final String hostName;
+
+        public HostNotFoundResource( String hostName ) {
+            this.hostName = hostName;
+        }
+
+        private String getContent() {
+            return "<html><body>The domain name " + hostName + " isnt on this server</body></html>";
+        }
+
+        public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+            PrintWriter pw = new PrintWriter( out );
+            pw.print( getContent() );
+            pw.flush();
+            out.flush();
+        }
+
+        public Long getMaxAgeSeconds( Auth auth ) {
+            return null;
+        }
+
+        public String getContentType( String accepts ) {
+            return "text/html";
+        }
+
+        public Long getContentLength() {
+            return (long)getContent().length();
+        }
+
+        public String getUniqueId() {
+            return null;
+        }
+
+        public String getName() {
+            return "";
+        }
+
+        public Object authenticate( String user, String password ) {
+            return null;
+        }
+
+        public boolean authorise( Request request, Method method, Auth auth ) {
+            return true;
+        }
+
+        public String getRealm() {
+            return "NoRealm";
+        }
+
+        public Date getModifiedDate() {
+            return null;
+        }
+
+        public String checkRedirect( Request request ) {
+            return null;
+        }
     }
 }

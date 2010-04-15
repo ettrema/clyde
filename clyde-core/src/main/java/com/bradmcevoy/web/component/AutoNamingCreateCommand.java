@@ -1,8 +1,5 @@
 package com.bradmcevoy.web.component;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.RenderContext;
 import org.jdom.Element;
 
 /**

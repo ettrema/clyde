@@ -16,10 +16,10 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
             if( !hostName.startsWith( "www.")) {
                 String h2 = "www." + hostName;
                 h = hostFinder.getHost( h2 );
+            } else {
+                String h2 = hostName.substring( 4 );
+                h = hostFinder.getHost( h2 );
             }
-        }
-        if( h == null) {
-            throw new RuntimeException( "Unknown host: " + hostName);
         }
         return h;
     }
