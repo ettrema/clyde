@@ -2,17 +2,18 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.Permission;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.console.Result;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,33 +44,40 @@ public class Grant extends AbstractConsoleCommand {
             if( target == null ) {
                 return result( "Couldnt find: " + pSrc );
             }
-            User user = findUser( target, userHostName, userName );
-            if( user == null ) {
-                return result( "user not found" );
+            List<User> users = new ArrayList<User>();
+            if( userName.equals( "*" ) ) {
+                users = findUsers( target, userHostName );
+            } else {
+                User user = findUser( target, userHostName, userName );
+                if( user == null ) {
+                    return result( "user not found" );
+                }
+                users.add( user );
             }
-
-
-            PermissionChecker checker = ctx().get( PermissionChecker.class );
-
-            // check current user has admin
-            Auth auth = RequestParams.current().getAuth();
-            if( !checker.hasRole( Role.ADMINISTRATOR, target, auth ) ) {
-                return result( "you do not have admin priviledge on target" );
-            }
-
-            Role role = Role.valueOf( roleName );
-            if( role.equals( Role.OWNER ) && !checker.hasRole( Role.SYSADMIN, target, auth ) ) {
-                return result( "cant make owner" );
-            }
-            if( role.equals( Role.SYSADMIN ) ) {
-                return result( "you're kidding, right??" );
-            }
-            target.permissions( true ).grant( role, user );
-            commit();
 
             String res = "Granted ok<br/>";
-            for( Permission perm : target.permissions() ) {
-                res += perm.toString() + "<br/>";
+            for( User user : users ) {
+                PermissionChecker checker = ctx().get( PermissionChecker.class );
+
+                // check current user has admin
+                Auth auth = RequestParams.current().getAuth();
+                if( !checker.hasRole( Role.ADMINISTRATOR, target, auth ) ) {
+                    return result( "you do not have admin priviledge on target" );
+                }
+
+                Role role = Role.valueOf( roleName );
+                if( role.equals( Role.OWNER ) && !checker.hasRole( Role.SYSADMIN, target, auth ) ) {
+                    return result( "cant make owner" );
+                }
+                if( role.equals( Role.SYSADMIN ) ) {
+                    return result( "you're kidding, right??" );
+                }
+                target.permissions( true ).grant( role, user );
+                commit();
+                
+                for( Permission perm : target.permissions() ) {
+                    res += perm.toString() + "<br/>";
+                }
             }
             return result( res );
         }
@@ -84,5 +92,23 @@ public class Grant extends AbstractConsoleCommand {
             h = h.getParentHost();
         }
         return null;
+    }
+
+    private List<User> findUsers( BaseResource target, String userHostName ) {
+        Host h = target.getHost();
+        while( h != null ) {
+            if( h.getName().equals( userHostName ) ) {
+                List<User> users = new ArrayList<User>();
+                for( Resource r : h.getUsers().getChildren() ) {
+                    if( r instanceof User ) {
+                        users.add( (User) r );
+                    }
+                }
+                return users;
+            }
+            h = h.getParentHost();
+        }
+        return null;
+
     }
 }
