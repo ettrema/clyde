@@ -44,7 +44,7 @@ public class EditPage implements PostableResource, DigestResource {
 
     @Override
     public String getUniqueId() {
-        return editee.getUniqueId() + "_edit";
+        return null;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class EditPage implements PostableResource, DigestResource {
 
     @Override
     public Date getModifiedDate() {
-        return editee.getModifiedDate();
+        return null;
     }
 
     @Override

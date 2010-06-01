@@ -3,7 +3,11 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
+import com.bradmcevoy.web.component.EmailDef;
+import com.bradmcevoy.web.component.HtmlDef;
+import com.bradmcevoy.web.component.NumberDef;
 import com.bradmcevoy.web.component.Text;
+import com.bradmcevoy.web.component.TextDef;
 import java.io.InputStream;
 import java.util.Collection;
 import org.jdom.Element;
@@ -225,5 +229,29 @@ public class Template extends Page implements ITemplate {
     @Override
     public ComponentDefMap getComponentDefs() {
         return componentDefs;
+    }
+
+    public TextDef addTextDef(String name) {
+        TextDef d = new TextDef( this, name );
+        this.componentDefs.add( d );
+        return d;
+    }
+
+    public NumberDef addNumberDef(String name) {
+        NumberDef d = new NumberDef( this, name );
+        this.componentDefs.add( d );
+        return d;
+    }
+
+    public HtmlDef addHtmlDef(String name) {
+        HtmlDef d = new HtmlDef( this, name );
+        this.componentDefs.add( d );
+        return d;
+    }
+
+    public EmailDef addEmailDef(String name) {
+        EmailDef d = new EmailDef( this, name );
+        this.componentDefs.add( d );
+        return d;
     }
 }

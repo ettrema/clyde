@@ -17,11 +17,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>milton-console</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-        <dependency>
             <groupId>commons-vfs</groupId>
             <artifactId>commons-vfs</artifactId>
             <version>1.0</version>
@@ -36,8 +31,14 @@
             <artifactId>oallen-aws</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>berry-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
+
 
 
 

@@ -1,6 +1,6 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.utils.FileUtils;
+import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.vfs.OutputStreamWriter;
 import com.bradmcevoy.video.FFMPEGConverter;
 import java.io.InputStream;
@@ -54,15 +54,19 @@ public class FlashFile extends BinaryFile {
         InputStream in = null;
         try {
             in = getInputStream();
-            final FFMPEGConverter c = new FFMPEGConverter( in, "flv" );
-            thumb.useOutputStream( new OutputStreamWriter<Long>() {
+            if( in == null ) {
+                log.warn( "No inputstream for: " + this.getHref() );
+            } else {
+                final FFMPEGConverter c = new FFMPEGConverter( in, "flv" );
+                thumb.useOutputStream( new OutputStreamWriter<Long>() {
 
-                @Override
-                public Long writeTo( final OutputStream out ) {
-                    log.debug( "using outputstream for conversion" );
-                    return c.generateThumb( 60, 80, out, "jpeg" );
-                }
-            } );
+                    @Override
+                    public Long writeTo( final OutputStream out ) {
+                        log.debug( "using outputstream for conversion" );
+                        return c.generateThumb( 60, 80, out, "jpeg" );
+                    }
+                } );
+            }
         } finally {
             FileUtils.close( in );
         }

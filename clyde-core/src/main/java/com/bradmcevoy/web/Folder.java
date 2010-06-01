@@ -489,6 +489,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
+    public Templatable createPage(String name, String template) {
+        ITemplate t = this.getTemplate( template);
+        return t.createPageFromTemplate( this, name );
+    }
+
     public Resource doCreate( String newName ) {
         try {
             return doCreate( newName, null, null, null );
@@ -587,6 +592,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     boolean hasChild( String name ) {
         return ( child( name ) != null );
+    }
+
+    public TemplateSpecs getTemplateSpecs() {
+        return templateSpecs;
+    }
+
+    public void setAllowedTemplates(String s) {
+        this.templateSpecs = TemplateSpecs.parse( s );
     }
 
     public List<Template> getAllowedTemplates() {

@@ -34,7 +34,20 @@ public class NewResourceFactory extends CommonResourceFactory {
 //        log.debug("getResource: host=" + host + " url=" + url);
         Path path = Path.path(url);
         if( REDIRECT_TO_NEW_PATH.equals(path.getName())) {
-            return new RedirectToNewPage(path.getParent());
+            Path pRes = NewPage.getPagePath(path);
+            Path folder = pRes.getParent();
+            Resource r = next.getResource(host, folder.toString());
+            if (r == null) {
+                log.debug("folder not found, not returning New page");
+                return null;
+            } else {
+                Folder f = (Folder) r;
+                try {
+                    return new RedirectToNewPage(path.getParent(), f.getRealm());
+                } catch (IllegalArgumentException e) {
+                    return new NewResourceErrorPage(url, pRes.getName(), f, e.getMessage());
+                }
+            }
         } else if (NewPage.isNewPath(path)) {
             Path pRes = NewPage.getPagePath(path);
             Path folder = pRes.getParent();
@@ -92,11 +105,12 @@ public class NewResourceFactory extends CommonResourceFactory {
     }
 
     public class RedirectToNewPage implements PostableResource, DigestResource {
-
+        private String realm;
         private Path folderPath;
 
-        private RedirectToNewPage(Path parent) {
+        private RedirectToNewPage(Path parent, String realm) {
             folderPath = parent;
+            this.realm = realm;
         }
 
         @Override
@@ -141,7 +155,7 @@ public class NewResourceFactory extends CommonResourceFactory {
 
         @Override
         public String getRealm() {
-            return null;
+            return realm;
         }
 
         @Override

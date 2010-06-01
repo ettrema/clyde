@@ -155,4 +155,11 @@ public class Web extends Folder {
         Folder templates = this.getTemplates();
         templates.save();
     }
+
+    ITemplate createTemplate(String name, String baseTemplate) {
+        Template t = new Template( getTemplates(), name);
+        t.setTemplateName( baseTemplate );
+        t.save();
+        return t;
+    }
 }

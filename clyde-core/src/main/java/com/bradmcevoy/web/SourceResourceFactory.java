@@ -36,7 +36,19 @@ public class SourceResourceFactory extends CommonResourceFactory {
             Resource res = next.getResource( host, pagePath.toString() );
             if( res == null ) {
                 log.debug( "resource not found");
-                return null;
+                Resource rParent = next.getResource( host, pagePath.getParent().toString() );
+                if( rParent == null ) {
+                    return null;
+                } else {
+                    if( rParent instanceof Folder ) {
+                        log.debug( "found a parent, and it is a folder");
+                        Folder fParent = (Folder) rParent;
+                        return new NewResourceSourcePage( pagePath.getName(), fParent);
+                    } else {
+                        log.debug( "found parent, but its not a folder: " + rParent.getClass().getCanonicalName());
+                        return null;
+                    }
+                }
             } else if( res instanceof XmlPersistableResource ) {
                 log.debug( "found a xmlpersistable resource: " );
                 return new SourcePage( (XmlPersistableResource) res );

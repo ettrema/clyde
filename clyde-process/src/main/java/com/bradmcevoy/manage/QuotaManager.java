@@ -67,6 +67,14 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
     }
 
     private Long getLimit( TokenValue token ) {
+        if( token == null ) {
+            log.debug( "token is null");
+            return null;
+        }
+        if( token.getVariables() == null ) {
+            log.debug( "token variables is null");
+            return null;
+        }
         Object oLimit = token.getVariables().get( limitVarName );
         Long limit = toLong( oLimit );
 
@@ -74,6 +82,14 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
     }
 
     private Long getUsage(TokenValue token) {
+        if( token == null ) {
+            log.debug( "token is null");
+            return null;
+        }
+        if( token.getVariables() == null ) {
+            log.debug( "token variables is null");
+            return null;
+        }
         Object oUsage = token.getVariables().get( usageVarName );
         Long currentUsage = toLong( oUsage );
         return currentUsage;
@@ -158,13 +174,18 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
             Templatable ct = (Templatable) r;
             Host host = ct.getHost();
             TokenValue token = getTokenValue( host );
-            Long limit = getLimit( token );
-            Long currentUsage = getUsage( token );
-            if( limit == null || currentUsage == null ) {
-                log.warn("Couldnt determine quota available: " + host.getName());
+            if( token == null ) {
+                log.debug( "no token");
                 return null;
             } else {
-                return limit - currentUsage;
+                Long limit = getLimit( token );
+                Long currentUsage = getUsage( token );
+                if( limit == null || currentUsage == null ) {
+                    log.warn("Couldnt determine quota available: " + host.getName());
+                    return null;
+                } else {
+                    return limit - currentUsage;
+                }
             }
         } else {
             log.warn( "not a Templatable");

@@ -145,10 +145,10 @@ public class EmailCommand extends Command {
 
     @Override
     public boolean validate(RenderContext rc) {
-        if (this.container instanceof Page) {
+        if (this.container instanceof CommonTemplated) {
             return ComponentUtils.validatePage((CommonTemplated) this.container, rc);
         } else {
-            log.warn("container is not a page. cant validate");
+            log.warn("container is not a CommonTemplated. cant validate");
             return false;
         }
     }

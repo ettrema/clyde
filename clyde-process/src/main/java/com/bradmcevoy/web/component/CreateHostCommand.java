@@ -63,7 +63,6 @@ public class CreateHostCommand extends CreateWebCommand{
             log.debug( "setting new user's email: " + sEmail);
             user.setExternalEmailText( sEmail );
             Object o = user.getParams().get( "email");
-            System.out.println( "email: " + o );
         }
         user.save();
         log.debug( "created user: " + user);
