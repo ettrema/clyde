@@ -42,7 +42,12 @@ public class AdminOnlySourcePageAuthoriser implements ClydeAuthoriser {
             if( auth == null || auth.getTag() == null ) {
                 return false;
             } else {
-                User user = (User) auth.getTag();
+                User user;
+                if( auth.getTag() instanceof User ) {
+                    user = (User) auth.getTag();
+                } else {
+                    return false;
+                }
                 for( String adminHost : adminHosts ) {
                     if( adminHost.equals( user.getHost().getName() ) ) {
                         log.debug( "access granted to: " + user.getPath() );

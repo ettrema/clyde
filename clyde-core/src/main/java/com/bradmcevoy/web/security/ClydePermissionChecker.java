@@ -15,32 +15,35 @@ import com.bradmcevoy.web.security.PermissionRecipient.Role;
  *
  * @author brad
  */
-public class ClydePermissionChecker implements PermissionChecker{
+public class ClydePermissionChecker implements PermissionChecker {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ClydePermissionChecker.class );
 
-    
     @Override
     public boolean hasRole( Role role, Resource r, Auth auth ) {
 //        log.debug( "hasRole: " + role);
         if( r instanceof BaseResource ) {
             BaseResource res = (BaseResource) r;
             User user = null;
-            if( auth != null ) user = (User) auth.getTag();
+            if( auth != null ) {
+                if( auth.getTag() instanceof User ) {
+                    user = (User) auth.getTag();
+                }
+            }
             if( user == null ) {
 //                log.debug( "no current user so deny access");
                 return false;
             }
             return hasRoleRes( user, res, role );
-        } else if( r instanceof Templatable) {
+        } else if( r instanceof Templatable ) {
             Templatable templatable = (Templatable) r;
             boolean b = hasRole( role, templatable.getParent(), auth );
-            if(!b) {
-                log.warn( "user does not have role: " + role + " on resource: " + templatable.getHref());
+            if( !b ) {
+                log.warn( "user does not have role: " + role + " on resource: " + templatable.getHref() );
             }
             return b;
         } else {
-            log.warn( "ClydePermissionChecker cannot check permission on resource of type: " + r.getClass() + " Saying no to be safe");
+            log.warn( "ClydePermissionChecker cannot check permission on resource of type: " + r.getClass() + " Saying no to be safe" );
             return false;
         }
     }
@@ -54,10 +57,10 @@ public class ClydePermissionChecker implements PermissionChecker{
                 return true;
             }
         }
-        if( res instanceof Host) {
+        if( res instanceof Host ) {
             return false;
         } else {
-            return hasRoleRes(user, res.getParent(), role);
+            return hasRoleRes( user, res.getParent(), role );
         }
     }
 }

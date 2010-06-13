@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Host;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import java.util.UUID;
@@ -24,8 +25,12 @@ public class EditOwnUserPermissionChecker implements PermissionChecker {
 
     @Override
     public boolean hasRole( Role role, Resource r, Auth auth ) {
-        User user = null;
-        if( auth != null ) user = (User) auth.getTag();
+        IUser user = null;
+        if( auth != null ) {
+            if( auth.getTag() instanceof IUser ) {
+                user = (User) auth.getTag();
+            }
+        }
 
         if( user != null ) {
             if( isResourceOwnPath( user, r ) ) {
@@ -43,7 +48,7 @@ public class EditOwnUserPermissionChecker implements PermissionChecker {
         return b;
     }
 
-    private boolean isResourceOwnPath( User user, Resource r ) {
+    private boolean isResourceOwnPath( IUser user, Resource r ) {
         User persisted = findUserFrom( r );
         if( persisted != null ) {
             UUID nn = persisted.getNameNodeId();

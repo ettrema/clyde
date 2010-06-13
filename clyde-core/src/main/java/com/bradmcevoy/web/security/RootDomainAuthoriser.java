@@ -20,7 +20,7 @@ public class RootDomainAuthoriser implements ClydeAuthoriser {
     private final List<String> adminHosts;
 
     public RootDomainAuthoriser( String adminHost ) {
-        this.adminHosts = Arrays.asList( adminHost);
+        this.adminHosts = Arrays.asList( adminHost );
     }
 
     public RootDomainAuthoriser( List<String> adminHost ) {
@@ -38,7 +38,12 @@ public class RootDomainAuthoriser implements ClydeAuthoriser {
         if( auth == null ) {
             return null;
         } else {
-            User user = (User) auth.getTag();
+            User user;
+            if( auth.getTag() instanceof User ) {
+                user = (User) auth.getTag();
+            } else {
+                user = null;
+            }
             if( user != null ) {
                 for( String allowedHost : adminHosts ) {
                     if( allowedHost.equals( user.getHost().getName() ) ) {
