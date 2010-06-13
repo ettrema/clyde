@@ -5,6 +5,7 @@ import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.RelationalNameNode;
 import com.bradmcevoy.vfs.Relationship;
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import java.io.Serializable;
@@ -261,7 +262,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         for( Relationship r : rels ) {
             PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
             if( grantee != null ) {
-                User grantedUser = grantee.getUser();
+                IUser grantedUser = grantee.getUser();
                 if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
                     return true;
                 }

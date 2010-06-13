@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class ClydeMessageFolder implements MessageFolder {
+public class ClydeMessageFolder implements MessageFolder {
 
-    final Folder folder;
+    private final Folder folder;
     
     /**
      * Constructs a messagefolder to wrap the given physical folder

@@ -84,24 +84,27 @@ public class PaidRule implements Rule {
             log.debug( "no receipts folder" );
             return false;
         }
-        List<Templatable> children = receipts.getChildren();
+        List<? extends Resource> children = receipts.getChildren();
         if( children.size() == 0 ) {
             log.debug( "receipts folder contains no entries");
             return false;
         }
-        for( Templatable ct : children ) {
-            log.debug( "check credit: " + ct.getPath() );
-            if( ct instanceof Credit ) {
-                Credit c = (Credit) ct;
-                if( !c.isUsed() ) {
-                    log.debug( "found unused credit: " + c.getProductCode() );
-                    if( c.getProductCode().equals( this.productCode ) ) {
-                        log.debug( "found matching product code" );
-                        c.setUsed( true );
-                        c.save();
-                        return true;
-                    } else {
-                        log.debug( "product codes don't match: " + c.getProductCode() + " != " + this.productCode);
+        for( Resource r : children ) {
+            if( r instanceof Templatable ) {
+                Templatable ct = (Templatable) r;
+                log.debug( "check credit: " + ct.getPath() );
+                if( ct instanceof Credit ) {
+                    Credit c = (Credit) ct;
+                    if( !c.isUsed() ) {
+                        log.debug( "found unused credit: " + c.getProductCode() );
+                        if( c.getProductCode().equals( this.productCode ) ) {
+                            log.debug( "found matching product code" );
+                            c.setUsed( true );
+                            c.save();
+                            return true;
+                        } else {
+                            log.debug( "product codes don't match: " + c.getProductCode() + " != " + this.productCode);
+                        }
                     }
                 }
             }

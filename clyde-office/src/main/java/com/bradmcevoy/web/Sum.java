@@ -1,6 +1,7 @@
 
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.component.Addressable;
 import java.math.BigDecimal;
 import org.jdom.Element;
@@ -21,9 +22,12 @@ public class Sum extends Expression {
     public BigDecimal getValue(Templatable page) {
         BigDecimal bd = BigDecimal.valueOf(0);
         Folder folder = findFolder(page);
-        for( Templatable ct : folder.getChildren() ) {
-            BigDecimal val = calc(ct);
-            if( val != null )  bd = bd.add(val);
+        for( Resource r : folder.getChildren() ) {
+            if( r instanceof Templatable) {
+                Templatable ct = (Templatable) r;
+                BigDecimal val = calc(ct);
+                if( val != null )  bd = bd.add(val);
+            }
         }
         return bd;
     }

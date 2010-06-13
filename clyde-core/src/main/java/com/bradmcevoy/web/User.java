@@ -4,14 +4,12 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.utils.StringUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.mail.MailProcessor;
-import com.bradmcevoy.web.security.PermissionRecipient;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.jdom.Element;
 
-public class User extends Folder implements Mailbox, PermissionRecipient {
+public class User extends Folder implements IUser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
     private static final long serialVersionUID = 1L;
@@ -98,12 +96,12 @@ public class User extends Folder implements Mailbox, PermissionRecipient {
      * @param web
      * @return
      */
-    public boolean owns( Web web ) {
-        Web webThisUser = this.getWeb();
-        String thisWeb = webThisUser.getPath().toString();
-        String thatWeb = web.getPath().toString();
-        return thatWeb.contains( thisWeb ) && thatWeb.length() > thisWeb.length();
-    }
+//    public boolean owns( Web web ) {
+//        Web webThisUser = this.getWeb();
+//        String thisWeb = webThisUser.getPath().toString();
+//        String thatWeb = web.getPath().toString();
+//        return thatWeb.contains( thisWeb ) && thatWeb.length() > thisWeb.length();
+//    }
 
     @Override
     public boolean authenticate( String password ) {

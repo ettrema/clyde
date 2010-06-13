@@ -3,6 +3,7 @@ package com.bradmcevoy.web.console2;
 import com.bradmcevoy.common.FrameworkBase;
 import com.bradmcevoy.http.DateUtils;
 import com.bradmcevoy.http.DateUtils.DateParseException;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.web.BaseResource;
@@ -80,16 +81,19 @@ public class Export extends AbstractConsoleCommand {
 
     private void importFolder( Folder folder, HttpClient client, Arguments arguments, String destPath ) throws Exception {
         log.debug( "importFolder: " + folder.getHref() );
-        for( Templatable ct : folder.getChildren() ) {
-            if( isImportable( ct, arguments ) ) {
-                doImport( (XmlPersistableResource) ct, client, destPath, arguments );
-                if( arguments.recursive ) {
-                    if( ct instanceof Folder && !( ct instanceof Host ) ) {
-                        importFolder( (Folder) ct, client, arguments, destPath + "/" + ct.getName() );
+        for( Resource r : folder.getChildren() ) {
+            if( r instanceof Templatable ){
+                Templatable ct = (Templatable) r;
+                if( isImportable( ct, arguments ) ) {
+                    doImport( (XmlPersistableResource) ct, client, destPath, arguments );
+                    if( arguments.recursive ) {
+                        if( ct instanceof Folder && !( ct instanceof Host ) ) {
+                            importFolder( (Folder) ct, client, arguments, destPath + "/" + ct.getName() );
+                        }
                     }
+                } else {
+                    log.debug( "not processing: " + ct.getHref() );
                 }
-            } else {
-                log.debug( "not processing: " + ct.getHref() );
             }
         }
     }

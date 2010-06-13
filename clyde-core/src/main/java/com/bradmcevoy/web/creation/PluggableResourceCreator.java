@@ -47,4 +47,11 @@ public class PluggableResourceCreator implements ResourceCreator {
         log.debug( "no creator found. using default" );
         return defaultCreator.createResource( folder, ct, in, newName );
     }
+
+    public void setExtraCreators(List<Creator> creators) {
+        for( Creator c : creators ) {
+            log.debug( "add creator to head: " + c.getClass() );
+            this.creators.add(0, c); // Add to head of list, becuase we want these to be preferred to standard ones
+        }
+    }
 }

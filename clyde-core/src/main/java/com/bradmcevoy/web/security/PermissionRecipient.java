@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.vfs.RelationalNameNode;
-import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.IUser;
 import java.util.UUID;
 
 /**
@@ -93,5 +93,5 @@ public interface PermissionRecipient {
      *
      * @return
      */
-    public User getUser();
+    public IUser getUser();
 }

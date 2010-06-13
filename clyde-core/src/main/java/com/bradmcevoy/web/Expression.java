@@ -97,7 +97,7 @@ public class Expression implements Component, WrappableComponent{
     }
     
     public Object calc(Templatable ct, Map map) {
-//        log.debug("calculating: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());        
+        log.debug("calc: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());
         try {
             BaseResource targetContainer = CommonTemplated.getTargetContainer();
             map.put( "targetPage", targetContainer);
@@ -150,7 +150,12 @@ public class Expression implements Component, WrappableComponent{
 
     @Override
     public Object getValue(Addressable container) {
-        return calc((Templatable) container);
+        if( container instanceof Templatable) {
+            return calc((Templatable) container);
+        } else {
+
+            return "";
+        }
     }
 
     @Override
@@ -221,7 +226,8 @@ public class Expression implements Component, WrappableComponent{
 
     @Override
     public String toString() {
-        return getFormattedValue(container);
+        //return getFormattedValue(container);
+        return this.expr;
     }
     
     

@@ -130,21 +130,6 @@ public class CreateHostCommand extends CreateWebCommand{
         }
     }
 
-    
-    
-//    @Override
-//    protected Folder parentTemplates(Web newWeb) {
-//        log.debug( "parentTemplates");
-//        String themeName = themeSelect.getFormattedValue();
-//        Host host = newWeb.getParent().getHost();
-//        Folder themes = host.getThemes();
-//        Folder theme = themes.getSubFolder(themeName);
-//        if( theme == null ) {
-//            throw new RuntimeException("theme not found: " + themeName);
-//        }
-//        return theme;
-//    }
-
     @Override
     public boolean validate(RenderContext rc) {
         boolean b = super.validate(rc);

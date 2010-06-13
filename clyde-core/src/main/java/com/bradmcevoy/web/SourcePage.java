@@ -7,6 +7,7 @@ import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.PostableResource;
+import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -31,10 +32,16 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 
-public class SourcePage extends VfsCommon implements GetableResource, EditableResource, Replaceable, DigestResource {
+public class SourcePage extends VfsCommon implements GetableResource, EditableResource, Replaceable, DigestResource, PropFindableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SourcePage.class);
     public final XmlPersistableResource res;
+
+    static Path getPagePath(Path path) {
+        String nm = path.getName().replace(".source", "");
+        return path.getParent().child(nm);
+    }
+
 
     public SourcePage(XmlPersistableResource res) {
         this.res = res;
@@ -134,9 +141,9 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return path.getName().endsWith(".source");
     }
 
-    static Path getPagePath(Path path) {
-        String nm = path.getName().replace(".source", "");
-        return path.getParent().child(nm);
+
+    public Date getCreateDate() {
+        return null;
     }
 
     class ContentSender extends FrameworkBase {

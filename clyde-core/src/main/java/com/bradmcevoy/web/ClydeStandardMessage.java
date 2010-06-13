@@ -266,7 +266,7 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     }
 
     private String formatHtml(String html) {
-        return MessageHelper.formatHtml(html, this.getChildren());
+        return MessageHelper.formatHtml(html, this.getChildren()); 
     }
 
     private void populate(Element el, List<MailboxAddress> to) {

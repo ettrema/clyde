@@ -165,11 +165,11 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             return false;
         }
 
-        log.debug("checking ownership");
-        User user = (User) auth.getTag();
-        if (user.owns(folder.getWeb())) {
-            return true;
-        }
+//        log.debug("checking ownership");
+//        IUser user = (IUser) auth.getTag();
+//        if (user.owns(folder.getWeb())) {
+//            return true;
+//        }
 
         if (!folder.authorise(request, method, auth)) {
             log.debug("folder says not authorised");

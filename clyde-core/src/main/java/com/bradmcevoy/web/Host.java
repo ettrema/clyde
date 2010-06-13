@@ -122,7 +122,7 @@ public class Host extends Web implements BucketOwner {
     }
 
     @Override
-    public List<Templatable> getChildren() {
+    public List<? extends Resource> getChildren() {
         if( hostPath != null ) {
             Host host = getAliasedHost();
             if( host != null ) {

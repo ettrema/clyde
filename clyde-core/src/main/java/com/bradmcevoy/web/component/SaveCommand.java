@@ -5,11 +5,14 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
+import com.bradmcevoy.web.ComponentMap;
+import com.bradmcevoy.web.Expression;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +23,15 @@ public class SaveCommand extends Command {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SaveCommand.class );
     private static final long serialVersionUID = 1L;
 
+    protected Expression afterScript;
+
     public SaveCommand( Addressable container, Element el ) {
         super( container, el );
     }
 
     public SaveCommand( Addressable container, String name ) {
         super( container, name );
+        afterScript = new Expression(this, "afterScript");
     }
 
     @Override
@@ -93,6 +99,9 @@ public class SaveCommand extends Command {
         if( valid ) {
             log.debug( "valid, save pages and commit");
             for( BaseResource page : pages ) {
+                execAfterScript(page, rc);
+            }
+            for( BaseResource page : pages ) {
                 page.save();
             }
             commit();
@@ -137,4 +146,42 @@ public class SaveCommand extends Command {
         }
         return findPage( a );
     }
+
+    @Override
+    public void fromXml(Element el) {
+        super.fromXml(el);
+        ComponentMap components = new ComponentMap();
+        components._fromXml(this, el);
+        fromXml(components);
+        log.debug("fromXml: " + afterScript);
+    }
+
+    protected void fromXml(ComponentMap map) {
+        Component c;
+        c = consume(map, "afterScript");
+        if( c == null ) {
+            afterScript = new Expression(this, "afterScript");
+        } else {
+            afterScript = (Expression) c;
+        }
+    }
+
+    protected Component consume(ComponentMap map, String name) {
+        Component c = map.get(name);
+        return c;
+    }
+
+
+    protected void execAfterScript(BaseResource newlyCreated, RenderContext rc) {
+        if( afterScript == null) return;
+        log.debug("execAfterScript");
+        Map map = new HashMap();
+        map.put("created", newlyCreated);
+        map.put("rc", rc);
+        map.put("command", this);
+        Templatable ct = (Templatable) this.getContainer();
+        afterScript.calc(ct, map);
+        log.debug("done execAfterScript");
+    }
+
 }

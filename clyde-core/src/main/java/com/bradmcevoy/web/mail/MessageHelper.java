@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.mail;
 
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ public class MessageHelper {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MailProcessorImpl.class);
 
-    public static String formatHtml(String html, List<Templatable> files) {
+    public static String formatHtml(String html, List<? extends Resource> files) {
         html = stripLeadingBody(html);
         Set<String> cids = parseContentIds(html);
         Map<String,EmailAttachment> attachmentsByCid = getAttachmentsMap(files);
@@ -76,13 +77,16 @@ public class MessageHelper {
      * @param files
      * @return
      */
-    public static Map<String, EmailAttachment> getAttachmentsMap(List<Templatable> files) {
+    public static Map<String, EmailAttachment> getAttachmentsMap(List<? extends Resource> files) {
         Map<String,EmailAttachment> map = new HashMap<String, EmailAttachment>();
-        for( Templatable ct : files ) {
-            if( ct instanceof EmailAttachment ) {
-                EmailAttachment ea = (EmailAttachment) ct;
-                String cid = ea.getContentId();
-                if( cid != null ) map.put("cid:" + cid, ea);
+        for( Resource r : files ) {
+            if( r instanceof Templatable ) {
+                Templatable ct = (Templatable) r;
+                if( ct instanceof EmailAttachment ) {
+                    EmailAttachment ea = (EmailAttachment) ct;
+                    String cid = ea.getContentId();
+                    if( cid != null ) map.put("cid:" + cid, ea);
+                }
             }
         }
         return map;

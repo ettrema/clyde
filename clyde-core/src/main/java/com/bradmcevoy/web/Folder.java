@@ -5,8 +5,10 @@ import com.bradmcevoy.web.creation.ResourceCreator;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.event.EventManager;
 import com.bradmcevoy.event.PutEvent;
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
@@ -24,6 +26,8 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TypeMapping;
 import com.bradmcevoy.web.component.TypeMappingsComponent;
+import com.bradmcevoy.web.security.PermissionChecker;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import eu.medsea.util.MimeUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -392,8 +396,25 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     @Override
-    public List<Templatable> getChildren() {
-        return getChildren( null );
+    public List<? extends Resource> getChildren() {
+        List<Templatable> children = getChildren( null );
+        boolean isAdmin = isCurrentUserAnAdmin();
+        if( isAdmin ) {
+            log.debug("--- isadmin");
+            List<Resource> resources = new ArrayList<Resource>();
+            for( Resource child : children ) {
+                resources.add(child);
+                if( child instanceof XmlPersistableResource ) {
+                    SourcePage sp = new SourcePage((XmlPersistableResource) child);
+                    resources.add(sp);
+                }
+            }
+            return resources;
+        } else {
+            log.debug("not admin");
+            return children;
+        }
+
     }
 
     public List<Templatable> getChildren( String isA ) {
@@ -502,6 +523,25 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         } catch( WritingException ex ) {
             throw new RuntimeException( ex );
         }
+    }
+
+    /**
+     * Create a resource from a template
+     *
+     * Does not commit
+     * 
+     * @param name - the name of the resource to create
+     * @param templateName - the name of the template to assign to the resource. Is validated.
+     * @return
+     */
+    public Resource create(String name, String templateName) {
+        ITemplate t = getTemplate(templateName);
+        if( t == null) {
+            throw new RuntimeException("No such template: " + templateName);
+        }
+        BaseResource res = t.createPageFromTemplate(this, name);
+        res.save();
+        return res;
     }
 
     public Resource doCreate( String newName, InputStream in, Long length, String contentType ) throws ReadingException, WritingException {
@@ -723,6 +763,19 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public String getLink() {
         String text = getLinkText();
         return "<a href='" + getHref() + "index.html'>" + text + "</a>";
+    }
+
+    private boolean isCurrentUserAnAdmin() {
+        if( HttpManager.request() == null ) {
+            return false;
+        }
+        Auth auth = HttpManager.request().getAuthorization();
+        if(auth == null || auth.getTag() == null ) {
+            return false;
+        } else {
+            PermissionChecker permissionChecker = requestContext().get( PermissionChecker.class );
+            return permissionChecker.hasRole(Role.SYSADMIN, this, auth);
+        }
     }
 
     /**

@@ -101,7 +101,8 @@ public class GroupsDef extends TextDef {
                     return false;
                 }
                 User currentUser = (User) auth.getTag();
-                if( !currentUser.isInGroup(g) && !currentUser.owns(u.getWeb()) ) {
+                if( !currentUser.isInGroup(g) ) { // TODO: include if Role.ADMIN
+                //if( !currentUser.isInGroup(g) && !currentUser.owns(u.getWeb()) ) {
                     c.setValidationMessage("You must be a member of the secure group (or owner of this web) to assign the group: " + g.getName());
                     return false;
                 }

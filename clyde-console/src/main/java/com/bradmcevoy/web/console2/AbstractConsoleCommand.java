@@ -12,7 +12,6 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.Templatable;
 import com.ettrema.console.ConsoleCommand;
 import com.ettrema.console.Result;
 import java.util.List;
@@ -142,7 +141,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         } catch (Exception e) {
             return result("Couldnt compile regular expression: " + path.getName());
         }
-        for (Templatable ct : start.getChildren()) {
+        for (Resource ct : start.getChildren()) {
             if (ct instanceof BaseResource) {
                 BaseResource res = (BaseResource) ct;
                 Matcher m = pattern.matcher(res.getName());

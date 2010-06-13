@@ -1,6 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.utils.ReflectionUtils;
+import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.EmailDef;
@@ -10,6 +11,8 @@ import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TextDef;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.jdom.Element;
 
 public class Template extends Page implements ITemplate {
@@ -61,6 +64,8 @@ public class Template extends Page implements ITemplate {
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
 
+    private String afterCreateScript;
+
     public Template( Folder parent, String name ) {
         super( parent, name );
     }
@@ -82,7 +87,30 @@ public class Template extends Page implements ITemplate {
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         componentDefs.fromXml( this, el );
+        Element elScript = el.getChild("afterCreateScript");
+        if( elScript != null ) {
+            afterCreateScript = elScript.getText();
+        }
     }
+
+    @Override
+    public void populateXml( Element e2 ) {
+        super.populateXml( e2 );
+        componentDefs.toXml( this, e2 );
+        if( afterCreateScript != null ) {
+            Element elScript = new Element("afterCreateScript");
+            elScript.setText(afterCreateScript);
+            e2.addContent(elScript);
+        }
+    }
+
+
+    @Override
+    public Element toXml(Addressable container, Element el) {
+        return super.toXml(container, el);
+    }
+
+
 
     @Override
     public boolean is( String type ) {
@@ -106,11 +134,6 @@ public class Template extends Page implements ITemplate {
 
     }
 
-    @Override
-    public void populateXml( Element e2 ) {
-        super.populateXml( e2 );
-        componentDefs.toXml( this, e2 );
-    }
 
     @Override
     public Component getAnyComponent( String childName ) {
@@ -169,6 +192,7 @@ public class Template extends Page implements ITemplate {
             ComponentValue cv = def.createComponentValue( newRes );
             newRes.getValues().add( cv );
         }
+        execAfterScript(newRes);
         return newRes;
     }
 
@@ -188,6 +212,7 @@ public class Template extends Page implements ITemplate {
             log.debug( "createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName());
             newRes.getValues().add( cv );
         }
+        execAfterScript(newRes);
         return newRes;
     }
 
@@ -230,6 +255,29 @@ public class Template extends Page implements ITemplate {
     public ComponentDefMap getComponentDefs() {
         return componentDefs;
     }
+
+    private void execAfterScript(BaseResource newlyCreated) {
+        if( afterCreateScript == null) return;
+        log.debug("execAfterScript");
+        Map map = new HashMap();
+        map.put("created", newlyCreated);
+        map.put("command", this);
+        Templatable ct = (Templatable) this.getContainer();
+        exec(ct, map, afterCreateScript);
+        log.debug("done execAfterScript");
+    }
+
+    private void exec(Templatable ct, Map map, String expr) {
+        try {
+            BaseResource targetContainer = CommonTemplated.getTargetContainer();
+            map.put( "targetPage", targetContainer);
+            map.put( "formatter", Formatter.getInstance());
+            org.mvel.MVEL.eval(expr, ct, map);
+        } catch (Exception e) {
+            throw new RuntimeException("Exception evaluating expression: " + expr + " in page: " + ct.getName(), e);
+        }
+    }
+
 
     public TextDef addTextDef(String name) {
         TextDef d = new TextDef( this, name );

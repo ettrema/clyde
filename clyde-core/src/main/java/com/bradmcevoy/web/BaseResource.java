@@ -67,6 +67,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     }
 
+    public boolean isNew() {
+        return nameNode instanceof Folder.TransientNameNode;
+    }
+
     @Override
     public String getUniqueId() {
         return null;
