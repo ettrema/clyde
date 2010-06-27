@@ -17,6 +17,7 @@ import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.vfs.DataNode;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.OutputStreamWriter;
@@ -45,6 +46,7 @@ import org.jdom.Element;
  * 
  * @author brad
  */
+@BeanPropertyResource("clyde")
 public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Folder.class );
@@ -398,23 +400,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public List<? extends Resource> getChildren() {
         List<Templatable> children = getChildren( null );
-        boolean isAdmin = isCurrentUserAnAdmin();
-        if( isAdmin ) {
-            log.debug("--- isadmin");
-            List<Resource> resources = new ArrayList<Resource>();
-            for( Resource child : children ) {
-                resources.add(child);
-                if( child instanceof XmlPersistableResource ) {
-                    SourcePage sp = new SourcePage((XmlPersistableResource) child);
-                    resources.add(sp);
-                }
-            }
-            return resources;
-        } else {
-            log.debug("not admin");
-            return children;
-        }
-
+        return children;
     }
 
     public List<Templatable> getChildren( String isA ) {

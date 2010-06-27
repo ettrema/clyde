@@ -28,6 +28,12 @@ import java.util.Map;
 import java.util.UUID;
 import org.jdom.Element;
 
+/**
+ * Base class for all physical resources. Encapsulates a namenode and is a datanode
+ * 
+ * 
+ * @author brad
+ */
 public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
@@ -79,9 +85,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected void initName() {
         ComponentMap map = this.getComponents();
         if( !map.containsKey( "name" ) ) {
-            if( nameInited ) {
-                log.warn( "double input of name!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-            }
             nameInited = true;
             nameInput = new NameInput( this );
             map.add( nameInput );    // everyone has a name component        

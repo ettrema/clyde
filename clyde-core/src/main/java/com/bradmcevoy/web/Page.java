@@ -3,6 +3,7 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.HtmlInput;
 import java.io.ByteArrayOutputStream;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
+@BeanPropertyResource("clyde")
 public class Page extends File implements Replaceable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Page.class);

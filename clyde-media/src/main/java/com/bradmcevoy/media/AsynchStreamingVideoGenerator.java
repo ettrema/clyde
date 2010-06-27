@@ -21,7 +21,7 @@ import java.util.UUID;
  *
  * @author brad
  */
-public class AsynchStreamingVideoGenerator extends VfsCommon implements StreamingVideoGenerator, Factory<Object>, CommitListener  {
+public class AsynchStreamingVideoGenerator extends VfsCommon implements Factory<Object>, CommitListener  {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( AsynchStreamingVideoGenerator.class );
 
@@ -54,18 +54,14 @@ public class AsynchStreamingVideoGenerator extends VfsCommon implements Streamin
         if (dn instanceof VideoFile) {            
             VideoFile source = (VideoFile) dn;
             if( !source.isTrash()) {
-                doGenerateStreamingVideo( source );
+                enqueueGenerateStreamingVideo( source );
             } else {
                 log.debug( "not generating as in trash folder");
             }
         }
     }
 
-    public void generateStreamingVideo( VideoFile source ) {
-        // do nothing, done on commit
-    }
-
-    private void doGenerateStreamingVideo( VideoFile source ) {
+    private void enqueueGenerateStreamingVideo( VideoFile source ) {
         log.debug( "generateStreamingVideo: " + source.getName());
         final UUID id = source.getNameNodeId();
         final String sourceName = source.getName();

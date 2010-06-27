@@ -16,6 +16,8 @@ public class Web extends Folder {
     }
     public static final String TRASH_FOLDER_NAME = "Trash";
 
+    public static final String RECENT_FOLDER_NAME = "Recent";
+
     public Web( Folder parentFolder, String newName ) {
         super( parentFolder, newName );
     }
@@ -44,6 +46,31 @@ public class Web extends Folder {
             }
         }
     }
+
+    public Folder getRecentFolder() {
+        return getRecentFolder(false);
+    }
+
+    public Folder getRecentFolder(boolean b) {
+        Resource r = this.child( RECENT_FOLDER_NAME );
+        if( r == null ) {
+            try {
+                r = this.createCollection( RECENT_FOLDER_NAME, false );
+            } catch( ConflictException ex ) {
+                throw new RuntimeException( "Cant create " + RECENT_FOLDER_NAME + " in " + this.getHref(), ex );
+            }
+            return (Folder) r;
+        } else {
+            if( r instanceof Folder ) {
+                return (Folder) r;
+            } else {
+                log.warn( "RECENT_FOLDER_NAME is not of type Folder. Is a : " + r.getClass() );
+                return null;
+            }
+        }
+
+    }
+
 
     /**
      * 

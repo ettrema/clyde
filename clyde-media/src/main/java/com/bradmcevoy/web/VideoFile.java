@@ -2,9 +2,11 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.media.StreamingVideoGenerator;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.component.InitUtils;
 import org.jdom.Element;
 
+@BeanPropertyResource("clyde")
 public class VideoFile extends BinaryFile {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( VideoFile.class );
@@ -47,12 +49,13 @@ public class VideoFile extends BinaryFile {
     }
 
     public void generateStreaming() {
-        StreamingVideoGenerator gen = requestContext().get( StreamingVideoGenerator.class);
-        if( gen == null ) {
-            log.warn( "No streaming video converter");
-        } else {
-            gen.generateStreamingVideo( this );
-        }
+        // done on commit
+//        StreamingVideoGenerator gen = requestContext().get( StreamingVideoGenerator.class);
+//        if( gen == null ) {
+//            log.warn( "No streaming video converter");
+//        } else {
+//            gen.generateStreamingVideo( this );
+//        }
     }
 
     public Integer getConvertedHeight() {
@@ -87,6 +90,12 @@ public class VideoFile extends BinaryFile {
         } else {
             return null;
         }
+    }
+
+    public String getStreamingVideoHref() {
+        FlashFile ff = getStreamingVideo();
+        if( ff == null ) return "";
+        return ff.getHref();
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-@BeanPropertyResource("clydeImage")
+@BeanPropertyResource("clyde")
 public class ImageFile extends BinaryFile {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ImageFile.class );

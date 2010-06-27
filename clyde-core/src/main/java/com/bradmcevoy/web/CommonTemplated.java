@@ -417,6 +417,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
     }
 
+    public String getContentType() {
+        return this.contentType;
+    }
+
     public void setContentType( String contentType ) {
         this.contentType = contentType;
     }
