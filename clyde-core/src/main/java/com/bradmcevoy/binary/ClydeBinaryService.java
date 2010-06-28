@@ -37,9 +37,9 @@ public interface ClydeBinaryService {
      */
     InputStream readInputStream(BinaryFile file, String versionNum) throws BadRequestException;
 
-    long getContentLength(BinaryFile file);
+    long getContentLength(BinaryFile file, String versionNum);
 
-    long getCrc(BinaryFile file);
+    long getCrc(BinaryFile file, String versionNum);
 
     List<VersionDescriptor> getVersions(BinaryFile file);
 }

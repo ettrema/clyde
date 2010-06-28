@@ -30,7 +30,7 @@ public class CombiningTextFile extends File {
     }
 
     public CombiningTextFile( Folder parentFolder, String newName ) {
-        super( "text/javascript", parentFolder, newName );
+        super( "text", parentFolder, newName );
     }
 
     @Override
@@ -45,11 +45,14 @@ public class CombiningTextFile extends File {
             OutputStream tempOut = out;
             for( Path includeName : includes ) {
                 Resource child = this.getParent().find( includeName );
-                if( child instanceof GetableResource ) {
-                    log.debug( "including: " + child.getName() + " type: " + child.getClass() );
+                if( child == null ) {
+                    log.warn("Couldnt find resource to imclude: " + includeName + " in folder: " + this.getParent().getHref());
+                } else if( child instanceof GetableResource ) {
                     GetableResource gr = (GetableResource) child;
                     gr.sendContent( tempOut, range, params, contentType );
 //                    tempOut.write( "\n".getBytes() ); // write CR
+                } else {
+                    log.warn("is not getable! " + child.getClass());
                 }
             }
             //byte[] arr = tempOut.toByteArray();

@@ -3,6 +3,7 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.binary.ClydeBinaryService;
 import com.bradmcevoy.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
@@ -340,8 +341,8 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         if (svc == null) {
             throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
         }
-
-        return svc.getCrc(this);
+        String versionNum = HttpManager.request().getParams().get("_version");
+        return svc.getCrc(this, versionNum);
     }
 
     @Override
@@ -351,7 +352,12 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
             throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
         }
 
-        return svc.getContentLength(this);
+        String versionNum = null;
+        Map<String, String> ps = HttpManager.request().getParams();
+        if( ps != null ) {
+            versionNum = ps.get("_version");
+        }
+        return svc.getContentLength(this, versionNum);
     }
 
     public Long getLocalContentLength() {

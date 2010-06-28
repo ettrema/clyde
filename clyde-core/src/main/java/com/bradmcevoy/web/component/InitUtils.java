@@ -23,6 +23,12 @@ public class InitUtils {
         return s.equals( "true" );
     }
 
+    public static Boolean getNullableBoolean( Element el, String name ) {
+        String s = el.getAttributeValue( name );
+        if( s == null ) return null;
+        return s.equals( "true" );
+    }
+
     public static int getInt( Element el, String name ) {
         String s = getValue( el, name );
         if( s == null || s.length() == 0 ) return 0;
@@ -78,12 +84,16 @@ public class InitUtils {
         }
     }
 
-    public static void set( Element e2, String name, boolean b ) {
+    public static void set( Element e2, String name, Boolean b ) {
         setBoolean( e2, name, b );
     }
 
-    public static void setBoolean( Element e2, String name, boolean b ) {
-        e2.setAttribute( name, b + "" );
+    public static void setBoolean( Element e2, String name, Boolean b ) {
+        if( b == null ) {
+            e2.removeAttribute(name);
+        } else {
+            e2.setAttribute( name, b + "" );
+        }
     }
 
     public static String getValue( Element el, String name, String def ) {

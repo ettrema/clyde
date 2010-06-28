@@ -73,6 +73,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     TemplateSpecs templateSpecs = new TemplateSpecs();
 
+    /**
+     * Whether or not resources should be version controlled, if supported by
+     * ClydeBinaryService
+     */
+    private Boolean versioningEnabled;
+
     /** Create a root folder
      */
     public Folder() {
@@ -87,6 +93,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     protected BaseResource copyInstance( Folder parent, String newName ) {
         Folder fNew = (Folder) super.copyInstance( parent, newName );
         fNew.secureRead = this.secureRead;
+        fNew.versioningEnabled = this.versioningEnabled;
         if( this.templateSpecs != null ) {
             fNew.templateSpecs.addAll( this.templateSpecs );
         }
@@ -226,11 +233,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
-        String s = el.getAttributeValue( "secureRead" );
-        secureRead = ( s == null ? false : Boolean.valueOf( s ) );
+        secureRead = InitUtils.getBoolean(el, "secureRead");
+        versioningEnabled = InitUtils.getBoolean(el, "versioningEnabled");
         redirect = InitUtils.getValue( el, "redirect" );
         thumbHref = InitUtils.getValue( el, "thumbHref" );
-        s = el.getAttributeValue( "allowedTemplates" );
+        String s = el.getAttributeValue( "allowedTemplates" );
         templateSpecs = TemplateSpecs.parse( s );
     }
 
@@ -238,6 +245,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         e2.setAttribute( "secureRead", secureRead + "" );
+        InitUtils.set(e2, "versioningEnabled", versioningEnabled);
         InitUtils.setString( e2, "redirect", redirect );
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
@@ -1023,4 +1031,28 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public Element toXml( Element el, Map<String, String> params ) {
         return toXml( el );
     }
+
+    /**
+     * Returns true to indicate that this folder and all child resources, except
+     * those which have specified otherwsie, can be versioned if versioning is supported by this installation
+     *
+     * False means they must not be versioned
+     *
+     * Null indicates that this folder has not specified a versioning requirement
+     * and it has been delegated to its parent (recursively)
+     *
+     * Note that this property does not return a recursive value, it only returns
+     * the value defined on this folder
+     *
+     * @return - the persisted versioning requirement for this resource
+     */
+    public Boolean isVersioningEnabled() {
+        return versioningEnabled;
+    }
+
+    public void setVersioningEnabled(Boolean versioningEnabled) {
+        this.versioningEnabled = versioningEnabled;
+    }
+
+
 }

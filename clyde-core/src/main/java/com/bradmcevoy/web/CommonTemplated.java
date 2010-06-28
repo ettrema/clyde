@@ -348,7 +348,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Object authenticate( DigestResponse digestRequest ) {
-        log.warn( "authenticate(digest): resource: " + this.getName());
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( this, digestRequest );
         if( o == null ) {

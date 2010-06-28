@@ -105,16 +105,39 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return nameNode;
     }
 
+    /**
+     * The ID of the name node which contains this resource
+     *
+     * @return
+     */
     public UUID getNameNodeId() {
         if( nameNode == null ) return null;
         return nameNode.getId();
     }
 
+    /**
+     * For a physical resource, getParentFolder returns exactly the same result
+     * as getParent
+     *
+     * @return
+     */
     @Override
     public Folder getParentFolder() {
         return getParent();
     }
 
+    /**
+     * Move this resource to the given folder (aka collection) with the given name
+     *
+     * The name may be unchanged for a conventional move, or the collection might be
+     * unchanged for a conventional rename operation, but both can be changed
+     * simultaneously
+     *
+     * This method commits the transaction
+     *
+     * @param rDest
+     * @param name
+     */
     public void moveTo( CollectionResource rDest, String name ) {
         moveTo( rDest, name, true );
     }
@@ -141,6 +164,14 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         save();
     }
 
+    /**
+     * Copy to the given folder (ie collection) with the given name
+     *
+     * This method commits the transaction
+     *
+     * @param toCollection
+     * @param name
+     */
     public void copyTo( CollectionResource toCollection, String name ) {
         log.debug( "copyTo: from " + this.getName() + " to " + toCollection.getName() + ":" + name );
         if( toCollection instanceof Folder ) {
@@ -152,6 +183,13 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
     }
 
+    /**
+     * Performs a copy to the given folder with the current name
+     *
+     * does not commit
+     *
+     * @param newParent
+     */
     public void _copyTo( Folder newParent ) {
         _copyTo( newParent, this.getName() );
     }
@@ -173,12 +211,20 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return newRes;
     }
 
+    /**
+     * Delete the resource and commit
+     *
+     */
     @Override
     public void delete() {
         deleteNoTx();
         commit();
     }
 
+    /**
+     * Delete without committing the transaction
+     *
+     */
     public void deleteNoTx() {
         log.debug( "delete: " + this.getName() );
         _delete();
@@ -384,6 +430,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return toXml( el );
     }
 
+    /**
+     * The folder which contains this physical resource
+     *
+     * @return
+     */
     @Override
     public Folder getParent() {
         if( nameNode == null ) return null;
@@ -418,6 +469,15 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public String getModifiedDateFormatted() {
         return DateDef.sdf.format( getModifiedDate() );
+    }
+
+    public Long getModifiedDateAsLong() {
+        Date dt = getModifiedDate();
+        if( dt == null ) {
+            return null;
+        } else {
+            return dt.getTime();
+        }
     }
 
     @Override

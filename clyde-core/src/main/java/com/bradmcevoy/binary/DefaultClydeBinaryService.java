@@ -24,7 +24,7 @@ public class DefaultClydeBinaryService implements ClydeBinaryService{
         }
         long crc = cin.getChecksum().getValue();
         file.setLocalCrc( crc);
-        log.debug( "setContent: new contentLength: " + file.getContentLength() + " crc=" + crc );
+        log.debug( "setContent: new contentLength: " + contentLength + " crc=" + crc );
         return contentLength;
     }
 
@@ -38,13 +38,13 @@ public class DefaultClydeBinaryService implements ClydeBinaryService{
         return file.getNameNode().getBinaryContent();
     }
 
-    public long getContentLength(BinaryFile file) {
+    public long getContentLength(BinaryFile file, String versionNum) {
         Long ll = file.getLocalContentLength();
         if( ll == null ) return 0;
         return ll.longValue();
     }
 
-    public long getCrc(BinaryFile file) {
+    public long getCrc(BinaryFile file, String versionNum) {
         return file.getLocalCrc();
     }
 

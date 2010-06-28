@@ -10,7 +10,9 @@ import com.bradmcevoy.vfs.DataNode;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.OutputStreamWriter;
 import com.bradmcevoy.web.BinaryFile;
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.IUser;
+import com.bradmcevoy.web.Web;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -54,7 +56,7 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
 
     public int setContent(BinaryFile file, InputStream in) {
         log.debug("setContent: " + file.getName());
-        if( !file.isFirstVersionDone() ) {
+        if( !file.isFirstVersionDone() || !isVersioningEnabled(file) ) {
             // Set the first version directly on the file's node, using the wrapped service
             log.debug("delegate");
             file.setFirstVersionDone(true);
@@ -125,28 +127,28 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
 
     }
 
-    public long getContentLength(BinaryFile file) {
+    public long getContentLength(BinaryFile file, String versionNum) {
         NameNode versionsNode = getVersionsNode(file, false);
-        Version v = getLatestVersion(versionsNode);
+        Version v = getNamedVersion(versionsNode, versionNum);
         if( v == null ) {
             if(wrapped == null) {
                 return 0;
             } else {
-                return wrapped.getContentLength(file);
+                return wrapped.getContentLength(file, versionNum);
             }
         } else {
             return v.getContentLength();
         }
     }
 
-    public long getCrc(BinaryFile file) {
+    public long getCrc(BinaryFile file, String versionNum) {
         NameNode versionsNode = getVersionsNode(file, false);
-        Version v = getLatestVersion(versionsNode);
+        Version v = getNamedVersion(versionsNode, versionNum);
         if( v == null ) {
             if(wrapped == null) {
                 return 0;
             } else {
-                return wrapped.getCrc(file);
+                return wrapped.getCrc(file, versionNum);
             }
         } else {
             return v.getCrc();
@@ -237,11 +239,34 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
         if( versionsNode == null ) {
             return null;
         }
-        NameNode n =  versionsNode.child(versionNum);
-        if( n.getDataClass().equals(Version.class)) {
-            return (Version) n.getData();
+        if( versionNum == null || versionNum.length() == 0 ) {
+            return getLatestVersion(versionsNode);
         } else {
-            return null;
+            NameNode n =  versionsNode.child(versionNum);
+            if( n == null) {
+                return null;
+            } else if( n.getDataClass().equals(Version.class)) {
+                return (Version) n.getData();
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private boolean isVersioningEnabled(BinaryFile file) {
+        return isVersioningEnabled(file.getParentFolder());
+    }
+
+    private boolean isVersioningEnabled(Folder folder) {
+        Boolean b = folder.isVersioningEnabled();
+        if( b == null ) {
+            if( folder instanceof Web) {
+                return true; // No value specified, so default to true
+            } else {
+                return isVersioningEnabled(folder.getParentFolder());
+            }
+        } else {
+            return b.booleanValue();
         }
     }
 }
