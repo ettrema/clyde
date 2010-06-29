@@ -1,11 +1,9 @@
 
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.exceptions.MiltonException;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
@@ -15,47 +13,54 @@ import com.bradmcevoy.web.component.ComponentValue;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 
 public class HostSearchManager {
     
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HostSearchManager.class);
-    
-    private static final Map<String,HostSearchManager> map = new ConcurrentHashMap<String, HostSearchManager>();
-    
-    final String hostName;
 
-    public static synchronized HostSearchManager getInstance(String hostName) {
-        HostSearchManager mgr = map.get(hostName);
-        if( mgr == null ) {
-            mgr = new HostSearchManager(hostName);
-            map.put(hostName, mgr);
-        }
-        return mgr;
-    }
+    private final String baseDir;
     
-    private HostSearchManager(String hostName) {
+    private final String hostName;
+
+    private IndexSearcher searcher;
+    
+    public HostSearchManager(String baseDir, String hostName) throws CorruptIndexException {
         this.hostName = hostName;
+        this.baseDir = baseDir;
+        Directory index;
+        IndexWriter w = null;
+        File f = getDir();
+        if( !f.exists() ) {
+            log.debug("directory does not exist: " + f.getAbsolutePath());
+        } else {
+            try {
+                index = FSDirectory.open(f);
+                searcher = new IndexSearcher(index);
+            } catch (IOException ex) {
+                throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
+            }
+        }
     }
     
     public File getDir() {
-        File f = new File("/webs/search");
+        File f = new File(baseDir);
         if( f.exists() ) f.mkdir();
         return new File(f,hostName);
     }
@@ -71,7 +76,7 @@ public class HostSearchManager {
         
         IndexWriter w = null;
         try {
-            index = FSDirectory.getDirectory(f);
+            index = FSDirectory.open(f);
         } catch (IOException ex) {
             throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
         }
@@ -93,7 +98,8 @@ public class HostSearchManager {
         }        
                 
         try {
-            w = new IndexWriter(index, new StandardAnalyzer(), create);
+            StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
+            w = new IndexWriter(index, analyzer, create, IndexWriter.MaxFieldLength.LIMITED);
             Document doc = new Document();
             ITemplate t = res.getTemplate();
             if( t == null ) {
@@ -101,7 +107,7 @@ public class HostSearchManager {
                 return ;
             }
             
-            Field fId = new Field("id", res.getNameNodeId().toString(), Field.Store.YES,  Field.Index.TOKENIZED);
+            Field fId = new Field("id", res.getNameNodeId().toString(), Field.Store.NO, Field.Index.ANALYZED);
             doc.add(fId);
             
             RenderContext rc = new RenderContext(t, res, null, false);
@@ -127,9 +133,9 @@ public class HostSearchManager {
             }
 
             String content = out.toString();
-            Field html = new Field("html", content, Field.Store.NO,  Field.Index.TOKENIZED);
+            Field html = new Field("html", content, Field.Store.NO,  Field.Index.ANALYZED);
             doc.add(html);
-            Field fName = new Field("name", res.getName(), Field.Store.YES,  Field.Index.TOKENIZED);
+            Field fName = new Field("name", res.getName(), Field.Store.YES,  Field.Index.ANALYZED);
             doc.add(fName);
             w.addDocument(doc);
         } catch (IOException ex) {
@@ -144,61 +150,37 @@ public class HostSearchManager {
     
     private void addField(Document doc, String field, String value) throws IOException {
         if( value == null ) return ;
-        doc.add(new Field(field, value, Field.Store.YES,   Field.Index.TOKENIZED));
+        doc.add(new Field(field, value, Field.Store.YES,   Field.Index.ANALYZED));
     }    
 
     
-    public Hits search(String query) throws ParseException {
-        String[] fields = new String[]{"title","name","html"};
-        Map boosts = new HashMap();
-        boosts.put("name", new Float(10));
-        boosts.put("title", new Float(5));
-        return search(fields,query,boosts);
-    }
     
-    public Hits search(String field, String query) throws ParseException {
-        String[] fields = new String[]{field};
-        return search(fields,query, null);
-    }
-    
-    public Hits search(String[] fields, String query, Map boosts) throws ParseException {
-        StringBuffer sb = new StringBuffer();
-        // add a search term which is the quoted query and give it a x4 boost
-        //sb.append('"').append(query).append('"').append("^4 ").append(query);
-        sb.append(query);
-        StandardAnalyzer ana = new StandardAnalyzer();
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, ana); //, boosts);
-        Query q = parser.parse(sb.toString());
-        //Query q = new QueryParser(field, new StandardAnalyzer()).parse(sb.toString());
-        BooleanQuery bq;
-        return search(q);
-    }
-    
-    public Hits search(Query q) throws ParseException {        
-        File f = getDir();
-        Directory index;
-        IndexWriter w = null;
+    public Document[] search(Query q) throws ParseException {
         try {
-            index = FSDirectory.getDirectory(f,false);
-        } catch (IOException ex) {
-            throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
-        }
-        
-        VfsSession session = RequestContext.getCurrent().get(VfsSession.class);
-        try {
-            IndexSearcher s = new IndexSearcher(index);
-            Hits hits = s.search(q);
-            return hits;
-        } catch (IOException ex) {
-            throw new RuntimeException(f.getAbsolutePath(), ex);
-        }
-    }
-    
-    public static Document doc(Hits hits, int i) {
-        try {
-            return hits.doc(i);
+            TopScoreDocCollector collector = TopScoreDocCollector.create(20, true) ;
+            searcher.search(q, collector);
+            TopDocs topDocs = collector.topDocs();
+            return toArray(topDocs);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    public Document doc(TopDocs hits, int i) {
+        try {
+            return searcher.doc(hits.scoreDocs[i].doc);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private Document[] toArray(TopDocs topDocs) {
+        List<Document> list = new ArrayList<Document>();
+        for( int i=0; i<topDocs.totalHits; i++ ) {
+            Document doc = doc(topDocs, i);
+            list.add(doc);
+        }
+        Document[] arr = new Document[list.size()];
+        return list.toArray(arr);
     }
 }

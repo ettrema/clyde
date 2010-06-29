@@ -144,6 +144,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             Object o = cv.getValue();
             if( o != null ) {
                 String s = o.toString();
+                int pos = s.indexOf("<body");
+                if( pos>=0){
+                    s = s.substring(pos+5);
+                }
                 if( s.length() > 200 ) {
                     return s.substring( 1, 200 ) + "...";
                 } else {
@@ -337,7 +341,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public User authenticate( String user, String password ) {
-        log.debug( "authenticate(basic");
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         User o = authenticator.authenticate( this, user, password );
         if( o == null ) {

@@ -2,6 +2,7 @@
 package com.bradmcevoy.web.search;
 
 import com.bradmcevoy.context.Context;
+import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.vfs.DataNode;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsSession;
@@ -12,6 +13,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Template;
 import java.io.Serializable;
 import java.util.UUID;
+import org.apache.lucene.index.CorruptIndexException;
 
 public class BaseResourceIndexer implements Processable, Serializable{
 
@@ -66,8 +68,12 @@ public class BaseResourceIndexer implements Processable, Serializable{
             return ;
         }
         String hostName = host.getName();
-        HostSearchManager mgr = HostSearchManager.getInstance(hostName);
-        mgr.index(res);
+        SearchManager sm = RequestContext.getCurrent().get(SearchManager.class);        
+        try {
+            sm.index(res);
+        } catch (CorruptIndexException ex) {
+            log.error("couldnt index in: " + hostName, ex);
+        }
     }
 
     @Override

@@ -99,9 +99,15 @@ public class ImageFile extends BinaryFile {
         return count;
     }
 
+
+
     public ImageData getImageData() {
+        return imageData(true);
+    }
+
+    public ImageData imageData(boolean create) {
         Dimensions dim;
-        if( imageData == null ) {
+        if( imageData == null && create ) {
             ImageService svc = new ImageService(); // todo: move to context
             imageData = new ImageData();
             InputStream in = null;

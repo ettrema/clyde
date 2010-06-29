@@ -24,21 +24,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.Hits;
 import org.jdom.Element;
 
 public class SearchCommand extends Command {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchCommand.class);
     private static final long serialVersionUID = 1L;
-    
-    
-    
+        
     private Text query;
     private NumberInput pageNum;
     
-    private Hits hits;
+    private Document[] hits;
     
     public SearchCommand(Addressable container, String name) {
         super(container,name);
@@ -100,8 +98,8 @@ public class SearchCommand extends Command {
         int pageSize = getPageLength();
         for( int i=0; i<getPageLength(); i++ ) {
             int hitNum = pg*pageSize + i;
-            if( hitNum >= hits.length() ) break;
-            Document doc = HostSearchManager.doc(hits, hitNum);
+            if( hitNum >= hits.length ) break;
+            Document doc = hits[hitNum];
             String sId = doc.get("id");
             if( sId == null || sId.length() == 0 ) {
                 log.warn("No id for hit");
@@ -144,7 +142,7 @@ public class SearchCommand extends Command {
     
     public int getNumPages() {
         if( hits == null ) return 0;
-        int num = hits.length() / getPageLength() + 1;
+        int num = hits.length / getPageLength() + 1;
         return num;
     }
     
@@ -173,7 +171,7 @@ public class SearchCommand extends Command {
 
     
     
-    public Hits getHits() {
+    public Document[] getHits() {
         return hits;
     }
 
@@ -246,10 +244,13 @@ public class SearchCommand extends Command {
             return null;
         }
         String hostName = host.getName();
-        HostSearchManager mgr = HostSearchManager.getInstance(hostName);
+        SearchManager sm = requestContext().get(SearchManager.class);
+        
         try {
-            hits = mgr.search(exp);
-            log.debug("done search: " + hits.length());
+            hits = sm.search(hostName, exp);
+            log.debug("done search: " + hits.length);
+        } catch (CorruptIndexException ex) {
+            query.setValidationMessage("Couldnt execute query: " + ex.getMessage()); // TODO, delete index
         } catch (ParseException ex) {
             query.setValidationMessage("Couldnt execute query: " + ex.getMessage());
         }
