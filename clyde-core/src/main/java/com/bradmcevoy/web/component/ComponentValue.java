@@ -68,7 +68,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
 
     public void setValidationMessage( String validationMessage ) {
-        log.debug( "setValidationMessage: " + validationMessage);
+        log.debug( "setValidationMessage: " + name + " -> " + validationMessage);
         if( thValidationMessage == null ) {
             thValidationMessage = new ThreadLocal<String>();
         }

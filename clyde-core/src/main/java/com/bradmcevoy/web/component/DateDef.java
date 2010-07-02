@@ -8,35 +8,36 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.jdom.Element;
 
-public class DateDef extends TextDef{
-    
+public class DateDef extends TextDef {
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DateDef.class);
-    
     private static final long serialVersionUID = 1L;
-    
     public static DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    
     BooleanInput showTime = new BooleanInput(this, "showTime");
-    
-    public DateDef(Addressable container,String name) {
-        super(container,name);
+
+    public DateDef(Addressable container, String name) {
+        super(container, name);
     }
-    
+
     public DateDef(Addressable container, Element el) {
-        super(container,el);
-        if( showTime == null ) showTime = new BooleanInput(this, "showTime");
+        super(container, el);
+        if (showTime == null) {
+            showTime = new BooleanInput(this, "showTime");
+        }
         String s = el.getAttributeValue("showTime");
-        showTime.setValue(s==null||!s.equals("true") ? false : true );
+        showTime.setValue(s == null || !s.equals("true") ? false : true);
     }
-    
+
     @Override
-    public String render(ComponentValue c,RenderContext rc) {
+    public String render(ComponentValue c, RenderContext rc) {
         return formatValue(c.getValue());
     }
 
     @Override
-    public Date parseValue(ComponentValue cv, Templatable ct,String s) {
-        if( s == null || s.trim().length() == 0 ) return null;
+    public Date parseValue(ComponentValue cv, Templatable ct, String s) {
+        if (s == null || s.trim().length() == 0) {
+            return null;
+        }
         try {
             Date dt = sdf.parse(s);
 //            log.debug("parsed " + s + " -> " + dt);
@@ -50,9 +51,9 @@ public class DateDef extends TextDef{
 
     @Override
     public String formatValue(Object v) {
-        if( v == null ) {
+        if (v == null) {
             return "";
-        } else if( v instanceof Date ) {
+        } else if (v instanceof Date) {
             String s = sdf.format(v);
 //            log.debug("formatted " + v + " -> " + s);
             return s;
@@ -63,10 +64,10 @@ public class DateDef extends TextDef{
             return s;
         }
     }
-                
+
     @Override
     protected String editChildTemplate() {
-        return "<input type='text' name='${path}' id='${path}' value='${val.formattedValue}' />\n"
+        String template = "<input type='text' name='${path}' id='${path}' value='${val.formattedValue}' />\n"
                 + "<script type='text/javascript'>\n"
                 + "Calendar.setup({\n"
                 + "inputField     :    '${path}',   // id of the input field\n"
@@ -75,10 +76,18 @@ public class DateDef extends TextDef{
                 + "timeFormat     :    '24',\n"
                 + "});"
                 + "</script>\n";
+        template = template + "#if($cv.validationMessage)";
+        template = template + "<div class='validationError'>${cv.validationMessage}</div>";
+        template = template + "#end";
+        return template;
+
+
     }
 
     public BooleanInput getShowTime() {
-        if( showTime == null ) showTime = new BooleanInput(this, "showTime");
+        if (showTime == null) {
+            showTime = new BooleanInput(this, "showTime");
+        }
         return showTime;
     }
 
@@ -87,6 +96,4 @@ public class DateDef extends TextDef{
         DateVal cv = new DateVal(name.getValue(), null);
         return cv;
     }
-    
-    
 }

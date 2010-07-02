@@ -9,6 +9,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.utils.ClydeUtils;
@@ -97,15 +98,17 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             if (template == null) {
                 throw new RuntimeException("Template not found: " + templateName);
             }
-            BaseResource lEditee = template.createPageFromTemplate( folder, newName );
-            if (lEditee instanceof EditableResource) {
-                EditableResource er = (EditableResource) lEditee;
+            if( editee == null ) {
+                editee = template.createPageFromTemplate( folder, newName );
+            }
+            if (editee instanceof EditableResource) {
+                EditableResource er = (EditableResource) editee;
                 er.getEditPage().sendContent(out, range, params, null);
             } else {
-                RenderContext rc = new RenderContext(template, lEditee, null, true);
+                RenderContext rc = new RenderContext(template, editee, null, true);
                 String s = template.render(rc);
                 if (s == null) {
-                    log.warn("Got null content for editee: " + lEditee.getHref());
+                    log.warn("Got null content for editee: " + editee.getHref());
                     return;
                 }
                 out.write(s.getBytes());
@@ -205,7 +208,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws BadRequestException, NotAuthorizedException {
+    public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws BadRequestException, NotAuthorizedException, ConflictException {
         log.debug("processForm");
         ITemplate template = getTemplate(parameters);
         if (template == null) {
@@ -223,12 +226,14 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             String ret = er.getEditPage().processForm(parameters, files);
             if (ret != null) {
                 return ret;
+            } else {
+                return null; // probably invalid input
             }
         } else {
             log.debug("..NOT editbale");
             editee.save();
-        }
-        return editee.getHref();
+            return editee.getHref();
+        }        
     }
 
     public Resource getEditPage() {

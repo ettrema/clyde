@@ -58,6 +58,23 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public boolean validate( ComponentValue c, RenderContext rc ) {
+        String s = (String) c.getValue();
+        if( required ) {
+            if( s == null || s.trim().length() == 0 ) {
+                c.setValidationMessage("A value is required");
+                return false;
+            }
+        }
+        if( choices != null && choices.size() > 0 ) {
+            if( !choices.contains(s)) {
+                String err = "The value must be one of: ";
+                for( String ch : choices ) {
+                    err += ch + ",";
+                }
+                c.setValidationMessage(err);
+                return false;
+            }
+        }
         return true;
     }
 
@@ -130,7 +147,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             }
         }
         template = template + "#if($cv.validationMessage)";
-        template = template + "<font color='red'>${cv.validationMessage}</font>";
+        template = template + "<div class='validationError'>${cv.validationMessage}</div>";
         template = template + "#end";
 //        template = "<acronym title='${path}'>" + template + "</acronym>";
         return template;
@@ -168,6 +185,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public String renderEdit( ComponentValue c, RenderContext rc ) {
+        log.debug("renderEdit: " + c.getName() + " - " + c.getValidationMessage());
         String t = editChildTemplate();
         VelocityContext vc = velocityContext( rc, c );
         return _render( t, vc );
@@ -255,6 +273,18 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
         public Object getDef() {
             return TextDef.this;
+        }
+
+        public String getChecked() {
+            if( c.getValue() != null ) {
+                if( BooleanDef.parse(c)) {
+                    return " checked='true' ";
+                } else{
+                    return "";
+                }
+            } else {
+                return "";
+            }
         }
     }
 

@@ -2,12 +2,11 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.CustomProperty;
-import com.bradmcevoy.http.CustomPropertyResource;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.PostableResource;
+import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
@@ -19,7 +18,6 @@ import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.ComponentValueCustomProperty;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.TemplateSelect;
@@ -42,7 +40,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.jdom.Element;
 
-public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, CustomPropertyResource, Templatable, HtmlResource, DigestResource {
+public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommonTemplated.class );
     private static final long serialVersionUID = 1L;
@@ -727,31 +725,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         } else {
             return null;
         }
-    }
-
-    @Override
-    public CustomProperty getProperty( String name ) {
-        ComponentValue value = this.getValues().get( name );
-        if( value == null ) {
-            return null;
-        } else {
-            return new ComponentValueCustomProperty( value, this );
-        }
-    }
-
-    @Override
-    public Set<String> getAllPropertyNames() {
-        Set<String> set = new HashSet<String>();
-        for( ComponentValue cv : this.getValues().values() ) {
-            set.add( cv.getName());
-        }
-        return set;
-    }
-
-
-    @Override
-    public String getNameSpaceURI() {
-        return "http://www.ettrema.com/clyde/ns";
     }
 
     public BaseResourceList getParents() {

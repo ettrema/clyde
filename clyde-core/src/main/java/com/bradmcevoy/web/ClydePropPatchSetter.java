@@ -4,7 +4,6 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.webdav.PropFindResponse;
 import com.bradmcevoy.http.webdav.PropPatchRequestParser.ParseResult;
 import com.bradmcevoy.http.webdav.PropPatchSetter;
-import java.util.List;
 
 /**
  *
@@ -19,13 +18,13 @@ public class ClydePropPatchSetter implements PropPatchSetter{
         this.wrapped = wrapped;
     }
 
-    public List<PropFindResponse> setProperties(String href, ParseResult parseResult, Resource r) {
+    public PropFindResponse setProperties(String href, ParseResult parseResult, Resource r) {
         log.debug("setProperties");
-        List<PropFindResponse> list = wrapped.setProperties(href, parseResult, r);
+        PropFindResponse resp = wrapped.setProperties(href, parseResult, r);
         BaseResource res = (BaseResource) r;
         res.save();
         res.commit();
-        return list;
+        return resp;
     }
 
     public boolean supports(Resource r) {

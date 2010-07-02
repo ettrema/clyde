@@ -107,7 +107,7 @@ public class RenderContext implements Map<String, Component> {
         } else {
             url = "";
         }
-        String s = "<form method='post' action='" + url + "'>";
+        String s = "<form method=\"post\" action=\"" + url + "\">";
         if( params != null && params.parameters != null && params.parameters.containsKey( NewPage.selectName() ) ) { // oh my god, this is horrible
             s = s + "<input type='hidden' name='" + NewPage.selectName() + "' value='" + params.parameters.get( NewPage.selectName() ) + "' />";
         }

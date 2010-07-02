@@ -30,7 +30,8 @@ import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-
+import org.jdom.output.Format;
+import org.jdom.output.HtmlXmlOutputter;
 
 public class SourcePage extends VfsCommon implements GetableResource, EditableResource, Replaceable, DigestResource, PropFindableResource {
 
@@ -41,7 +42,6 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         String nm = path.getName().replace(".source", "");
         return path.getParent().child(nm);
     }
-
 
     public SourcePage(XmlPersistableResource res) {
         this.res = res;
@@ -76,8 +76,20 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
 
     @Override
     public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException {
-        ContentSender cs = new ContentSender();
-        cs.send(out, params);
+        DocType docType = new DocType("res",
+                "-//W3C//ENTITIES Latin 1 for XHTML//EN",
+                "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent");
+
+        Document doc = new Document(new Element("res"), docType);
+        res.toXml(doc.getRootElement(), params);
+
+        Format format = Format.getPrettyFormat();
+        HtmlXmlOutputter outputter = new HtmlXmlOutputter(format);
+        try {
+            outputter.output(doc, out);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -92,20 +104,18 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
 
     @Override
     public Object authenticate(String user, String password) {
-        return res.authenticate( user, password );
+        return res.authenticate(user, password);
     }
 
     @Override
-    public Object authenticate( DigestResponse digestRequest ) {
-        return res.authenticate( digestRequest );
+    public Object authenticate(DigestResponse digestRequest) {
+        return res.authenticate(digestRequest);
     }
-
-
 
     @Override
     public boolean authorise(Request request, Request.Method method, Auth auth) {
-        ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class);
-        return authoriser.authorise( this, request);
+        ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
+        return authoriser.authorise(this, request);
     }
 
     @Override
@@ -141,7 +151,6 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return path.getName().endsWith(".source");
     }
 
-
     public Date getCreateDate() {
         return null;
     }
@@ -150,8 +159,8 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
 
         void send(OutputStream out, Map<String, String> parameters) {
             DocType docType = new DocType("res",
-                 "-//W3C//ENTITIES Latin 1 for XHTML//EN",
-                 "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent");
+                    "-//W3C//ENTITIES Latin 1 for XHTML//EN",
+                    "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent");
 
             Document doc = new Document(new Element("res"), docType);
             res.toXml(doc.getRootElement(), parameters);
@@ -230,7 +239,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
                 CommonTemplated ct = (CommonTemplated) SourcePage.this.res;
                 ITemplate t = ct.getTemplate();
                 if (t != null) {
-                    pw.println("<h2>Template: <a href='" + t.getHref() + "'>" + t.getHref() + "</a></h2>"); 
+                    pw.println("<h2>Template: <a href='" + t.getHref() + "'>" + t.getHref() + "</a></h2>");
                 }
             }
             if (err != null) {
@@ -284,7 +293,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         }
 
         @Override
-        public Object authenticate( DigestResponse digestRequest ) {
+        public Object authenticate(DigestResponse digestRequest) {
             return SourcePage.this.authenticate(digestRequest);
         }
 
