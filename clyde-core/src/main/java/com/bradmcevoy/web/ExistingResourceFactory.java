@@ -33,8 +33,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         return findPage( host, path );
     }
 
-    public Resource findPage( String host, Path path ) {
-        log.debug("findPage: " + path);
+    public Resource findPage( String host, Path path ) {        
         if( host != null && host.contains( ":" ) ) {
             host = host.substring( 0, host.indexOf( ":" ) );
         }
@@ -44,7 +43,6 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
             return new HostNotFoundResource( host );
         }
         Resource r = findChild( theHost, path );
-        log.debug("r: " + r);
         return r;
     }
 

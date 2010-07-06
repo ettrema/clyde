@@ -8,6 +8,7 @@ import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.vfs.CommitListener;
 import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsProvider;
+import com.bradmcevoy.web.BaseResource;
 
 /**
  * After commit, this listener creates an indexing job for the given name node 
@@ -23,14 +24,15 @@ public class SearchIndexingCommitListener implements Factory<Object>, CommitList
 
     @Override
     public void onCommit(NameNode n) throws Exception {
-        log.debug("onCommit: " + this.hashCode());
-        AsynchProcessor proc = rootContext.get(AsynchProcessor.class);
-        if (proc != null) {
-            proc.enqueue(new BaseResourceIndexer(n.getId()));
-        } else {
-            log.warn("No LocalAsynchProcessor configured, so not indexing");
+        if( n.getData() instanceof BaseResource){
+            log.debug("onCommit: " + n.getName());
+            AsynchProcessor proc = rootContext.get(AsynchProcessor.class);
+            if (proc != null) {
+                proc.enqueue(new BaseResourceIndexer(n.getId()));
+            } else {
+                log.warn("No LocalAsynchProcessor configured, so not indexing");
+            }
         }
-
     }
 
     public Class[] keyClasses() {

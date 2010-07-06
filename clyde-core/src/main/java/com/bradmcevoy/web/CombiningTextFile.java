@@ -125,4 +125,11 @@ public class CombiningTextFile extends File {
         super.populateHelpAttributes( mapOfAttributes );
         mapOfAttributes.put( "includes", "Comma seperated list of file names in the same folder to concatenate" );
     }
+
+    @Override
+    public boolean isIndexable() {
+        return false;
+    }
+
+
 }

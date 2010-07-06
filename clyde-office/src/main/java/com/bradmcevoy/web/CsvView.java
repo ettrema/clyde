@@ -275,4 +275,11 @@ public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
         }
                 
     }
+
+    @Override
+    public boolean isIndexable() {
+        return false;
+    }
+
+
 }

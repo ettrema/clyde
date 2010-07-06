@@ -45,15 +45,13 @@ public class EmailDef extends TextDef{
     }
 
     @Override
-    public ComponentValue createComponentValue(Templatable newPage) {
-        log.debug( "createComponentValue");
+    public ComponentValue createComponentValue(Templatable newPage) {       
         EmailVal cv = new EmailVal(name.getValue(), newPage);
         return cv;
     }
 
     @Override
     public boolean validate( ComponentValue c, RenderContext rc ) {
-        log.debug( "validate");
         boolean b = super.validate( c, rc );
         if( !b ) return false;
         String s = (String) c.getValue();
@@ -63,10 +61,8 @@ public class EmailDef extends TextDef{
 
         try {
             MailboxAddress.parse( s );
-            log.debug( "ok");
             return true;
         } catch( IllegalArgumentException illegalArgumentException ) {
-            log.debug( "invalid");
             c.setValidationMessage( "Not a valid email address");
             return false;
         }

@@ -26,7 +26,6 @@ public class EmailVal extends ComponentValue {
         } else if( p instanceof BaseResource ) {
             BaseResource res = (BaseResource) p;
             String email = res.getExternalEmailTextV2( "default" );
-            log.debug( "got email: " + email);
             return email;
         } else {
             throw new RuntimeException( "Parent is not a BaseResource, so cant access email field" );
@@ -35,7 +34,6 @@ public class EmailVal extends ComponentValue {
 
     @Override
     public void setValue( Object value ) {
-        log.debug( "set: " + value);
         if( value == null || value instanceof String ) {
             String email = (String) value;
             Addressable p = getContainer();

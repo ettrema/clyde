@@ -30,7 +30,7 @@ public class BaseResourceIndexer implements Processable, Serializable{
     
     @Override
     public void doProcess(Context context) {
-//        log.debug("doProcess: " + nodeId);
+        log.debug("doProcess: " + nodeId + " -------------------------");
         if( context == null ) throw new NullPointerException("No context");
         VfsSession vfs = context.get(VfsSession.class);
         NameNode node = vfs.get(nodeId);
@@ -42,17 +42,18 @@ public class BaseResourceIndexer implements Processable, Serializable{
         if( dn == null ) {
             log.warn("No data node associated with name node: " + nodeId);
             return ;
-        }
-        if( dn instanceof Template ) {
-            return ;
-        } else if( dn instanceof Folder ) {
-            return ;            
         } else if( dn instanceof BaseResource ) {
             BaseResource res = (BaseResource) dn;
             if( res.isTrash()) {
                 log.debug( "not indexing as in trash: " + res.getPath());
             } else {
-                BaseResourceIndexer.process(res);
+                log.debug("res: " + res.getClass().getCanonicalName());
+                if( res.isIndexable() ) {
+                    BaseResourceIndexer.process(res);
+                    log.debug("doProcess: done -------------------------");
+                } else {
+                    log.debug("not indexable");
+                }
             }
         } else {
             log.debug("Datanode is not of type BaseResource. Data node id: " + dn.getId() + ". Name node id: " + this.nodeId + ". Is type: " + dn.getClass());
@@ -61,7 +62,7 @@ public class BaseResourceIndexer implements Processable, Serializable{
 
     
     private synchronized static void process(BaseResource res) {
-//        log.debug("indexing: " + res.getPath());
+        log.debug("indexing: " + res.getHref());
         Host host = res.getHost();
         if( host == null ) {
             log.warn("No host for: " + res.getHref());

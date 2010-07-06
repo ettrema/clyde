@@ -70,7 +70,6 @@ public class SaveCommand extends Command {
     }
 
     protected Templatable doProcess( RenderContext rc, Map<String, String> parameters ) {
-        log.debug( "doProcess");
         RenderContext rcTarget = rc.getTarget();
         Set<BaseResource> pages = new HashSet<BaseResource>();
         if( rcTarget.page instanceof BaseResource ) {
@@ -84,7 +83,7 @@ public class SaveCommand extends Command {
                 if( !( c instanceof Command ) ) {
                     BaseResource res = findPage( c );
                     if( res != null ) {
-                        log.debug( ".. component: " + c.getName() + " mapped to page: " + res.getPath() );
+                        //log.debug( ".. component: " + c.getName() + " mapped to page: " + res.getPath() );
                         pages.add( res );
                     }
                     if( !c.validate( rc ) ) {

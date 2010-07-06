@@ -14,6 +14,9 @@ import java.util.List;
  *
  */
 public class RecentResourceCreator {
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RecentResourceCreator.class );
+
     /**
      * Create a recent resource to represent the given resource which has been
      * created or updated
@@ -25,14 +28,11 @@ public class RecentResourceCreator {
      * @return
      */
     public RecentResource create(BaseResource r) {
+        if( log.isDebugEnabled()){
+            log.debug("create recent resource: " + r.getHref());
+        }
         Web web = r.getWeb();
         Folder folder = web.getRecentFolder(true);
-        String recentName = r.getNameNodeId().toString();
-        BaseResource existing = (BaseResource) folder.getChildResource(recentName);
-        if( existing != null ) {
-            existing.delete();
-        }
-        checkMaxRecent(folder);
 
         IUser currentUser;
         Auth auth = HttpManager.request().getAuthorization();
@@ -41,7 +41,24 @@ public class RecentResourceCreator {
         } else {
             currentUser = null;
         }
-        RecentResource rr = new RecentResource(folder, r, currentUser);
+
+
+        String recentName = r.getNameNodeId().toString();
+        BaseResource existing = (BaseResource) folder.getChildResource(recentName);
+        RecentResource rr;
+        if( existing != null ) {
+            log.debug("found existing recent resource");
+            if( existing instanceof RecentResource) {
+                rr = (RecentResource) existing;
+                rr.setUser(currentUser);
+            } else {
+                existing.deletePhysically();
+                rr = new RecentResource(folder, r, currentUser);
+            }
+        } else {
+            checkMaxRecent(folder);
+            rr = new RecentResource(folder, r, currentUser);
+        }
         rr.save();
         return null;
     }

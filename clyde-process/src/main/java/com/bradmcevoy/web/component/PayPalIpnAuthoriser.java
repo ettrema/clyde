@@ -21,7 +21,7 @@ public class PayPalIpnAuthoriser implements ClydeAuthoriser {
     }
 
     public Boolean authorise( Resource resource, Request request ) {
-        log.debug( "authorise: " + resource.getClass() );
+        log.trace( "authorise: " + resource.getClass() );
 
         if( request.getMethod().equals( Request.Method.POST)) {
             if( resource instanceof CommonTemplated ) {
@@ -32,16 +32,16 @@ public class PayPalIpnAuthoriser implements ClydeAuthoriser {
                         log.debug( "found ipn param, returning true" );
                         return Boolean.TRUE;
                     } else {
-                        log.debug( "no receiver param, dont care");
+//                        log.debug( "no receiver param, dont care");
                     }
                 } else {
-                    log.debug( "no paypalipn component, so dont care");
+//                    log.debug( "no paypalipn component, so dont care");
                 }
             } else {
-                log.debug( "not a ct, dont care");
+//                log.debug( "not a ct, dont care");
             }
         } else {
-            log.debug( "not a post, so dont care");
+//            log.debug( "not a post, so dont care");
         }
 
         return null;

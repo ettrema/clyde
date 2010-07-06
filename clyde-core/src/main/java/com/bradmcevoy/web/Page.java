@@ -104,4 +104,11 @@ public class Page extends File implements Replaceable {
             }
         }
     }
+
+    @Override
+    public boolean isIndexable() {
+        return true;
+    }
+
+
 }

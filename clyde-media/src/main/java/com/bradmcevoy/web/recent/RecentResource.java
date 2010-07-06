@@ -38,12 +38,7 @@ public class RecentResource extends File {
         super(target.getContentType(), parent, target.getNameNodeId().toString());
         this.targetHref = target.getHref();
         this.targetName = target.getName();
-        if (user != null) {
-            this.updatedByName = user.getNameNode().getName();
-            this.updatedById = user.getNameNodeId();
-        } else {
-            this.updatedByName = "Unknown";
-        }
+        setUser(user);
         if (target instanceof BinaryFile) {
             isBinary = true;
         }
@@ -51,6 +46,15 @@ public class RecentResource extends File {
             isFolder = true;
         }
 
+    }
+
+    public void setUser(IUser user) {
+        if (user != null) {
+            this.updatedByName = user.getNameNode().getName();
+            this.updatedById = user.getNameNodeId();
+        } else {
+            this.updatedByName = "Unknown";
+        }
     }
 
     @Override
@@ -141,9 +145,20 @@ public class RecentResource extends File {
         return updatedById;
     }
 
+    public void setUpdatedById(UUID updatedById) {
+        this.updatedById = updatedById;
+    }
+
+
+
     public String getUpdatedByName() {
         return updatedByName;
     }
+
+    public void setUpdatedByName(String updatedByName) {
+        this.updatedByName = updatedByName;
+    }
+
 
     public String getThumbHref() {
         if (isBinary) {
@@ -157,4 +172,11 @@ public class RecentResource extends File {
         }
 
     }
+
+    @Override
+    public boolean isIndexable() {
+        return false;
+    }
+
+
 }

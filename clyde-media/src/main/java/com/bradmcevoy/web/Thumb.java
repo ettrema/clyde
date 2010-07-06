@@ -82,4 +82,18 @@ public class Thumb implements Serializable {
     public String toString() {
         return suffix + ":" + width + ":" + height;
     }
+
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+
 }

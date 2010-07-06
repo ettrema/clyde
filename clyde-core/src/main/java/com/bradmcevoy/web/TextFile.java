@@ -98,4 +98,11 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
         this.save();
         this.commit();
     }
+
+    @Override
+    public boolean isIndexable() {
+        return true;
+    }
+
+
 }

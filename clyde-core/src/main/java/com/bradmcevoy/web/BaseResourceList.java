@@ -33,7 +33,8 @@ public class BaseResourceList extends ArrayList<Templatable> {
         if( e == null ) throw new NullPointerException("Attempt to add null node");
         if( e.getName() == null ) throw new NullPointerException("Attempt to add resource with null name: " + e.getClass().getName());
         if( map.containsKey(e.getName()) ) {
-            log.warn("identical child names: " + e.getName());                    
+//            Exception ex = new Exception("identical child names");
+            log.warn("identical child names: " + e.getName());//,ex);
             Templatable cur = map.get(e.getName());
             if( e.getModifiedDate().after(cur.getModifiedDate())) {
                 remove(cur);

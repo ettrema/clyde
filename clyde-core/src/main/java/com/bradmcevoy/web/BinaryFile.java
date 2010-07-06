@@ -375,4 +375,11 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         }
     }
 
+    @Override
+    public boolean isIndexable() {
+        return true;
+    }
+
+
+
 }

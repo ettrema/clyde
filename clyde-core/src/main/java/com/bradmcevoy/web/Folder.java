@@ -5,10 +5,8 @@ import com.bradmcevoy.web.creation.ResourceCreator;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.event.EventManager;
 import com.bradmcevoy.event.PutEvent;
-import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
@@ -27,8 +25,6 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TypeMapping;
 import com.bradmcevoy.web.component.TypeMappingsComponent;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import eu.medsea.util.MimeUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,6 +74,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * ClydeBinaryService
      */
     private Boolean versioningEnabled;
+
+    private transient List<TransientNameNode> transientNameNodes;
 
     /** Create a root folder
      */
@@ -285,7 +283,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             if( r == null && request.getAuthorization() != null ) {
                 s = s + ".new";
             }
-            log.debug( "redirect to: " + s );
+            if( log.isTraceEnabled()){
+                log.trace( "redirect to: " + s );
+            }
             return s;
         }
     }
@@ -376,7 +376,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     public BaseResource childRes( String name ) {
-//        log.debug( "childRes: " + name + " node: " + getNameNodeId() + " this folder: " + this.getName());
+        //log.trace( "childRes: " + name + " node: " + getNameNodeId() + " this folder: " + this.getName());
         if( nameNode == null ) {
             throw new NullPointerException( "nameNode is null" );
         }
@@ -388,10 +388,23 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             } else if( dn instanceof BaseResource ) {
                 return (BaseResource) dn;
             } else {
-                log.debug( ".. unknwon type: " + dn.getClass() );
                 return null;
             }
         } else {
+            if( transientNameNodes != null ) {
+                for( TransientNameNode nn : transientNameNodes ) {
+                    if( nn.getName().equals(name)) {
+                        DataNode dn = nn.getData();
+                        if( dn == null ) {
+                            return null;
+                        } else if( dn instanceof BaseResource ) {
+                            return (BaseResource) dn;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            }
             return null;
         }
     }
@@ -588,9 +601,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return typeMappings;
     }
 
+
     public Folder thumbs( String thumbSpec ) {
         return thumbs( thumbSpec, false );
     }
+
 
     public Folder thumbs( String thumbSpec, boolean create ) {
         String name = thumbSpec + "s";
@@ -619,8 +634,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      *  Create and return a suitable NameNode
      */
     NameNode onChildCreated( String newName, BaseResource baseResource ) {
-//        NameNode nn = nameNode.add(newName,baseResource);        
-        NameNode nn = new TransientNameNode( newName, baseResource );
+//        NameNode nn = nameNode.add(newName,baseResource);
+        if( transientNameNodes == null ) {
+            transientNameNodes = new ArrayList<TransientNameNode>();
+        }
+        TransientNameNode nn = new TransientNameNode( newName, baseResource );
+        transientNameNodes.add(nn);
         return nn;
     }
 
@@ -688,7 +707,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     void onRemoved( BaseResource aThis ) {
-        log.debug( "onRemovedL " + aThis );
+        log.trace( "onRemovedL " + aThis );
     }
 
     public boolean hasIndexPage() {
@@ -710,7 +729,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     private BaseResource defaultCreateItem( String ct, InputStream in, String newName, Long length ) throws ReadingException, WritingException {
-        log.debug( "defaultCreateItem: " + ct );
+        log.trace( "defaultCreateItem: " + ct );
         ResourceCreator rc = requestContext().get( ResourceCreator.class );
 
         // buffer the upload before writing to db
@@ -724,7 +743,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                 throw new RuntimeException( "Content size mismatch: stream reader reports: " + bytesWritten + " content length header: " + length );
             }
         }
-        log.debug( "uploaded bytes: " + bufOut.getSize() );
+        log.trace( "uploaded bytes: " + bufOut.getSize() );
         in = bufOut.getInputStream();
         BaseResource res = rc.createResource( this, ct, in, newName );
         if( res != null ) {
@@ -757,19 +776,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public String getLink() {
         String text = getLinkText();
         return "<a href='" + getHref() + "index.html'>" + text + "</a>";
-    }
-
-    private boolean isCurrentUserAnAdmin() {
-        if( HttpManager.request() == null ) {
-            return false;
-        }
-        Auth auth = HttpManager.request().getAuthorization();
-        if(auth == null || auth.getTag() == null ) {
-            return false;
-        } else {
-            PermissionChecker permissionChecker = requestContext().get( PermissionChecker.class );
-            return permissionChecker.hasRole(Role.SYSADMIN, this, auth);
-        }
     }
 
     /**
@@ -881,7 +887,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         public void delete() {
             if( persistedNameNode != null ) {
                 persistedNameNode.delete();
+                persistedNameNode = null;
             }
+            transientNameNodes.remove(this);
         }
 
         @Override
@@ -896,7 +904,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
         @Override
         public UUID getParentId() {
-            return Folder.this.id;
+            return Folder.this.getNameNodeId();
         }
 
         @Override
@@ -1053,6 +1061,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void setVersioningEnabled(Boolean versioningEnabled) {
         this.versioningEnabled = versioningEnabled;
     }
+
+    @Override
+    public boolean isIndexable() {
+        return true;
+    }
+
 
 
 }

@@ -11,7 +11,6 @@ import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,61 +27,42 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 public class HostSearchManager {
     
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HostSearchManager.class);
 
-    private final String baseDir;
+    private final DirectoryFactory directoryFactory ;
     
     private final String hostName;
 
     private IndexSearcher searcher;
+
+    private Directory index;
     
-    public HostSearchManager(String baseDir, String hostName) throws CorruptIndexException {
+    public HostSearchManager(DirectoryFactory directoryFactory, String hostName) throws CorruptIndexException {
         this.hostName = hostName;
-        this.baseDir = baseDir;
-        Directory index;
+        this.directoryFactory = directoryFactory;        
         IndexWriter w = null;
-        File f = getDir();
-        if( !f.exists() ) {
-            log.debug("directory does not exist: " + f.getAbsolutePath());
-        } else {
-            try {
-                index = FSDirectory.open(f);
-                searcher = new IndexSearcher(index);
-            } catch (IOException ex) {
-                throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
-            }
+        try {
+            index = directoryFactory.open(hostName);
+            searcher = new IndexSearcher(index);
+        } catch (IOException ex) {
+            throw new RuntimeException("EXception opening directory: " + hostName, ex);
         }
     }
     
-    public File getDir() {
-        File f = new File(baseDir);
-        if( f.exists() ) f.mkdir();
-        return new File(f,hostName);
-    }
     
     public synchronized void index(BaseResource res) {
         if( res.isTrash()) {
             return ;
         }
         log.debug("indexing: " + res.getPath());
-        File f = getDir();
-        Directory index;
-        boolean create = !f.exists();
-        
-        IndexWriter w = null;
-        try {
-            index = FSDirectory.open(f);
-        } catch (IOException ex) {
-            throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
-        }
-        
-        if( !create ) {
-            IndexReader ir = null;
+                
+        boolean exists = directoryFactory.exists(hostName);
+        IndexReader ir = null;
+        if( exists ) { // remove old doc
             try{
                 ir = IndexReader.open(index);
                 Term uidTerm = new Term("id", res.getNameNodeId().toString());
@@ -92,14 +72,13 @@ public class HostSearchManager {
             } finally {
                 FileUtils.close(ir);
             }
+        }
             
-        } else {
-            create = true;
-        }        
-                
+
+        IndexWriter w = null;
         try {
             StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_30);
-            w = new IndexWriter(index, analyzer, create, IndexWriter.MaxFieldLength.LIMITED);
+            w = new IndexWriter(index, analyzer, !exists, IndexWriter.MaxFieldLength.LIMITED);
             Document doc = new Document();
             ITemplate t = res.getTemplate();
             if( t == null ) {
@@ -139,7 +118,7 @@ public class HostSearchManager {
             doc.add(fName);
             w.addDocument(doc);
         } catch (IOException ex) {
-            throw new RuntimeException("EXception opening directory: " + f.getAbsolutePath(), ex);
+            throw new RuntimeException("EXception opening directory: " + hostName, ex);
         } catch(MiltonException e) {
             throw new RuntimeException( e );
         } finally {

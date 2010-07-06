@@ -49,7 +49,6 @@ public class BooleanDef extends TextDef {
 
     @Override
     public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        log.debug("onPreProcess");
         Path compPath = getPath( rc );
         String key = compPath.toString();
         if( !parameters.containsKey( key ) ) { // look for the hidden one because if not checked boolean wont be posted
@@ -58,9 +57,7 @@ public class BooleanDef extends TextDef {
         }
         String s = parameters.get( key + "_val" );
         if( s == null || s.length() == 0) s = "false";
-        log.debug("onPreProcess: s: " + s);
         Object value = parseValue( componentValue, rc.page, s );
-        log.debug("onPreProcess: v: " + value);
         componentValue.setValue( value );
 
     }

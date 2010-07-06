@@ -20,16 +20,16 @@ public class SearchManager {
 
     private static final Map<String,HostSearchManager> map = new ConcurrentHashMap<String, HostSearchManager>();
 
-    private final String baseDir;
+    private final DirectoryFactory directoryFactory;
 
-    public SearchManager(String baseDir) {
-        this.baseDir = baseDir;
+    public SearchManager(DirectoryFactory directoryFactory) {
+        this.directoryFactory = directoryFactory;
     }
 
     private synchronized HostSearchManager getInstance(String hostName) throws CorruptIndexException {
         HostSearchManager mgr = map.get(hostName);
         if( mgr == null ) {
-            mgr = new HostSearchManager(baseDir, hostName);
+            mgr = new HostSearchManager(directoryFactory, hostName);
             map.put(hostName, mgr);
         }
         return mgr;

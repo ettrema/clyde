@@ -18,6 +18,8 @@ public class Web extends Folder {
 
     public static final String RECENT_FOLDER_NAME = "Recent";
 
+    private transient Folder recent;
+
     public Web( Folder parentFolder, String newName ) {
         super( parentFolder, newName );
     }
@@ -51,18 +53,31 @@ public class Web extends Folder {
         return getRecentFolder(false);
     }
 
-    public Folder getRecentFolder(boolean b) {
+    public Folder getRecentFolder(boolean create) {
+        log.trace("getRecentFolder: " + create + " --" + this.getHref());
+        if( recent != null ) {
+            log.trace("already got a recent");
+            return recent;
+        }
         Resource r = this.child( RECENT_FOLDER_NAME );
         if( r == null ) {
-            try {
-                r = this.createCollection( RECENT_FOLDER_NAME, false );
-            } catch( ConflictException ex ) {
-                throw new RuntimeException( "Cant create " + RECENT_FOLDER_NAME + " in " + this.getHref(), ex );
+            if( create ) {
+                try {
+                    r = this.createCollection( RECENT_FOLDER_NAME, false );
+                } catch( ConflictException ex ) {
+                    log.debug("cant create recent!!!!!!!!!!!!!!!!");
+                    throw new RuntimeException( "Cant create " + RECENT_FOLDER_NAME + " in " + this.getHref(), ex );
+                }
+                recent = (Folder) r;
+                return recent;
+            } else {
+                log.trace("recent folder does not exist, and create is false");
+                return null;
             }
-            return (Folder) r;
         } else {
             if( r instanceof Folder ) {
-                return (Folder) r;
+                recent = (Folder) r;
+                return recent;
             } else {
                 log.warn( "RECENT_FOLDER_NAME is not of type Folder. Is a : " + r.getClass() );
                 return null;

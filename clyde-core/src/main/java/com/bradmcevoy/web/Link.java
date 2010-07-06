@@ -40,4 +40,9 @@ public class Link extends BaseResource{
         return null;
     }
 
+    @Override
+    public boolean isIndexable() {
+        return false;
+    }
+
 }

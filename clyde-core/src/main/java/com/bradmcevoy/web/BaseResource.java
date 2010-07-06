@@ -38,14 +38,27 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
     private static final long serialVersionUID = 1L;
-    UUID id;
-    transient RelationalNameNode nameNode;
+
+    private UUID id;
     protected NameInput nameInput;
 
-    protected abstract BaseResource newInstance( Folder parent, String newName );
-    transient boolean nameInited;
-
+    private transient boolean nameInited;
+    transient RelationalNameNode nameNode;
     private transient User creator;
+
+
+    protected abstract BaseResource newInstance( Folder parent, String newName );
+
+
+
+    /**
+     * If this should be indexed for searching
+     * 
+     * @return
+     */
+    public abstract boolean isIndexable();
+
+
 
     public static BaseResource importResource( BaseResource parent, Element el, String filename ) {
         String className = el.getAttributeValue( "class" );
@@ -263,6 +276,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /**
      * Physically delete by calling delete on the namenode
+     *
+     * Does not commit
+     *
      */
     public void deletePhysically() {
         nameNode.delete();
@@ -727,4 +743,5 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             nEmail.save();
         }
     }
+
 }

@@ -54,7 +54,6 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public Object authenticate( DigestResponse digestRequest ) {
-        log.debug( "authenticate(digest)");
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( actualParent, digestRequest );
         if( o == null ) {
@@ -65,8 +64,8 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public User authenticate( String user, String password ) {
-        if( log.isDebugEnabled()) {
-            log.debug( "authenticate(basic): actualParent: " + actualParent.getHref());
+        if( log.isTraceEnabled()) {
+            log.trace( "authenticate(basic): actualParent: " + actualParent.getHref());
         }
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         User o = authenticator.authenticate( actualParent, user, password );

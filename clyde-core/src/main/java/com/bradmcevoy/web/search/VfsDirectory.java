@@ -20,6 +20,7 @@ import org.apache.lucene.store.IndexOutput;
  */
 public class VfsDirectory extends Directory {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VfsDirectory.class);
     private UUID nameNodeId;
 
     public VfsDirectory(UUID nameNodeId) {
@@ -38,12 +39,21 @@ public class VfsDirectory extends Directory {
 
     @Override
     public boolean fileExists(String name) throws IOException {
-        return node().child(name) != null;
+        boolean b = node().child(name) != null;
+        if( log.isDebugEnabled()){
+            log.debug("fileExists: " + name + " = " + b);
+        }
+        return b;
     }
 
     @Override
     public long fileModified(String name) throws IOException {
-        return node().child(name).getModifiedDate().getTime();
+        NameNode child = node().child(name);
+        if( child != null ) {
+            return child.getModifiedDate().getTime();
+        } else {
+            return 0;
+        }
     }
 
     @Override
@@ -65,13 +75,24 @@ public class VfsDirectory extends Directory {
 
     @Override
     public IndexOutput createOutput(String name) throws IOException {
+        log.debug("openOutput: " + name);
         DataBlock block = (DataBlock) node().child(name).getData();
         return new VfsIndexOutput(block);
     }
 
     @Override
     public IndexInput openInput(String name) throws IOException {
-        DataBlock block = (DataBlock) node().child(name).getData();
+        log.debug("openInput: " + name);
+        NameNode n = node().child(name);
+        DataBlock block;
+        if (n == null) {
+            throw new IOException("index doesnt exist");
+//            block = new DataBlock();
+//            n = node().add(name, block);
+//            n.save();
+        } else {
+            block = (DataBlock) node().child(name).getData();
+        }
         return new VfsIndexInput(block);
     }
 
@@ -139,14 +160,17 @@ public class VfsDirectory extends Directory {
         private int bufferPos;
         private long markedPosition;
 
+        @Override
         public synchronized void reset() throws IOException {
             position = markedPosition;
         }
 
+        @Override
         public boolean markSupported() {
             return true;
         }
 
+        @Override
         public void mark(int readlimit) {
             this.markedPosition = position;
         }
@@ -208,8 +232,6 @@ public class VfsDirectory extends Directory {
         public VfsIndexOutput(DataBlock block) {
             this.block = block;
         }
-
-
 
         public void flushBuffer(byte[] src, int offset, int len) {
             byte[] buffer;

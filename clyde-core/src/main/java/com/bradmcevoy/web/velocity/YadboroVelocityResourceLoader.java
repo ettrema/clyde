@@ -33,11 +33,11 @@ public class YadboroVelocityResourceLoader extends org.apache.velocity.runtime.r
             String s = tlCurrentTemplate.get();
             return new ByteArrayInputStream(s.getBytes());
         }
-//        return new ByteArrayInputStream("hi there".getBytes());
+
         Path p = Path.path(name);
         ComponentValue cv = getComponentValue(p);
         if (cv == null) {
-            log.warn("found page path but not component. " + p);
+            log.trace("found page path but not component. " + p);
             return null;
         } else {
             Object o = cv.getValue();
