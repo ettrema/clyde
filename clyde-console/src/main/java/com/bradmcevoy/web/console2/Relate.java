@@ -36,14 +36,32 @@ public class Relate extends AbstractConsoleCommand{
                 return result("created relationship");
             }
         } else {
-            StringBuffer sbFrom = listRelations("from",from.getNameNode().findFromRelations(null));
-            StringBuffer sbTo = listRelations("to",from.getNameNode().findToRelations(null));
+            StringBuffer sbFrom = listFromRelations(from);
+            StringBuffer sbTo = listToRelations(from);
             return result(sbFrom.toString() + sbTo.toString());
         }
     }
 
-    private StringBuffer listRelations(String title, List<Relationship> rels) {
-        StringBuffer sb = new StringBuffer("<h2>" + title + "</h2>");
+    private StringBuffer listToRelations(Folder from) {
+        List<Relationship> rels = from.getNameNode().findToRelations(null);
+        StringBuffer sb = new StringBuffer("<h2>to</h2>");
+        sb.append("<ul>");
+        for (Relationship r : rels) {
+            DataNode dn = r.from().getData();
+            if (dn instanceof BaseResource) {
+                BaseResource res = (BaseResource) dn;
+                sb.append("<li>").append(res.getHref()).append('(').append(r.relationship()).append(')').append("</li>");
+            } else {
+                sb.append("<li>").append(r.to().getName()).append('(').append(r.relationship()).append(')').append("</li>");
+            }
+        }
+        sb.append("</ul>");
+        return sb;
+    }
+
+    private StringBuffer listFromRelations(Folder from) {
+        List<Relationship> rels = from.getNameNode().findFromRelations(null);
+        StringBuffer sb = new StringBuffer("<h2>from</h2>");
         sb.append("<ul>");
         for (Relationship r : rels) {
             DataNode dn = r.to().getData();
@@ -57,6 +75,5 @@ public class Relate extends AbstractConsoleCommand{
         sb.append("</ul>");
         return sb;
     }
-
 
 }
