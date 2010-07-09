@@ -260,11 +260,14 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         }
 
         for( Relationship r : rels ) {
-            PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
-            if( grantee != null ) {
-                IUser grantedUser = grantee.getUser();
-                if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
-                    return true;
+            NameNode to = r.to();
+            if( to != null ) {
+                PermissionRecipient grantee = (PermissionRecipient) to.getData();
+                if( grantee != null ) {
+                    IUser grantedUser = grantee.getUser();
+                    if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
+                        return true;
+                    }
                 }
             }
         }

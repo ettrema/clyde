@@ -1,6 +1,8 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.HttpManager;
+import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.*;
 import com.bradmcevoy.xml.XmlHelper;
 import java.io.ByteArrayInputStream;
@@ -30,12 +32,11 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     private static final long serialVersionUID = 1L;
     public String name;
     public Object value;
-
     private List<OldValue> oldValues;
     private Addressable parent;
     private transient ThreadLocal<String> thValidationMessage = new ThreadLocal<String>();
 
-    public ComponentValue(String name, Addressable container ) {
+    public ComponentValue( String name, Addressable container ) {
         this.name = name;
         this.parent = container;
         this.oldValues = new ArrayList<OldValue>();
@@ -65,14 +66,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
     }
 
-
-
     public void setValidationMessage( String validationMessage ) {
-        log.debug( "setValidationMessage: " + name + " -> " + validationMessage);
+        log.debug( "setValidationMessage: " + name + " -> " + validationMessage );
         if( thValidationMessage == null ) {
             thValidationMessage = new ThreadLocal<String>();
         }
-        thValidationMessage.set( validationMessage);
+        thValidationMessage.set( validationMessage );
     }
 
     public String getValidationMessage() {
@@ -122,13 +121,36 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             e2.setAttribute( "class", clazzName );
         }
         e2.setAttribute( "name", name );
+        int numOldVals = 0;
+        if( oldValues != null ) {
+            numOldVals = oldValues.size();
+        }
+        InitUtils.set( e2, "numOldVals", numOldVals);
         String v = getFormattedValue( (CommonTemplated) container );
-//        List l = formatContentToXmlList( v );
-//        e2.setContent( l );
-
+        //        List l = formatContentToXmlList( v );
+        //        e2.setContent( l );
         XmlHelper helper = new XmlHelper();
         List content = helper.getContent( v );
         e2.setContent( content );
+        Request req = HttpManager.request();
+        String showOld;
+        if( req != null && oldValues != null ) {
+            if( req.getParams() != null ) {
+                showOld = req.getParams().get( "showold" );
+                if( showOld != null && showOld.length() > 0 ) {
+                    for( OldValue ov : this.getOldValues() ) {
+                        Element elOld = new Element( "oldval" );
+                        e2.addContent( elOld );
+                        elOld.setAttribute( "user", ov.user );
+                        elOld.setAttribute( "date", ov.getDateModified().toString() );
+                        v = getFormattedValue( (CommonTemplated) container, ov.value );
+                        content = helper.getContent( v );
+                        elOld.setContent( content );
+                    }
+                }
+            }
+        }
+
         return e2;
     }
 
@@ -136,16 +158,16 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
             try {
-                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true);
-            } catch(Exception e) {
+                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true );
+            } catch( Exception e ) {
                 e.printStackTrace();
             }
-            try{
-                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes",true);
-            } catch(Exception e) {
+            try {
+                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes", true );
+            } catch( Exception e ) {
                 e.printStackTrace();
             }
-            System.out.println( "using reader: " + reader.getClass());
+            System.out.println( "using reader: " + reader.getClass() );
 //            reader.setEntityResolver( new MyEntityResolver());
             ContentParsingSaxHandler hnd = new ContentParsingSaxHandler();
             reader.setContentHandler( hnd );
@@ -213,7 +235,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     public void setValue( Object value ) {
-        if( this.value != null && !this.value.equals( value )) {
+        if( this.value != null && !this.value.equals( value ) ) {
             RequestParams cur = RequestParams.current();
             String userName = null;
             if( cur != null && cur.getAuth() != null ) {
@@ -222,7 +244,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
                     userName = user.getEmailAddress().toString();
                 }
             }
-            OldValue old = new OldValue( value, new Date(), userName);
+            OldValue old = new OldValue( value, new Date(), userName );
             if( oldValues == null ) {
                 oldValues = new ArrayList<OldValue>();
             }
@@ -302,8 +324,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     private String getFormattedValue( CommonTemplated container ) {
-        ComponentDef def = getDef( container );
         Object v = getValue();
+        return getFormattedValue( container, v );
+    }
+
+    private String getFormattedValue( CommonTemplated container, Object v ) {
+        ComponentDef def = getDef( container );
         if( def == null ) {
             if( v == null ) return "";
             return v.toString();
@@ -328,7 +354,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
 
         public InputSource getExternalSubset( String name, String baseURI ) throws SAXException, IOException {
-            System.out.println( "getExternalSubset: " + name);
+            System.out.println( "getExternalSubset: " + name );
             return null;
         }
 
@@ -346,8 +372,8 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         private Stack<Element> elementPath = new Stack<Element>();
 
         public ContentParsingSaxHandler() {
-            DocType docType = new DocType( "root", "-//MyDT//DTD MYDTD-XML//MYDTD", "xhtml-lat1.ent");
-            doc = new Document(new Element( "root" ), docType);
+            DocType docType = new DocType( "root", "-//MyDT//DTD MYDTD-XML//MYDTD", "xhtml-lat1.ent" );
+            doc = new Document( new Element( "root" ), docType );
         }
 
         @Override
@@ -403,7 +429,8 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
     }
 
-    public static class OldValue implements Serializable{
+    public static class OldValue implements Serializable {
+
         private static final long serialVersionUID = 1L;
         private final Object value;
         private final Date dateModified;

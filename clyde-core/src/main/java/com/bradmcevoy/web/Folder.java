@@ -22,6 +22,7 @@ import com.bradmcevoy.vfs.OutputStreamWriter;
 import com.bradmcevoy.vfs.RelationalNameNode;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TypeMapping;
 import com.bradmcevoy.web.component.TypeMappingsComponent;
@@ -307,7 +308,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     @Override
     public void _copyTo( Folder dest, String name ) {
-        Folder newFolder = (Folder) dest.copyInstance( dest, name );
+        Folder newFolder = (Folder)copyInstance( dest, name );
+        newFolder.templateSelect = (TemplateSelect) newFolder.componentMap.get( "template" );
         newFolder.save();
         log.debug( "created new folder: " + newFolder.getHref() );
         for( Resource child : this.getChildren() ) {
@@ -787,7 +789,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         final UUID id;
         final String name;
         final DataNode data;
-        final List<Relationship> relations = new ArrayList<Relationship>();
+        //final List<Relationship> relations = new ArrayList<Relationship>();
         RelationalNameNode persistedNameNode;
 
         public TransientNameNode( String name, BaseResource data ) {
@@ -896,10 +898,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         public void save() {
             persistedNameNode = (RelationalNameNode) Folder.this.nameNode.add( name, data );
             persistedNameNode.save();
-            ( (BaseResource) data ).nameNode = persistedNameNode;
-            for( Relationship r : relations ) {
-                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
-            }
+//            ( (BaseResource) data ).nameNode = persistedNameNode;
+//            for( Relationship r : relations ) {
+//                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
+//            }
         }
 
         @Override
@@ -963,29 +965,33 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         @Override
         public Relationship makeRelation( final RelationalNameNode toNode, final String relationshipName ) {
             if( persistedNameNode == null ) {
-                Relationship r = new Relationship() {
-
-                    public NameNode from() {
-                        return getNameNode();
-                    }
-
-                    public NameNode to() {
-                        return toNode;
-                    }
-
-                    public String relationship() {
-                        return relationshipName;
-                    }
-
-                    public void delete() {
-                        relations.remove( this );
-                    }
-                };
-                relations.add( r );
-                return r;
-            } else {
-                return persistedNameNode.makeRelation( toNode, relationshipName );
+                this.save();
+//                Relationship r = new Relationship() {
+//
+//                    public NameNode from() {
+//                        return getNameNode();
+//                    }
+//
+//                    public NameNode to() {
+//                        return toNode;
+//                    }
+//
+//                    public String relationship() {
+//                        return relationshipName;
+//                    }
+//
+//                    public void delete() {
+//                        relations.remove( this );
+//                    }
+//                };
+//                relations.add( r );
+//                log.debug( "makeRelation: no persisted node, use temp: " + relations.size());
+//                return r;
+//            } else {
+//                log.debug( "makeRelation: using persisted node");
+//                return persistedNameNode.makeRelation( toNode, relationshipName );
             }
+            return persistedNameNode.makeRelation( toNode, relationshipName );
         }
 
         @Override
@@ -999,7 +1005,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         @Override
         public List<Relationship> findFromRelations( String relationshipName ) {
             if( persistedNameNode == null ) {
-                return relations;
+                return Collections.EMPTY_LIST;
+//                return relations;
             } else {
                 return persistedNameNode.findFromRelations( relationshipName );
             }

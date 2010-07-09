@@ -58,7 +58,16 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public boolean validate( ComponentValue c, RenderContext rc ) {
-        String s = (String) c.getValue();
+        String s;
+        Object val = c.getValue();
+        if( val instanceof String) {
+            s = (String)val;
+        } else if( val == null ) {
+            s = null;
+        } else {
+            log.warn("Value is not a string: " + getName() + " is a: " + val.getClass() );
+            s = val.toString();
+        }
         if( required ) {
             if( s == null || s.trim().length() == 0 ) {
                 c.setValidationMessage("A value is required");

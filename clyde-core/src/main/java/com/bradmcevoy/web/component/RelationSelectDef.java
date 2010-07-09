@@ -119,7 +119,11 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     public String render( ComponentValue c, RenderContext rc ) {
         BaseResource res = (BaseResource) c.getContainer();
         BaseResource related = res.getRelation( relationName );
-        return related.getLink();
+        if( related != null ) {
+            return related.getLink();
+        } else {
+            return "";
+        }
     }
 
     @Override
