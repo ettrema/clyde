@@ -682,11 +682,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    /** TODO: make customisable
-     */
-    public Template getDefaultTemplate() {
-        return (Template) getWeb().getTemplates().child( "contentTemplate.html" );
-    }
 
     /**
      * Locates a template suitable for this folder. Eg, enquires
@@ -700,7 +695,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if( web == null ) {
             return null;
         }
-        return Template.lookup( name, web );
+        TemplateManager tm = requestContext().get( TemplateManager.class);
+        return tm.lookup( name, web );
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Range;
@@ -22,10 +23,9 @@ import java.util.Map;
  *
  * @author brad
  */
-public class WrappedTemplate implements ITemplate{
+public class WrappedTemplate implements ITemplate {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( WrappedTemplate.class );
-
     private final ITemplate physicalTemplate;
     private final Web web;
 
@@ -66,9 +66,8 @@ public class WrappedTemplate implements ITemplate{
 
     @Override
     public ITemplate getTemplate() {
-//        log.debug( "getTemplate: from: " + this.getName() + " find: " + physicalTemplate.getTemplateName());
-        ITemplate t = Template.lookup( physicalTemplate.getTemplateName(), web); 
-//        log.debug( "resolved wrapped template to: " + t.getHref());
+        TemplateManager tm = RequestContext.getCurrent().get( TemplateManager.class );
+        ITemplate t = tm.lookup( physicalTemplate.getTemplateName(), web );
         return t;
     }
 
@@ -122,8 +121,6 @@ public class WrappedTemplate implements ITemplate{
         return physicalTemplate.getCreateDate();
     }
 
-
-
     @Override
     public String checkRedirect( Request arg0 ) {
         return physicalTemplate.checkRedirect( arg0 );
@@ -137,10 +134,11 @@ public class WrappedTemplate implements ITemplate{
     @Override
     public String render( RenderContext child ) {
         ITemplate t = getTemplate();
-        RenderContext rc = new RenderContext( t, this, child, false ); 
+        RenderContext rc = new RenderContext( t, this, child, false );
         if( t != null ) {
             return t.render( rc );
         } else {
+            log.debug( "template not found, try to render with root component" );
             Component cRoot = getParams().get( "root" );
             if( cRoot == null ) {
                 log.warn( "no root component for template: " + this.getHref() );
@@ -219,12 +217,12 @@ public class WrappedTemplate implements ITemplate{
 
     @Override
     public Path getPath() {
-        return getParent().getPath().child( getName());
+        return getParent().getPath().child( getName() );
     }
 
     @Override
     public Host getHost() {
-        if( web instanceof Host) {
+        if( web instanceof Host ) {
             return (Host) web;
         } else {
             return web.getHost();
@@ -250,6 +248,4 @@ public class WrappedTemplate implements ITemplate{
     public String getContentType( String accepts ) {
         return physicalTemplate.getContentType( accepts );
     }
-
-
 }

@@ -73,6 +73,14 @@ public class RenderContext implements Map<String, Component> {
         return permissionChecker.hasRole( r, getTargetPage(), RequestParams.current().getAuth() );
     }
 
+    public ITemplate getTemplate() {
+        return template;
+    }
+
+    public String getTemplateHost() {
+        return template.getHost().getName();
+    }
+
     public DateTime toJodaDate( Date dt ) {
         return new DateTime( dt.getTime() );
     }

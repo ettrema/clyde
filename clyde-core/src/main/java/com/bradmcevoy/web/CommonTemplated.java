@@ -464,7 +464,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
                 return null;
             }
-            template = Template.lookup( templateName, web );
+            TemplateManager tm = requestContext().get( TemplateManager.class);
+            template = tm.lookup( templateName, web );
             if( template == null ) {
 //                    log.warn("no template: " + templateName + " for web: " + web.getName());
             } else {
