@@ -89,8 +89,14 @@
             <artifactId>lucene-core</artifactId>
             <version>3.0.2</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>milton-json</artifactId>
+            <version>1.5.4-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
+
 
 
 

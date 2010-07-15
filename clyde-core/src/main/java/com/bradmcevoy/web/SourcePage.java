@@ -254,8 +254,9 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
             pw.println("<input type='submit' name='command' value='Save'/>");
             pw.println("<input type='submit' name='command' value='Delete' onclick=\"return confirm('Are you sure you want to delete this resource?')\"/>");
             pw.println("</form>");
-            Exception e = (Exception) RequestParams.current().attributes.get("ex");
-            if (e != null) {
+            Object oEx = RequestParams.current().attributes.get("ex");
+            if( oEx instanceof Throwable) {
+                Throwable e = (Throwable) oEx;
                 pw.println("<pre>");
                 e.printStackTrace(pw);
                 pw.println("</pre>");

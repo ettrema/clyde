@@ -34,15 +34,17 @@ public class CookieAuthenticationHandler implements AuthenticationHandler {
         // We will support it if there is either a auth id request param, or a cookie
         String authId = getAuthId( request );
         if( authId != null ) {
-            log.debug( "found authId: " + authId );
+            log.debug( "supports: found authId: " + authId );
             return true;
         } else {
             for( AuthenticationHandler hnd : handlers ) {
                 if( hnd.supports( r, request ) ) {
                     request.getAttributes().put( "_delegatedAuthenticationHandler", hnd );
+                    log.debug( "supports: true: " + hnd.getClass().getCanonicalName() );
                     return true;
                 }
             }
+            log.debug( "supports: false");
             return false;
         }
 
@@ -57,8 +59,9 @@ public class CookieAuthenticationHandler implements AuthenticationHandler {
                 return null;
             } else {
                 VfsSession session = RequestContext.getCurrent().get( VfsSession.class );
-                if( session == null )
+                if( session == null ) {
                     throw new IllegalStateException( "no context" );
+                }
                 NameNode node = session.get( id );
                 if( node == null ) {
                     log.warn( "Couldnt find node for id: " + id );
