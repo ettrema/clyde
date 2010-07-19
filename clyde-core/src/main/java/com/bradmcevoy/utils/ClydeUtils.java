@@ -35,9 +35,7 @@ public class ClydeUtils {
         Resource r = col.child(name);
         boolean isFirst = true;
         while (r != null) {
-            System.out.println("incremeneint:" + name);
             name = com.bradmcevoy.io.FileUtils.incrementFileName(name, isFirst);
-            System.out.println("increatementd: " + name);
             isFirst = false;
             r = col.child(name);
         }
