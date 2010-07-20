@@ -48,12 +48,26 @@ public class FaceBookSessionValue extends ComponentValue {
         }
     }
 
+    @Override
+    public void setValue( Object value ) {
+        if( value instanceof String) {
+            String sValue = (String) value;
+            super.setValue( FaceBookDef.parse( sValue) );
+        } else {
+            super.setValue( value );
+        }
+    }
+
+
+
     public void setValue( String sessionId, String sessionSecret, Long userId ) {
+        log.debug("setValue: " + sessionId + " " + sessionSecret + " " + userId);
         FaceBookSession sess = new FaceBookSession( sessionId, sessionSecret, userId );
         this.setValue( sess );
     }
 
     public void setValue( String sessionId, String sessionSecret, Integer userId ) {
+        log.debug("setValue: " + sessionId + " " + sessionSecret + " " + userId);
         FaceBookSession sess = new FaceBookSession( sessionId, sessionSecret, userId.longValue() );
         this.setValue( sess );
     }

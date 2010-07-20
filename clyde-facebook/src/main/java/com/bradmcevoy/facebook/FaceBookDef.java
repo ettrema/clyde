@@ -158,7 +158,7 @@ public class FaceBookDef implements ComponentDef, Serializable {
             throw new RuntimeException( "No FaceBookGalleryManager is configured" );
         }
         FaceBookCredentials cred = new FaceBookCredentials( apiKey, apiSecret, session.getSecretId(), session.getSessionId(), session.getUserId() );
-        Long albumId = faceBookGalleryManager.checkOrCreateAlbum( parentFolder.getName(), cred );
+        String albumId = faceBookGalleryManager.checkOrCreateAlbum( parentFolder.getName(), cred );
         for( Resource r : parentFolder.getChildren() ) {
             if( r instanceof ImageFile ) {
                 ImageFile img = (ImageFile) r;
@@ -173,7 +173,7 @@ public class FaceBookDef implements ComponentDef, Serializable {
             throw new RuntimeException( "No FaceBookGalleryManager is configured" );
         }
         FaceBookCredentials cred = new FaceBookCredentials( apiKey, apiSecret, session.getSecretId(), session.getSessionId(), session.getUserId() );
-        Long albumId = faceBookGalleryManager.checkOrCreateAlbum( albumName, cred );
+        String albumId = faceBookGalleryManager.checkOrCreateAlbum( albumName, cred );
         faceBookGalleryManager.loadImageToAlbum( img, albumId, cred, caption );
     }
 

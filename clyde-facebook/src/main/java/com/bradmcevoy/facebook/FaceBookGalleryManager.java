@@ -14,8 +14,8 @@ public interface FaceBookGalleryManager {
      * @param credentials
      * @return - the album id
      */
-    Long checkOrCreateAlbum(String galleryName, FaceBookCredentials credentials);
+    String checkOrCreateAlbum(String galleryName, FaceBookCredentials credentials);
 
-    void loadImageToAlbum( ImageFile img, Long albumId, FaceBookCredentials cred, String caption );
+    void loadImageToAlbum( ImageFile img, String albumId, FaceBookCredentials cred, String caption );
 
 }

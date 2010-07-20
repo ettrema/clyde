@@ -2,12 +2,12 @@ package com.bradmcevoy.facebook;
 
 import com.bradmcevoy.web.ImageFile;
 import com.google.code.facebookapi.FacebookException;
+import com.google.code.facebookapi.FacebookJaxbRestClient;
 import com.google.code.facebookapi.FacebookXmlRestClient;
 import com.google.code.facebookapi.schema.Album;
 import com.google.code.facebookapi.schema.PhotosGetAlbumsResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.bind.JAXBElement;
 
 /**
  * Facebook Photo Upload Error Codes
@@ -31,9 +31,6 @@ public class FaceBookGalleryManagerImpl implements FaceBookGalleryManager {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FaceBookGalleryManagerImpl.class );
 
-    static {
-        FacebookXmlRestClient.initJaxbSupport();
-    }
 
     /**
      *
@@ -41,19 +38,18 @@ public class FaceBookGalleryManagerImpl implements FaceBookGalleryManager {
      * @param cred
      * @return - the album id
      */
-    public Long checkOrCreateAlbum( String galleryName, FaceBookCredentials cred ) {
+    public String checkOrCreateAlbum( String galleryName, FaceBookCredentials cred ) {
         log.debug( "checkOrCreateAlbum: " + galleryName );
-        FacebookXmlRestClient userClient = new FacebookXmlRestClient( cred.getApiKey(), cred.getApiSecret(), cred.getSessionId() );
+        FacebookJaxbRestClient userClient = new FacebookJaxbRestClient( cred.getApiKey(), cred.getApiSecret(), cred.getSessionId() );
         try {
-            userClient.photos_getAlbums( cred.getUserId() );
-            PhotosGetAlbumsResponse resp = (PhotosGetAlbumsResponse) userClient.getResponsePOJO();
+            PhotosGetAlbumsResponse resp = userClient.photos_getAlbums( cred.getUserId() );
             if( resp.getAlbum() != null && resp.getAlbum().size() > 0 ) {
                 for( Album album : resp.getAlbum() ) {
                     if( album.getName().equals( galleryName ) ) { // todo: concat path to get name
                         // exists\
                         log.debug( "found: " + album.getName() );
                         String s = album.getAid();
-                        return Long.parseLong( s );
+                        return s;
                     }
                 }
                 log.debug( "album not found: " + galleryName );
@@ -61,20 +57,16 @@ public class FaceBookGalleryManagerImpl implements FaceBookGalleryManager {
                 log.debug( "no albums found" );
             }
 
-            userClient.photos_createAlbum( galleryName ); // todo: concat path to get name
+            Album createResp = userClient.photos_createAlbum( galleryName ); // todo: concat path to get name
             // todo: concat path to get name
-            Object o = userClient.getResponsePOJO();
-            log.debug( "got a : " + o.getClass() );
-            JAXBElement jaxb = (JAXBElement) o;
-            Album createResp = (Album) jaxb.getValue();
             String s = createResp.getAid();
-            return Long.parseLong( s );
+            return s;
         } catch( FacebookException ex ) {
             throw new RuntimeException( ex );
         }
     }
 
-    public void loadImageToAlbum( ImageFile img, Long albumId, FaceBookCredentials cred, String caption ) {
+    public void loadImageToAlbum( ImageFile img, String albumId, FaceBookCredentials cred, String caption ) {
         log.debug( "loadImageToAlbum: " + img.getPath() );
         FacebookXmlRestClient userClient = new FacebookXmlRestClient( cred.getApiKey(), cred.getApiSecret(), cred.getSessionId() );
         InputStream in = null;
