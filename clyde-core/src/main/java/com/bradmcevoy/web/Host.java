@@ -223,7 +223,7 @@ public class Host extends Web implements BucketOwner {
         User userRes = findUser( user );
 
         if( userRes == null ) {
-            // log.debug("user not found: " + user + " in domain: " + getName());
+            //log.warn("user not found: " + user + " in domain: " + getName());
             return null;
         }
         

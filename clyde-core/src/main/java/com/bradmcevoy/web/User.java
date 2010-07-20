@@ -231,9 +231,17 @@ public class User extends Folder implements IUser {
             actualPassword = this.password.getValue();
         }
         if( actualPassword == null ) {
-            return password == null || password.length() == 0;
+            boolean b = password == null || password.length() == 0;
+            if( !b ) {
+                log.warn("actual password is blank, but provided password is not");
+            }
+            return b;
         } else {
-            return actualPassword.equals( password );
+            boolean b = actualPassword.equals( password );
+            if( !b ) {
+                log.warn("passwords don't match");
+            }
+            return b;
         }
     }
 
@@ -250,7 +258,7 @@ public class User extends Folder implements IUser {
         String serverDigest = digestGenerator.generateDigest( digestRequest, actualPassword );        
         boolean b = serverDigest.equals( digestRequest.getResponseDigest() );
         if( !b ) {
-            log.warn("checkPassword failed: " + this.getName() + "/" + actualPassword);
+            log.warn("digest checkPassword failed: " + this.getName() + "/" + actualPassword);
         }
         return b;
     }

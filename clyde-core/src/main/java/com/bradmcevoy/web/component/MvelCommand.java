@@ -85,7 +85,7 @@ public class MvelCommand extends Command {
         Object o = org.mvel.MVEL.eval(script, map);
         commit();
         if( o == null) {
-            return rcTarget.page.getHref();
+            return null;
         } else if( o instanceof String) {
             String url = (String) o;
             return url;

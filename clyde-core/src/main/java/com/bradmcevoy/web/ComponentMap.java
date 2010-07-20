@@ -24,8 +24,12 @@ public class ComponentMap extends LinkedHashMap<String, Component> {
             Element e2 = new Element( "components" );
             el.addContent( e2 );
             for( Component c : values() ) {
-                if( !( c instanceof SystemComponent ) && !c.getName().equals( "name" ) ) { // name persisted as Text is deprecated
-                    c.toXml( container, e2 );
+                if( c != null ) { // should never happen, just being defensive
+                    boolean isNameComponent = "name".equals( c.getName()); // name persisted as Text is deprecated
+                    boolean isSystemComponent = ( c instanceof SystemComponent ); // these dont actually get used much
+                    if( !isSystemComponent && !isNameComponent ) {
+                        c.toXml( container, e2 );
+                    }
                 }
             }
             return e2;

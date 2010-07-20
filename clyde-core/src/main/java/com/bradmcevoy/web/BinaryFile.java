@@ -105,7 +105,10 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
             if (log.isDebugEnabled()) {
                 log.debug("sendContent: " + getHref());
             }
-            String versionNum = params.get("_version");
+            String versionNum = null;
+            if( params != null ) {
+                versionNum = params.get("_version");
+            }
             InputStream in = getInputStream(versionNum);
             if (in == null) {
                 log.warn("Failed to get an inputstream for: " + getHref());
