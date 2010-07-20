@@ -46,7 +46,7 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
     private TokenValue getTokenValue( Host host ) {
         ComponentValue cv = host.getValues().get( processName );
         if( cv == null ) {
-            log.warn( "no value called: " + processName );
+            log.debug( "no value called: " + processName );
             return null;
         }
 
