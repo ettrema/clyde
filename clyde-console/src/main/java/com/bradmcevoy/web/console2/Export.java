@@ -13,6 +13,7 @@ import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.TextFile;
 import com.bradmcevoy.web.XmlPersistableResource;
+import com.bradmcevoy.web.recent.RecentResource;
 import com.ettrema.console.Result;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -82,7 +84,7 @@ public class Export extends AbstractConsoleCommand {
     private void importFolder( Folder folder, HttpClient client, Arguments arguments, String destPath ) throws Exception {
         log.debug( "importFolder: " + folder.getHref() );
         for( Resource r : folder.getChildren() ) {
-            if( r instanceof Templatable ){
+            if( r instanceof Templatable ) {
                 Templatable ct = (Templatable) r;
                 if( isImportable( ct, arguments ) ) {
                     doImport( (XmlPersistableResource) ct, client, destPath, arguments );
@@ -118,9 +120,12 @@ public class Export extends AbstractConsoleCommand {
 
     private boolean isImportable( Templatable ct, Arguments arguments ) {
         if( ct instanceof XmlPersistableResource ) {
-            if( ct instanceof BaseResource) {
+            if( ct instanceof RecentResource) {
+                return false;
+            }
+            if( ct instanceof BaseResource ) {
                 BaseResource bres = (BaseResource) ct;
-                if( bres.isTrash()) return false;
+                if( bres.isTrash() ) return false;
             }
             if( ct instanceof Host ) {
                 return !arguments.stopAtHosts;
@@ -135,9 +140,17 @@ public class Export extends AbstractConsoleCommand {
     class ContentSender extends FrameworkBase {
 
         void send( OutputStream out, XmlPersistableResource res ) {
-            Document doc = new Document( new Element( "res" ) );
-            res.toXml( doc.getRootElement(), null );
-            utilXml().saveXMLDocument( out, doc );
+            DocType docType = new DocType( "res",
+                "-//W3C//ENTITIES Latin 1 for XHTML//EN",
+                "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent" );
+
+            Document doc = new Document( new Element( "res" ), docType );
+            try {
+                res.toXml( doc.getRootElement(), null );
+                utilXml().saveXMLDocument( out, doc );
+            } catch(Throwable e) {
+                throw new RuntimeException( "Exception generating xml for resource: " + res.getHref(),e);
+            }
         }
     }
 
@@ -283,9 +296,10 @@ public class Export extends AbstractConsoleCommand {
             this.client = client;
             uri = "http://" + destHost;
             uri = uri + destFolder;
-            log.debug( "uri2: " + uri );
-            if( !uri.endsWith( "/") ) uri += "/";
+//            log.debug( "uri2: " + uri );
+            if( !uri.endsWith( "/" ) ) uri += "/";
             uri = uri + res.getName();
+            uri = uri.replace( " ", "%20" ); // very limited support for special chars!
             sourceUri = uri + ".source";
 
         }
@@ -357,7 +371,7 @@ public class Export extends AbstractConsoleCommand {
                     result = client.executeMethod( putMethod );
                     checkError( result );
                 }
-                log.debug( "done put: " + this.uri);
+                log.debug( "done put: " + this.uri );
             } catch( HttpException ex ) {
                 throw new RuntimeException( ex );
             } catch( IOException ex ) {
