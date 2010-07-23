@@ -12,6 +12,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.TextFile;
+import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.XmlPersistableResource;
 import com.bradmcevoy.web.recent.RecentResource;
 import com.ettrema.console.Result;
@@ -127,6 +128,11 @@ public class Export extends AbstractConsoleCommand {
                 BaseResource bres = (BaseResource) ct;
                 if( bres.isTrash() ) return false;
             }
+            if( ct instanceof User) {
+                if( arguments.noUser ) {
+                    return false;
+                }
+            }
             if( ct instanceof Host ) {
                 return !arguments.stopAtHosts;
             } else {
@@ -163,6 +169,7 @@ public class Export extends AbstractConsoleCommand {
         boolean dryRun;
         boolean recursive;
         boolean stopAtHosts;
+        boolean noUser;
         final List<FileExportStatus> statuses = new ArrayList<FileExportStatus>();
 
         public Arguments( List<String> args ) throws Exception {
@@ -193,6 +200,8 @@ public class Export extends AbstractConsoleCommand {
                 recursive = true;
             } else if( s.equals( "-nohost" ) ) {
                 stopAtHosts = true;
+            } else if( s.equals( "-nouser" ) ) {
+                noUser = true;
             }
         }
 
@@ -341,7 +350,8 @@ public class Export extends AbstractConsoleCommand {
             }
         }
 
-        boolean doPut() throws RuntimeException, Exception {
+        boolean doPut() throws RuntimeException {
+            log.warn( "put: " + this.sourceUri );
             try {
                 PutMethod putMethod;
                 RequestEntity entity;
@@ -372,9 +382,7 @@ public class Export extends AbstractConsoleCommand {
                     checkError( result );
                 }
                 log.debug( "done put: " + this.uri );
-            } catch( HttpException ex ) {
-                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
-            } catch( IOException ex ) {
+            } catch( Exception ex ) {
                 throw new RuntimeException( "sourceUri:" + sourceUri, ex );
             }
             return false;
