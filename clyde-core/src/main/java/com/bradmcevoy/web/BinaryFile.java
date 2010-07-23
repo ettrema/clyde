@@ -207,6 +207,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     public void replaceContent(InputStream in, Long length) {
+        log.debug( "replaceContent");
         setContent(in);
         commit();
     }

@@ -8,8 +8,9 @@ public class TemplateManagerImpl implements TemplateManager{
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TemplateManagerImpl.class );
 
-    public ITemplate lookup( String templateName, Web web ) {
+    public ITemplate lookup( String templateName, Folder folder ) {
         if( templateName == null ) return null;
+        Web web = folder.getWeb();
         Folder templates = web.getTemplates();
 //        log.debug( "templates: " + templates.getPath());
         if( templates == null ) {

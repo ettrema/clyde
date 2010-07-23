@@ -187,8 +187,12 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public String doBody() {
-        if( child == null ) return "";
-        //      log.debug("doBody1: " + this.page.getName());
+        if( child == null ) {
+            if( log.isDebugEnabled() ) {
+                log.debug( "no child, returning empty");
+            }
+            return "";
+        }
         String s = doBody( child );
         if( s == null ) s = "";
         return s;
