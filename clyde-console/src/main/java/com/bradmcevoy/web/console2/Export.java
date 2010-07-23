@@ -333,11 +333,11 @@ public class Export extends AbstractConsoleCommand {
                 log.debug( "result: " + result );
                 return DateUtils.parseDate( sModDate );
             } catch( DateParseException ex ) {
-                throw new RuntimeException( "bad date: " + sModDate );
+                throw new RuntimeException( "sourceUri:" + sourceUri + " bad date: " + sModDate );
             } catch( HttpException ex ) {
-                throw new RuntimeException( ex );
+                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
             } catch( IOException ex ) {
-                throw new RuntimeException( ex );
+                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
             }
         }
 
@@ -373,9 +373,9 @@ public class Export extends AbstractConsoleCommand {
                 }
                 log.debug( "done put: " + this.uri );
             } catch( HttpException ex ) {
-                throw new RuntimeException( ex );
+                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
             } catch( IOException ex ) {
-                throw new RuntimeException( ex );
+                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
             }
             return false;
         }
