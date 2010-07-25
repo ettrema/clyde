@@ -1,13 +1,12 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Executable2;
-import com.bradmcevoy.context.RootContext;
-import com.bradmcevoy.context.RootContextLocator;
 import com.bradmcevoy.http.FilterChain;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.vfs.VfsSession;
+import com.ettrema.context.Context;
+import com.ettrema.context.Executable2;
+import com.ettrema.context.RootContext;
+import com.ettrema.context.RootContextLocator;
 
 /** Initialises the root context with the catalog file WEB-INF/catalog.xml
  *

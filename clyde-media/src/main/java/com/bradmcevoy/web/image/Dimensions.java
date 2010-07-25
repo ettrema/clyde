@@ -1,8 +1,7 @@
 package com.bradmcevoy.web.image;
 
-import com.bradmcevoy.common.FrameworkBase;
 
-public class Dimensions extends FrameworkBase{
+public class Dimensions {
     private double x;
     private double y;
 
@@ -47,7 +46,6 @@ public class Dimensions extends FrameworkBase{
         } else {
             return ;    // already fits
         }
-        debug("Got ratio: " + ratio);
         x = x * ratio;
         y = y * ratio;
         

@@ -13,7 +13,7 @@ import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.vfs.OutputStreamWriter;
+import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -126,7 +126,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         } catch (ReadingException readingException) {
             log.error("exception reading data: " + getHref(), readingException);
         } catch (WritingException writingException) {
-            log.error("exception writing data: " + getHref(), writingException);
+            log.debug("exception writing data: " + getHref());
         } catch (Throwable e) {
             log.error("Exception sending content", e);
         }

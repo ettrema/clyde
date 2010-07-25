@@ -1,10 +1,10 @@
 
 package com.bradmcevoy.web.console2;
 
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
+import static com.ettrema.context.RequestContext.*;
+import com.ettrema.grid.AsynchProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +28,7 @@ public class Patch extends AbstractConsoleCommand {
             String[] patchArgs = getPatchArgs();
             log.debug("patch args: " + patchArgs);
             p.setArgs(patchArgs);
-            RequestContext context = RequestContext.getCurrent();
-            AsynchProcessor proc = context.get(AsynchProcessor.class);
-            proc.enqueue(p);
+            _(AsynchProcessor.class).enqueue(p);
 
             return new Result(this.currentDir, "executed (or executing) patch " + p);
         } else {
@@ -59,5 +57,4 @@ public class Patch extends AbstractConsoleCommand {
             throw new RuntimeException(sClazz,ex);
         }
     }
-
 }

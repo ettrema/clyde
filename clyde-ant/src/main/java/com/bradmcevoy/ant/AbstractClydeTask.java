@@ -1,10 +1,10 @@
 package com.bradmcevoy.ant;
 
-import com.bradmcevoy.config.CatalogConfigurator;
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Executable2;
-import com.bradmcevoy.context.FactoryCatalog;
-import com.bradmcevoy.context.RootContext;
+import com.ettrema.config.CatalogConfigurator;
+import com.ettrema.context.Context;
+import com.ettrema.context.Executable2;
+import com.ettrema.context.FactoryCatalog;
+import com.ettrema.context.RootContext;
 import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;

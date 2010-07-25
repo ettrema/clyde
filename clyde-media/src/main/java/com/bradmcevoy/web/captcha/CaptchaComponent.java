@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.captcha;
 
-import com.bradmcevoy.context.RequestContext;
+import static com.ettrema.context.RequestContext.*;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
@@ -61,7 +61,7 @@ public class CaptchaComponent implements Component, Serializable, ValidatingComp
             return false;
         }
 
-        CaptchaService svc = RequestContext.getCurrent().get( CaptchaService.class );
+        CaptchaService svc = _( CaptchaService.class );
         if( svc == null ) {
             throw new RuntimeException( "no captachservice is configured" );
         }
@@ -85,7 +85,7 @@ public class CaptchaComponent implements Component, Serializable, ValidatingComp
 
     public String render( RenderContext rc ) {
         log.debug( "render" );
-        CaptchaService svc = RequestContext.getCurrent().get( CaptchaService.class );
+        CaptchaService svc = _( CaptchaService.class );
         if( svc == null ) {
             throw new RuntimeException( "no captachservice is configured" );
         }

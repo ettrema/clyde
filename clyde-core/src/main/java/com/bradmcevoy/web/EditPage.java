@@ -1,7 +1,6 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.FileItem;
@@ -12,10 +11,11 @@ import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.NameNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;

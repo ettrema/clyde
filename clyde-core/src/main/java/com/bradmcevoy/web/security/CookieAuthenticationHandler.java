@@ -1,14 +1,14 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.AuthenticationHandler;
 import com.bradmcevoy.http.Cookie;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.User;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

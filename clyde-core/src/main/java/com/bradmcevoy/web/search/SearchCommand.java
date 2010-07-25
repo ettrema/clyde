@@ -1,12 +1,9 @@
 
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
@@ -18,6 +15,9 @@ import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.Text;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

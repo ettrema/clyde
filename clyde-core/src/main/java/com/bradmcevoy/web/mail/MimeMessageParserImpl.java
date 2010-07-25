@@ -1,12 +1,12 @@
 package com.bradmcevoy.web.mail;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Utils;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.ClydeStandardMessage;
 import com.bradmcevoy.web.Folder;
+import com.ettrema.context.Context;
+import com.ettrema.context.RequestContext;
 import com.ettrema.mail.StandardMessageFactoryImpl;
+import com.ettrema.vfs.VfsSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.mail.MessagingException;

@@ -1,10 +1,10 @@
 package com.bradmcevoy.media;
 
 import com.bradmcevoy.io.FileUtils;
-import com.bradmcevoy.vfs.OutputStreamWriter;
 import com.bradmcevoy.video.FFMPEGConverter;
 import com.bradmcevoy.web.FlashFile;
 import com.bradmcevoy.web.VideoFile;
+import com.ettrema.vfs.OutputStreamWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

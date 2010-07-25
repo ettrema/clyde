@@ -3,8 +3,8 @@ package com.bradmcevoy.web.stats;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
 import java.util.Date;
 import java.util.UUID;
 

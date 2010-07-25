@@ -36,12 +36,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>yadboro-aws</artifactId>
+            <artifactId>endrick-aws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>yadboro-postgres</artifactId>
+            <artifactId>endrick-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

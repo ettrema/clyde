@@ -1,12 +1,12 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.context.RequestContext;
 import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;

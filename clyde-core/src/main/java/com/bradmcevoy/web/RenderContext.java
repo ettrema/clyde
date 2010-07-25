@@ -1,7 +1,6 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.component.Addressable;
@@ -10,6 +9,7 @@ import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.context.RequestContext;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;

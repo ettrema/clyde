@@ -1,10 +1,10 @@
 package com.bradmcevoy.process;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.grid.AsynchProcessor;
-import com.bradmcevoy.grid.Processable;
-import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.context.Context;
+import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.grid.Processable;
+import com.ettrema.vfs.NameNode;
 import java.io.Serializable;
 import java.util.List;
 

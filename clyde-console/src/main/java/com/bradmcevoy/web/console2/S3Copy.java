@@ -3,9 +3,9 @@ package com.bradmcevoy.web.console2;
 import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.AWSAuthConnection.CopyFailedException;
 import com.amazon.s3.ListEntry;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
+import static com.ettrema.context.RequestContext.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class S3Copy extends AbstractConsoleCommand {
     }
 
     public Result execute() {
-        AWSAuthConnection con = RequestContext.getCurrent().get( AWSAuthConnection.class );
+        AWSAuthConnection con = _( AWSAuthConnection.class );
         if( args.size() > 0 ) {
             String source = args.get( 0 );
             if( args.size() > 1 ) {

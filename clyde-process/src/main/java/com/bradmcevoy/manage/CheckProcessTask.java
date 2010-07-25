@@ -1,7 +1,7 @@
 package com.bradmcevoy.manage;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.grid.Processable;
+import com.ettrema.context.Context;
+import com.ettrema.grid.Processable;
 import java.io.Serializable;
 import java.util.Date;
 

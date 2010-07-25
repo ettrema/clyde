@@ -1,8 +1,8 @@
 package com.bradmcevoy.binary;
 
 import com.bradmcevoy.http.exceptions.BadRequestException;
-import com.bradmcevoy.vfs.OutputStreamWriter;
 import com.bradmcevoy.web.BinaryFile;
+import com.ettrema.vfs.OutputStreamWriter;
 import java.io.InputStream;
 import java.util.List;
 

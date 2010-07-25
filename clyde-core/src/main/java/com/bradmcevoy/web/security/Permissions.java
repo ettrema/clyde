@@ -1,13 +1,13 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.RelationalNameNode;
-import com.bradmcevoy.vfs.Relationship;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.RelationalNameNode;
+import com.ettrema.vfs.Relationship;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;

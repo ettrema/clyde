@@ -1,6 +1,5 @@
 package com.bradmcevoy.web.recent;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.GetableResource;
@@ -22,6 +21,7 @@ import com.bradmcevoy.web.Page;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
+import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;

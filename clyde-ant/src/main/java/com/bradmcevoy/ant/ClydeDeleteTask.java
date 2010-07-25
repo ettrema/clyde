@@ -1,9 +1,9 @@
 package com.bradmcevoy.ant;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
+import com.ettrema.context.Context;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import org.apache.tools.ant.BuildException;
 
 public class ClydeDeleteTask extends AbstractClydeTask {

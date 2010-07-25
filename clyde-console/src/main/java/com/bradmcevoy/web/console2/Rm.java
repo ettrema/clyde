@@ -1,13 +1,13 @@
 package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.ettrema.console.Result;
+import static com.ettrema.context.RequestContext.*;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +26,7 @@ public class Rm extends AbstractConsoleCommand{
 
         try{
             UUID uuid = UUID.fromString(sPath);
-            VfsSession sess = RequestContext.getCurrent().get(VfsSession.class);
+            VfsSession sess = _(VfsSession.class);
             NameNode node = sess.get(uuid);
             if( node == null ) {
                 return result("No such node: " + uuid);

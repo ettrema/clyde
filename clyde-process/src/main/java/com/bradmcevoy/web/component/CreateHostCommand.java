@@ -3,7 +3,6 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.process.ProcessDef;
-import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.ComponentMap;
@@ -11,6 +10,7 @@ import com.bradmcevoy.web.Group;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.User;
+import com.ettrema.vfs.NameNode;
 import java.util.List;
 import java.util.Map;
 import org.jdom.Element;

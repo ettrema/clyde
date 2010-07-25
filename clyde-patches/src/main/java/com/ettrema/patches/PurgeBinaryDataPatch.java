@@ -1,11 +1,11 @@
 package com.ettrema.patches;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.vfs.BinaryMigrator;
-import com.bradmcevoy.vfs.JdbcBinaryManager;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.console2.PatchApplicator;
+import com.ettrema.context.Context;
+import com.ettrema.vfs.BinaryMigrator;
+import com.ettrema.vfs.JdbcBinaryManager;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import com.ettrema.vfs.aws.AwsBinaryManager;
 import java.sql.Connection;
 import java.sql.SQLException;

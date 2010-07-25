@@ -1,10 +1,10 @@
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.Host;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;

@@ -1,9 +1,9 @@
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -175,6 +175,7 @@ public class VfsDirectory extends Directory {
             this.markedPosition = position;
         }
 
+        @Override
         public int read(byte[] dest, int destOffset, int len) throws IOException {
 //            if (position == file.length) {
 //                return -1;

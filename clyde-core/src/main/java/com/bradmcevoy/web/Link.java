@@ -1,7 +1,8 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.Relationship;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.Relationship;
+
 
 /**
  * I don't think this is used, might not be any use.. ?

@@ -1,9 +1,9 @@
 package com.bradmcevoy.web.mail;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.web.ClydeStandardMessage;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.User;
+import com.ettrema.context.RequestContext;
 import com.ettrema.mail.MailboxAddress;
 import java.util.List;
 import javax.mail.internet.MimeMessage;

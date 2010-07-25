@@ -1,19 +1,19 @@
 package com.bradmcevoy.ant;
 
-import com.bradmcevoy.common.FrameworkBase;
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.Context;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamToStream;
 import com.bradmcevoy.io.WritingException;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
+import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.TextFile;
+import com.ettrema.context.Context;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -95,7 +95,7 @@ public class ClydeExportTask extends AbstractClydeTask {
     }
     
     
-    class Exporter extends FrameworkBase {
+    class Exporter {
         final BaseResource res;
         final File destDir;
         
@@ -114,7 +114,8 @@ public class ClydeExportTask extends AbstractClydeTask {
             doc.addContent(resRoot);
             res.toXml(resRoot);
             try {
-                utilXml().saveXMLDocument(dest,doc); 
+                XmlUtils2 utilXml = new XmlUtils2();
+                utilXml.saveXMLDocument(dest,doc); 
             } catch (FileNotFoundException ex) {
                 throw new RuntimeException(ex);
             }

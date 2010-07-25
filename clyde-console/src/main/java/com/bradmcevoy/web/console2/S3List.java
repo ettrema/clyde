@@ -6,7 +6,7 @@ import com.amazon.s3.ListAllMyBucketsResponse;
 import com.amazon.s3.ListBucketResponse;
 import com.amazon.s3.ListEntry;
 import com.amazon.s3.NotFoundException;
-import com.bradmcevoy.context.RequestContext;
+import static com.ettrema.context.RequestContext.*;
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class S3List extends AbstractConsoleCommand {
 
     public Result execute() {
         try {
-            AWSAuthConnection con = RequestContext.getCurrent().get( AWSAuthConnection.class );
+            AWSAuthConnection con = _( AWSAuthConnection.class );
             if( args.size() > 0 ) {
                 String bucketName = args.get( 0 );
                 log.debug( "list: " + bucketName );

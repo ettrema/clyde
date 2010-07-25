@@ -1,8 +1,5 @@
 package com.ettrema.patches;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -10,6 +7,9 @@ import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.EmailDef;
 import com.bradmcevoy.web.component.EmailVal;
 import com.bradmcevoy.web.console2.PatchApplicator;
+import com.ettrema.context.Context;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.List;
 
 /**

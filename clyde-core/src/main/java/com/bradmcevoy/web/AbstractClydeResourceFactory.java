@@ -4,8 +4,8 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.NameNode;
 import java.util.List;
 
 public abstract class AbstractClydeResourceFactory extends VfsCommon implements ResourceFactory {

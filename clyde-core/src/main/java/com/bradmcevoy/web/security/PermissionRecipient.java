@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.vfs.RelationalNameNode;
 import com.bradmcevoy.web.IUser;
+import com.ettrema.vfs.RelationalNameNode;
 import java.util.UUID;
 
 /**

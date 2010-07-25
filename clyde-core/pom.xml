@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>oallen</artifactId>
+            <artifactId>endrick-grid-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -33,17 +33,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>endrick</artifactId>
+            <artifactId>endrick-context</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>yadboro-api</artifactId>
+            <artifactId>endrick-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>yadboro-aws</artifactId>
+            <artifactId>endrick-aws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

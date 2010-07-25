@@ -3,11 +3,11 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.Relationship;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.ettrema.console.Result;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.Relationship;
 import java.util.List;
 
 public class Relate extends AbstractConsoleCommand{

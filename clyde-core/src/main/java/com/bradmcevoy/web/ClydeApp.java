@@ -1,6 +1,5 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.context.RootContext;
 import com.bradmcevoy.http.EventListener;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
@@ -8,6 +7,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
 import com.bradmcevoy.web.stats.StatsFilter;
+import com.ettrema.context.RootContext;
 import java.util.Map;
 
 /**

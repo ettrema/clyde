@@ -10,14 +10,11 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
 import com.bradmcevoy.http.Utils;
+import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.utils.XmlWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 
@@ -94,19 +91,19 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
     }
 
     class FckGetParams extends FckParams {
-
-        final Writer writer;
         String command;
         String resourceType;
         String sFolder;
         String serverPath;
         String newFolderName;
         
-        private XmlUtils2 xmlUtils = new XmlUtils2();
+        private XmlWriter writer;
+        private OutputStream out;
 
         FckGetParams(OutputStream out, Map<String, String> params) {
             super(params);
-            writer = new PrintWriter(out);
+            this.out = out;
+            writer = new XmlWriter( out );
             command = params.get("Command");
             resourceType = params.get("Type");
             sFolder = params.get("CurrentFolder");
@@ -118,10 +115,6 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
                 }
             }
             serverPath = params.get("ServerPath");
-        }
-
-        private XmlUtils2 utilXml() {
-            return xmlUtils;
         }
         
         void process() {
@@ -149,18 +142,11 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             } catch (UnrecoverableException ex) {
                 log.error("Exception processing file uploader command:", ex);
             } finally {
-                try {
-                    writer.flush();
-                    writer.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                writer.flush();
             }
         }
 
         void initXml() {
-            utilXml().writer(true);
-            writer().setWriter(writer);
             writer().writeXMLHeader();
         }
 
@@ -208,7 +194,7 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
                 writer().close("Files");
             }
             writer().close("Connector");
-            writer().sendData();
+            writer().flush();
         }
 
         void processCreateFolderCommand() {
@@ -241,11 +227,11 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             el.writeAtt("number", "" + errNumber);
             el.noContent();
             writer().close("Connector");
-            writer().sendData();
+            writer().flush();
         }
 
         XmlWriter writer() {
-            return utilXml().writer();
+            return writer;
         }
 
         private void processUploadFolderCommand() {
@@ -262,9 +248,10 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             sb.append("</script>\n");
             String s = sb.toString();
             try {
-                writer.write(s);
-            } catch (IOException ex) {
-                log.error("IOException in processUploadFolderCommand. probably disconnected client");
+                out.write(s.getBytes());
+                out.flush();
+            } catch(IOException e) {
+                log.warn("ioexception writing response to upload", e);
             }
         }
     }

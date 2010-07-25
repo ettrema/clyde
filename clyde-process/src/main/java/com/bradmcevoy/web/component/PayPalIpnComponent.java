@@ -1,7 +1,6 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.pay.Credit;
 import com.bradmcevoy.pay.paypal.Details;
@@ -19,6 +18,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
+import com.ettrema.context.RequestContext;
 import java.math.BigDecimal;
 import java.util.Map;
 import org.jdom.Element;

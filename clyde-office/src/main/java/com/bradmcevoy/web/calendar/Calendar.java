@@ -1,13 +1,13 @@
 package com.bradmcevoy.web.calendar;
 
 import com.bradmcevoy.http.ReportableResource;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.Relationship;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.IUser;
 import com.ettrema.http.AccessControlledResource;
 import com.ettrema.http.CalendarResource;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.Relationship;
 import java.util.List;
 
 /**

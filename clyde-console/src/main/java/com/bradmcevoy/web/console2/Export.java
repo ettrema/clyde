@@ -1,11 +1,11 @@
 package com.bradmcevoy.web.console2;
 
-import com.bradmcevoy.common.FrameworkBase;
 import com.bradmcevoy.http.DateUtils;
 import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.XmlWriter;
+import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
@@ -143,7 +143,7 @@ public class Export extends AbstractConsoleCommand {
         }
     }
 
-    class ContentSender extends FrameworkBase {
+    class ContentSender {
 
         void send( OutputStream out, XmlPersistableResource res ) {
             DocType docType = new DocType( "res",
@@ -153,7 +153,8 @@ public class Export extends AbstractConsoleCommand {
             Document doc = new Document( new Element( "res" ), docType );
             try {
                 res.toXml( doc.getRootElement(), null );
-                utilXml().saveXMLDocument( out, doc );
+                XmlUtils2 utilXml = new XmlUtils2();
+                utilXml.saveXMLDocument( out, doc );
             } catch(Throwable e) {
                 throw new RuntimeException( "Exception generating xml for resource: " + res.getHref(),e);
             }

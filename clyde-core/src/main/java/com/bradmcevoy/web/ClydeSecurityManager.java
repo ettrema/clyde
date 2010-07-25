@@ -1,12 +1,12 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.context.RootContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.ettrema.context.RootContext;
 
 /**
  *

@@ -1,7 +1,9 @@
 
 package com.bradmcevoy.vfs;
 
-import com.bradmcevoy.context.RequestContext;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.VfsSession;
+
 
 public abstract class VfsCommon {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VfsCommon.class);

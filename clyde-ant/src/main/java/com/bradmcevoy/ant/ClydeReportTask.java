@@ -1,8 +1,8 @@
 package com.bradmcevoy.ant;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
+import com.ettrema.context.Context;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.File;
 import org.apache.tools.ant.BuildException;
 

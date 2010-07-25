@@ -1,18 +1,18 @@
 package com.bradmcevoy.media;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.grid.Processable;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.OutputStreamWriter;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ImageFile;
+import com.ettrema.context.Context;
+import com.ettrema.grid.Processable;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.OutputStreamWriter;
+import com.ettrema.vfs.VfsSession;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

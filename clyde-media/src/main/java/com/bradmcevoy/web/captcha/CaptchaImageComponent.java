@@ -1,6 +1,5 @@
 package com.bradmcevoy.web.captcha;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
@@ -12,6 +11,7 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.context.RequestContext;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;

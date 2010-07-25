@@ -1,16 +1,14 @@
 
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Host;
-import com.bradmcevoy.grid.Processable;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Template;
+import com.ettrema.context.Context;
+import com.ettrema.context.RequestContext;
+import com.ettrema.grid.Processable;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.Serializable;
 import java.util.UUID;
 import org.apache.lucene.index.CorruptIndexException;

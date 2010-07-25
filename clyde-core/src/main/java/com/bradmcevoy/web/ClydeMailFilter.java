@@ -1,11 +1,11 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Executable2;
-import com.bradmcevoy.context.Factory;
-import com.bradmcevoy.context.Registration;
-import com.bradmcevoy.context.RootContext;
-import com.bradmcevoy.context.RootContextLocator;
+import com.ettrema.context.Context;
+import com.ettrema.context.Executable2;
+import com.ettrema.context.Factory;
+import com.ettrema.context.Registration;
+import com.ettrema.context.RootContext;
+import com.ettrema.context.RootContextLocator;
 import com.ettrema.mail.Event;
 import com.ettrema.mail.Filter;
 import com.ettrema.mail.FilterChain;

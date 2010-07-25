@@ -4,7 +4,7 @@ import com.bradmcevoy.http.CopyableResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.MoveableResource;
-import com.bradmcevoy.vfs.NameNode;
+import com.ettrema.vfs.NameNode;
 
 public abstract class File extends BaseResource implements CopyableResource, DeletableResource, GetableResource, MoveableResource, HtmlResource{
     

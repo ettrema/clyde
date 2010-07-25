@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.console2;
 
-import com.bradmcevoy.grid.Processable;
+import com.ettrema.grid.Processable;
+
 
 /**
   * marker interface

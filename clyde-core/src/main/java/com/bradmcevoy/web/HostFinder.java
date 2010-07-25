@@ -1,8 +1,8 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.NameNode;
 import java.util.List;
 
 /**

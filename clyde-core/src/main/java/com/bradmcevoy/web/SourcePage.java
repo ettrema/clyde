@@ -1,6 +1,5 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.common.FrameworkBase;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
@@ -155,7 +154,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return null;
     }
 
-    class ContentSender extends FrameworkBase {
+    class ContentSender {
 
         void send(OutputStream out, Map<String, String> parameters) {
             DocType docType = new DocType("res",
@@ -164,7 +163,8 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
 
             Document doc = new Document(new Element("res"), docType);
             res.toXml(doc.getRootElement(), parameters);
-            utilXml().saveXMLDocument(out, doc);
+            XmlUtils2 utilXml = new XmlUtils2();
+            utilXml.saveXMLDocument(out, doc);
         }
     }
 
@@ -173,7 +173,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return new SourceEditPage();
     }
 
-    public class SourceEditPage extends FrameworkBase implements GetableResource, PostableResource, DigestResource {
+    public class SourceEditPage implements GetableResource, PostableResource, DigestResource {
 
         public String err;
 
@@ -274,7 +274,8 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
                 XmlUtils2 x = new XmlUtils2();
                 Document doc = new Document(new Element("res"));
                 SourcePage.this.res.toXml(doc.getRootElement(), params);
-                utilXml().transformDocument(pw, doc);
+                XmlUtils2 utilXml = new XmlUtils2();
+                utilXml.transformDocument(pw, doc);
             }
         }
 

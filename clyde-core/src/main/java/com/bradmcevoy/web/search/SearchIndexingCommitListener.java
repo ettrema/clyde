@@ -1,14 +1,14 @@
 package com.bradmcevoy.web.search;
 
-import com.bradmcevoy.context.Registration;
-import com.bradmcevoy.context.RootContext;
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Factory;
-import com.bradmcevoy.grid.AsynchProcessor;
-import com.bradmcevoy.vfs.CommitListener;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsProvider;
 import com.bradmcevoy.web.BaseResource;
+import com.ettrema.context.Context;
+import com.ettrema.context.Factory;
+import com.ettrema.context.Registration;
+import com.ettrema.context.RootContext;
+import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.vfs.CommitListener;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsProvider;
 
 /**
  * After commit, this listener creates an indexing job for the given name node 

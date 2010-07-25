@@ -1,11 +1,11 @@
 
 package com.bradmcevoy.pay.mock;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Factory;
-import com.bradmcevoy.context.Registration;
-import com.bradmcevoy.context.RootContext;
 import com.bradmcevoy.pay.PaymentService;
+import com.ettrema.context.Context;
+import com.ettrema.context.Factory;
+import com.ettrema.context.Registration;
+import com.ettrema.context.RootContext;
 
 public class CtxMockPaymentServiceFactory implements Factory<PaymentService>{
     public static Class[] classes = {PaymentService.class};

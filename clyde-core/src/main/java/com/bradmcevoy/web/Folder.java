@@ -1,6 +1,5 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.vfs.Relationship;
 import com.bradmcevoy.web.creation.ResourceCreator;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.event.EventManager;
@@ -16,16 +15,17 @@ import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.OutputStreamWriter;
-import com.bradmcevoy.vfs.RelationalNameNode;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TypeMapping;
 import com.bradmcevoy.web.component.TypeMappingsComponent;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.OutputStreamWriter;
+import com.ettrema.vfs.RelationalNameNode;
+import com.ettrema.vfs.Relationship;
 import eu.medsea.util.MimeUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.jdom.Element;
-import static com.bradmcevoy.context.RequestContext.*;
+import static com.ettrema.context.RequestContext.*;
 
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces

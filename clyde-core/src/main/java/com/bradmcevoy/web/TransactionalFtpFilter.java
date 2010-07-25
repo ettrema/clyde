@@ -1,8 +1,8 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Executable2;
-import com.bradmcevoy.context.RootContext;
+import com.ettrema.context.Context;
+import com.ettrema.context.Executable2;
+import com.ettrema.context.RootContext;
 import com.ettrema.ftp.FtpActionListener;
 import java.util.concurrent.Callable;
 

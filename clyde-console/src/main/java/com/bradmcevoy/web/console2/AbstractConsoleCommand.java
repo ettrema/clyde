@@ -2,18 +2,18 @@
 package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.ettrema.console.ConsoleCommand;
 import com.ettrema.console.Result;
+import com.ettrema.context.Context;
+import com.ettrema.context.RequestContext;
+import com.ettrema.vfs.VfsSession;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

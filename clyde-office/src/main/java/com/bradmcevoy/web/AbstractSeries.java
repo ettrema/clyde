@@ -2,8 +2,8 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.RequestContext;
+import com.ettrema.context.Context;
+import com.ettrema.context.RequestContext;
 import java.util.List;
 
 public abstract class AbstractSeries implements DataSeries{

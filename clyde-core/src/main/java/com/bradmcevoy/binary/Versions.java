@@ -1,7 +1,7 @@
 package com.bradmcevoy.binary;
 
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
 import java.io.Serializable;
 import java.util.UUID;
 

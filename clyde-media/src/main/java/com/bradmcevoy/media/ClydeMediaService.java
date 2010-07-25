@@ -1,13 +1,13 @@
 package com.bradmcevoy.media;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.Factory;
-import com.bradmcevoy.context.Registration;
-import com.bradmcevoy.context.RootContext;
 import com.bradmcevoy.web.FlashFileCreator;
 import com.bradmcevoy.web.ImageFileCreator;
 import com.bradmcevoy.web.VideoFileCreator;
 import com.bradmcevoy.web.creation.ResourceCreator;
+import com.ettrema.context.Context;
+import com.ettrema.context.Factory;
+import com.ettrema.context.Registration;
+import com.ettrema.context.RootContext;
 
 /**
  *

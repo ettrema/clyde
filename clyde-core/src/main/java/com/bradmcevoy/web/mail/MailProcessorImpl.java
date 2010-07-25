@@ -1,10 +1,10 @@
 package com.bradmcevoy.web.mail;
 
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.web.ClydeStandardMessage;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.User;
+import com.ettrema.context.RequestContext;
+import com.ettrema.grid.AsynchProcessor;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.send.MailSender;
 import java.util.ArrayList;

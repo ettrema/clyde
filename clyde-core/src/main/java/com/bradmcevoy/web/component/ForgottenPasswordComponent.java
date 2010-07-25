@@ -1,19 +1,19 @@
 package com.bradmcevoy.web.component;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.vfs.DataNode;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.EmailAddress;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.User;
+import com.ettrema.context.RequestContext;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessageImpl;
 import com.ettrema.mail.send.MailSender;
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

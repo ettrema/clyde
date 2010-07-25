@@ -1,7 +1,8 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.RelationalNameNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.RelationalNameNode;
+
 
 public class RootFolder extends Folder {
     

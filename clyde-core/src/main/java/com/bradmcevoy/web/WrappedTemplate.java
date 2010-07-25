@@ -1,7 +1,6 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Range;
@@ -12,6 +11,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.CommonTemplated.Params;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

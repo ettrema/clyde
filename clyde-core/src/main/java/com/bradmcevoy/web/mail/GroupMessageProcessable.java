@@ -1,12 +1,12 @@
 package com.bradmcevoy.web.mail;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.grid.Processable;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
 import com.bradmcevoy.web.ClydeStandardMessage;
+import com.ettrema.context.Context;
+import com.ettrema.grid.Processable;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.send.MailSender;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;

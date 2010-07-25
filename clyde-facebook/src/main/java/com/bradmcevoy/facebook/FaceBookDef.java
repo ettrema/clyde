@@ -1,6 +1,5 @@
 package com.bradmcevoy.facebook;
 
-import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.facebook.FaceBookSessionValue.FaceBookSession;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
@@ -12,6 +11,7 @@ import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.context.RequestContext;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,21 +1,21 @@
 
 package com.bradmcevoy.web.console2;
 
-import com.bradmcevoy.context.Context;
-import com.bradmcevoy.context.RequestContext;
-import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.vfs.NameNode;
-import com.bradmcevoy.vfs.VfsSession;
-import com.bradmcevoy.grid.LocalAsynchProcessor;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
-import com.bradmcevoy.grid.Processable;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.web.search.BaseResourceIndexer;
 import com.ettrema.console.Result;
+import com.ettrema.context.Context;
+import com.ettrema.context.RequestContext;
+import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.grid.LocalAsynchProcessor;
+import com.ettrema.grid.Processable;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.VfsSession;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +48,7 @@ public class Crawl extends AbstractConsoleCommand{
     }
 
     public static class HostCrawler implements Processable {
+        private static final long serialVersionUID = 5405320305282298433L;
         final UUID hostNodeId;
 
         public HostCrawler(UUID hostNodeId) {

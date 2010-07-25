@@ -2,7 +2,7 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.vfs.NameNode;
+import com.ettrema.vfs.NameNode;
 import java.util.List;
 
 public class FckResourceFactory extends AbstractClydeResourceFactory {
