@@ -4,6 +4,7 @@ import com.bradmcevoy.vfs.NameNode;
 import com.bradmcevoy.vfs.Relationship;
 
 /**
+ * I don't think this is used, might not be any use.. ?
  *
  * @author brad
  */

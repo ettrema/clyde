@@ -37,13 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.jdom.Element;
+import static com.bradmcevoy.context.RequestContext.*;
 
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
  * 
  * @author brad
  */
-@BeanPropertyResource("clyde")
+@BeanPropertyResource( "clyde" )
 public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Folder.class );
@@ -69,13 +70,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * The allowed and disallowed specs
      */
     TemplateSpecs templateSpecs = new TemplateSpecs();
-
     /**
      * Whether or not resources should be version controlled, if supported by
      * ClydeBinaryService
      */
     private Boolean versioningEnabled;
-
     private transient List<TransientNameNode> transientNameNodes;
 
     /** Create a root folder
@@ -232,8 +231,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
-        secureRead = InitUtils.getBoolean(el, "secureRead");
-        versioningEnabled = InitUtils.getBoolean(el, "versioningEnabled");
+        secureRead = InitUtils.getBoolean( el, "secureRead" );
+        versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );
         redirect = InitUtils.getValue( el, "redirect" );
         thumbHref = InitUtils.getValue( el, "thumbHref" );
         String s = el.getAttributeValue( "allowedTemplates" );
@@ -244,7 +243,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         e2.setAttribute( "secureRead", secureRead + "" );
-        InitUtils.set(e2, "versioningEnabled", versioningEnabled);
+        InitUtils.set( e2, "versioningEnabled", versioningEnabled );
         InitUtils.setString( e2, "redirect", redirect );
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
@@ -284,7 +283,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             if( r == null && request.getAuthorization() != null ) {
                 s = s + ".new";
             }
-            if( log.isTraceEnabled()){
+            if( log.isTraceEnabled() ) {
                 log.trace( "redirect to: " + s );
             }
             return s;
@@ -308,7 +307,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     @Override
     public void _copyTo( Folder dest, String name ) {
-        Folder newFolder = (Folder)copyInstance( dest, name );
+        Folder newFolder = (Folder) copyInstance( dest, name );
         newFolder.templateSelect = (TemplateSelect) newFolder.componentMap.get( "template" );
         newFolder.save();
         log.debug( "created new folder: " + newFolder.getHref() );
@@ -395,7 +394,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         } else {
             if( transientNameNodes != null ) {
                 for( TransientNameNode nn : transientNameNodes ) {
-                    if( nn.getName().equals(name)) {
+                    if( nn.getName().equals( name ) ) {
                         DataNode dn = nn.getData();
                         if( dn == null ) {
                             return null;
@@ -519,8 +518,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    public Templatable createPage(String name, String template) {
-        ITemplate t = this.getTemplate( template);
+    public Templatable createPage( String name, String template ) {
+        ITemplate t = this.getTemplate( template );
         return t.createPageFromTemplate( this, name );
     }
 
@@ -543,12 +542,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * @param templateName - the name of the template to assign to the resource. Is validated.
      * @return
      */
-    public Resource create(String name, String templateName) {
-        ITemplate t = getTemplate(templateName);
-        if( t == null) {
-            throw new RuntimeException("No such template: " + templateName);
+    public Resource create( String name, String templateName ) {
+        ITemplate t = getTemplate( templateName );
+        if( t == null ) {
+            throw new RuntimeException( "No such template: " + templateName );
         }
-        BaseResource res = t.createPageFromTemplate(this, name);
+        BaseResource res = t.createPageFromTemplate( this, name );
         res.save();
         return res;
     }
@@ -603,11 +602,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return typeMappings;
     }
 
-
     public Folder thumbs( String thumbSpec ) {
         return thumbs( thumbSpec, false );
     }
-
 
     public Folder thumbs( String thumbSpec, boolean create ) {
         String name = thumbSpec + "s";
@@ -641,7 +638,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             transientNameNodes = new ArrayList<TransientNameNode>();
         }
         TransientNameNode nn = new TransientNameNode( newName, baseResource );
-        transientNameNodes.add(nn);
+        transientNameNodes.add( nn );
         return nn;
     }
 
@@ -653,7 +650,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return templateSpecs;
     }
 
-    public void setAllowedTemplates(String s) {
+    public void setAllowedTemplates( String s ) {
         this.templateSpecs = TemplateSpecs.parse( s );
     }
 
@@ -682,7 +679,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-
     /**
      * Locates a template suitable for this folder. Eg, enquires
      * to the web.
@@ -695,7 +691,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if( web == null ) {
             return null;
         }
-        TemplateManager tm = requestContext().get( TemplateManager.class);
+        TemplateManager tm = _( TemplateManager.class );
         return tm.lookup( name, web );
     }
 
@@ -705,7 +701,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     void onRemoved( BaseResource aThis ) {
-        log.trace( "onRemovedL " + aThis );
+        log.trace( "onRemoved: " + aThis );
     }
 
     public boolean hasIndexPage() {
@@ -887,7 +883,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                 persistedNameNode.delete();
                 persistedNameNode = null;
             }
-            transientNameNodes.remove(this);
+            transientNameNodes.remove( this );
         }
 
         @Override
@@ -1061,7 +1057,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return versioningEnabled;
     }
 
-    public void setVersioningEnabled(Boolean versioningEnabled) {
+    public void setVersioningEnabled( Boolean versioningEnabled ) {
         this.versioningEnabled = versioningEnabled;
     }
 
@@ -1069,7 +1065,4 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public boolean isIndexable() {
         return true;
     }
-
-
-
 }

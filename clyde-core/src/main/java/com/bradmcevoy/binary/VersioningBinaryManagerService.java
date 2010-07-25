@@ -2,6 +2,7 @@ package com.bradmcevoy.binary;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
+import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.io.FileUtils;
@@ -36,6 +37,8 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
 
     private final ClydeBinaryService wrapped;
 
+    private boolean defaultVersioningEnabled = true;
+
     /**
      * Delegates to the given service for reads when no versions are found
      *
@@ -56,14 +59,27 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
 
     public int setContent(BinaryFile file, InputStream in) {
         log.debug("setContent: " + file.getName());
-        if( !file.isFirstVersionDone() || !isVersioningEnabled(file) ) {
+        boolean useVersioning;
+        if( !file.isFirstVersionDone()) {
+            log.trace( "first version not done yet, so delegate to wrapped binary manager");
+            useVersioning = false;
+        } else {
+            if( !isVersioningEnabled( file )) {
+                log.trace( "versioning is not enabled for this folder, delegate to wrapped binary manager");
+                useVersioning = false;
+            } else {
+                log.trace( "first version done and folder supports versioning, create a new version");
+                useVersioning = true;
+            }
+        }
+        if( useVersioning ) {
             // Set the first version directly on the file's node, using the wrapped service
-            log.debug("delegate");
+            log.trace("delegate");
             file.setFirstVersionDone(true);
             return wrapped.setContent(file, in);
         } else {
             // Use versioning for subsequent versions
-            log.debug("do versioning: " + file.getLocalContentLength());
+            log.trace("do versioning: " + file.getLocalContentLength());
             NameNode versionsNode = getVersionsNode(file, true); // create the node
             Version v = createVersionNode(versionsNode);
 
@@ -77,10 +93,13 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
             v.setCrc(crc);
 
             IUser currentUser;
-            Auth auth = HttpManager.request().getAuthorization();
-            if (auth != null && auth.getTag() != null && auth.getTag() instanceof IUser) {
-                currentUser = (IUser) auth.getTag();
-                v.setUserId(currentUser.getNameNodeId());
+            Request req = HttpManager.request();
+            if( req != null ) {
+                Auth auth = req.getAuthorization();
+                if (auth != null && auth.getTag() != null && auth.getTag() instanceof IUser) {
+                    currentUser = (IUser) auth.getTag();
+                    v.setUserId(currentUser.getNameNodeId());
+                }
             }
 
             v.save();
@@ -261,12 +280,24 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
         Boolean b = folder.isVersioningEnabled();
         if( b == null ) {
             if( folder instanceof Web) {
-                return true; // No value specified, so default to true
+                log.trace( "no value specified for isVersioningEnabled, default to: " + defaultVersioningEnabled);
+                return defaultVersioningEnabled; // No value specified, so default to true
             } else {
                 return isVersioningEnabled(folder.getParentFolder());
             }
         } else {
+            if( log.isTraceEnabled() ) {
+                log.trace( "isVersioningEnabled: " + folder.getHref() + " = " + b);
+            }
             return b.booleanValue();
         }
+    }
+
+    public void setDefaultVersioningEnabled( boolean defaultVersioningEnabled ) {
+        this.defaultVersioningEnabled = defaultVersioningEnabled;
+    }
+
+    public boolean isDefaultVersioningEnabled() {
+        return defaultVersioningEnabled;
     }
 }
