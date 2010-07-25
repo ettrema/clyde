@@ -5,6 +5,7 @@ import com.amazon.s3.Bucket;
 import com.amazon.s3.ListAllMyBucketsResponse;
 import com.amazon.s3.ListBucketResponse;
 import com.amazon.s3.ListEntry;
+import com.amazon.s3.NotFoundException;
 import com.bradmcevoy.context.RequestContext;
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;
@@ -41,22 +42,26 @@ public class S3List extends AbstractConsoleCommand {
     }
 
     private Result listAllBuckets( AWSAuthConnection con ) throws IOException {
-        ListAllMyBucketsResponse resp = con.listAllMyBuckets( new HashMap() );
-        if( resp.entries != null && resp.entries.size() > 0 ) {
-            StringBuffer sb = new StringBuffer( "<p>Found: " + resp.entries.size() + " buckets</p>" );
-            sb.append( "<ul>" );
-            for( Object oBucket : resp.entries ) {
-                if( oBucket instanceof Bucket ) {
-                    Bucket b = (Bucket) oBucket;
-                    sb.append( "<li>" + b.name + "</li>" );
-                } else {
-                    return result( "Not a bucket. Is a: " + oBucket.getClass() );
+        try {
+            ListAllMyBucketsResponse resp = con.listAllMyBuckets( new HashMap() );
+            if( resp.entries != null && resp.entries.size() > 0 ) {
+                StringBuffer sb = new StringBuffer( "<p>Found: " + resp.entries.size() + " buckets</p>" );
+                sb.append( "<ul>" );
+                for( Object oBucket : resp.entries ) {
+                    if( oBucket instanceof Bucket ) {
+                        Bucket b = (Bucket) oBucket;
+                        sb.append( "<li>" + b.name + "</li>" );
+                    } else {
+                        return result( "Not a bucket. Is a: " + oBucket.getClass() );
+                    }
                 }
+                sb.append( "</ul>" );
+                return result( sb.toString() );
+            } else {
+                return result( "no buckets" );
             }
-            sb.append( "</ul>" );
-            return result( sb.toString() );
-        } else {
-            return result( "no buckets" );
+        } catch( NotFoundException ex ) {
+            return result("no buckets because not found");
         }
     }
 
@@ -83,22 +88,25 @@ public class S3List extends AbstractConsoleCommand {
     }
 
     public static void findItems( AWSAuthConnection con, String bucketName, Map<String,ListEntry> items, String marker ) {
-        log.debug( "find: from marker: " + marker);
-        ListBucketResponse resp = con.listBucket( bucketName, null, marker, 1000, null );
-        String lastKey = null;
-        for( Object o : resp.entries ) {
-            if( o instanceof ListEntry) {
-                ListEntry e = (ListEntry) o;
-                items.put( e.key, e );
-                lastKey = e.key;
-            } else {
-                throw new RuntimeException( "Not a: " + ListEntry.class);
+        try {
+            log.debug( "find: from marker: " + marker );
+            ListBucketResponse resp = con.listBucket( bucketName, null, marker, 1000, null );
+            String lastKey = null;
+            for( Object o : resp.entries ) {
+                if( o instanceof ListEntry ) {
+                    ListEntry e = (ListEntry) o;
+                    items.put( e.key, e );
+                    lastKey = e.key;
+                } else {
+                    throw new RuntimeException( "Not a: " + ListEntry.class );
+                }
             }
-        }
-
-        if( resp.isTruncated ) {
-            resp = null;
-            findItems( con, bucketName, items, lastKey);
+            if( resp.isTruncated ) {
+                resp = null;
+                findItems( con, bucketName, items, lastKey );
+            }
+        } catch( NotFoundException ex ) {
+            log.error( "not found: " + bucketName);
         }
     }
 }
