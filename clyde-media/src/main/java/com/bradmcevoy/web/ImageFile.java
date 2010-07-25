@@ -92,6 +92,11 @@ public class ImageFile extends BinaryFile {
         if( thumbs != null ) {
             for( Thumb t : thumbs ) {
                 Folder thumbsFolder = getParent().thumbs( t.suffix, true );
+                // Ensure we dont do versioning of thumbs
+                if( thumbsFolder.isVersioningEnabled() == null ) {
+                    thumbsFolder.setVersioningEnabled( false );
+                    thumbsFolder.save();
+                }
                 createThumb( thumbsFolder, t.width, t.height, skipIfExists );
                 count++;
             }
