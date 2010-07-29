@@ -3,7 +3,6 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.image.Dimensions;
 import com.bradmcevoy.web.image.ImageService;
 import com.bradmcevoy.web.image.ImageUtilities;
@@ -12,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 
 @BeanPropertyResource("clyde")
 public class ImageFile extends BinaryFile {
@@ -59,7 +59,7 @@ public class ImageFile extends BinaryFile {
         } catch( IOException ex ) {
             throw new RuntimeException( ex );
         } finally {
-            FileUtils.close( in );
+            IOUtils.closeQuietly( in );
         }
 
         BaseResource resExisting = folder.childRes( this.getName() );
