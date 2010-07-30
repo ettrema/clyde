@@ -61,7 +61,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return find( t.getParent() );
     }
     protected boolean secureRead;
-    private String redirect;
+
     /**
      * The href of a thumb nail image for this folder, or null if none exists.
      */
@@ -232,8 +232,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         secureRead = InitUtils.getBoolean( el, "secureRead" );
-        versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );
-        redirect = InitUtils.getValue( el, "redirect" );
+        versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );        
         thumbHref = InitUtils.getValue( el, "thumbHref" );
         String s = el.getAttributeValue( "allowedTemplates" );
         templateSpecs = TemplateSpecs.parse( s );
@@ -243,8 +242,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         e2.setAttribute( "secureRead", secureRead + "" );
-        InitUtils.set( e2, "versioningEnabled", versioningEnabled );
-        InitUtils.setString( e2, "redirect", redirect );
+        InitUtils.set( e2, "versioningEnabled", versioningEnabled );        
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
             templateSpecs = new TemplateSpecs( "" );
@@ -269,25 +267,26 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     @Override
     public String checkRedirect( Request request ) {
-        if( redirect != null && redirect.length() > 0 ) {
-            return redirect;
-        } else {
-            String s = request.getAbsoluteUrl();
-            if( !s.endsWith( "/" ) ) {
-                s = s + "/";
-            }
-            s = s + "index.html";
-
-            // if logged in and page doesnt exist, go to new page
-            Resource r = this.child( "index.html" );
-            if( r == null && request.getAuthorization() != null ) {
-                s = s + ".new";
-            }
-            if( log.isTraceEnabled() ) {
-                log.trace( "redirect to: " + s );
-            }
+        String s = super.checkRedirect(request);
+        if( s != null ) {
             return s;
         }
+
+        s = request.getAbsoluteUrl();
+        if( !s.endsWith( "/" ) ) {
+            s = s + "/";
+        }
+        s = s + "index.html";
+
+        // if logged in and page doesnt exist, go to new page
+        Resource r = this.child( "index.html" );
+        if( r == null && request.getAuthorization() != null ) {
+            s = s + ".new";
+        }
+        if( log.isTraceEnabled() ) {
+            log.trace( "redirect to: " + s );
+        }
+        return s;
     }
 
     @Override

@@ -29,14 +29,13 @@ public class SecurityComponentAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         if( !( resource instanceof CommonTemplated ) ) {
             return null;
         }
         log.debug( "authorise: " + resource.getName());
         CommonTemplated commonTemplated = (CommonTemplated) resource;
         Auth auth = request.getAuthorization();
-        Method method = request.getMethod();
         Boolean bb = checkSecurityComponent( request, request.getMethod(), auth, commonTemplated );
         if( bb != null ) {
             log.debug( "got answer from security component: " + bb);

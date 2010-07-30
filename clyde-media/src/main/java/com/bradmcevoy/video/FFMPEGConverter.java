@@ -118,6 +118,9 @@ public class FFMPEGConverter implements Converter{
         BufferedOutputStream out2 = null;
         try {
             temp = File.createTempFile("convert_vid_in_" + System.currentTimeMillis(), "." + suffix);
+            if( temp.exists() ) {
+                temp = File.createTempFile("convert_vid_in_" + in.hashCode(), "." + suffix);
+            }
             out = new FileOutputStream(temp);
             out2 = new BufferedOutputStream(out);
             StreamToStream.readTo(in, out2);
@@ -141,5 +144,13 @@ public class FFMPEGConverter implements Converter{
     
     private static File createTempFile(String prefix, String suffix) {
         return new File(TEMP_DIR,prefix+suffix);
+    }
+
+    public long getSourceLength() {
+        if(source == null ) {
+            return 0;
+        } else {
+            return source.length();
+        }
     }
 }

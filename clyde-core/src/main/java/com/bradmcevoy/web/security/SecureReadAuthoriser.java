@@ -25,20 +25,20 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         if( resource instanceof Templatable ) {
-            return authoriseClydeResource( (Templatable) resource, request );
+            return authoriseClydeResource( (Templatable) resource, request, method );
         } else {
             // dont know how to handle this resource
             return null;
         }
     }
 
-    private Boolean authoriseClydeResource( Templatable templatable, Request request ) {
+    private Boolean authoriseClydeResource( Templatable templatable, Request request, Method method ) {
         if( templatable instanceof Folder ) {
             Folder folder = (Folder) templatable;
-            boolean isWrite = isWriteMethod(request.getMethod());
-            if( folder.isSecureRead() || isWriteMethod(request.getMethod()) ) {
+            boolean isWrite = isWriteMethod(method);
+            if( folder.isSecureRead() || isWriteMethod(method) ) {
                 // is secure, so if not logged in definitely not
                 if( request.getAuthorization() == null ) {
                     if(log.isDebugEnabled()) {
@@ -47,7 +47,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
                     return false;
                 } else {
 //                    log.debug( "delegating authorisation" );
-                    boolean result = wrapped.authorise( folder, request );
+                    boolean result = wrapped.authorise( folder, request, method );
                     if( !result && log.isDebugEnabled() ) {
                         log.debug( "wrapped authoriser said deny access: " + wrapped.getClass() + " folder:" + folder.getHref());
                     }
@@ -63,7 +63,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
             if( log.isDebugEnabled()) {
                 log.debug( "Can't check type:" + templatable.getClass().getCanonicalName() + ", try:" + folder.getHref());
             }
-            return authoriseClydeResource( folder, request );
+            return authoriseClydeResource( folder, request, method );
         }
     }
 

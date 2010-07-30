@@ -1,7 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.media.StreamingVideoGenerator;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.component.InitUtils;
 import org.jdom.Element;
@@ -96,6 +96,25 @@ public class VideoFile extends BinaryFile {
         FlashFile ff = getStreamingVideo();
         if( ff == null ) return "";
         return ff.getHref();
+    }
+
+
+    @Override
+    public HtmlImage getThumb() {
+        Folder folderThumbs = getThumbsFolder();
+        if (folderThumbs != null) {
+            Resource nextThumbs = folderThumbs.child( "thumbs" );
+            if( nextThumbs instanceof Folder ) {
+                folderThumbs = (Folder) nextThumbs;
+                BaseResource resThumb = folderThumbs.childRes(this.getName() + ".flv.jpg");
+                if ( resThumb instanceof HtmlImage) {
+                    HtmlImage thumb = (HtmlImage) resThumb;
+                    return thumb;
+                }
+            }
+        }
+        return new NoImageResource();
+
     }
 
     @Override

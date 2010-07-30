@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
@@ -20,7 +21,7 @@ public class PayPalIpnAuthoriser implements ClydeAuthoriser {
         return this.getClass().getCanonicalName();
     }
 
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         log.trace( "authorise: " + resource.getClass() );
 
         if( request.getMethod().equals( Request.Method.POST)) {

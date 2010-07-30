@@ -65,7 +65,6 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         } else if( val == null ) {
             s = null;
         } else {
-            log.warn("Value is not a string: " + getName() + " is a: " + val.getClass() );
             s = val.toString();
         }
         if( required ) {

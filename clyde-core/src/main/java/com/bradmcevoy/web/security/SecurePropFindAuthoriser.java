@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 
 /**
@@ -17,8 +18,8 @@ public class SecurePropFindAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
-        if( request.getMethod().equals( Request.Method.PROPFIND)) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
+        if( method.equals( Request.Method.PROPFIND)) {
             boolean isLoggedIn = request.getAuthorization() != null && request.getAuthorization().getTag() != null;
             if( !isLoggedIn ) {
                 log.debug( "not logged in, so disallowing PROPFIND access");

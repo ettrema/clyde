@@ -3,7 +3,6 @@ package com.bradmcevoy.web.search;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.exceptions.MiltonException;
-import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
@@ -70,7 +69,7 @@ public class HostSearchManager {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             } finally {
-                FileUtils.close(ir);
+                closeQuietly( ir);
             }
         }
             
@@ -122,8 +121,8 @@ public class HostSearchManager {
         } catch(MiltonException e) {
             throw new RuntimeException( e );
         } finally {
-            FileUtils.close(w);
-            FileUtils.close(index);
+            closeQuietly(w);
+            closeQuietly(index);
         }        
     }
     
@@ -161,5 +160,30 @@ public class HostSearchManager {
         }
         Document[] arr = new Document[list.size()];
         return list.toArray(arr);
+    }
+
+    private void closeQuietly( IndexReader r ) {
+        if( r == null ) return ;
+        try {
+            r.close();
+        } catch( IOException ex ) {
+        }
+    }
+
+    private void closeQuietly( Directory index ) {
+        if( index == null ) return ;
+        try {
+            index.close();
+        } catch( IOException ex ) {
+        }
+    }
+
+    private void closeQuietly( IndexWriter w ) {
+        if( w == null ) return ;
+        try {
+            w.close();
+        } catch( CorruptIndexException ex ) {
+        } catch( IOException ex ) {
+        }
     }
 }

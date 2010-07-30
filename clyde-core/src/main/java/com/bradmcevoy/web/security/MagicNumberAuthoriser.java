@@ -72,24 +72,24 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         log.trace( "authorise" );
         if( contentType != null ) {
             GetableResource gr = (GetableResource) resource;
             String actualContentType = gr.getContentType( null );
             if( actualContentType != null && actualContentType.contains( contentType ) ) {
                 log.trace( "matching contenttype" );
-                return checkAccess( resource, request );
+                return checkAccess( resource, request, method );
             } else {
                 log.trace( "not matching contentType" );
                 return null; // no opinion
             }
         } else {
-            return checkAccess( resource, request );
+            return checkAccess( resource, request, method );
         }
     }
 
-    private Boolean checkAccess( Resource resource, Request request ) {
+    private Boolean checkAccess( Resource resource, Request request, Method method ) {
         log.trace( "checkAccess" );
         if(RequestParams.current() == null ) {
             return null;
@@ -99,7 +99,7 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
             log.trace( "no request param" );
             return null;
         }
-        Method m = request.getMethod();
+        Method m = method;
         if( !methods.contains( m ) ) {
             log.trace( "not matching method" );
             return null;

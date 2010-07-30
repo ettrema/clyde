@@ -114,7 +114,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
     @Override
     public boolean authorise(Request request, Request.Method method, Auth auth) {
         ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
-        return authoriser.authorise(this, request);
+        return authoriser.authorise(this, request, method);
     }
 
     @Override

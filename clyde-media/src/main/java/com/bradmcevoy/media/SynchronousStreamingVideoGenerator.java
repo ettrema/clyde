@@ -32,15 +32,19 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
             final String inputType = FileUtils.getExtension( source.getName() );
 
             converter = new FFMPEGConverter( in, inputType );
-            final FFMPEGConverter c = converter;
-            flash.useOutputStream( new OutputStreamWriter<Long>() {
+            if( converter.getSourceLength() > 0 ) {
+                final FFMPEGConverter c = converter;
+                flash.useOutputStream( new OutputStreamWriter<Long>() {
 
-                @Override
-                public Long writeTo( final OutputStream out ) {
-                    log.debug( "using outputstream for conversion" );
-                    return c.convert( out, "flv", source.getConvertedHeight(), source.getConvertedWidth() );
-                }
-            } );
+                    @Override
+                    public Long writeTo( final OutputStream out ) {
+                        log.debug( "using outputstream for conversion" );
+                        return c.convert( out, "flv", source.getConvertedHeight(), source.getConvertedWidth() );
+                    }
+                } );
+            } else {
+                log.warn( "Cant generate streaming video because source file length is zero");
+            }
 
 
         } finally {

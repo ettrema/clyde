@@ -66,10 +66,10 @@ public class FlexiAuthoriser implements ClydeAuthoriser{
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         if( resource.getClass().isAssignableFrom( theClass )) {
             for( Request.Method m : methods ) {
-                if( m.equals( request.getMethod() )) {
+                if( m.equals( method )) {
                     log.debug( "Found matching request");
                     if( role == null || permissionChecker.hasRole( role, resource, request.getAuthorization())) {
                         log.debug( "user is of type");

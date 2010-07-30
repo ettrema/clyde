@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import java.util.List;
 
@@ -21,9 +22,9 @@ public class MultipleAuthoriser implements ClydeAuthoriser{
 
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         for( ClydeAuthoriser a : authorisers ) {
-            Boolean res = a.authorise( resource, request );
+            Boolean res = a.authorise( resource, request, method );
             if( res != null) {
                 log.debug( "authoriser said: " + res + " - " + a.getName());
                 return res.booleanValue();

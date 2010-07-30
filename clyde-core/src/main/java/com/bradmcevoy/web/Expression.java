@@ -192,6 +192,8 @@ public class Expression implements Component, WrappableComponent{
         } else if( o instanceof DateTime ) {
             DateTime dt = (DateTime) o;
             return getFormattedDate(dt);
+        } else if( o instanceof Boolean ) {
+            return o.toString();
         } else {
             log.warn("** unhandled data type: " + o.getClass());
             return o.toString();

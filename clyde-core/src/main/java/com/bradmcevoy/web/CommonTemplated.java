@@ -381,7 +381,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
-        return authoriser.authorise( this, request );
+        boolean b = authoriser.authorise( this, request, method );
+        log.warn("authorise: method: " + method + " = " + b + " -->> " + authoriser.getClass());
+        return b;
     }
 
     @Override
@@ -517,6 +519,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( t != null ) {
             return t.render( rc );
         } else {
+            log.debug( "no template, so use root parameter");
             Component cRoot = this.getParams().get( "root" );
             if( cRoot == null ) {
                 log.warn( "no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
@@ -533,6 +536,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+        if( log.isTraceEnabled()) {
+            log.trace( "sendContent: " + this.getHref());
+        }
         tlTargetPage.set( this );
         String s = null;
         try {

@@ -5,11 +5,17 @@ import com.bradmcevoy.event.EventManager;
 import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.event.PreSaveEvent;
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.FileUtils;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.ReflectionUtils;
+import com.bradmcevoy.web.comments.Comment;
+import com.bradmcevoy.web.comments.CommentService;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.DateDef;
+import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
@@ -28,12 +34,15 @@ import java.util.Map;
 import java.util.UUID;
 import org.jdom.Element;
 
+import static com.ettrema.context.RequestContext.*;
+
 /**
  * Base class for all physical resources. Encapsulates a namenode and is a datanode
  * 
  * 
  * @author brad
  */
+@BeanPropertyResource(value="clyde")
 public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
@@ -41,7 +50,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     private UUID id;
     protected NameInput nameInput;
-
+    private String redirect;
+    
     private transient boolean nameInited;
     transient RelationalNameNode nameNode;
     private transient User creator;
@@ -300,11 +310,26 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         log.debug( "  - renaming to: " + name );
         res.moveTo( target, name, false );
-
     }
 
+    @Override
+    public String checkRedirect( Request request ) {
+        if( redirect != null && redirect.length() > 0 ) {
+            return redirect;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void loadFromXml( Element el ) {
+        super.loadFromXml( el );
+        redirect = InitUtils.getValue( el, "redirect" );
+    }
+
+
+
     public final Element toXml( Element el ) {
-        log.debug( "toXml" );
         Element e2 = new Element( "res" );
         el.addContent( e2 );
         populateXml( e2 );
@@ -331,7 +356,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void populateXml( Element e2 ) {
         e2.setAttribute( "name", getName() );
         e2.setAttribute( "id", getId().toString() );
-        e2.setAttribute( "nameNodeId", getNameNodeId().toString() );        
+        e2.setAttribute( "nameNodeId", getNameNodeId().toString() );
+        InitUtils.setString( e2, "redirect", redirect );
         Element elRels = new Element( "relations" );
         e2.addContent( elRels );
         Element elFrom = new Element( "from" );
@@ -598,31 +624,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return (BaseResource) nn.getData();
     }
 
-//    @Override
-//    public LockResult lock(LockTimeout timeout, LockInfo lockInfo) {
-//        LockToken token = new LockToken();
-//        token.tokenId = UUID.randomUUID().toString();
-//        return LockResult.success(token);
-//    }
-//
-//    /**
-//     * Renew the lock and return new lock info
-//     *
-//     * @param token
-//     * @return
-//     */
-//    @Override
-//    public LockResult refreshLock(String token) {
-//        LockToken t = new LockToken();
-//        t.tokenId = UUID.randomUUID().toString();
-//        return LockResult.success(t);
-//
-//    }
-//
-//    @Override
-//    public void unlock(String tokenId) {
-//
-//    }
+
     public boolean isTrash() {
         for( Templatable t : this.getParents() ) {
             if( t.getName().equals( "Trash" ) ) return true;
@@ -744,4 +746,55 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
     }
 
+    public List<Comment> getComments() {
+        return _(CommentService.class).comments(this.nameNode);
+    }
+
+    public int getNumComments() {
+        List<Comment> list = getComments();
+        if( list == null ) {
+            return 0;
+        } else {
+            return list.size();
+        }
+    }
+
+    public void setNewComment(String s) throws NotAuthorizedException {
+        _(CommentService.class).newComment(this.nameNode, s);
+    }
+
+    /**
+     * This is just here to make newComment a bean property
+     *
+     * @return
+     */
+    public String getNewComment() {
+        return null;
+    }
+    
+//    @Override
+//    public LockResult lock(LockTimeout timeout, LockInfo lockInfo) {
+//        LockToken token = new LockToken();
+//        token.tokenId = UUID.randomUUID().toString();
+//        return LockResult.success(token);
+//    }
+//
+//    /**
+//     * Renew the lock and return new lock info
+//     *
+//     * @param token
+//     * @return
+//     */
+//    @Override
+//    public LockResult refreshLock(String token) {
+//        LockToken t = new LockToken();
+//        t.tokenId = UUID.randomUUID().toString();
+//        return LockResult.success(t);
+//
+//    }
+//
+//    @Override
+//    public void unlock(String tokenId) {
+//
+//    }
 }

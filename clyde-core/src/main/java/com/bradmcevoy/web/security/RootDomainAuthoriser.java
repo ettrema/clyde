@@ -2,6 +2,7 @@ package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.User;
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class RootDomainAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         Auth auth = request.getAuthorization();
         if( auth == null ) {
             return null;

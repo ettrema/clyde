@@ -2,6 +2,7 @@ package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.SourcePage;
 import com.bradmcevoy.web.User;
@@ -35,7 +36,7 @@ public class AdminOnlySourcePageAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         log.debug( "authorise: " + resource.getName() + "(" + resource.getClass() + ")" );
         if( resource instanceof SourcePage || resource instanceof Console ) {
             Auth auth = request.getAuthorization();

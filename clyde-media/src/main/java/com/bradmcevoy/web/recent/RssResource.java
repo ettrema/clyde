@@ -157,7 +157,7 @@ public class RssResource implements GetableResource, DigestResource {
 
     public boolean authorise(Request request, Method method, Auth auth) {
         ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
-        return authoriser.authorise(folder, request);
+        return authoriser.authorise(folder, request, method);
     }
 
     public String getRealm() {

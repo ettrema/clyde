@@ -1,14 +1,17 @@
 package com.bradmcevoy.web.calendar;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.ReportableResource;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.IUser;
 import com.ettrema.http.AccessControlledResource;
 import com.ettrema.http.CalendarResource;
+import com.ettrema.http.acl.Principal;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -59,5 +62,17 @@ public class Calendar extends Folder implements CalendarResource, AccessControll
 
     public void setOwner(IUser owner) {
         this.getNameNode().makeRelation(owner.getNameNode(), "principalOwner");
+    }
+
+    public List<Priviledge> getPriviledges( Auth auth ) {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    public Map<Principal, List<Priviledge>> getAccessControlList() {
+        throw new UnsupportedOperationException( "Not supported yet." );
+    }
+
+    public void setPriviledges( Principal principal, boolean isGrantOrDeny, List<Priviledge> privs ) {
+        throw new UnsupportedOperationException( "Not supported yet." );
     }
 }

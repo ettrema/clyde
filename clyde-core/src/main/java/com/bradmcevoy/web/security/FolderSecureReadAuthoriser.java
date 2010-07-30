@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
 
@@ -21,7 +22,7 @@ public class FolderSecureReadAuthoriser implements ClydeAuthoriser{
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request ) {
+    public Boolean authorise( Resource resource, Request request, Method method ) {
         log.debug( "authorise");
         if( resource instanceof Folder ){
             log.debug( "is a folder");
