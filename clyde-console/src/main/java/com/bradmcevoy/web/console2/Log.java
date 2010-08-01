@@ -2,13 +2,13 @@
 package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.utils.FileUtils;
 import com.ettrema.console.Result;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 
 public class Log extends AbstractConsoleCommand{
 
@@ -63,7 +63,7 @@ public class Log extends AbstractConsoleCommand{
             log.error("err", ex);
             return result("IOException: " + ex.getMessage());
         } finally {
-            FileUtils.close(reader);
+            IOUtils.closeQuietly( reader );
         }
     }
 
