@@ -18,44 +18,46 @@ import java.util.Map;
  *
  * @author brad
  */
-public class ClydeApp implements EventListener{
+public class ClydeApp implements EventListener {
+
     public final RootContext rootContext;
 
-    public ClydeApp( RootContext rootContext, HttpManager manager) {
+    public ClydeApp( RootContext rootContext, HttpManager manager ) {
+        this(rootContext, manager, true );
+    }
+
+    public ClydeApp( RootContext rootContext, HttpManager manager, boolean enableStats ) {
         this.rootContext = rootContext;
 
-        ClydeFilter clydeFilter = new ClydeFilter(rootContext);
-        rootContext.put(clydeFilter);
+        ClydeFilter clydeFilter = new ClydeFilter( rootContext );
+        rootContext.put( clydeFilter );
 
-        StatsFilter statsFilter = new StatsFilter(rootContext);
-        statsFilter.init();
+        if( enableStats ) {
+            StatsFilter statsFilter = new StatsFilter( rootContext );
+            statsFilter.init();
+            manager.addFilter( 0, statsFilter );
+        }
         
-        manager.addFilter(0, statsFilter);
-        manager.addFilter(0, clydeFilter);
-        manager.addEventListener(this);
-    }
-
-
-
-
-    @Override
-    public void onProcessResourceStart(Request request, Response response, Resource resource) {
+        manager.addFilter( 0, clydeFilter );
+        manager.addEventListener( this );
     }
 
     @Override
-    public void onGet(Request request, Response response, Resource resource, Map<String, String> params) {
-        RequestParams.setCurrent( new RequestParams(resource, request, params, null));
+    public void onProcessResourceStart( Request request, Response response, Resource resource ) {
     }
 
     @Override
-    public void onPost(Request request, Response response, Resource resource, Map<String, String> params, Map<String, FileItem> files) {
-        RequestParams.setCurrent( new RequestParams(resource, request,params, files));
+    public void onGet( Request request, Response response, Resource resource, Map<String, String> params ) {
+        RequestParams.setCurrent( new RequestParams( resource, request, params, null ) );
     }
 
     @Override
-    public void onProcessResourceFinish(Request request, Response response, Resource resource, long duration) {
-        RequestParams.setCurrent(null);
+    public void onPost( Request request, Response response, Resource resource, Map<String, String> params, Map<String, FileItem> files ) {
+        RequestParams.setCurrent( new RequestParams( resource, request, params, files ) );
     }
 
-
+    @Override
+    public void onProcessResourceFinish( Request request, Response response, Resource resource, long duration ) {
+        RequestParams.setCurrent( null );
+    }
 }
