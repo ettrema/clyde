@@ -43,4 +43,6 @@ public interface IUser extends Mailbox, PermissionRecipient {
     
     String getHref();
 
+    String getName();
+
 }
