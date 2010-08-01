@@ -40,6 +40,7 @@ public class DefaultClydeBinaryService implements ClydeBinaryService{
 
     public long getContentLength(BinaryFile file, String versionNum) {
         Long ll = file.getLocalContentLength();
+        log.debug( "getContentLength: " + ll);
         if( ll == null ) return 0;
         return ll.longValue();
     }

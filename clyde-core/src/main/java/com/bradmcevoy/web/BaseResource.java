@@ -5,8 +5,15 @@ import com.bradmcevoy.event.EventManager;
 import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.event.PreSaveEvent;
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.LockInfo;
+import com.bradmcevoy.http.LockResult;
+import com.bradmcevoy.http.LockTimeout;
+import com.bradmcevoy.http.LockToken;
+import com.bradmcevoy.http.LockableResource;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.ReflectionUtils;
@@ -19,6 +26,7 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
+import com.bradmcevoy.web.locking.ClydeLockManager;
 import com.bradmcevoy.web.security.Permissions;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
@@ -43,7 +51,7 @@ import static com.ettrema.context.RequestContext.*;
  * @author brad
  */
 @BeanPropertyResource(value="clyde")
-public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource {
+public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
     private static final long serialVersionUID = 1L;
@@ -772,29 +780,36 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return null;
     }
     
-//    @Override
-//    public LockResult lock(LockTimeout timeout, LockInfo lockInfo) {
-//        LockToken token = new LockToken();
-//        token.tokenId = UUID.randomUUID().toString();
-//        return LockResult.success(token);
-//    }
-//
-//    /**
-//     * Renew the lock and return new lock info
-//     *
-//     * @param token
-//     * @return
-//     */
-//    @Override
-//    public LockResult refreshLock(String token) {
-//        LockToken t = new LockToken();
-//        t.tokenId = UUID.randomUUID().toString();
-//        return LockResult.success(t);
-//
-//    }
-//
-//    @Override
-//    public void unlock(String tokenId) {
-//
-//    }
+    @Override
+    public LockResult lock(LockTimeout timeout, LockInfo lockInfo) throws NotAuthorizedException, LockedException {
+        LockResult lr = _(ClydeLockManager.class).lock( timeout, lockInfo, this);
+        commit();
+        return lr;
+    }
+
+    /**
+     * Renew the lock and return new lock info
+     *
+     * @param token
+     * @return
+     */
+    @Override
+    public LockResult refreshLock(String token) throws NotAuthorizedException, PreConditionFailedException {
+        LockResult lr = _(ClydeLockManager.class).refresh( token, this);
+        commit();
+        return lr;
+    }
+
+    @Override
+    public void unlock(String tokenId) throws NotAuthorizedException, PreConditionFailedException {
+        _(ClydeLockManager.class).unlock(tokenId, this );
+        commit();
+    }
+
+    @Override
+    public LockToken getCurrentLock() {
+        return _(ClydeLockManager.class).getCurrentLock( this );
+    }
+
+
 }

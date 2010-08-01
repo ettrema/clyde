@@ -23,12 +23,12 @@ public class BinaryFileCreator implements Creator {
     @Override
     public BaseResource createResource( Folder folder, String ct, InputStream in, String newName ) throws ReadingException, WritingException {
         log.debug( "create binary file with content type: " + ct );
-        BinaryFile image = new BinaryFile( ct, folder, newName );
-        image.save();
+        BinaryFile file = new BinaryFile( ct, folder, newName );
+        file.save();
         if( in != null ) {
-            image.setContent( in );
+            file.setContent( in );
         }
-        log.debug( "content type: " + image.getContentType( null ) );
-        return image;
+        log.debug( "content type: " + file.getContentType( null ) );
+        return file;
     }
 }

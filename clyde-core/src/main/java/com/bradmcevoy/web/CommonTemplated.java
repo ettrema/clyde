@@ -382,7 +382,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
         boolean b = authoriser.authorise( this, request, method );
-        log.warn("authorise: method: " + method + " = " + b + " -->> " + authoriser.getClass());
         return b;
     }
 
@@ -412,11 +411,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public String getContentType( String accepts ) {
+        String ct;
         if( this.contentType != null && contentType.length() > 0 ) {
-            return contentType;
+            ct = contentType;
         } else {
-            return null;
+            ct = null;
         }
+        log.warn( "--- contenttype:" + ct);
+        return ct;
     }
 
     public String getContentType() {

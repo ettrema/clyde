@@ -24,111 +24,112 @@ import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 
-@BeanPropertyResource("clyde")
+@BeanPropertyResource( "clyde" )
 public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BinaryFile.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BinaryFile.class );
     private static final long serialVersionUID = 1L;
     private int contentLength;
     private long crc;
     private boolean firstVersionDone;
 
-    public BinaryFile(String contentType, Folder parentFolder, String newName) {
-        super(contentType, parentFolder, newName);
+    public BinaryFile( String contentType, Folder parentFolder, String newName ) {
+        super( contentType, parentFolder, newName );
     }
 
-    public BinaryFile(Folder parentFolder, String newName) {
-        super("application", parentFolder, newName);
+    public BinaryFile( Folder parentFolder, String newName ) {
+        super( "application", parentFolder, newName );
     }
 
     public boolean isFirstVersionDone() {
         return firstVersionDone;
     }
 
-    public void setFirstVersionDone(boolean firstDone) {
+    public void setFirstVersionDone( boolean firstDone ) {
         this.firstVersionDone = firstDone;
     }
 
-
-
     @Override
-    protected BaseResource copyInstance(Folder parent, String newName) {
-        BinaryFile f = (BinaryFile) super.copyInstance(parent, newName);
+    protected BaseResource copyInstance( Folder parent, String newName ) {
+        BinaryFile f = (BinaryFile) super.copyInstance( parent, newName );
         f.save();
         InputStream in = this.getInputStream();
         try {
-            f.setContent(in);
+            f.setContent( in );
         } finally {
-            FileUtils.close(in);
+            FileUtils.close( in );
         }
 
         return f;
     }
 
     @Override
-    protected BaseResource newInstance(Folder parent, String newName) {
-        return new BinaryFile(parent, newName);
+    protected BaseResource newInstance( Folder parent, String newName ) {
+        return new BinaryFile( parent, newName );
     }
 
     @Override
-    public boolean is(String type) {
-        if (type == null) {
+    public boolean is( String type ) {
+        if( type == null ) {
             return false;
         }
-        if (type.equals("binary")) {
+        if( type.equals( "binary" ) ) {
             return true;
         }
-        String contentType = getContentType(null);
-        if (contentType != null && contentType.contains(type)) {
+        String contentType = getContentType( null );
+        if( contentType != null && contentType.contains( type ) ) {
             return true;
         }
-        return super.is(type);
+        return super.is( type );
     }
 
     @Override
-    public void populateXml(Element e2) {
-        super.populateXml(e2);
-        e2.setAttribute("contentLength", contentLength + "");
-        e2.setAttribute("crc", crc + "");
-        e2.setAttribute("firstVersionDone", firstVersionDone+"");
+    public void populateXml( Element e2 ) {
+        super.populateXml( e2 );
+        e2.setAttribute( "contentLength", contentLength + "" );
+        e2.setAttribute( "crc", crc + "" );
+        e2.setAttribute( "firstVersionDone", firstVersionDone + "" );
 
     }
 
     @Override
-    public String checkRedirect(Request request) {
+    public String checkRedirect( Request request ) {
         return null;
     }
 
     @Override
-    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException {
+    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("sendContent: " + getHref());
+            if( log.isDebugEnabled() ) {
+                log.debug( "sendContent: " + getHref() );
             }
             String versionNum = null;
             if( params != null ) {
-                versionNum = params.get("_version");
+                versionNum = params.get( "_version" );
             }
-            InputStream in = getInputStream(versionNum);
-            if (in == null) {
-                log.warn("Failed to get an inputstream for: " + getHref());
+            InputStream in = getInputStream( versionNum );
+            if( in == null ) {
+                log.warn( "Failed to get an inputstream for: " + getHref() );
                 return;
             }
-            long bytes = StreamUtils.readTo(in, out, true, false);
-            if (log.isDebugEnabled()) {
-                if (bytes > 0) {
-                    log.debug("sent bytes: " + bytes);
+
+            long bytes = StreamUtils.readTo( in, out, true, false );
+
+            out.flush();
+            if( log.isDebugEnabled() ) {
+                if( bytes > 0 ) {
+                    log.debug( "sent bytes: " + bytes );
                 }
             }
-            if (bytes == 0) {
-                log.warn("zero length binary file: " + getNameNodeId() + " - " + getHref());
+            if( bytes == 0 ) {
+                log.warn( "zero length binary file: " + getNameNodeId() + " - " + getHref() );
             }
-        } catch (ReadingException readingException) {
-            log.error("exception reading data: " + getHref(), readingException);
-        } catch (WritingException writingException) {
-            log.debug("exception writing data: " + getHref());
-        } catch (Throwable e) {
-            log.error("Exception sending content", e);
+        } catch( ReadingException readingException ) {
+            log.error( "exception reading data: " + getHref(), readingException );
+        } catch( WritingException writingException ) {
+            log.debug( "exception writing data: " + getHref(), writingException );
+        } catch( Throwable e ) {
+            log.error( "Exception sending content", e );
         }
     }
 
@@ -141,10 +142,10 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public int getActualPersistedContentSize() {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         try {
-            sendContent(bout, null, null, null);
+            sendContent( bout, null, null, null );
             return bout.size();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
         }
     }
 
@@ -156,32 +157,32 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
      */
     public InputStream getInputStream() {
         try {
-            return getInputStream(null);
-        } catch (BadRequestException ex) {
+            return getInputStream( null );
+        } catch( BadRequestException ex ) {
             // should never happen cause there is no version
-            throw new RuntimeException(ex);
+            throw new RuntimeException( ex );
         }
     }
 
-    public InputStream getInputStream(String versionNum) throws BadRequestException {
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
+    public InputStream getInputStream( String versionNum ) throws BadRequestException {
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
         }
 
-        return svc.readInputStream(this, versionNum);
+        return svc.readInputStream( this, versionNum );
     }
 
-    public void setContent(java.io.File file) {
+    public void setContent( java.io.File file ) {
         FileInputStream in = null;
         try {
-            in = new FileInputStream(file);
-            setContent(in);
+            in = new FileInputStream( file );
+            setContent( in );
             save();
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
+        } catch( FileNotFoundException ex ) {
+            throw new RuntimeException( ex );
         } finally {
-            FileUtils.close(in);
+            FileUtils.close( in );
         }
     }
 
@@ -195,23 +196,24 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
      * @param in
      */
     @Override
-    public void setContent(InputStream in) {
-        log.debug("setContentFile");
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
+    public void setContent( InputStream in ) {
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
         }
-        this.contentLength = svc.setContent(this, in);
+        this.contentLength = svc.setContent( this, in );
+        if( log.isTraceEnabled() ) {
+            log.trace( "setContent: contentLength: " + this.contentLength );
+        }
         save(); // This required to save content length. thought this should be happening elsewhere but didnt seem to be
         afterSetContent();
     }
 
-    public void replaceContent(InputStream in, Long length) {
-        log.debug( "replaceContent");
-        setContent(in);
+    public void replaceContent( InputStream in, Long length ) {
+        log.trace( "replaceContent" );
+        setContent( in );
         commit();
     }
-
 
     /**
      * Set the binary content by writing to an outputstream. Alternatively,
@@ -221,16 +223,16 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
      *
      * @param writer - implement this to use the outputstream
      */
-    public void useOutputStream(final OutputStreamWriter<Long> writer) {
-        if (writer == null) {
-            throw new NullPointerException("writer is null");
+    public void useOutputStream( final OutputStreamWriter<Long> writer ) {
+        if( writer == null ) {
+            throw new NullPointerException( "writer is null" );
         }
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
         }
 
-        this.contentLength = svc.writeToOutputStream(this, writer);
+        this.contentLength = svc.writeToOutputStream( this, writer );
         this.save(); // this is so content length is persisted
         afterSetContent();
     }
@@ -242,21 +244,21 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     public Folder getThumbsFolder() {
-        return getThumbsFolder(false);
+        return getThumbsFolder( false );
     }
 
-    public Folder getThumbsFolder(boolean autoCreate) {
-        return this.getParent().thumbs("thumb", autoCreate);
+    public Folder getThumbsFolder( boolean autoCreate ) {
+        return this.getParent().thumbs( "thumb", autoCreate );
     }
 
     public HtmlImage getThumb() {
         Folder folderThumbs = getThumbsFolder();
-        if (folderThumbs != null) {
-            BaseResource resThumb = folderThumbs.childRes(this.getName());
-            if (resThumb == null) {
-                resThumb = folderThumbs.childRes(this.getName() + ".jpg");
+        if( folderThumbs != null ) {
+            BaseResource resThumb = folderThumbs.childRes( this.getName() );
+            if( resThumb == null ) {
+                resThumb = folderThumbs.childRes( this.getName() + ".jpg" );
             }
-            if (resThumb != null && resThumb instanceof HtmlImage) {
+            if( resThumb != null && resThumb instanceof HtmlImage ) {
                 HtmlImage thumb = (HtmlImage) resThumb;
                 return thumb;
             }
@@ -266,16 +268,16 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
 
     public String getThumbHref() {
         HtmlImage img = getThumb();
-        if (img == null) {
+        if( img == null ) {
             return "";
         }
         return img.getHref();
     }
 
     public HtmlImage getThumbInFolder() {
-        String thumbName = FileUtils.preprendExtension(getName(), "thumb");
-        Resource child = this.getParent().child(thumbName);
-        if (child instanceof HtmlImage) {
+        String thumbName = FileUtils.preprendExtension( getName(), "thumb" );
+        Resource child = this.getParent().child( thumbName );
+        if( child instanceof HtmlImage ) {
             return (HtmlImage) child;
         } else {
             return new NoImageResource();
@@ -288,35 +290,35 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     @Override
-    public String img(String onclick) {
+    public String img( String onclick ) {
         return "<img onclick=\"" + onclick + "\" src='" + getUrl() + "' />";
     }
 
     @Override
     public String getLinkImg() {
         String img = getImg();
-        return link(img);
+        return link( img );
     }
 
     public String getLinkThumbImg() {
         HtmlImage bf = getThumb();
-        return link(bf.getImg());
+        return link( bf.getImg() );
     }
 
-    public String linkThumbImg(String onclick) {
+    public String linkThumbImg( String onclick ) {
         HtmlImage bf = getThumb();
-        String s = link(bf.img(onclick));
+        String s = link( bf.img( onclick ) );
         return s;
     }
 
-    public HtmlImage thumb(String suffix) {
-        Folder f = this.getParent().thumbs(suffix);
-        if (f == null) {
-            log.warn("no folder: " + suffix);
+    public HtmlImage thumb( String suffix ) {
+        Folder f = this.getParent().thumbs( suffix );
+        if( f == null ) {
+            log.warn( "no folder: " + suffix );
             return new NoImageResource();
         }
-        BaseResource res = f.childRes(this.getName());
-        if (res != null && res instanceof BinaryFile) {
+        BaseResource res = f.childRes( this.getName() );
+        if( res != null && res instanceof BinaryFile ) {
             return (BinaryFile) res;
         } else {
             return new NoImageResource();
@@ -324,8 +326,8 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     @Override
-    protected long getDefaultMaxAge(Auth auth) {
-        if (auth == null) {
+    protected long getDefaultMaxAge( Auth auth ) {
+        if( auth == null ) {
             return 60 * 60 * 24 * 7l; // 1 week
         } else {
             return 60 * 60 * 24l; // 1 day
@@ -336,32 +338,32 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         return crc;
     }
 
-    public void setLocalCrc(long value) {
+    public void setLocalCrc( long value ) {
         this.crc = value;
     }
 
     public long getCrc() {
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
         }
-        String versionNum = HttpManager.request().getParams().get("_version");
-        return svc.getCrc(this, versionNum);
+        String versionNum = HttpManager.request().getParams().get( "_version" );
+        return svc.getCrc( this, versionNum );
     }
 
     @Override
     public Long getContentLength() {
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            throw new RuntimeException("Missing from context: " + ClydeBinaryService.class.getCanonicalName());
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
         }
 
         String versionNum = null;
         Map<String, String> ps = HttpManager.request().getParams();
         if( ps != null ) {
-            versionNum = ps.get("_version");
+            versionNum = ps.get( "_version" );
         }
-        return svc.getContentLength(this, versionNum);
+        return svc.getContentLength( this, versionNum );
     }
 
     public Long getLocalContentLength() {
@@ -370,12 +372,12 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     public List<VersionDescriptor> getVersions() {
-        ClydeBinaryService svc = requestContext().get(ClydeBinaryService.class);
-        if (svc == null) {
-            log.debug("no ClydeBinaryService is configured");
+        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
+        if( svc == null ) {
+            log.debug( "no ClydeBinaryService is configured" );
             return null;
         } else {
-            return svc.getVersions(this);
+            return svc.getVersions( this );
         }
     }
 
@@ -383,7 +385,4 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public boolean isIndexable() {
         return true;
     }
-
-
-
 }
