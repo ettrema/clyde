@@ -6,6 +6,7 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Templatable;
 import com.ettrema.console.ResultFormatter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,6 +14,8 @@ import java.util.List;
  * @author brad
  */
 public class ClydeLsResultFormatter implements ResultFormatter {
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ClydeLsResultFormatter.class );
 
     private DateUtils du = new DateUtils();
 
@@ -35,7 +38,13 @@ public class ClydeLsResultFormatter implements ResultFormatter {
             addCell( sb, null );
         }
         addCell( sb, r1.getRealm() );
-        addCell( sb, du.getText( r1.getModifiedDate() ) );
+        Date mod = r1.getModifiedDate();
+        if( mod == null ) {
+            log.warn( "null mod date for: " + r1.getClass().getCanonicalName());
+            addCell( sb, "" );
+        } else {
+            addCell( sb, du.getText( mod ) );
+        }
         if( r1 instanceof BaseResource ) {
             BaseResource b = (BaseResource) r1;
             addCell( sb, b.getNameNodeId() );

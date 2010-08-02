@@ -417,7 +417,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         } else {
             ct = null;
         }
-        log.warn( "--- contenttype:" + ct);
         return ct;
     }
 

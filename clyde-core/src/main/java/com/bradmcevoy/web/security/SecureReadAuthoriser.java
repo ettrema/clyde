@@ -36,17 +36,20 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
 
     private Boolean authoriseClydeResource( Templatable templatable, Request request, Method method ) {
         if( templatable instanceof Folder ) {
+            log.debug( "check folder: method: " + method);
             Folder folder = (Folder) templatable;
             boolean isWrite = isWriteMethod(method);
             if( folder.isSecureRead() || isWriteMethod(method) ) {
-                // is secure, so if not logged in definitely not
+                log.debug( "is secure, so if not logged in definitely not");
                 if( request.getAuthorization() == null ) {
                     if(log.isDebugEnabled()) {
                         log.debug( "not logged in. deny access. secureread:" + folder.isSecureRead() + " isWrite:" + isWrite + " folder:" + folder.getHref() );
                     }
                     return false;
                 } else {
-//                    log.debug( "delegating authorisation" );
+                    if( log.isDebugEnabled()) {
+                        log.debug( "delegating authorisation to: " + wrapped.getClass().getCanonicalName() );
+                    }
                     boolean result = wrapped.authorise( folder, request, method );
                     if( !result && log.isDebugEnabled() ) {
                         log.debug( "wrapped authoriser said deny access: " + wrapped.getClass() + " folder:" + folder.getHref());
@@ -54,7 +57,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
                     return result;
                 }
             } else {
-//                log.debug( "not secureRead, so dont care" );
+                log.debug( "not secureRead and not a write method, so dont care" );
             }
             // is secure, and logged in so might be ok. up to someone else to decide
             return null;
