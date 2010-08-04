@@ -26,6 +26,7 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
+import com.bradmcevoy.web.creation.CreatorService;
 import com.bradmcevoy.web.locking.ClydeLockManager;
 import com.bradmcevoy.web.security.Permissions;
 import com.ettrema.vfs.DataNode;
@@ -59,9 +60,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private UUID id;
     protected NameInput nameInput;
     private String redirect;
+    private UUID creatorNameNodeId;
     
     private transient boolean nameInited;
-    transient RelationalNameNode nameNode;
+    protected transient RelationalNameNode nameNode;
     private transient User creator;
 
 
@@ -187,7 +189,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void _moveTo( Folder fDest, String name ) {
         log.debug( "moveTo: name: " + name );
-        this.nameNode.move( fDest.nameNode, name );
+        this.nameNode.move( fDest.getNameNode(), name );
 //        if( !fDest.getPath().equals(getParent().getPath()) ) {
 //            log.debug("..moving folder to: " + fDest.getHref());
 //            this.nameNode.move(fDest.nameNode, name);
@@ -679,7 +681,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      */
     public void setCreator( User user ) {
         this.creator = user;
-        this.nameNode.makeRelation( user.getNameNode(), "creator" );
+        _(CreatorService.class).setCreator( user, this );
     }
 
     /**
@@ -692,11 +694,17 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         // Something dodgy going on here. Seem to get different results wihthout
         // the transient variable
         if( this.creator == null ) {
-            List<Relationship> rels = this.nameNode.findFromRelations( "creator" );
-            if( rels == null || rels.size() == 0 ) return null;
-            creator = (User) rels.get( 0 ).to().getData();
+            this.creator = _(CreatorService.class).getCreator( this );
         }
         return creator;
+    }
+
+    public UUID getCreatorNameNodeId() {
+        return creatorNameNodeId;
+    }
+
+    public void setCreatorNameNodeId( UUID creatorNameNodeId ) {
+        this.creatorNameNodeId = creatorNameNodeId;
     }
 
     public String getMagicNumber() {

@@ -69,11 +69,6 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
             }
         }
         if( useVersioning ) {
-            // Set the first version directly on the file's node, using the wrapped service
-            log.trace( "delegate" );
-            file.setFirstVersionDone( true );
-            return wrapped.setContent( file, in );
-        } else {
             // Use versioning for subsequent versions
             log.trace( "do versioning: " + file.getLocalContentLength() );
             NameNode versionsNode = getVersionsNode( file, true ); // create the node
@@ -100,6 +95,12 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
 
             v.save();
             return contentLength;
+        } else {
+            // Set the first version directly on the file's node, using the wrapped service
+            log.trace( "delegate" );
+            file.setFirstVersionDone( true );
+            return wrapped.setContent( file, in );
+
         }
     }
 
@@ -127,6 +128,7 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
         } else {
             v = getNamedVersion( versionsNode, versionNum );
             if( v == null ) {
+                log.warn( "version not found: " + versionNum);
                 throw new BadRequestException( file, "Version not found: " + versionNum );
             }
         }
@@ -259,7 +261,7 @@ public class VersioningBinaryManagerService implements ClydeBinaryService {
             log.trace( "no versions node" );
             return null;
         }
-        if( versionNum == null || versionNum.length() == 0 ) {
+        if( versionNum == null || versionNum.length() == 0 || versionNum.equals( "0") ) {
             log.trace( "no version num, get latest" );
             return getLatestVersion( versionsNode );
         } else {

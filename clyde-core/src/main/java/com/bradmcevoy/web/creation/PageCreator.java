@@ -6,12 +6,17 @@ import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.Page;
+import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.HtmlInput;
+import com.bradmcevoy.web.security.CurrentUserService;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -49,6 +54,10 @@ public class PageCreator implements Creator {
                 cvBody = bodyDef.createComponentValue( page );
             }
             cvBody.setValue( bout.toString() );
+        }
+        IUser creator = _(CurrentUserService.class).getOnBehalfOf();
+        if( creator instanceof User){
+            page.setCreator( (User)creator );
         }
         page.save();
         return page;

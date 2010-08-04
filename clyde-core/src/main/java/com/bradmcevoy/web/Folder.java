@@ -131,7 +131,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     public boolean getHasChildren() {
-        return this.nameNode.children().size() > 0;
+        return this.getNameNode().children().size() > 0;
     }
 
     /**
@@ -377,10 +377,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public BaseResource childRes( String name ) {
         //log.trace( "childRes: " + name + " node: " + getNameNodeId() + " this folder: " + this.getName());
-        if( nameNode == null ) {
+        if( getNameNode() == null ) {
             throw new NullPointerException( "nameNode is null" );
         }
-        NameNode childNode = nameNode.child( name );
+        NameNode childNode = getNameNode().child( name );
         if( childNode != null ) {
             DataNode dn = childNode.getData();
             if( dn == null ) {
@@ -410,7 +410,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     public <T> T findFirst( Class<T> c ) {
-        for( NameNode n : nameNode.children() ) {
+        for( NameNode n : getNameNode().children() ) {
             if( c.isAssignableFrom( n.getDataClass() ) ) {
                 return (T) n.getData();
             }
@@ -430,7 +430,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public List<Templatable> getChildren( String isA, String except ) {
         List<Templatable> children = new BaseResourceList();
-        for( NameNode n : nameNode.children() ) {
+        for( NameNode n : getNameNode().children() ) {
             DataNode dn = n.getData();
             if( dn != null && dn instanceof BaseResource ) {
                 BaseResource res = (BaseResource) dn;
@@ -829,7 +829,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
         @Override
         public NameNode getParent() {
-            return Folder.this.nameNode;
+            return Folder.this.getNameNode();
         }
 
         @Override
@@ -887,7 +887,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
         @Override
         public void save() {
-            persistedNameNode = (RelationalNameNode) Folder.this.nameNode.add( name, data );
+            persistedNameNode = (RelationalNameNode) getNameNode().add( name, data );
             persistedNameNode.save();
 //            ( (BaseResource) data ).nameNode = persistedNameNode;
 //            for( Relationship r : relations ) {

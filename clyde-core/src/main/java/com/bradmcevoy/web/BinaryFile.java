@@ -381,6 +381,15 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         }
     }
 
+    public int getNumVersions() {
+        List<VersionDescriptor> versions = getVersions();
+        if( versions == null ) {
+            return 0;
+        } else {
+            return versions.size();
+        }
+    }
+
     @Override
     public boolean isIndexable() {
         return true;
