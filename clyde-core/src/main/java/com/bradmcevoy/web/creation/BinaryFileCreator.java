@@ -30,6 +30,7 @@ public class BinaryFileCreator implements Creator {
         log.debug( "create binary file with content type: " + ct );
         BinaryFile file = new BinaryFile( ct, folder, newName );
         IUser creator = _(CurrentUserService.class).getOnBehalfOf();
+
         if( creator instanceof User){
             file.setCreator( (User)creator );
         }

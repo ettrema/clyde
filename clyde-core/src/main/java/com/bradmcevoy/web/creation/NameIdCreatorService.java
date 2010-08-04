@@ -50,7 +50,7 @@ public class NameIdCreatorService implements CreatorService {
     }
 
     public void setCreator( User user, BaseResource res ) {
-        res.setCreatorNameNodeId( res.getNameNodeId());
+        res.setCreatorNameNodeId( user.getNameNodeId());
         res.save();
     }
 

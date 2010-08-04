@@ -51,25 +51,20 @@ import static com.ettrema.context.RequestContext.*;
  * 
  * @author brad
  */
-@BeanPropertyResource(value="clyde")
+@BeanPropertyResource( value = "clyde" )
 public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
     private static final long serialVersionUID = 1L;
-
     private UUID id;
     protected NameInput nameInput;
     private String redirect;
     private UUID creatorNameNodeId;
-    
     private transient boolean nameInited;
     protected transient RelationalNameNode nameNode;
     private transient User creator;
 
-
     protected abstract BaseResource newInstance( Folder parent, String newName );
-
-
 
     /**
      * If this should be indexed for searching
@@ -77,8 +72,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @return
      */
     public abstract boolean isIndexable();
-
-
 
     public static BaseResource importResource( BaseResource parent, Element el, String filename ) {
         String className = el.getAttributeValue( "class" );
@@ -97,7 +90,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /** Usual constructor;
      */
-    public BaseResource( String contentType, Folder parentFolder, String newName ) {        
+    public BaseResource( String contentType, Folder parentFolder, String newName ) {
         if( newName.contains( "/" ) )
             throw new IllegalArgumentException( "Names cannot contain forward slashes" );
         this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
@@ -236,11 +229,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     protected BaseResource copyInstance( Folder parent, String newName ) {
         BaseResource newRes = newInstance( parent, newName );
-        newRes.setContentType( this.getContentType( null) );
+        newRes.setContentType( this.getContentType( null ) );
         newRes.valueMap.addAll( this.valueMap );
         newRes.componentMap.addAll( this.componentMap );
-        String email = this.getExternalEmailTextV2( "default");
-        newRes.setExternalEmailTextV2( "default", email);
+        String email = this.getExternalEmailTextV2( "default" );
+        newRes.setExternalEmailTextV2( "default", email );
         return newRes;
     }
 
@@ -336,8 +329,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         super.loadFromXml( el );
         redirect = InitUtils.getValue( el, "redirect" );
     }
-
-
 
     public final Element toXml( Element el ) {
         Element e2 = new Element( "res" );
@@ -634,7 +625,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return (BaseResource) nn.getData();
     }
 
-
     public boolean isTrash() {
         for( Templatable t : this.getParents() ) {
             if( t.getName().equals( "Trash" ) ) return true;
@@ -681,7 +671,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      */
     public void setCreator( User user ) {
         this.creator = user;
-        _(CreatorService.class).setCreator( user, this );
+        _( CreatorService.class ).setCreator( user, this );
     }
 
     /**
@@ -694,9 +684,21 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         // Something dodgy going on here. Seem to get different results wihthout
         // the transient variable
         if( this.creator == null ) {
-            this.creator = _(CreatorService.class).getCreator( this );
+            this.creator = _( CreatorService.class ).getCreator( this );
         }
         return creator;
+    }
+
+    public String getCreatorName() {
+        User u = getCreator();
+        if( u == null ) return null;
+        return u.getName();
+    }
+
+    public String getCreatorExternalEmail() {
+        User u = getCreator();
+        if( u == null ) return null;
+        return u.getExternalEmailText();
     }
 
     public UUID getCreatorNameNodeId() {
@@ -711,19 +713,17 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return this.getNameNodeId().hashCode() + "";
     }
 
-
-
     /**
      * Get the email address persisted in a child name node for the given category
      *
      * @param emailCategory - eg default, personal, business
      * @return
      */
-    public String getExternalEmailTextV2(String emailCategory) {
+    public String getExternalEmailTextV2( String emailCategory ) {
 //        log.debug( "getExternalEmailTextV2: " + emailCategory + " nnid: " + this.getNameNodeId());
-        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
+        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory );
         if( nEmailContainer == null ) {
-            log.warn( "no container");
+            log.warn( "no container" );
             return null;
         }
         for( NameNode child : nEmailContainer.children() ) {
@@ -744,26 +744,26 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void setExternalEmailTextV2( String emailCategory, String email ) {
 //        log.debug( "setExternalEmailTextV2: " + emailCategory + " email:" + email);
 
-        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory);
+        NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory );
         if( nEmailContainer == null ) {
-            nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode());
+            nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode() );
             nEmailContainer.save();
         }
-        List<NameNode> children = new ArrayList<NameNode>(nEmailContainer.children());
+        List<NameNode> children = new ArrayList<NameNode>( nEmailContainer.children() );
         for( NameNode child : children ) {
             DataNode childData = child.getData();
             if( childData instanceof EmailAddress ) {
                 child.delete();
             }
         }
-        if( email != null && email.length() > 0) {
+        if( email != null && email.length() > 0 ) {
             NameNode nEmail = nEmailContainer.add( email, new EmailAddress() );
             nEmail.save();
         }
     }
 
     public List<Comment> getComments() {
-        return _(CommentService.class).comments(this.nameNode);
+        return _( CommentService.class ).comments( this.nameNode );
     }
 
     public int getNumComments() {
@@ -775,8 +775,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
     }
 
-    public void setNewComment(String s) throws NotAuthorizedException {
-        _(CommentService.class).newComment(this.nameNode, s);
+    public void setNewComment( String s ) throws NotAuthorizedException {
+        _( CommentService.class ).newComment( this.nameNode, s );
     }
 
     /**
@@ -787,10 +787,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public String getNewComment() {
         return null;
     }
-    
+
     @Override
-    public LockResult lock(LockTimeout timeout, LockInfo lockInfo) throws NotAuthorizedException, LockedException {
-        LockResult lr = _(ClydeLockManager.class).lock( timeout, lockInfo, this);
+    public LockResult lock( LockTimeout timeout, LockInfo lockInfo ) throws NotAuthorizedException, LockedException {
+        LockResult lr = _( ClydeLockManager.class ).lock( timeout, lockInfo, this );
         commit();
         return lr;
     }
@@ -802,22 +802,20 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @return
      */
     @Override
-    public LockResult refreshLock(String token) throws NotAuthorizedException, PreConditionFailedException {
-        LockResult lr = _(ClydeLockManager.class).refresh( token, this);
+    public LockResult refreshLock( String token ) throws NotAuthorizedException, PreConditionFailedException {
+        LockResult lr = _( ClydeLockManager.class ).refresh( token, this );
         commit();
         return lr;
     }
 
     @Override
-    public void unlock(String tokenId) throws NotAuthorizedException, PreConditionFailedException {
-        _(ClydeLockManager.class).unlock(tokenId, this );
+    public void unlock( String tokenId ) throws NotAuthorizedException, PreConditionFailedException {
+        _( ClydeLockManager.class ).unlock( tokenId, this );
         commit();
     }
 
     @Override
     public LockToken getCurrentLock() {
-        return _(ClydeLockManager.class).getCurrentLock( this );
+        return _( ClydeLockManager.class ).getCurrentLock( this );
     }
-
-
 }
