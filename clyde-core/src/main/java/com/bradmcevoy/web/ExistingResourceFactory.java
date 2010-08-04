@@ -39,7 +39,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         }
         Host theHost = getHost( host );
         if( theHost == null ) {
-            log.error( "host name not found: " + host );
+            log.debug( "host name not found: " + host );
             return new HostNotFoundResource( host );
         }
         Resource r = findChild( theHost, path );
