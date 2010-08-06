@@ -113,12 +113,5 @@ public class AggregatingFolder extends Folder {
             }
             add(childFolder,res,spec.child);
         }
-    }
-
-    @Override
-    public String checkRedirect(Request request) {
-        return this.getUrl() + "index.html";
-    }
-    
-    
+    }    
 }

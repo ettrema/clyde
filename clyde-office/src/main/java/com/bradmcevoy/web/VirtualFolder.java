@@ -58,12 +58,5 @@ public class VirtualFolder extends Folder {
     
     public void add(Templatable newChild) {
         children.add(newChild);
-    }
-
-    @Override
-    public String checkRedirect(Request request) {
-        return this.getUrl() + "index.html";
-    }
-
-    
+    }    
 }
