@@ -2,7 +2,6 @@ package com.bradmcevoy.process;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.AfterSavable;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
@@ -12,7 +11,6 @@ import com.bradmcevoy.web.WrappedSubPage;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
 import java.util.Map;
 import org.jdom.Element;
 import org.joda.time.DateTime;
@@ -35,7 +33,6 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
     public TokenValue( Addressable container, Element el ) {
         super( container, el );
         token = TokenUtils.parse( el );
-        log.debug( "container: " + container.getClass() + " - " + this.getName());
     }
 
     public TokenValue( BaseResource newRes, String name, Token t ) {
@@ -72,21 +69,18 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
 
     @Override
     public String checkRedirect( Request request ) {
-        log.debug( "checkRedirect" );
         String stateName = getStateName();
         Resource r = getChildResource( stateName );
         if( r == null ) {
             throw new NullPointerException( "Failed to find child resource for current state: " + stateName );
         } else {
             CommonTemplated ct = (CommonTemplated) r;
-            log.debug( "redirecting to: " + ct.getHref() );
             return ct.getHref();
         }
     }
 
     @Override
     public Resource getChildResource( String childName ) {
-        log.debug( "getChildResource: " + childName );
         ProcessDef process = getProcess();
         if( process == null )
             throw new RuntimeException( "processDef not found: " + this.getName() );
@@ -103,7 +97,6 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
 
     @Override
     public Element toXml( Addressable container, Element el ) {
-        log.debug( "---- toXml");
         Element elThis = super.toXml( container, el );
         populateXml( elThis );
         return elThis;
