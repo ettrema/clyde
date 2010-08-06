@@ -22,16 +22,10 @@ public class DefaultAuthoringPermissionService implements AuthoringPermissionSer
     public Role getCreateRole( Folder folder, ITemplate template ) {
         TemplateSpecs specs = TemplateSpecs.getSpecsToUse( folder );
         if( specs != null ) {
-            log.warn("found specs: " + specs.size());
             AllowTemplateSpec spec = specs.findAllowedSpec( folder, template );
             if( spec != null && spec.getCreateNewRole() != null ) {
-                log.debug( "found spec: " + spec.getCreateNewRole());
                 return spec.getCreateNewRole();
-            } else {
-                log.warn("no required spec for template: " + template.getName());
             }
-        } else {
-            log.warn("found no specs");
         }
         return DEFAULT_CREATE_ROLE;
     }

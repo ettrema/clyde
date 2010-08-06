@@ -128,11 +128,6 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
     
     @Override
-    public String checkRedirect(Request request) {
-        return subPage.checkRedirect(request);
-    }
-
-    @Override
     public Resource getChildResource(String childName) {
         Resource r = null;
         r = subPage.getChildResource(childName);

@@ -30,7 +30,6 @@ public class PermissionsAuthoriser implements ClydeAuthoriser {
     @Override
     public Boolean authorise( Resource resource, Request request, Method method ) {
         Role requiredRole = findRole( resource, method );
-        log.warn("authorise: " + requiredRole);
         if( requiredRole == null ) {
             return null;
         } else {
@@ -47,17 +46,14 @@ public class PermissionsAuthoriser implements ClydeAuthoriser {
             boolean isEdit = isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} );
             Templatable t = (Templatable) resource;
             if( isEdit ) {
-                log.warn( "isEdit");
                 return authoringPermissionService.getEditRole( t );
             } else {
-                log.warn( " not edit");
                 if( isMethod( method, new Method[]{Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST} ) ) {
                     return Role.VIEWER;
                 }
                 throw new RuntimeException( "Unhandled method in permissionsauthoriser: " + method );
             }
         } else {
-            log.warn("not templatable");
             Method m = method;
 
             if( isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} ) )

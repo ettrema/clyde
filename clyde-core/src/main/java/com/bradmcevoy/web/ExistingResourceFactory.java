@@ -30,10 +30,18 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         String sPath = url;
         Path path = Path.path( sPath );
 
-        return findPage( host, path );
+        Resource r = findPage( host, path );
+        if( log.isTraceEnabled() ) {
+            if( r != null ) {
+                log.trace( "found a: " + r.getClass() );
+            } else {
+                log.trace( "not found" );
+            }
+        }
+        return r;
     }
 
-    public Resource findPage( String host, Path path ) {        
+    public Resource findPage( String host, Path path ) {
         if( host != null && host.contains( ":" ) ) {
             host = host.substring( 0, host.indexOf( ":" ) );
         }
@@ -101,16 +109,20 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     static Resource checkAndWrap( Resource r, Resource parent ) {
         if( r == null ) return null;
 
-//        log.debug("checkAndWrap: " + r.getHref());
+        log.debug( "checkAndWrap: " + r.getName() );
         Resource r2;
         if( r instanceof SubPage ) {
+            log.debug( "is a subpage" );
             SubPage sub = (SubPage) r;
             if( sub.getParent() == parent ) { // don't wrap if the request parent is same as physical parent
+                log.debug( "same parent, dont wrap" );
                 r2 = sub;
             } else {
+                log.debug( "not same parent, do wrap" );
                 r2 = new WrappedSubPage( (SubPage) r, (CommonTemplated) parent );
             }
         } else if( r instanceof WrappedSubPage ) {
+            log.debug( "wrap again" );
             r2 = new WrappedSubPage( (WrappedSubPage) r, (CommonTemplated) parent );
         } else {
             r2 = r;
@@ -155,7 +167,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         }
 
         public Long getContentLength() {
-            return (long)getContent().length();
+            return (long) getContent().length();
         }
 
         public String getUniqueId() {

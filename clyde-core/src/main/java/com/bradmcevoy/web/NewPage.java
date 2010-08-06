@@ -169,9 +169,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ITemplate t = getTemplate( request.getParams() );
         Role creatingRole = _( AuthoringPermissionService.class ).getCreateRole( folder, t );
-        log.warn( "required create role: " + creatingRole);
         boolean b = _( PermissionChecker.class ).hasRole( creatingRole, folder, auth );
-        log.warn( "has role:  "  + b);
         return b;
     }
 

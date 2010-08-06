@@ -20,6 +20,8 @@ import com.bradmcevoy.web.Host;
  */
 public class HrefService {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( HrefService.class );
+
     private final RequestService requestService;
 
     public HrefService( RequestService requestService ) {
