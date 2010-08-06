@@ -10,6 +10,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
@@ -21,6 +22,8 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Map;
 import org.apache.velocity.VelocityContext;
+
+import static com.ettrema.context.RequestContext._;
 
 public class EditPage implements PostableResource, DigestResource {
 
@@ -89,7 +92,8 @@ public class EditPage implements PostableResource, DigestResource {
     @Override
     public boolean authorise( Request request, Method method, Auth auth ) {
         PermissionChecker permissionChecker = RequestContext.getCurrent().get( PermissionChecker.class );
-        return permissionChecker.hasRole( Role.AUTHOR, this.editee, auth );
+        Role editingRole = _(AuthoringPermissionService.class).getEditRole( editee );
+        return permissionChecker.hasRole( editingRole, this.editee, auth );
     }
 
     @Override

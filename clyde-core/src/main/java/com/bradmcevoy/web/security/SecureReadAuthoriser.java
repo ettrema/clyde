@@ -39,7 +39,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
             log.debug( "check folder: method: " + method);
             Folder folder = (Folder) templatable;
             boolean isWrite = isWriteMethod(method);
-            if( folder.isSecureRead() || isWriteMethod(method) ) {
+            if( folder.isSecureRead() ) {
                 log.debug( "is secure, so if not logged in definitely not");
                 if( request.getAuthorization() == null ) {
                     if(log.isDebugEnabled()) {

@@ -3,22 +3,24 @@ package com.bradmcevoy.web.security;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 
 /**
  *
  * @author brad
  */
-public class PermissionsAuthoriser implements ClydeAuthoriser{
+public class PermissionsAuthoriser implements ClydeAuthoriser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PermissionsAuthoriser.class );
-
     private final PermissionChecker permissionChecker;
+    private final AuthoringPermissionService authoringPermissionService;
 
-    public PermissionsAuthoriser( PermissionChecker permissionChecker ) {
+    public PermissionsAuthoriser( PermissionChecker permissionChecker, AuthoringPermissionService authoringPermissionService ) {
         this.permissionChecker = permissionChecker;
+        this.authoringPermissionService = authoringPermissionService;
     }
-
 
     @Override
     public String getName() {
@@ -27,39 +29,51 @@ public class PermissionsAuthoriser implements ClydeAuthoriser{
 
     @Override
     public Boolean authorise( Resource resource, Request request, Method method ) {
-//        if( request.getAuthorization() == null ) {
-//            log.debug( "no one logged in, so no opinion");
-//            return null; // no opinion
-//        }
-        Role requiredRole = findRole(method);
+        Role requiredRole = findRole( resource, method );
+        log.warn("authorise: " + requiredRole);
         if( requiredRole == null ) {
-//            log.debug( "no required role, ignoring");
             return null;
         } else {
-//            log.debug( "requires: " + requiredRole);
             Boolean bb = permissionChecker.hasRole( requiredRole, resource, request.getAuthorization() );
-            if( bb != null && !bb.booleanValue()) {
-                log.warn( "denying access due to permissionChecker: " + permissionChecker.getClass() + " for role: " + requiredRole.name());
+            if( bb != null && !bb.booleanValue() ) {
+                log.warn( "denying access due to permissionChecker: " + permissionChecker.getClass() + " for role: " + requiredRole.name() );
             }
             return bb;
         }
     }
 
-    private Role findRole( Method method ) {
-        Method m = method;
+    private Role findRole( Resource resource, Method method ) {
+        if( resource instanceof Templatable ) {
+            boolean isEdit = isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} );
+            Templatable t = (Templatable) resource;
+            if( isEdit ) {
+                log.warn( "isEdit");
+                return authoringPermissionService.getEditRole( t );
+            } else {
+                log.warn( " not edit");
+                if( isMethod( method, new Method[]{Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST} ) ) {
+                    return Role.VIEWER;
+                }
+                throw new RuntimeException( "Unhandled method in permissionsauthoriser: " + method );
+            }
+        } else {
+            log.warn("not templatable");
+            Method m = method;
 
-        if( isMethod( method, new Method[] {Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL}) ) return Role.AUTHOR;
-        // allow post for viewers, so they can add comments etc. actual permissions must be
-        // checked by components
-        if( isMethod( method, new Method[] {Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST})) return Role.VIEWER;
-        throw new RuntimeException( "Unhandled method in permissionsauthoriser: " + m );
+            if( isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} ) )
+                return Role.AUTHOR;
+            // allow post for viewers, so they can add comments etc. actual permissions must be
+            // checked by components
+            if( isMethod( method, new Method[]{Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST} ) )
+                return Role.VIEWER;
+            throw new RuntimeException( "Unhandled method in permissionsauthoriser: " + m );
+        }
     }
 
-    private boolean isMethod(Method m, Method[] methods) {
+    private boolean isMethod( Method m, Method[] methods ) {
         for( Method m1 : methods ) {
-            if( m1.equals( m)) return true;
+            if( m1.equals( m ) ) return true;
         }
         return false;
     }
-
 }

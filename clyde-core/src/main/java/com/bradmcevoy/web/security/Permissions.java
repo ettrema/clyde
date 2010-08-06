@@ -45,7 +45,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     private transient RelationalNameNode nameNode;
 
     public void grant( String roleName, PermissionRecipient user ) {
-        grant(Role.valueOf( roleName ), user);
+        grant( Role.valueOf( roleName ), user );
     }
 
     public void grant( Role role, PermissionRecipient user ) {
@@ -53,15 +53,16 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
 //        add( p );
 //        return p;
         // create a relationship to the user
-        if( this.nameNode == null) throw new IllegalStateException( "name node is not set");
-        if( user == null ) throw new IllegalArgumentException( "user is null");
-        if( role == null ) throw new IllegalArgumentException( "role is null");
+        if( this.nameNode == null )
+            throw new IllegalStateException( "name node is not set" );
+        if( user == null ) throw new IllegalArgumentException( "user is null" );
+        if( role == null ) throw new IllegalArgumentException( "role is null" );
         this.nameNode.makeRelation( user.getNameNode(), role.toString() );
-        if( role.equals( Role.ADMINISTRATOR) ) {
-            grant(Role.AUTHOR, user);
+        if( role.equals( Role.ADMINISTRATOR ) ) {
+            grant( Role.AUTHOR, user );
         }
-        if( role.equals( Role.AUTHOR)) {
-            grant(Role.VIEWER, user);
+        if( role.equals( Role.AUTHOR ) ) {
+            grant( Role.VIEWER, user );
         }
     }
 
@@ -118,6 +119,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
+    @SuppressWarnings( "element-type-mismatch" )
     public boolean contains( Object o ) {
         return list().contains( o );
     }
@@ -143,6 +145,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
+    @SuppressWarnings( "element-type-mismatch" )
     public boolean remove( Object o ) {
         return list().remove( o );
     }

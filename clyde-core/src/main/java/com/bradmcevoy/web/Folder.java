@@ -7,7 +7,6 @@ import com.bradmcevoy.event.PutEvent;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.io.BufferingOutputStream;
@@ -61,7 +60,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return find( t.getParent() );
     }
     protected boolean secureRead;
-
     /**
      * The href of a thumb nail image for this folder, or null if none exists.
      */
@@ -232,7 +230,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         secureRead = InitUtils.getBoolean( el, "secureRead" );
-        versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );        
+        versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );
         thumbHref = InitUtils.getValue( el, "thumbHref" );
         String s = el.getAttributeValue( "allowedTemplates" );
         templateSpecs = TemplateSpecs.parse( s );
@@ -242,7 +240,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
         e2.setAttribute( "secureRead", secureRead + "" );
-        InitUtils.set( e2, "versioningEnabled", versioningEnabled );        
+        InitUtils.set( e2, "versioningEnabled", versioningEnabled );
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
             templateSpecs = new TemplateSpecs( "" );
@@ -263,30 +261,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
         throw new RuntimeException( "Cannot produce content for a folder. Should redirect to index page" );
-    }
-
-    @Override
-    public String checkRedirect( Request request ) {
-        String s = super.checkRedirect(request);
-        if( s != null ) {
-            return s;
-        }
-
-        s = request.getAbsoluteUrl();
-        if( !s.endsWith( "/" ) ) {
-            s = s + "/";
-        }
-        s = s + "index.html";
-
-        // if logged in and page doesnt exist, go to new page
-        Resource r = this.child( "index.html" );
-        if( r == null && request.getAuthorization() != null ) {
-            s = s + ".new";
-        }
-        if( log.isTraceEnabled() ) {
-            log.trace( "redirect to: " + s );
-        }
-        return s;
     }
 
     @Override

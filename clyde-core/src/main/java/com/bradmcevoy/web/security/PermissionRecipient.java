@@ -66,6 +66,12 @@ public interface PermissionRecipient {
         VIEWER,
 
         /**
+         * More of a group then a role, represents any logged in user. Here for convenience
+         * , probably should be refactored out with groups
+         */
+        AUTHENTICATED,
+
+        /**
          * Special role which represents any user whether logged in or not
          */
         ANONYMOUS;

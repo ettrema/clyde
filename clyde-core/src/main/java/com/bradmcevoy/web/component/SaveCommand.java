@@ -3,10 +3,13 @@ package com.bradmcevoy.web.component;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.utils.AuthoringPermissionService;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.ComponentMap;
 import com.bradmcevoy.web.Expression;
+import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
@@ -18,11 +21,12 @@ import java.util.Map;
 import java.util.Set;
 import org.jdom.Element;
 
+import static com.ettrema.context.RequestContext._;
+
 public class SaveCommand extends Command {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SaveCommand.class );
     private static final long serialVersionUID = 1L;
-
     protected Expression afterScript;
 
     public SaveCommand( Addressable container, Element el ) {
@@ -31,7 +35,7 @@ public class SaveCommand extends Command {
 
     public SaveCommand( Addressable container, String name ) {
         super( container, name );
-        afterScript = new Expression(this, "afterScript");
+        afterScript = new Expression( this, "afterScript" );
     }
 
     @Override
@@ -47,9 +51,23 @@ public class SaveCommand extends Command {
     @Override
     protected String doProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "..saving" );
-        PermissionChecker permissionChecker = requestContext().get( PermissionChecker.class );
-        if( !permissionChecker.hasRole( Role.AUTHOR, rc.getTargetPage(), RequestParams.current().getAuth() ) ) {
-            throw new NotAuthorizedException(rc.getTargetPage());
+        boolean isNew = false;
+        if( rc.getTargetPage() instanceof BaseResource ) {
+            BaseResource bres = (BaseResource) rc.getTargetPage();
+            isNew = bres.isNew();
+        }
+        log.debug( "isNew: " + isNew);
+        Role requiredRole;
+        if( isNew ) {
+            Folder folder = rc.getTargetPage().getParentFolder();
+            ITemplate template = rc.getTargetPage().getTemplate();
+            requiredRole = _( AuthoringPermissionService.class ).getCreateRole( folder, template );
+        } else {
+            requiredRole = _( AuthoringPermissionService.class ).getEditRole( rc.getTargetPage() );
+        }
+        log.debug( "required role: " + requiredRole);
+        if( !_( PermissionChecker.class ).hasRole( requiredRole, rc.getTargetPage(), RequestParams.current().getAuth() ) ) {
+            throw new NotAuthorizedException( rc.getTargetPage() );
         }
         Templatable ct = doProcess( rc, parameters );
         if( ct != null ) {
@@ -96,9 +114,9 @@ public class SaveCommand extends Command {
         }
 
         if( valid ) {
-            log.debug( "valid, save pages and commit");
+            log.debug( "valid, save pages and commit" );
             for( BaseResource page : pages ) {
-                execAfterScript(page, rc);
+                execAfterScript( page, rc );
             }
             for( BaseResource page : pages ) {
                 page.save();
@@ -106,7 +124,7 @@ public class SaveCommand extends Command {
             commit();
             return rcTarget.page;
         } else {
-            log.debug( "not valid, not saving");
+            log.debug( "not valid, not saving" );
             return null;
         }
     }
@@ -147,40 +165,38 @@ public class SaveCommand extends Command {
     }
 
     @Override
-    public void fromXml(Element el) {
-        super.fromXml(el);
+    public void fromXml( Element el ) {
+        super.fromXml( el );
         ComponentMap components = new ComponentMap();
-        components._fromXml(this, el);
-        fromXml(components);
-        log.debug("fromXml: " + afterScript);
+        components._fromXml( this, el );
+        fromXml( components );
+        log.debug( "fromXml: " + afterScript );
     }
 
-    protected void fromXml(ComponentMap map) {
+    protected void fromXml( ComponentMap map ) {
         Component c;
-        c = consume(map, "afterScript");
+        c = consume( map, "afterScript" );
         if( c == null ) {
-            afterScript = new Expression(this, "afterScript");
+            afterScript = new Expression( this, "afterScript" );
         } else {
             afterScript = (Expression) c;
         }
     }
 
-    protected Component consume(ComponentMap map, String name) {
-        Component c = map.get(name);
+    protected Component consume( ComponentMap map, String name ) {
+        Component c = map.get( name );
         return c;
     }
 
-
-    protected void execAfterScript(BaseResource newlyCreated, RenderContext rc) {
-        if( afterScript == null) return;
-        log.debug("execAfterScript");
+    protected void execAfterScript( BaseResource newlyCreated, RenderContext rc ) {
+        if( afterScript == null ) return;
+        log.debug( "execAfterScript" );
         Map map = new HashMap();
-        map.put("created", newlyCreated);
-        map.put("rc", rc);
-        map.put("command", this);
+        map.put( "created", newlyCreated );
+        map.put( "rc", rc );
+        map.put( "command", this );
         Templatable ct = (Templatable) this.getContainer();
-        afterScript.calc(ct, map);
-        log.debug("done execAfterScript");
+        afterScript.calc( ct, map );
+        log.debug( "done execAfterScript" );
     }
-
 }

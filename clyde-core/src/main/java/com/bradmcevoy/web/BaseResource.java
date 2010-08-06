@@ -10,7 +10,6 @@ import com.bradmcevoy.http.LockResult;
 import com.bradmcevoy.http.LockTimeout;
 import com.bradmcevoy.http.LockToken;
 import com.bradmcevoy.http.LockableResource;
-import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
@@ -315,13 +314,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         res.moveTo( target, name, false );
     }
 
-    @Override
-    public String checkRedirect( Request request ) {
-        if( redirect != null && redirect.length() > 0 ) {
-            return redirect;
-        } else {
-            return null;
-        }
+    public String getRedirect() {
+        return redirect;
+    }
+
+    public void setRedirect( String redirect ) {
+        this.redirect = redirect;
     }
 
     @Override

@@ -93,11 +93,6 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     @Override
-    public String checkRedirect( Request request ) {
-        return null;
-    }
-
-    @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
         try {
             if( log.isDebugEnabled() ) {

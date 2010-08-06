@@ -10,10 +10,11 @@ import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.http.Utils;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.utils.HrefService;
+import com.bradmcevoy.utils.RedirectService;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -39,6 +40,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
@@ -227,12 +230,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getHref() {
-        Host h = getHost();
-        if( h == null ) {
-            throw new NullPointerException( "No host for resource: " + this.getName() );
-        }
-        return "http://" + h.getName() + getUrl();
+        return _(HrefService.class).getHref(this);
     }
+
+
 
     /**
      * 
@@ -240,21 +241,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getUrl() {
-        String s = null;
-        CommonTemplated parent = getParent();
-        if( parent != null ) {
-            s = parent.getUrl();
-        }
-        if( !s.endsWith( "/" ) ) {
-            s = s + "/";
-        }
-        s = s + Utils.percentEncode( getName() ); // percentage encode the url part
-        if( this instanceof Folder ) {
-            if( !s.endsWith( "/" ) ) {
-                s = s + "/";
-            }
-        }
-        return s;
+        return _(HrefService.class).getUrl(this);
     }
 
     @Override
@@ -387,7 +374,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public String checkRedirect( Request request ) {
-        return null;
+        return _(RedirectService.class).checkRedirect( this, request );
     }
 
     @Override

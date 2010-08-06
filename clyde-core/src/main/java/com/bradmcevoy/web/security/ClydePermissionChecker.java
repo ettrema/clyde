@@ -19,9 +19,32 @@ public class ClydePermissionChecker implements PermissionChecker {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ClydePermissionChecker.class );
 
+    private final boolean allowAnonymous;
+
+    /**
+     *
+     * @param allowAnonymous - true to allow anonymous access when the ANONYMOUS role
+     * is required
+     */
+    public ClydePermissionChecker( boolean allowAnonymous ) {
+        this.allowAnonymous = allowAnonymous;
+    }
+
+    public ClydePermissionChecker() {
+        allowAnonymous = true;
+    }
+
+
+
     @Override
     public boolean hasRole( Role role, Resource r, Auth auth ) {
-//        log.debug( "hasRole: " + role);
+        log.debug( "hasRole: " + role);
+        if( role.equals( Role.ANONYMOUS)) {
+            return true;
+        }
+        if( role.equals( Role.AUTHENTICATED)) {
+            return auth != null && auth.getTag() != null;
+        }
         if( r instanceof BaseResource ) {
             BaseResource res = (BaseResource) r;
             User user = null;
