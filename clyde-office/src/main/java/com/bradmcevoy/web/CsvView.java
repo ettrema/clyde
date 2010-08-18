@@ -199,6 +199,9 @@ public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
     }
 
     private Folder getSourceFolder() {
+        if( sourceFolder == null ) {
+            return this.getParent();
+        }
         return (Folder) this.getParent().find(sourceFolder);
     }
     
