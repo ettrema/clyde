@@ -11,7 +11,7 @@ import java.util.List;
 public class GrantFactory extends AbstractFactory {
 
     public GrantFactory() {
-        super( "Grant a role to a user for a resource. Usage: grant [roleName] [userName] [userHost] [srcPath]", new String[]{"grant"});
+        super( "Grant a role to a user for a resource. Usage: grant [roleName] [userName[@userHost]] [srcPath]", new String[]{"grant"});
     }
 
     public ConsoleCommand create( List<String> args, String host, String currentDir, Auth auth ) {

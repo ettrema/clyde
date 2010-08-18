@@ -13,6 +13,7 @@ import com.bradmcevoy.web.security.Permission;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.console.Result;
+import com.ettrema.mail.MailboxAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +30,24 @@ public class Grant extends AbstractConsoleCommand {
     }
 
     public Result execute() {
+        if( args.size() != 3) {
+            return result("need 3 args");
+        }
         String roleName = args.get( 0 );
-        String userName = args.get( 1 );
-        String userHostName = args.get( 2 );
-        String srcPath = args.get( 3 );
-        log.debug( "grant: " + roleName + " - " + userName + "->" + srcPath );
+        String sUser = args.get( 1 );
+        String userName;
+        String userHostName;
+        if( sUser.contains( "@")) {
+            MailboxAddress mbox = MailboxAddress.parse( sUser );
+            userName = mbox.user;
+            userHostName = mbox.domain;
+        } else {
+            userName = sUser;
+            userHostName = host;
+        }
+        String srcPath = args.get( 2 );
+
+        log.debug( "grant: " + roleName + " - " + sUser + "->" + srcPath );
         Folder curFolder = currentResource();
         if( curFolder == null ) {
             log.debug( "current folder not found: " + currentDir );

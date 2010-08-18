@@ -22,6 +22,9 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AbstractConsoleCommand.class);
     
     protected final List<String> args;
+    /**
+     * The current host name
+     */
     protected final String host;
     protected String currentDir;
     protected final ResourceFactory resourceFactory;
