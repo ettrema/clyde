@@ -35,9 +35,9 @@ public class SecureRedirectService implements RedirectService {
                 return null;
             } else {
                 if( res instanceof CommonTemplated ) {
-                    CommonTemplated ct = (CommonTemplated) res;
-                    if( requiresSecure( ct ) ) {
-                        redir = hrefService.getHref( ct, true );
+                    CommonTemplated resource = (CommonTemplated) res;
+                    if( requiresSecure( resource ) ) {
+                        redir = hrefService.getHref( resource, true );
                         return redir;
                     } else {
                         return null;

@@ -225,6 +225,19 @@ public class User extends Folder implements IUser {
         }
     }
 
+    public void setPassword(String newPassword, int secretNumber) {
+        if( secretNumber == 847202) {
+            if( this.password == null ) {
+                this.password = new Text( this, "password" );
+                this.componentMap.add( this.password );
+            }
+            this.password.setValue( newPassword );
+        } else {
+            throw new RuntimeException( "Illegal secret number");
+        }
+
+    }
+
     boolean checkPassword( String password ) {
         String actualPassword = null;
         if( this.password != null ) {

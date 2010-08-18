@@ -3,6 +3,7 @@ package com.bradmcevoy.utils;
 import com.bradmcevoy.http.Request;
 
 /**
+ * Determines if a request is secure
  *
  * @author brad
  */
@@ -14,15 +15,26 @@ public class RequestService {
         this.currentRequestService = currentRequestService;
     }
 
+    /**
+     * Is the current request secure
+     *
+     * @return
+     */
     public boolean isSecure() {
         Request req = currentRequestService.request();
         return isSecure(req);
     }
 
+    /**
+     * Is the given request secure
+     *
+     * @param req
+     * @return
+     */
     public boolean isSecure(Request req) {
         if( req == null ) return false;
-        String s = req.getAbsoluteUrl();
-        if( s == null ) return false;
-        return s.startsWith( "https" );
+        String url = req.getAbsoluteUrl();
+        if( url == null ) return false;
+        return url.startsWith( "https" );
     }
 }

@@ -47,7 +47,13 @@ public class RenderContext implements Map<String, Component> {
 
     public static Templatable find( Templatable from, Path p ) {
         Templatable ct;
+        if( p == null ) {
+            throw new NullPointerException( "path is null");
+        }
         if( !p.isRelative() ) {
+            if( from == null ) {
+                throw new NullPointerException( "from is null");
+            }
             ct = findPageWithRelativePath( p, from.getWeb() );
         } else {
             ct = findPageWithRelativePath( p, from );

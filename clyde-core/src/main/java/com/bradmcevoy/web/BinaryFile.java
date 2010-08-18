@@ -5,7 +5,6 @@ import com.bradmcevoy.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.io.ReadingException;

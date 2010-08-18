@@ -35,6 +35,10 @@ public class RelativeTemplateManager implements TemplateManager {
     }
 
     public ITemplate lookup( String templateName, Folder web ) {
+        if( templateName == null ) {
+            log.debug( "template name is null");
+            return null;
+        }
         log.debug( "lookup: " + templateName + " web:" + web.getName());
         if( templateName.contains( "/") ) {
             Path path = Path.path( templateName );

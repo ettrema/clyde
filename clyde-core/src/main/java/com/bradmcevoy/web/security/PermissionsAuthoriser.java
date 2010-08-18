@@ -17,6 +17,11 @@ public class PermissionsAuthoriser implements ClydeAuthoriser {
     private final PermissionChecker permissionChecker;
     private final AuthoringPermissionService authoringPermissionService;
 
+    /**
+     *
+     * @param permissionChecker - used to check if a user has the required permission
+     * @param authoringPermissionService - used to determine what permission is required for a certain action
+     */
     public PermissionsAuthoriser( PermissionChecker permissionChecker, AuthoringPermissionService authoringPermissionService ) {
         this.permissionChecker = permissionChecker;
         this.authoringPermissionService = authoringPermissionService;
