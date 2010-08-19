@@ -98,11 +98,16 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         if( rels == null || rels.size() == 0 ) return null;
         List<Permission> list = new ArrayList<Permission>();
         for( Relationship r : rels ) {
-            Role role = Role.valueOf( r.relationship() );
-            PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
-            if( grantee != null ) {
-                Permission p = new Permission( role, grantee, granted );
-                list.add( p );
+            String roleName = r.relationship();
+            try {
+                Role role = Role.valueOf( roleName );
+                PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
+                if( grantee != null ) {
+                    Permission p = new Permission( role, grantee, granted );
+                    list.add( p );
+                }
+            } catch(IllegalArgumentException e) {
+                log.warn("Invalid role: " + roleName);
             }
         }
         return list;
