@@ -11,6 +11,9 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
     private HostFinder hostFinder = new HostFinder();
 
     protected Host getHost(String hostName) {
+        if( hostName == null ) {
+            return null;
+        }
         Host h = hostFinder.getHost( hostName );
         if( h == null) {
             if( !hostName.startsWith( "www.")) {

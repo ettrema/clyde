@@ -14,37 +14,30 @@ import java.util.List;
 public class SecureRedirectService implements RedirectService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SecureRedirectService.class );
-    private final RedirectService wrapped;
     private final RequestService requestService;
     private final HrefService hrefService;
     private List<String> secureHosts;
     private List<String> secureDomains;
 
-    public SecureRedirectService( RedirectService wrapped, RequestService requestService, HrefService hrefService ) {
-        this.wrapped = wrapped;
+    public SecureRedirectService( RequestService requestService, HrefService hrefService ) {
         this.requestService = requestService;
         this.hrefService = hrefService;
     }
 
     public String checkRedirect( Resource res, Request request ) {
-        String redir = wrapped.checkRedirect( res, request );
-        if( redir != null ) {
-            return redir;
+        if( requestService.isSecure( request ) ) {
+            return null;
         } else {
-            if( requestService.isSecure( request ) ) {
-                return null;
-            } else {
-                if( res instanceof CommonTemplated ) {
-                    CommonTemplated resource = (CommonTemplated) res;
-                    if( requiresSecure( resource ) ) {
-                        redir = hrefService.getHref( resource, true );
-                        return redir;
-                    } else {
-                        return null;
-                    }
+            if( res instanceof CommonTemplated ) {
+                CommonTemplated resource = (CommonTemplated) res;
+                if( requiresSecure( resource ) ) {
+                    String redir = hrefService.getHref( resource, true );
+                    return redir;
                 } else {
                     return null;
                 }
+            } else {
+                return null;
             }
         }
     }

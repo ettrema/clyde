@@ -238,7 +238,9 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
 
         @Override
         public Boolean allow( ITemplate t ) {
-            if( pattern.equals( "*" ) ) {
+            if( t == null ) {
+                return Boolean.TRUE;
+            } else if( pattern == null || pattern.equals( "*" ) ) {
                 return Boolean.TRUE;
             } else {
                 if( pattern.equals( t.getName() ) ) {

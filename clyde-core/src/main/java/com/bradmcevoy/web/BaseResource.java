@@ -59,6 +59,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected NameInput nameInput;
     private String redirect;
     private UUID creatorNameNodeId;
+    private Date timestamp;
+
     private transient boolean nameInited;
     protected transient RelationalNameNode nameNode;
     private transient User creator;
@@ -815,5 +817,22 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     @Override
     public LockToken getCurrentLock() {
         return _( ClydeLockManager.class ).getCurrentLock( this );
+    }
+
+    /**
+     * Allows user-agent defined modified dates. Defaults to modifiedDate if
+     * not set
+     * 
+     * @return
+     */
+    public Date getTimestamp() {
+        if( timestamp == null ) {
+            return getModifiedDate();
+        }
+        return timestamp;
+    }
+
+    public void setTimestamp( Date timestamp ) {
+        this.timestamp = timestamp;
     }
 }

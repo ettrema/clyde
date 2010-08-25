@@ -2,25 +2,25 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.vfs.VfsCommon;
 import java.util.Date;
 
-public abstract  class FckCommon extends VfsCommon implements PostableResource {
-    protected  Path url;
+public abstract class FckCommon extends VfsCommon implements PostableResource, DigestResource {
 
-    protected  final Host host;
-    
-    FckCommon(Host host, Path url)  {
+    protected Path url;
+    protected final Host host;
+
+    FckCommon( Host host, Path url ) {
         this.host = host;
         this.url = url;
     }
 
-// Boring accessors and stuff
-        
     @Override
-    public Long getMaxAgeSeconds(Auth auth) {
+    public Long getMaxAgeSeconds( Auth auth ) {
         return null;
     }
 
@@ -30,12 +30,17 @@ public abstract  class FckCommon extends VfsCommon implements PostableResource {
     }
 
     @Override
-    public Object authenticate(String user, String password) {
-        return true;
+    public Object authenticate( String user, String password ) {
+        return host.authenticate( user, password );
     }
 
     @Override
-    public boolean authorise(Request request, Request.Method method, Auth auth) {
+    public Object authenticate( DigestResponse dr ) {
+        return host.authenticate( dr );
+    }
+
+    @Override
+    public boolean authorise( Request request, Request.Method method, Auth auth ) {
         return auth != null;
     }
 
@@ -55,7 +60,7 @@ public abstract  class FckCommon extends VfsCommon implements PostableResource {
     }
 
     @Override
-    public String checkRedirect(Request request) {
+    public String checkRedirect( Request request ) {
         return null;
-    }    
+    }
 }

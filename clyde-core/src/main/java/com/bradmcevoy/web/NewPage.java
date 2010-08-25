@@ -19,6 +19,7 @@ import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -28,6 +29,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( NewPage.class );
     public static final String AUTO_NAME = "_autoname";
+    public static String NEW_INDICATOR = ".new";
 
     public static boolean isNewPath( Path path ) {
         if( path == null || path.getName() == null ) {
@@ -195,6 +197,16 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     @Override
     public String checkRedirect( Request request ) {
+        String t = templateName(request.getParams());
+        if( t == null || t.length() == 0) {
+            List<Template> allowedTemplates = folder.getAllowedTemplates();
+            if( allowedTemplates != null && allowedTemplates.size() == 1 ) {
+                String templateName = allowedTemplates.get( 0 ).getName();
+                log.debug( "no template selected, and only one allowed, so auto-select it");
+                return request.getAbsoluteUrl() + "?templateSelect=" + templateName;
+            }
+        }
+
         return null;
     }
 

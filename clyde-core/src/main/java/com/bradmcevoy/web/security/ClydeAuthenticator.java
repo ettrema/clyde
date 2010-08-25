@@ -11,5 +11,5 @@ import com.bradmcevoy.web.User;
 public interface ClydeAuthenticator {
     User authenticate( Resource resource, String user, String password );
 
-    Object authenticate( Resource resource, DigestResponse digestRequest );
+    User authenticate( Resource resource, DigestResponse digestRequest );
 }

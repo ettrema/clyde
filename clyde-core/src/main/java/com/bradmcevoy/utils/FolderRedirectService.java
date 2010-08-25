@@ -3,6 +3,8 @@ package com.bradmcevoy.utils;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.Template;
+import java.util.List;
 
 /**
  *
@@ -10,16 +12,7 @@ import com.bradmcevoy.web.Folder;
  */
 public class FolderRedirectService implements RedirectService {
 
-    private final RedirectService redirectService;
     private String redirectPage = "index.html";
-
-    public FolderRedirectService( RedirectService redirectService ) {
-        this.redirectService = redirectService;
-    }
-
-    public FolderRedirectService() {
-        this.redirectService = new DefaultRedirectService();
-    }
 
     public String checkRedirect( Resource resource, Request request ) {
         if( resource instanceof Folder ) {

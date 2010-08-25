@@ -46,7 +46,7 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
     }
 
     @Override
-    public Object authenticate( Resource r, DigestResponse digestRequest ) {
+    public User authenticate( Resource r, DigestResponse digestRequest ) {
         log.debug("authenticate(digest): " + digestRequest.getUser());
         Templatable resource = (Templatable) r;
         NameAndAuthority na = NameAndAuthority.parse( digestRequest.getUser() );
