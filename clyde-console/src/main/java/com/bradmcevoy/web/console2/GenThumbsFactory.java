@@ -11,7 +11,7 @@ import java.util.List;
 public class GenThumbsFactory extends AbstractFactory{
 
     public GenThumbsFactory() {
-        super("Recursively search for image files which need thumbnails generated", new String[]{"genthumbs"});
+        super("Recursively search for image files which need thumbnails generated, option -skipIfExists", new String[]{"genthumbs"});
     }
 
     public ConsoleCommand create( List<String> args, String host, String currentDir, Auth auth ) {

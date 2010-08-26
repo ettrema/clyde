@@ -31,61 +31,71 @@ public class GenThumbs extends AbstractConsoleCommand {
     public Result execute() {
         Resource r = currentResource();
         Folder f = (Folder) r;
-        AsynchProcessor proc = RequestContext.getCurrent().get(AsynchProcessor.class);
-        int files = crawl(f, proc);
+        AsynchProcessor proc = RequestContext.getCurrent().get( AsynchProcessor.class );
+        boolean skipIfExists = false;
+        if( args.size() > 0 ) {
+            String opt = args.get( 0 );
+            if( opt.equals( "-skipIfExists" ) ) {
+                skipIfExists = true;
+            }
+        }
+        int folders = crawl( f, proc,skipIfExists );
 
-        return result( "Processing image files: " + files );
+        return result( "Processing folders: " + folders );
     }
 
-    private int crawl(Folder f, AsynchProcessor proc) {
-        log.debug("crawl: " + f.getHref());
-        int cnt = 0;
+    private int crawl( Folder f, AsynchProcessor proc, boolean skipIfExists ) {
+        log.warn( "crawl: " + f.getHref() );
+        int cnt = 1;
+        ThumbGenerator gen = new ThumbGenerator( f.getNameNodeId(), skipIfExists );
+        proc.enqueue( gen );
+
         for( Resource r : f.getChildren() ) {
-            if( r instanceof ImageFile ) {
-                ImageFile file = (ImageFile) r;
-                ThumbGenerator gen = new ThumbGenerator( file.getNameNodeId());
-                proc.enqueue( gen );
-                cnt++;
-            }
-            if( r instanceof Folder) {
-                cnt += crawl((Folder) r,proc);
+            if( r instanceof Folder ) {
+                cnt += crawl( (Folder) r, proc, skipIfExists );
             }
         }
         return cnt;
     }
 
     public static class ThumbGenerator extends VfsCommon implements Processable {
+
         final UUID folderId;
-
         private static final long serialVersionUID = 1L;
+        private final boolean skipIfExists;
 
-        public ThumbGenerator(UUID folderId) {
+        public ThumbGenerator( UUID folderId, boolean skipIfExists ) {
             this.folderId = folderId;
+            this.skipIfExists = skipIfExists;
         }
 
         @Override
-        public void doProcess(Context context) {
-            VfsSession session = context.get(VfsSession.class);
-            NameNode nHost = session.get(folderId);
+        public void doProcess( Context context ) {
+            VfsSession session = context.get( VfsSession.class );
+            NameNode nHost = session.get( folderId );
             if( nHost == null ) {
-                log.error("Name node for host does not exist: " + folderId);
-                return ;
+                log.error( "Name node for host does not exist: " + folderId );
+                return;
             }
             Object data = nHost.getData();
             if( data == null ) {
-                log.error("Data node does not exist. Name node: " + folderId);
-                return ;
+                log.error( "Data node does not exist. Name node: " + folderId );
+                return;
             }
-            if( !(data instanceof ImageFile) ) {
-                log.error("Node does not reference a Folder. Instead references a: " + data.getClass() + " ID:" + folderId);
-                return ;
+            if( !( data instanceof Folder ) ) {
+                log.error( "Node does not reference a Folder. Instead references a: " + data.getClass() + " ID:" + folderId );
+                return;
             }
 
-            ImageFile file = (ImageFile) data;
-            file.generateThumbs();
+            Folder folder = (Folder) data;
+            for( Resource r : folder.getChildren() ) {
+                if( r instanceof ImageFile ) {
+                    ImageFile imageFile = (ImageFile) r;
+                    imageFile.generateThumbs(skipIfExists);
+                }
+            }
             commit();
         }
-
 
         @Override
         public String toString() {
@@ -93,9 +103,7 @@ public class GenThumbs extends AbstractConsoleCommand {
         }
 
         public void pleaseImplementSerializable() {
-            
         }
     }
-
 }
 

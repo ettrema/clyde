@@ -69,10 +69,11 @@ public class CtxThumbnailGenerator implements Factory<Object>, CommitListener, E
             PostSaveEvent pse = (PostSaveEvent) e;
             if( pse.getResource() instanceof ImageFile ) {
                 ImageFile img = (ImageFile) pse.getResource();
-                log.debug( "PostSaveEvent: " + img.getHref() );
+                log.debug( "check to see if parentFolder needs thumbHref set: " + img.getHref() );
                 ThumbSelector sel = new ThumbSelector( "thumbs" );
                 Folder parentFolder = img.getParentFolder();
                 if( parentFolder.getName().equals( "thumbs" ) ) {
+                    log.debug("parent folder is thumbs, so check its parent");
                     parentFolder = parentFolder.getParent();
                     log.debug( "is a thumb, so check parent parent");
                     if( sel.checkThumbHref( parentFolder ) ) {
