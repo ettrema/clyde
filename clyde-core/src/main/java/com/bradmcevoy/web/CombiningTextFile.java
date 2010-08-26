@@ -85,6 +85,38 @@ public class CombiningTextFile extends File {
         return mostRecent;
     }
 
+    @Override
+    public Long getContentLength() {
+        return null;
+//        log.trace("getContentLength");
+//        if( includes != null ) {
+//            long length = 0;
+//            for( Path includeName : includes ) {
+//                Resource child = this.getParent().find( includeName );
+//                if( child instanceof GetableResource ) {
+//                    GetableResource gr = (GetableResource) child;
+//                    Long l = gr.getContentLength();
+//                    if( l == null ) {
+//                        return null;
+//                    } else {
+//                        log.trace(" add: " + gr.getName() + " - " + l);
+//                        length += l;
+//                    }
+//                } else {
+//                    return null;
+//                }
+//            }
+//            log.trace("getContentLength: " + length);
+//            return length;
+//        } else {
+//            return null;
+//        }
+
+    }
+
+
+
+
     public List<Path> getIncludes() {
         return includes;
     }

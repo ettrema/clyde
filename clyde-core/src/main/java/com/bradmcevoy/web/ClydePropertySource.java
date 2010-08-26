@@ -80,7 +80,7 @@ public class ClydePropertySource implements PropertySource{
                         return PropertyMetaData.UNKNOWN;
                     }
                 } else {
-                    log.warn("no tempalte for: " + t.getHref());
+                    log.debug("no template for: " + t.getHref());
                     return PropertyMetaData.UNKNOWN;
                 }
             } else {
