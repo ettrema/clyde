@@ -129,12 +129,17 @@ public class ImageFile extends BinaryFile {
         return imageData;
     }
 
-    public int getHeight() {
-        return getImageData().getHeight();
+    public Integer getHeight() {
+        ImageData imgData = getImageData();
+        if( imgData == null ) return null;
+        return imgData.getHeight();
     }
 
-    public int getWidth() {
-        return getImageData().getWidth();
+    public Integer getWidth() {
+        ImageData imgData = getImageData();
+        if( imgData == null ) return null;
+        return imgData.getWidth();
+
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.io.FileUtils;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.video.FFMPEGConverter;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@BeanPropertyResource( value = "clyde" )
 public class FlashFile extends BinaryFile {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FlashFile.class );
@@ -41,6 +43,23 @@ public class FlashFile extends BinaryFile {
         } catch( Exception e ) {
             log.warn( "Failed to generate thumbnail for: " + this.getHref(), e );
         }
+    }
+
+    public String getThumbMagicNumber() {
+        Folder thumbs = this.getThumbsFolder( false );
+        if( thumbs == null ) return "";
+        String thumbName = this.getName() + ".jpg";
+        BaseResource r = thumbs.childRes( thumbName );
+        return r.getMagicNumber();
+    }
+
+    @Override
+    public String getThumbHref() {
+        Folder thumbs = this.getThumbsFolder( false );
+        if( thumbs == null ) return "";
+        String thumbName = this.getName() + ".jpg";
+        BaseResource r = thumbs.childRes( thumbName );
+        return r.getUrl();
     }
 
     public void generateThumb() {
