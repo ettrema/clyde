@@ -47,7 +47,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         }
         Host theHost = getHost( host );
         if( theHost == null ) {
-            log.debug( "host name not found: " + host );
+            log.info( "host name not found: " + host );
             return new HostNotFoundResource( host );
         }
         Resource r = findChild( theHost, path );
@@ -109,20 +109,20 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     static Resource checkAndWrap( Resource r, Resource parent ) {
         if( r == null ) return null;
 
-        log.debug( "checkAndWrap: " + r.getName() );
+        log.trace( "checkAndWrap: " + r.getName() );
         Resource r2;
         if( r instanceof SubPage ) {
-            log.debug( "is a subpage" );
+            log.trace( "is a subpage" );
             SubPage sub = (SubPage) r;
             if( sub.getParent() == parent ) { // don't wrap if the request parent is same as physical parent
-                log.debug( "same parent, dont wrap" );
+                log.trace( "same parent, dont wrap" );
                 r2 = sub;
             } else {
-                log.debug( "not same parent, do wrap" );
+                log.trace( "not same parent, do wrap" );
                 r2 = new WrappedSubPage( (SubPage) r, (CommonTemplated) parent );
             }
         } else if( r instanceof WrappedSubPage ) {
-            log.debug( "wrap again" );
+            log.trace( "wrap again" );
             r2 = new WrappedSubPage( (WrappedSubPage) r, (CommonTemplated) parent );
         } else {
             r2 = r;

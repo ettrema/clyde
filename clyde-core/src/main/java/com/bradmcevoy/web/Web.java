@@ -2,7 +2,10 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.web.children.ThemeFinder;
 import com.bradmcevoy.web.component.ThemeSelect;
+
+import static com.ettrema.context.RequestContext._;
 
 public class Web extends Folder {
 
@@ -111,18 +114,9 @@ public class Web extends Folder {
     }
 
     public Folder getTemplates() {
-        String themeName = selectedThemeName();
-        Folder themes = null;
-        if( themeName != null && themeName.length() > 0 ) {
-//            log.debug( "looking for themes: " + themeName);
-            themes = getThemes();
-        }
-        if( themes != null ) {
-            Resource res = themes.child( themeName );
-            if( res instanceof Folder ) {
-//                log.debug( "using theme folder for templates: " + res.getName());
-                return (Folder) res;
-            }
+        Folder themeFolder = _(ThemeFinder.class).getThemeFolder( this );
+        if( themeFolder != null ) {
+            return themeFolder;
         }
         Folder templates = (Folder) this.childRes( "templates" );
         if( templates == null ) {

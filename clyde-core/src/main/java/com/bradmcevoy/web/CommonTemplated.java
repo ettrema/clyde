@@ -418,9 +418,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {
+        log.trace("getMaxAgeSeconds");
         Component c = this.getComponent( "maxAge" );
         if( c != null ) {
             if( c instanceof NumberInput ) {
+                log.trace("using component for maxage");
                 NumberInput n = (NumberInput) c;
                 Integer ii = n.getValue();
                 if( ii == null ) return null;
@@ -430,8 +432,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         } else {
             if( this.getTemplate() == null ) {
+                log.trace("no template, use large default max-age");
                 return 315360000l;
             } else {
+                log.trace("get default max age");
                 return getDefaultMaxAge( auth );
             }
         }
@@ -439,8 +443,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     protected long getDefaultMaxAge( Auth auth ) {
         if( auth == null ) {
+            log.trace("no authentication, use long max-age");
             return 60 * 60 * 24l;
         } else {
+            log.trace("authenticated, use short max-age");
             return 60l;
         }
     }

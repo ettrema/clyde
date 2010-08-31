@@ -8,6 +8,7 @@ import com.bradmcevoy.web.Templatable;
 
 /**
  *
+ *
  * @author brad
  */
 public class SecureReadAuthoriser implements ClydeAuthoriser {
@@ -39,16 +40,18 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
             log.debug( "check folder: method: " + method);
             Folder folder = (Folder) templatable;
             boolean isWrite = isWriteMethod(method);
-            if( folder.isSecureRead() ) {
-                log.debug( "is secure, so if not logged in definitely not");
+            if( folder.isSecureRead() || isWrite ) {
+                if( log.isTraceEnabled()) {
+                    log.trace( "is secure or write method, so if not logged in definitely not: isWrite:" + isWrite );
+                }
                 if( request.getAuthorization() == null ) {
-                    if(log.isDebugEnabled()) {
-                        log.debug( "not logged in. deny access. secureread:" + folder.isSecureRead() + " isWrite:" + isWrite + " folder:" + folder.getHref() );
+                    if(log.isTraceEnabled()) {
+                        log.trace( "not logged in. deny access. secureread:" + folder.isSecureRead() + " isWrite:" + isWrite + " folder:" + folder.getHref() );
                     }
                     return false;
                 } else {
-                    if( log.isDebugEnabled()) {
-                        log.debug( "delegating authorisation to: " + wrapped.getClass().getCanonicalName() );
+                    if( log.isTraceEnabled()) {
+                        log.trace( "delegating authorisation to: " + wrapped.getClass().getCanonicalName() );
                     }
                     boolean result = wrapped.authorise( folder, request, method );
                     if( !result && log.isDebugEnabled() ) {

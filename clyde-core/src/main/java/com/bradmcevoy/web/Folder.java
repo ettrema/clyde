@@ -14,6 +14,7 @@ import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.web.children.ChildFinder;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.TemplateSelect;
@@ -59,7 +60,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         return find( t.getParent() );
     }
-    protected boolean secureRead;
+    protected boolean secureRead; // deprecated
+    protected Boolean secureRead2; // allow nulls
     /**
      * The href of a thumb nail image for this folder, or null if none exists.
      */
@@ -89,6 +91,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     protected BaseResource copyInstance( Folder parent, String newName ) {
         Folder fNew = (Folder) super.copyInstance( parent, newName );
         fNew.secureRead = this.secureRead;
+        fNew.secureRead2 = this.secureRead2;
         fNew.versioningEnabled = this.versioningEnabled;
         if( this.templateSpecs != null ) {
             fNew.templateSpecs.addAll( this.templateSpecs );
@@ -114,9 +117,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * @return
      */
     public boolean isSecureRead() {
-//        log.debug( "isSecureRead: " + this.getName() + " - " + secureRead );
-        if( secureRead ) {
+        if( log.isTraceEnabled() ) {
+            log.trace( "isSecureRead: " + this.getName() + " - " + secureRead );
+        }
+        if( secureRead  ) {
             return true;
+        }
+        if( secureRead2 != null ) {
+            return secureRead2.booleanValue();
         }
         if( this.getParent() == null ) {
             return false;
@@ -124,8 +132,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return this.getParent().isSecureRead(); // overridden by Host
     }
 
-    public void setSecureRead( boolean b ) {
-        this.secureRead = b;
+    public void setSecureRead( Boolean b ) {
+        this.secureRead2 = b;
+        if( b != null ) {
+            this.secureRead = b;
+        }
     }
 
     public boolean getHasChildren() {
@@ -229,7 +240,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
-        secureRead = InitUtils.getBoolean( el, "secureRead" );
+        setSecureRead( InitUtils.getNullableBoolean( el, "secureRead" ) );
         versioningEnabled = InitUtils.getBoolean( el, "versioningEnabled" );
         thumbHref = InitUtils.getValue( el, "thumbHref" );
         String s = el.getAttributeValue( "allowedTemplates" );
@@ -239,7 +250,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
-        e2.setAttribute( "secureRead", secureRead + "" );
+        InitUtils.set( e2, "secureRead", secureRead2);
         InitUtils.set( e2, "versioningEnabled", versioningEnabled );
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
@@ -330,23 +341,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     @Override
     public Resource child( String name ) {
-        Resource res = childRes( name );
-        if( res != null ) {
-            return res;
-        }
-
-        Component c = this.getComponent( name );
-        if( c instanceof Resource ) {
-            if( this instanceof BaseResource ) {
-//                log.debug( "setting target container: " + this.getHref() );
-                CommonTemplated.tlTargetContainer.set( (BaseResource) this ); // arghhh
-            } else {
-                log.debug( "not setting: " + this.getClass() );
-            }
-
-            return (Resource) c;
-        }
-        return null;
+        return _( ChildFinder.class ).find( name, this );
     }
 
     public BaseResource childRes( String name ) {
