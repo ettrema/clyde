@@ -12,11 +12,9 @@ import com.bradmcevoy.web.ImageFile;
 public class ThumbSelector {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbSelector.class );
-    private final String thumbSuffix;
+    private String primaryThumbSuffix = "thumbs";
+    private String secondaryThumbSuffix;
 
-    public ThumbSelector( String thumbSuffix ) {
-        this.thumbSuffix = thumbSuffix;
-    }
 
     /**
      * Checks to see if the folder's thumbHref property is set correctly, and sets
@@ -27,33 +25,62 @@ public class ThumbSelector {
      */
     public boolean checkThumbHref( Folder folder ) {
         log.debug( "checkThumbHref: " + folder.getHref() );
+        ImageFile thumb = findThumb(folder, primaryThumbSuffix);
+        if( thumb == null && secondaryThumbSuffix != null ) {
+            thumb = findThumb(folder, secondaryThumbSuffix);
+        }
+        if( thumb != null ) {
+            String href = thumb.getHref();
+            String oldHref = folder.getThumbHref();
+            if( oldHref == null || !oldHref.equals( href ) ) {
+                folder.setThumbHref( href );
+                folder.save();
+                return true;
+            } else {
+                log.debug( "thumb href has not changed" );
+                return false;
+            }
+        }
+        log.debug( "no image files in thumbs folder");
+        return false;
+    }
+
+    private ImageFile findThumb(Folder folder, String thumbSuffix ) {
         Resource res = folder.child( thumbSuffix );
         if( res == null || !( res instanceof Folder ) ) {
             log.debug( "no thumbs folder: " + thumbSuffix );
-            return false;
+            return null;
         }
         if( !( res instanceof Folder ) ) {
             log.debug( "thumbs exists, but is not a folder: " + res.getClass() );
-            return false;
+            return null;
         }
         Folder thumbs = (Folder) res;
         for( Resource r : thumbs.getChildren() ) {
             if( r instanceof ImageFile ) {
                 ImageFile thumb = (ImageFile) r;
                 log.debug( "found thumb: " + thumb.getHref() );
-                String href = thumb.getHref();
-                String oldHref = folder.getThumbHref();
-                if( oldHref == null || !oldHref.equals( href ) ) {
-                    folder.setThumbHref( href );
-                    folder.save();
-                    return true;
-                } else {
-                    log.debug( "thumb href has not changed" );
-                    return false;
-                }
+                return thumb;
             }
         }
-        log.debug( "no image files in thumbs folder");
-        return false;
+        return null;
     }
+
+    public String getPrimaryThumbSuffix() {
+        return primaryThumbSuffix;
+    }
+
+    public void setPrimaryThumbSuffix( String primaryThumbSuffix ) {
+        this.primaryThumbSuffix = primaryThumbSuffix;
+    }
+
+    public String getSecondaryThumbSuffix() {
+        return secondaryThumbSuffix;
+    }
+
+    public void setSecondaryThumbSuffix( String secondaryThumbSuffix ) {
+        this.secondaryThumbSuffix = secondaryThumbSuffix;
+    }
+
+
 }

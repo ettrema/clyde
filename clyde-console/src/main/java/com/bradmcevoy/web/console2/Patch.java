@@ -28,6 +28,7 @@ public class Patch extends AbstractConsoleCommand {
             String[] patchArgs = getPatchArgs();
             log.debug("patch args: " + patchArgs);
             p.setArgs(patchArgs);
+            p.setCurrentFolder( currentResource() );
             _(AsynchProcessor.class).enqueue(p);
 
             return new Result(this.currentDir, "executed (or executing) patch " + p);
