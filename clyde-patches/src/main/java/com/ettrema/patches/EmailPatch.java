@@ -1,5 +1,6 @@
 package com.ettrema.patches;
 
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -77,4 +78,9 @@ public class EmailPatch implements PatchApplicator {
 
     public void pleaseImplementSerializable() {
     }
+
+    public void setCurrentFolder( Folder currentResource ) {
+
+    }
+
 }

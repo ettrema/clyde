@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 /**
  *
  */
@@ -51,7 +52,7 @@ public class ThumbChecker implements PatchApplicator {
     public void doProcess( Context context ) {
         VfsSession sess = context.get( VfsSession.class );
 
-        thumbSelector = new ThumbSelector( "thumbs" );
+        thumbSelector = context.get(ThumbSelector.class);
         NameNode node;
         if( nodeId == null ) {
             node = sess.root();
@@ -94,5 +95,9 @@ public class ThumbChecker implements PatchApplicator {
             log.debug( "process folder: " + f.getHref() );
             thumbSelector.checkThumbHref( f );
         }
+    }
+
+    public void setCurrentFolder( Folder currentResource ) {
+
     }
 }

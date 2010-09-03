@@ -1,5 +1,6 @@
 package com.ettrema.patches;
 
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.console2.PatchApplicator;
 import com.ettrema.context.Context;
 import com.ettrema.vfs.BinaryMigrator;
@@ -47,6 +48,10 @@ public class AwsBinaryPatch implements PatchApplicator {
     }
 
     public void pleaseImplementSerializable() {
+
+    }
+
+    public void setCurrentFolder( Folder currentResource ) {
 
     }
 

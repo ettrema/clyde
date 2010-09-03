@@ -109,4 +109,10 @@ public class ZeroSizeFilePatch implements PatchApplicator {
             }
         }
     }
+
+    public void setCurrentFolder( Folder currentResource ) {
+
+    }
 }
+
+

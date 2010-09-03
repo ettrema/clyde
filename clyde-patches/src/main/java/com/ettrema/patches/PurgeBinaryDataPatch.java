@@ -1,5 +1,6 @@
 package com.ettrema.patches;
 
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.console2.PatchApplicator;
 import com.ettrema.context.Context;
 import com.ettrema.vfs.BinaryMigrator;
@@ -8,7 +9,6 @@ import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
 import com.ettrema.vfs.aws.AwsBinaryManager;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.UUID;
 
 /**
@@ -79,12 +79,7 @@ public class PurgeBinaryDataPatch implements PatchApplicator {
 //        }
     }
 
-    private void commit( Connection con ) {
-        try {
-            con.commit();
-        } catch( SQLException ex ) {
-            log.error( "Couldnt commit", ex );
-            throw new RuntimeException( ex );
-        }
+    public void setCurrentFolder( Folder currentResource ) {
+     
     }
 }
