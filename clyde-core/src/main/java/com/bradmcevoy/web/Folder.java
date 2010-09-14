@@ -399,16 +399,24 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public List<Templatable> getChildren( String isA, String except ) {
         List<Templatable> children = new BaseResourceList();
-        for( NameNode n : getNameNode().children() ) {
-            DataNode dn = n.getData();
-            if( dn != null && dn instanceof BaseResource ) {
-                BaseResource res = (BaseResource) dn;
-                if( isA == null || res.is( isA ) ) {
-                    if( !res.getName().equals( except ) ) {
-                        children.add( res );
+        NameNode nThis = getNameNode();
+        if( nThis != null ) {
+            List<NameNode> list = nThis.children();
+            if( list != null ) {
+                for( NameNode n : nThis.children() ) {
+                    DataNode dn = n.getData();
+                    if( dn != null && dn instanceof BaseResource ) {
+                        BaseResource res = (BaseResource) dn;
+                        if( isA == null || res.is( isA ) ) {
+                            if( !res.getName().equals( except ) ) {
+                                children.add( res );
+                            }
+                        }
                     }
                 }
             }
+        } else {
+            log.debug( "null namenode");
         }
 
         Collections.sort( children );

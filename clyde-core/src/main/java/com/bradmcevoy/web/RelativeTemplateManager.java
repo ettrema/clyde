@@ -39,7 +39,9 @@ public class RelativeTemplateManager implements TemplateManager {
             log.debug( "template name is null");
             return null;
         }
-        log.debug( "lookup: " + templateName + " web:" + web.getName());
+        if( log.isTraceEnabled() ) {
+            log.trace( "lookup: " + templateName + " web:" + web.getName());
+        }
         if( templateName.contains( "/") ) {
             Path path = Path.path( templateName );
             ITemplate t = lookup( path.getParts(), web, 0 );
@@ -58,7 +60,9 @@ public class RelativeTemplateManager implements TemplateManager {
 
     private ITemplate lookup( final String[] parts, final Folder folder, final int partNum ) {
         String part = parts[partNum];
-        log.debug( "lookup: " + part + " web: " + folder.getName());
+        if( log.isTraceEnabled() ) {
+            log.trace( "lookup: " + part + " web: " + folder.getName());
+        }
         if( part.equals( ".." ) ) {
             return lookup( parts, folder.getParent(), partNum + 1 );
         } else if( part.equals( ".")) {

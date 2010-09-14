@@ -3,15 +3,23 @@ package com.bradmcevoy.web.security;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.Response.Status;
+import com.bradmcevoy.property.PropertyAuthoriser;
 import com.bradmcevoy.utils.AuthoringPermissionService;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
+import javax.xml.namespace.QName;
+import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  *
  * @author brad
  */
-public class PermissionsAuthoriser implements ClydeAuthoriser {
+public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthoriser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PermissionsAuthoriser.class );
     private final PermissionChecker permissionChecker;
@@ -76,5 +84,79 @@ public class PermissionsAuthoriser implements ClydeAuthoriser {
             if( m1.equals( m ) ) return true;
         }
         return false;
+    }
+
+    public Set<CheckResult> checkPermissions( Request request, PropertyPermission perm, Set<QName> fields, Resource resource ) {
+        Set<CheckResult> results = null;
+        for( QName name : fields ) {
+            if( isClydeNs( name ) ) {
+                if( !checkField( name, request, perm, resource ) ) {
+                    if( results == null ) {
+                        results = new HashSet<CheckResult>();
+                    }
+                    results.add( new CheckResult( name, Status.SC_UNAUTHORIZED, "Not authorised to edit field: " + name.getLocalPart(), resource ) );
+                }
+            }
+        }
+        return results;
+    }
+
+    private boolean isClydeNs( QName name ) {
+        return name.getNamespaceURI() != null && name.getNamespaceURI().equals( "clyde" );
+    }
+
+    private boolean checkField( QName name, Request request, PropertyPermission propertyPermission, Resource resource ) {
+        Role role = getRequiredRole( name, resource, propertyPermission );
+        return permissionChecker.hasRole( role, resource, request.getAuthorization() );
+    }
+
+    private Role getRequiredRole( QName name, Resource resource, PropertyPermission propertyPermission ) {
+
+        BeanProperty anno = getAnnotation( resource );
+        if( anno == null ) {
+            return defaultRole(resource, propertyPermission);
+        }
+
+        PropertyDescriptor pd = getPropertyDescriptor( resource, name.getLocalPart() );
+        if( pd == null || pd.getReadMethod() == null ) {
+            return defaultRole(resource, propertyPermission);
+        } else {
+            if( propertyPermission == PropertyPermission.READ ) {
+                return anno.readRole();
+            } else {
+                return anno.writeRole();
+            }
+        }
+    }
+
+    private BeanProperty getAnnotation( Resource r ) {
+        return r.getClass().getAnnotation( BeanProperty.class );
+    }
+
+    private PropertyDescriptor getPropertyDescriptor( Resource r, String name ) {
+        try {
+            PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor( r, name );
+            return pd;
+        } catch( IllegalAccessException ex ) {
+            throw new RuntimeException( ex );
+        } catch( InvocationTargetException ex ) {
+            throw new RuntimeException( ex );
+        } catch( NoSuchMethodException ex ) {
+            return null;
+        }
+
+    }
+
+    private Role defaultRole( Resource resource, PropertyPermission propertyPermission ) {
+            if( propertyPermission == PropertyPermission.READ ) {
+                return Role.VIEWER;
+            } else {
+                if( resource instanceof Templatable ) {
+                    return authoringPermissionService.getEditRole( (Templatable) resource);
+                } else {
+                    return Role.SYSADMIN;
+                }
+            }
+
     }
 }

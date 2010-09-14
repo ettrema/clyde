@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.Host;
@@ -15,62 +16,71 @@ import com.bradmcevoy.web.User;
  *
  * @author brad
  */
-public class RecursiveAuthenticator implements ClydeAuthenticator{
+public class RecursiveAuthenticator implements ClydeAuthenticator {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RecursiveAuthenticator.class );
-
-
 
     @Override
     public User authenticate( Resource r, String user, String password ) {
         //log.debug("authenticate: " + user);
-        Templatable resource = (Templatable) r;
-        NameAndAuthority na = NameAndAuthority.parse( user );
-        User u = null;
-        if( na.authority == null ) {
-            Host h = resource.getHost();
-            u = authenticateRecursive( h, na.name, password );
-        } else {
-            Host host = findHost( resource, na.authority );
-            if( host == null ) {
-                log.warn( "authenticate: host not found: " + na.authority );
-                return null;
+        if( r instanceof Templatable ) {
+            Templatable resource = (Templatable) r;
+            NameAndAuthority na = NameAndAuthority.parse( user );
+            User u = null;
+            if( na.authority == null ) {
+                Host h = resource.getHost();
+                u = authenticateRecursive( h, na.name, password );
             } else {
-                u = host.doAuthenticate( na.name, password );
+                Host host = findHost( resource, na.authority );
+                if( host == null ) {
+                    log.warn( "authenticate: host not found: " + na.authority );
+                    return null;
+                } else {
+                    u = host.doAuthenticate( na.name, password );
+                }
             }
+            if( u == null ) {
+                log.warn( "Authentication failed: " + na.name );
+            }
+            return u;
+        } else {
+            return (User) r.authenticate(user, password );
         }
-        if( u == null) {
-            log.warn("Authentication failed: " + na.name);
-        }
-        return u;
+
     }
 
     @Override
     public User authenticate( Resource r, DigestResponse digestRequest ) {
-        log.debug("authenticate(digest): " + digestRequest.getUser());
-        Templatable resource = (Templatable) r;
-        NameAndAuthority na = NameAndAuthority.parse( digestRequest.getUser() );
-        User u = null;
-        if( na.authority == null ) {
-            Host h = resource.getHost();
-            u = authenticateRecursive( h, na.name, digestRequest );
-        } else {
-            Host host = findHost( resource, na.authority );
-            if( host == null ) {
-                log.debug( "authenticate: host not found: " + na.authority );
-                return null;
+        log.debug( "authenticate(digest): " + digestRequest.getUser() );
+        if( r instanceof Templatable ) {
+            Templatable resource = (Templatable) r;
+            NameAndAuthority na = NameAndAuthority.parse( digestRequest.getUser() );
+            User u = null;
+            if( na.authority == null ) {
+                Host h = resource.getHost();
+                u = authenticateRecursive( h, na.name, digestRequest );
             } else {
-                u = host.doAuthenticate( na.name, digestRequest );
+                Host host = findHost( resource, na.authority );
+                if( host == null ) {
+                    log.debug( "authenticate: host not found: " + na.authority );
+                    return null;
+                } else {
+                    u = host.doAuthenticate( na.name, digestRequest );
+                }
             }
+            if( u == null ) {
+                log.warn( "Authentication failed: " + na.name );
+            }
+            return u;
+        } else if( r instanceof DigestResource ) {
+            DigestResource dr = (DigestResource) r;
+            return (User) dr.authenticate( digestRequest );
+        } else {
+            throw new RuntimeException( "Cant authenticate against resource of type: " + r.getClass().getCanonicalName() );
         }
-        if( u == null) {
-            log.warn("Authentication failed: " + na.name);
-        }
-        return u;
     }
 
-
-    public Host findHost( Templatable resource,String authority ) {
+    public Host findHost( Templatable resource, String authority ) {
         Host h = resource.getHost();
         while( h != null && !h.getName().equals( authority ) ) {
             h = h.getParentHost();
@@ -90,7 +100,7 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
             //log.warn( "authentication failed");
             return null;
         } else {
-            return authenticateRecursive( hParent, name, password);
+            return authenticateRecursive( hParent, name, password );
         }
     }
 
@@ -108,10 +118,8 @@ public class RecursiveAuthenticator implements ClydeAuthenticator{
             //log.warn( "authentication failed");
             return null;
         } else {
-            return authenticateRecursive( hParent, name, digestRequest);
+            return authenticateRecursive( hParent, name, digestRequest );
         }
     }
-
-
 }
 

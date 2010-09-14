@@ -28,6 +28,8 @@ import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.creation.CreatorService;
 import com.bradmcevoy.web.locking.ClydeLockManager;
+import com.bradmcevoy.web.security.BeanProperty;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.bradmcevoy.web.security.Permissions;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
@@ -448,6 +450,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void init( NameNode nameNode ) {
+        if( nameNode == null ) throw new RuntimeException( "init called with null namenode");
         this.nameNode = (RelationalNameNode) nameNode;
         getComponents().init( this );
         initName();
@@ -488,6 +491,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public String getName() {
+        if( nameNode == null) {
+            throw new NullPointerException( "Namenode has not been set, init has not been called");
+        }
         return nameNode.getName();
     }
 
@@ -785,6 +791,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      * @return
      */
+    @BeanProperty(readRole=Role.AUTHENTICATED, writeRole=Role.AUTHENTICATED)
     public String getNewComment() {
         return null;
     }

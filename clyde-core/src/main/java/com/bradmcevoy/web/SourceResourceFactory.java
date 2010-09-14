@@ -17,7 +17,6 @@ import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -134,6 +133,11 @@ public class SourceResourceFactory extends CommonResourceFactory {
             return parent.authenticate(user, password);
         }
 
+        public Object authenticate(DigestResponse digestRequest) {
+            return parent.authenticate( digestRequest );
+        }
+
+
         @Override
         public boolean authorise(Request request, Request.Method method, Auth auth) {
             ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
@@ -170,14 +174,5 @@ public class SourceResourceFactory extends CommonResourceFactory {
             return null;
         }
 
-        public Object authenticate(DigestResponse digestRequest) {
-            ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
-            Object o = authenticator.authenticate(this, digestRequest);
-            if (o == null) {
-                log.warn("authentication failed by: " + authenticator.getClass());
-            }
-            return o;
-
-        }
     }
 }

@@ -7,7 +7,6 @@ import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
-import com.sun.servicetag.UnauthorizedAccessException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

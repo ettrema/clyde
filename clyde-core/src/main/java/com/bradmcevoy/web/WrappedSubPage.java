@@ -94,7 +94,8 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public String getUniqueId() {
-        return actualParent.getUniqueId() + subPage.getUniqueId();
+        return null;
+        //return actualParent.getUniqueId() + subPage.getUniqueId();
     }
     
     

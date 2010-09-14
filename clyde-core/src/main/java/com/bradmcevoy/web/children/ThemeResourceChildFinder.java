@@ -28,11 +28,20 @@ public class ThemeResourceChildFinder implements ChildFinder {
             return r;
         }
 
-        if( isTemplateFolder( folder ) ) {
-            log.trace( "isTemplateFolder" );
-            Folder themeFolder = themeFinder.getThemeFolder( folder.getWeb());
+        if( folder instanceof Web && "templates".equals( name ) ) {
+            log.trace( "isWeb" );
+            Folder themeFolder = themeFinder.getThemeFolder( (Web)folder );
             if( themeFolder == null ) {
-                log.trace( "no theme folder");
+                log.trace( "no theme folder" );
+                return null;
+            } else {
+                return themeFolder;
+            }
+        } else if( isTemplateFolder( folder ) ) {
+            log.trace( "isTemplateFolder" );
+            Folder themeFolder = themeFinder.getThemeFolder( folder.getWeb() );
+            if( themeFolder == null ) {
+                log.trace( "no theme folder" );
                 return null;
             } else {
                 return themeFolder.child( name );
@@ -45,9 +54,9 @@ public class ThemeResourceChildFinder implements ChildFinder {
     }
 
     private boolean isTemplateFolder( Folder folder ) {
-        if( !folder.getName().equals( "templates") ) {
+        if( !folder.getName().equals( "templates" ) ) {
             return false;
         }
-        return (folder.getParent() instanceof Web);
+        return ( folder.getParent() instanceof Web );
     }
 }

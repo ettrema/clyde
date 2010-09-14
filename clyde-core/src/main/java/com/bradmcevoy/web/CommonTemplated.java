@@ -774,6 +774,24 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return c.render( rc );
     }
 
+    public String getFirstPara() {
+        return firstPara("body");
+    }
+
+    public String firstPara(String paramName) {
+        String s = invoke(paramName);
+        int posEnd = s.indexOf( "</p>");
+        if( posEnd > 0 ) {
+            int posStart = s.indexOf( "<p>");
+            if( posStart > 0) {
+                posStart = posStart + 3; // for p tag
+                posEnd = s.indexOf( "</p>", posStart); // need to find first closing for this opening
+                return s.substring( posStart, posEnd);
+            }
+        }
+        return "";
+    }
+
 
     public class Params implements Map<String, Component> {
 
