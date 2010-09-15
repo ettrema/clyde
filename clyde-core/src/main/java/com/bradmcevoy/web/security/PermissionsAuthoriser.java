@@ -86,7 +86,8 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
         return false;
     }
 
-    public Set<CheckResult> checkPermissions( Request request, PropertyPermission perm, Set<QName> fields, Resource resource ) {
+    public Set<CheckResult> checkPermissions( Request request, com.bradmcevoy.http.Request.Method method, PropertyPermission perm, Set<QName> fields, Resource resource ) {
+        log.trace("checkPermissions");
         Set<CheckResult> results = null;
         for( QName name : fields ) {
             if( isClydeNs( name ) ) {
