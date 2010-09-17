@@ -64,7 +64,7 @@ public class Export extends AbstractConsoleCommand {
             return doImport( arguments );
         } catch( Exception e ) {
             log.error( "exception in export", e );
-            return result( e.getMessage() + arguments.getReport() );
+            return result( e.getMessage() + arguments.getReport() + "<br/><p style='color: red'>ERRORS OCCURRED!!!</p>" );
         }
 
     }
@@ -107,16 +107,22 @@ public class Export extends AbstractConsoleCommand {
         RemoteResource remote = new RemoteResource( arguments.destHost, path, res, client );
         Date destDate = remote.doHead();
 
-        if( destDate == null || localDate.after( destDate ) ) {
-            arguments.uploaded( res, destDate );
-            if( arguments.dryRun ) return;
-
-            if( remote.doPut() ) return;
+        if( destDate == null || localDate.after( destDate ) ) {            
+            if( arguments.dryRun ) {
+                arguments.uploaded( res, destDate );
+                return;
+            } else {
+                if( remote.doPut() ) {
+                    arguments.uploaded( res, destDate );
+                } else {
+                    log.warn("Failed to put: " + remote.sourceUri);
+                    arguments.skipped( res, destDate );
+                }
+            }
         } else {
             arguments.skipped( res, destDate );
             log.debug( "not uploading: " + res.getHref() );
         }
-
     }
 
     private boolean isImportable( Templatable ct, Arguments arguments ) {
@@ -263,7 +269,11 @@ public class Export extends AbstractConsoleCommand {
         }
 
         private String formatDate( Date dt ) {
-            return DateUtils.formatDate( dt );
+            if( dt == null ) {
+                return "";
+            }else {
+                return DateUtils.formatDate( dt );
+            }
         }
 
         private void uploaded( XmlPersistableResource r, Date remoteMod ) {

@@ -1,5 +1,6 @@
 package com.bradmcevoy.pay;
 
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Page;
 import com.bradmcevoy.web.component.InitUtils;
@@ -12,23 +13,26 @@ import org.jdom.Element;
  *
  * @author brad
  */
-public class Credit extends Page{
-    
+@BeanPropertyResource( "clyde" )
+public class Credit extends Page {
+
     private static final long serialVersionUID = -4839091476658574653L;
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Credit.class );
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Credit.class);
-
-    public static Credit create(Folder parentFolder, String name, BigDecimal amount, String amountCurrency, String buyerEmail, String productCode, String description) {
-        if( productCode == null ) throw new IllegalArgumentException( "must have productCode");
-        if( amount == null ) throw new IllegalArgumentException( "must have amount");
-        if( amountCurrency == null ) throw new IllegalArgumentException( "must have amountCurrency");
-        if( name == null ) throw new IllegalArgumentException( "must have name");
+    public static Credit create( Folder parentFolder, String name, BigDecimal amount, String amountCurrency, String buyerEmail, String productCode, String description ) {
+        if( productCode == null )
+            throw new IllegalArgumentException( "must have productCode" );
+        if( amount == null )
+            throw new IllegalArgumentException( "must have amount" );
+        if( amountCurrency == null )
+            throw new IllegalArgumentException( "must have amountCurrency" );
+        if( name == null )
+            throw new IllegalArgumentException( "must have name" );
 
         Credit c = new Credit( parentFolder, name, amount, amountCurrency, buyerEmail, productCode, description );
         c.save();
         return c;
     }
-
     /**
      * true iff the credit implied by this receipt has been used
      */
@@ -39,32 +43,30 @@ public class Credit extends Page{
     private String productCode;
     private String description;
 
-    private Credit(Folder parentFolder, String name, BigDecimal amount, String amountCurrency, String buyerEmail, String productCode, String description) {
-        super(parentFolder, name );
+    private Credit( Folder parentFolder, String name, BigDecimal amount, String amountCurrency, String buyerEmail, String productCode, String description ) {
+        super( parentFolder, name );
         this.amount = amount;
         this.amountCurrency = amountCurrency;
         this.buyerEmail = buyerEmail;
         this.productCode = productCode;
         this.description = description;
-        log.debug( "credit created: description: " + description);
+        log.debug( "credit created: description: " + description );
     }
 
     @Override
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
-        InitUtils.set( e2, "used", used);
-        InitUtils.set( e2, "amount", amount);
-        InitUtils.set( e2, "amountCurrency", amountCurrency);
-        InitUtils.set( e2, "buyerEmail", buyerEmail);
-        InitUtils.set( e2, "productCode", productCode);
-        InitUtils.set( e2, "description", description);
+        InitUtils.set( e2, "used", used );
+        InitUtils.set( e2, "amount", amount );
+        InitUtils.set( e2, "amountCurrency", amountCurrency );
+        InitUtils.set( e2, "buyerEmail", buyerEmail );
+        InitUtils.set( e2, "productCode", productCode );
+        InitUtils.set( e2, "description", description );
     }
-
-
 
     @Override
     public boolean is( String type ) {
-        if( type.equalsIgnoreCase( "receipt")) return true;
+        if( type.equalsIgnoreCase( "receipt" ) ) return true;
         return super.is( type );
     }
 
@@ -95,5 +97,4 @@ public class Credit extends Page{
     public String getDescription() {
         return description;
     }
-
 }

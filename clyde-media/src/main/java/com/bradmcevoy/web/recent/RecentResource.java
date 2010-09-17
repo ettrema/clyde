@@ -14,6 +14,7 @@ import com.ettrema.vfs.NameNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import org.jdom.Element;
@@ -170,7 +171,16 @@ public class RecentResource extends File {
         } else {
             return "";
         }
+    }
 
+    @Override
+    public Long getModifiedDateAsLong() {
+        Date dt = getModifiedDate();
+        if( dt == null ) {
+            return null;
+        } else {
+            return dt.getTime();
+        }
     }
 
     @Override

@@ -4,7 +4,9 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.console2.PatchApplicator;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.context.Context;
 import com.ettrema.vfs.VfsSession;
 import java.util.UUID;
@@ -17,11 +19,11 @@ public class PicoAccountChecker implements PatchApplicator {
 
     private static final long serialVersionUID = 1L;
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbChecker.class );
+
     /**
      * Null for root item, set for subsequent nodes
      */
     private UUID nodeId;
-    private Folder currentFolder;
 
     public PicoAccountChecker() {
     }
@@ -41,39 +43,54 @@ public class PicoAccountChecker implements PatchApplicator {
     public void doProcess( Context context ) {
         VfsSession sess = context.get( VfsSession.class );
 
+        Folder currentFolder = (Folder) sess.get( nodeId ).getData();
+
+        log.info( "doProcess: " + currentFolder.getHref() );
+
         for( Resource r : currentFolder.getChildren() ) {
             if( r instanceof Host ) {
-                checkHost( (Host) r );
+                Host h = (Host) r;
+                log.info( "checking: " + h.getName());
+                checkHost( h );
             }
         }
+        log.info( "finished checking accounts");
 
         sess.commit();
     }
 
     public void setCurrentFolder( Folder currentResource ) {
-        currentFolder = currentResource;
+        nodeId = currentResource.getNameNodeId();
     }
 
     public void pleaseImplementSerializable() {
     }
 
     private void checkHost( Host host ) {
-        log.warn( "Check host: " + host.getName());
-        if( host.getCreator() == null  ) {
-            log.error( "***************** No Creator for host: " + host.getName());
+        log.warn( "Check host: " + host.getName() );
+        IUser creator = host.getCreator();
+        if( creator == null ) {
+            log.error( "***************** No Creator for host: " + host.getName() );
         }
         Resource rBlogs = host.child( "blogs" );
         if( rBlogs == null ) {
             ITemplate t = host.getTemplate( "blogHome" );
             Folder blogs = t.createFolderFromTemplate( host, "blogs" );
             blogs.save();
-            log.warn("created blogs folder: " + blogs.getHref());
+            log.warn( "created blogs folder: " + blogs.getHref() );
+            if( creator != null ) {
+                log.warn("set permission");
+                blogs.permissions(true).grant( Role.AUTHOR, creator);
+                blogs.save();
+            } else {
+                log.warn("no creator so can't set permission");
+            }
         } else {
             Folder fBlogs = (Folder) rBlogs;
             if( !"blogHome".equals( fBlogs.getTemplateName() ) ) {
-                fBlogs.setTemplateName( "blogHome");
+                fBlogs.setTemplateName( "blogHome" );
                 fBlogs.save();
-                log.warn("set template on blogs: " + fBlogs.getHref());
+                log.warn( "set template on blogs: " + fBlogs.getHref() );
             }
         }
 
