@@ -86,12 +86,39 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
         return false;
     }
 
+    /**
+     * Check to see if the current user can access the properties
+     * 
+     * @param request
+     * @param method
+     * @param perm
+     * @param fields
+     * @param resource
+     * @return
+     */
     public Set<CheckResult> checkPermissions( Request request, com.bradmcevoy.http.Request.Method method, PropertyPermission perm, Set<QName> fields, Resource resource ) {
-        log.trace("checkPermissions");
+        log.trace( "checkPermissions" );
         Set<CheckResult> results = null;
+        Boolean nonClydeAccess = null;
         for( QName name : fields ) {
             if( isClydeNs( name ) ) {
                 if( !checkField( name, request, perm, resource ) ) {
+                    log.debug( "not authorised to access field: " + name );
+                    if( results == null ) {
+                        results = new HashSet<CheckResult>();
+                    }
+                    results.add( new CheckResult( name, Status.SC_UNAUTHORIZED, "Not authorised to edit field: " + name.getLocalPart(), resource ) );
+                }
+            } else {
+                if( nonClydeAccess == null ) {
+                    Role role = defaultRequiredRole( resource, perm );
+                    nonClydeAccess = permissionChecker.hasRole( role, resource, request.getAuthorization() );
+                    if( log.isTraceEnabled() ) {
+                        log.trace( "check if user has access to non-clyde properties with default role: " + role + " = " + nonClydeAccess );
+                    }
+                }
+                if( !nonClydeAccess ) {
+                    log.trace( "non allowed access to non-clyde field");
                     if( results == null ) {
                         results = new HashSet<CheckResult>();
                     }
@@ -115,12 +142,12 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
         BeanProperty anno = getAnnotation( resource );
         if( anno == null ) {
-            return defaultRole(resource, propertyPermission);
+            return defaultRequiredRole( resource, propertyPermission );
         }
 
         PropertyDescriptor pd = getPropertyDescriptor( resource, name.getLocalPart() );
         if( pd == null || pd.getReadMethod() == null ) {
-            return defaultRole(resource, propertyPermission);
+            return defaultRequiredRole( resource, propertyPermission );
         } else {
             if( propertyPermission == PropertyPermission.READ ) {
                 return anno.readRole();
@@ -148,16 +175,16 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
     }
 
-    private Role defaultRole( Resource resource, PropertyPermission propertyPermission ) {
-            if( propertyPermission == PropertyPermission.READ ) {
-                return Role.VIEWER;
+    private Role defaultRequiredRole( Resource resource, PropertyPermission propertyPermission ) {
+        if( propertyPermission == PropertyPermission.READ ) {
+            return Role.VIEWER;
+        } else {
+            if( resource instanceof Templatable ) {
+                return authoringPermissionService.getEditRole( (Templatable) resource );
             } else {
-                if( resource instanceof Templatable ) {
-                    return authoringPermissionService.getEditRole( (Templatable) resource);
-                } else {
-                    return Role.SYSADMIN;
-                }
+                return Role.SYSADMIN;
             }
+        }
 
     }
 }
