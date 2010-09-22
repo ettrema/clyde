@@ -50,8 +50,14 @@ public class ImageUtilities {
         Image img = source.getScaledInstance(width, height ,Image.SCALE_FAST);
 
         BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D biContext = bi.createGraphics();
-        biContext.drawImage(img, 0, 0, null);
+        Graphics2D biContext = null;
+        try {
+            biContext = bi.createGraphics();
+            biContext.drawImage(img, 0, 0, null);
+        } finally {
+            biContext.dispose();
+        }
+
 
 //        BufferedImage image = new BufferedImage(width, height, source.getType());
 //        image.createGraphics().drawImage(source, 0, 0, width, height, null);
