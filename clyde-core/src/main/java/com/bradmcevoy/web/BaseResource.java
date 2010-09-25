@@ -610,8 +610,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         if( list == null || list.size() == 0 ) return resList;
 
         for( Relationship r : list ) {
-            BaseResource res = (BaseResource) r.from().getData();
-            resList.add( res );
+            NameNode from = r.from();
+            if( from != null ) {
+                BaseResource res = (BaseResource) from.getData();
+                resList.add( res );
+            }
         }
         return resList;
     }

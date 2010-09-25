@@ -11,6 +11,8 @@ import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.utils.FileUtils;
+import com.bradmcevoy.web.security.PermissionChecker;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.CallableStatement;
@@ -29,6 +31,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.mvel.TemplateInterpreter;
+
+import static com.ettrema.context.RequestContext._;
 
 public class StatsResourceFactory extends CommonResourceFactory {
 
@@ -78,19 +82,13 @@ public class StatsResourceFactory extends CommonResourceFactory {
     }
 
     public abstract class BaseStatsResource implements Resource {
-        @Override
-        public Object authenticate(String user, String password) {
-            return "ok";
-        }
+
+        abstract Host host();
 
         @Override
         public boolean authorise(Request request, Method method, Auth auth) {
+            _(PermissionChecker.class).hasRole( Role.ADMINISTRATOR, host(), auth);
             return (auth!=null);
-        }
-
-        @Override
-        public String getRealm() {
-            return "ettrema";
         }
 
         @Override
@@ -108,7 +106,7 @@ public class StatsResourceFactory extends CommonResourceFactory {
         }
 
         public String getContentType(String accepts) {
-            return "text/html";
+            return "application/x-javascript; charset=utf-8";
         }
         
     }
@@ -121,7 +119,9 @@ public class StatsResourceFactory extends CommonResourceFactory {
     }
     
     public abstract class BaseStatsFolderResource extends BaseStatsResource implements GetableResource {
+        
         abstract BaseStatsResource lookupChild(String name);
+
         public abstract BaseStatsFolderResource getParent();
         
         @Override
@@ -173,7 +173,7 @@ public class StatsResourceFactory extends CommonResourceFactory {
             return h.authenticate(user, password);
         }
 
-        private Host host() {
+        public Host host() {
             Resource r = authResourceFactory.getResource(host, "/");
             if( r == null ) throw new RuntimeException("Couldnt locate host: " + host);
             if( r instanceof Host ) {
@@ -277,6 +277,15 @@ public class StatsResourceFactory extends CommonResourceFactory {
         }
 
         @Override
+        public Host host() {
+            return host.host();
+        }
+
+        public String getRealm() {
+            return host.getRealm();
+        }
+
+        @Override
         public String getUniqueId() {
             return null;
         }
@@ -362,7 +371,16 @@ public class StatsResourceFactory extends CommonResourceFactory {
             this.parent = parent;
             this.mvelTemplate = mvelTemplate;
         }
-        
+
+        @Override
+        Host host() {
+            return parent.host();
+        }
+
+        public String getRealm() {
+            return parent.getRealm();
+        }
+
         @Override
         public String getUniqueId() {
             return null;
@@ -426,10 +444,20 @@ public class StatsResourceFactory extends CommonResourceFactory {
                 this.monthName = monthDescriptor.substring(pos+1);
             } else {
                 throw new RuntimeException("Invalid month name format: " + monthDescriptor);
-            }
-            
+            }            
         }
 
+        @Override
+        Host host() {
+            return year.host();
+        }
+
+
+
+        public String getRealm() {
+            return year.getRealm();
+        }
+        
         @Override
         public String getUniqueId() {
             return null;
@@ -498,6 +526,21 @@ public class StatsResourceFactory extends CommonResourceFactory {
             this.parent = parent;
         }
 
+        @Override
+        Host host() {
+            return parent.host();
+        }
+
+
+
+        public Object authenticate( String user, String password ) {
+            return parent.authenticate( user, password );
+        }
+
+        public String getRealm() {
+            return parent.getRealm();
+        }
+        
         @Override
         public String getUniqueId() {
             return null;
