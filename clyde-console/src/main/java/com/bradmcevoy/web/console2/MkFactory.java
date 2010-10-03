@@ -8,14 +8,13 @@ import java.util.List;
  *
  * @author brad
  */
-public class MkFactory extends AbstractFactory{
+public class MkFactory extends AbstractFactory {
 
     public MkFactory() {
-        super( "Make a Clyde resource", new String[]{"mk","new"} );
+        super( "Make a Clyde resource", new String[]{"mk", "new"} );
     }
 
     public ConsoleCommand create( List<String> args, String host, String currentDir, Auth auth ) {
-        return new Mk(args, host, currentDir,resourceFactory);
+        return new Mk( args, host, currentDir, resourceFactory );
     }
-
 }
