@@ -1,11 +1,9 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.video.FFMPEGConverter;
-import com.ettrema.vfs.OutputStreamWriter;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.bradmcevoy.video.FlashService;
+
+import static com.ettrema.context.RequestContext._;
 
 @BeanPropertyResource( value = "clyde" )
 public class FlashFile extends BinaryFile {
@@ -63,31 +61,6 @@ public class FlashFile extends BinaryFile {
     }
 
     public void generateThumb() {
-        Folder thumbs = this.getThumbsFolder( true );
-        String thumbName = this.getName() + ".jpg";
-        BaseResource r = thumbs.childRes( thumbName );
-        if( r != null ) r.delete();
-        BinaryFile thumb = new BinaryFile( thumbs, thumbName );
-        thumb.save();
-
-        InputStream in = null;
-        try {
-            in = getInputStream();
-            if( in == null ) {
-                log.warn( "No inputstream for: " + this.getHref() );
-            } else {
-                final FFMPEGConverter c = new FFMPEGConverter( in, "flv" );
-                thumb.useOutputStream( new OutputStreamWriter<Long>() {
-
-                    @Override
-                    public Long writeTo( final OutputStream out ) {
-                        log.debug( "using outputstream for conversion" );
-                        return c.generateThumb( 60, 80, out, "jpeg" );
-                    }
-                } );
-            }
-        } finally {
-            FileUtils.close( in );
-        }
+        _(FlashService.class).generateThumb( this );
     }
 }

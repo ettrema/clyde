@@ -44,8 +44,14 @@
             <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>endrick-context</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
+
 
 
 

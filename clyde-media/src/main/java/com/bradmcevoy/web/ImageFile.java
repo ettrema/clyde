@@ -5,13 +5,14 @@ import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.image.Dimensions;
 import com.bradmcevoy.web.image.ImageService;
-import com.bradmcevoy.web.image.ImageUtilities;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+
+import static com.ettrema.context.RequestContext._;
 
 @BeanPropertyResource("clyde")
 public class ImageFile extends BinaryFile {
@@ -55,7 +56,7 @@ public class ImageFile extends BinaryFile {
         ByteArrayOutputStream out = new ByteArrayOutputStream( 50000 );
         try {
             in = getInputStream();
-            ImageUtilities.scaleProportionallyWithMax( in, out, height, width, "jpeg" );
+            _(ImageService.class).scaleProportionallyWithMax( in, out, height, width, "jpeg" );
         } catch( IOException ex ) {
             throw new RuntimeException( ex );
         } finally {
@@ -113,12 +114,11 @@ public class ImageFile extends BinaryFile {
     public ImageData imageData(boolean create) {
         Dimensions dim;
         if( imageData == null && create ) {
-            ImageService svc = new ImageService(); // todo: move to context
             imageData = new ImageData();
             InputStream in = null;
             try {
                 in = this.getInputStream();
-                dim = svc.getDimenions( in, getName() );
+                dim = _(ImageService.class).getDimenions( in, getName() );
                 imageData.setHeight( (int) dim.getY());
                 imageData.setWidth( (int) dim.getX());
             } finally {

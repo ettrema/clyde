@@ -19,9 +19,9 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
 
     public void generateStreamingVideo( final VideoFile source ) {
         log.debug( "generateStreaming: " + source.getConvertedHeight() + source.getConvertedWidth() );
-        if( source.isTrash()) {
-            log.debug( "not generating as in trash: " + source.getPath());
-            return ;
+        if( source.isTrash() ) {
+            log.debug( "not generating as in trash: " + source.getPath() );
+            return;
         }
         InputStream in = null;
         FFMPEGConverter converter = null;
@@ -32,6 +32,7 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
             final String inputType = FileUtils.getExtension( source.getName() );
 
             converter = new FFMPEGConverter( in, inputType );
+
             if( converter.getSourceLength() > 0 ) {
                 final FFMPEGConverter c = converter;
                 flash.useOutputStream( new OutputStreamWriter<Long>() {
@@ -43,7 +44,7 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
                     }
                 } );
             } else {
-                log.warn( "Cant generate streaming video because source file length is zero");
+                log.warn( "Cant generate streaming video because source file length is zero" );
             }
 
 
@@ -54,21 +55,21 @@ public class SynchronousStreamingVideoGenerator implements StreamingVideoGenerat
         log.debug( "finished generateStreaming" );
     }
 
-    private static void close(InputStream in) {
-        if( in == null ) return ;
+    private static void close( InputStream in ) {
+        if( in == null ) return;
         try {
             in.close();
         } catch( IOException ex ) {
-            log.error("exception closing inputstrea", ex);
+            log.error( "exception closing inputstrea", ex );
         }
     }
 
     private static void close( FFMPEGConverter converter ) {
-        if( converter == null ) return ;
-        try{
+        if( converter == null ) return;
+        try {
             converter.close();
-        } catch(Exception e) {
-            log.error("exception closing converter", e);
+        } catch( Exception e ) {
+            log.error( "exception closing converter", e );
         }
     }
 }
