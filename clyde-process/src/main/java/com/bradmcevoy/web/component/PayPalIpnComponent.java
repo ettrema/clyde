@@ -27,12 +27,11 @@ import org.jdom.Element;
  *
  * @author brad
  */
-public class PayPalIpnComponent extends VfsCommon implements Component, Addressable{
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PayPalIpnComponent.class);
+public class PayPalIpnComponent extends VfsCommon implements Component, Addressable {
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PayPalIpnComponent.class );
     private static final long serialVersionUID = 1L;
-
     public static final String RECEIVER_EMAIL_PARAM = "receiver_email";
-
     private String name;
     private Addressable container;
     private BigDecimal amount;
@@ -40,39 +39,40 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
     private String productCode;
     private String description;
 
-    public PayPalIpnComponent(Addressable container, String name) {
+    public PayPalIpnComponent( Addressable container, String name ) {
         this.container = container;
         this.name = name;
     }
 
-    public PayPalIpnComponent(Addressable container, Element el) {
+    public PayPalIpnComponent( Addressable container, Element el ) {
         this.container = container;
-        name = InitUtils.getValue( el, "name");
-        amount = InitUtils.getBigDecimal(el,"amount");
-        currency = InitUtils.getValue(el,"currency");
-        productCode = InitUtils.getValue(el,"productCode");
-        description = InitUtils.getValue(el,"description");
+        name = InitUtils.getValue( el, "name" );
+        amount = InitUtils.getBigDecimal( el, "amount" );
+        currency = InitUtils.getValue( el, "currency" );
+        productCode = InitUtils.getValue( el, "productCode" );
+        description = InitUtils.getValue( el, "description" );
     }
 
-    public void populateXml(Element e2) {
-        e2.setAttribute("class",getClass().getName());
-        e2.setAttribute("name",name);
-        InitUtils.setString( e2, "currency", currency);
-        InitUtils.set( e2, "amount", this.amount);
-        InitUtils.setString( e2, "productCode", this.productCode);
-        InitUtils.setString( e2, "description", this.description);
+    public void populateXml( Element e2 ) {
+        e2.setAttribute( "class", getClass().getName() );
+        e2.setAttribute( "name", name );
+        InitUtils.setString( e2, "currency", currency );
+        InitUtils.set( e2, "amount", this.amount );
+        InitUtils.setString( e2, "productCode", this.productCode );
+        InitUtils.setString( e2, "description", this.description );
     }
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
-        log.debug( "process");
-        if(!parameters.containsKey( RECEIVER_EMAIL_PARAM)) return null;
+        log.debug( "process" );
+        if( !parameters.containsKey( RECEIVER_EMAIL_PARAM ) ) return null;
 
-        log.debug( "process - doing ipn validation");
-        InstantPaymentNotificationProcessor ipn = RequestContext.getCurrent().get( InstantPaymentNotificationProcessor.class);
-        if( ipn == null)throw new RuntimeException( "No InstantPaymentNotificationProcessor configured");
+        log.debug( "process - doing ipn validation" );
+        InstantPaymentNotificationProcessor ipn = RequestContext.getCurrent().get( InstantPaymentNotificationProcessor.class );
+        if( ipn == null )
+            throw new RuntimeException( "No InstantPaymentNotificationProcessor configured" );
 
         Templatable targetPage = rc.getTargetPage();
-        IpnSuccessRunner suc = new IpnSuccessRunner( targetPage);
+        IpnSuccessRunner suc = new IpnSuccessRunner( targetPage );
         IpnFailureRunner fail = new IpnFailureRunner( targetPage );
         IpnPendingRunner pending = new IpnPendingRunner( targetPage );
 
@@ -87,6 +87,7 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
     }
 
     abstract class IpnBase implements PostPaymentRunner {
+
         final Templatable targetPage;
 
         public IpnBase( Templatable targetPage ) {
@@ -94,57 +95,61 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
         }
     }
 
-    class IpnSuccessRunner extends  IpnBase {
+    class IpnSuccessRunner extends IpnBase {
 
         public IpnSuccessRunner( Templatable targetPage ) {
-            super(targetPage);
+            super( targetPage );
         }
 
-        public void run(Details details) {
-            log.debug( "ipn success! creating credit");
+        public void run( Details details ) {
+            log.debug( "ipn success! creating credit" );
             // create receipt in host/receipts
-            Credit credit = createCredit(targetPage, details);
-            log.debug( "credit: " + credit.getHref());
+            Credit credit = createCredit( targetPage, details );
+            log.debug( "credit: " + credit.getHref() );
             // call scan on processdef
-            if( !ProcessDef.scan( targetPage.getHost()) ) {
-                log.error( "Received payment, but no transition occurred!!! Credit: " + credit.getNameNodeId() + " - targetPage: " + targetPage.getHref());
+            if( !ProcessDef.scan( targetPage.getHost() ) ) {
+                log.error( "Received payment, but no transition occurred!!! Credit: " + credit.getNameNodeId() + " - targetPage: " + targetPage.getHref() );
             } else {
-                log.debug( "payment received, credit created, and process transitioned");
+                log.debug( "payment received, credit created, and process transitioned" );
                 commit();
             }
         }
 
-        private Credit createCredit( Templatable targetPage , Details details) {
+        private Credit createCredit( Templatable targetPage, Details details ) {
             Host host = targetPage.getHost();
-            if( host == null ) throw new RuntimeException( "no host for: " + targetPage.getName());
+            if( host == null )
+                throw new RuntimeException( "no host for: " + targetPage.getName() );
 
-            Folder folder = PaidRule.getReceiptsFolder( host,true );
+            Folder folder = PaidRule.getReceiptsFolder( host, true );
             String newName = ClydeUtils.getDateAsNameUnique( folder );
             Credit credit = Credit.create( folder, newName, amount, details.paymentCurrency, details.payerEmail, productCode, description );
             return credit;
         }
-
     }
 
-    class IpnPendingRunner extends  IpnBase {
+    class IpnPendingRunner extends IpnBase {
+
         public IpnPendingRunner( Templatable targetPage ) {
             super( targetPage );
         }
-        public void run(Details details) {
-            log.debug("ipn pending: " + targetPage.getHref());
+
+        public void run( Details details ) {
+            log.debug( "ipn pending: " + targetPage.getHref() );
             TokenValue token = (TokenValue) targetPage.getParent().getParent();
-            token.getVariables().put( "pending", Boolean.TRUE);
+            token.getVariables().put( "pending", Boolean.TRUE );
             token.save();
             commit();
         }
     }
 
-    class IpnFailureRunner extends  IpnBase {
+    class IpnFailureRunner extends IpnBase {
+
         public IpnFailureRunner( Templatable targetPage ) {
             super( targetPage );
         }
-        public void run(Details details) {
-            log.warn("ipn validation failure: " + details);
+
+        public void run( Details details ) {
+            log.warn( "ipn validation failure: " + details );
         }
     }
 
@@ -153,10 +158,7 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
         public boolean hasBeenUsed( String txId ) {
             return false; // TODO
         }
-
     }
-
-
 
     public void init( Addressable container ) {
         this.container = container;
@@ -174,7 +176,6 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
         return "";
     }
 
-    
     public String renderEdit( RenderContext rc ) {
         return "";
     }
@@ -183,21 +184,17 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
         return name;
     }
 
-
     public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
-        
     }
 
     public Element toXml( Addressable container, Element el ) {
-        Element e2 = new Element("component");
-        el.addContent(e2);
-        populateXml(e2);
+        Element e2 = new Element( "component" );
+        el.addContent( e2 );
+        populateXml( e2 );
         return e2;
     }
 
-
     public Path getPath() {
-        return container.getPath().child(name);
+        return container.getPath().child( name );
     }
-
 }
