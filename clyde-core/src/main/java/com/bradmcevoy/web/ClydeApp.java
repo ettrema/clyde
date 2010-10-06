@@ -20,6 +20,8 @@ import java.util.Map;
  */
 public class ClydeApp implements EventListener {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ClydeApp.class);
+
     public final RootContext rootContext;
 
     public ClydeApp( RootContext rootContext, HttpManager manager ) {
@@ -27,18 +29,24 @@ public class ClydeApp implements EventListener {
     }
 
     public ClydeApp( RootContext rootContext, HttpManager manager, boolean enableStats ) {
+        log.warn( "Hello from ClydeApp");
         this.rootContext = rootContext;
 
         ClydeFilter clydeFilter = new ClydeFilter( rootContext );
         rootContext.put( clydeFilter );
 
         if( enableStats ) {
+            log.warn("Adding stats filter");
             StatsFilter statsFilter = new StatsFilter( rootContext );
             statsFilter.init();
             manager.addFilter( 0, statsFilter );
+        } else {
+            log.warn("not adding stats filter");
         }
         
         manager.addFilter( 0, clydeFilter );
+
+        log.info("adding myself as event listener to setup RequestParams for GET and POST requests");
         manager.addEventListener( this );
     }
 

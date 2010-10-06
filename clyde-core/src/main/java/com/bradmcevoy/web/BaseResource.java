@@ -1,4 +1,3 @@
-
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.event.DeleteEvent;
@@ -16,6 +15,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.comments.Comment;
 import com.bradmcevoy.web.comments.CommentService;
@@ -37,6 +37,7 @@ import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.RelationalNameNode;
 import com.ettrema.vfs.Relationship;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ import static com.ettrema.context.RequestContext.*;
  * @author brad
  */
 @BeanPropertyResource( value = "clyde" )
-public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource {
+public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource, Redirectable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BaseResource.class );
     private static final long serialVersionUID = 1L;
@@ -63,8 +64,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private String redirect;
     private UUID creatorNameNodeId;
     private Date timestamp;
-
-    private transient boolean nameInited;
+    private List<RoleAndGroup> groupPermissions;
+    
     protected transient RelationalNameNode nameNode;
     private transient User creator;
 
@@ -115,7 +116,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected void initName() {
         ComponentMap map = this.getComponents();
         if( !map.containsKey( "name" ) ) {
-            nameInited = true;
             nameInput = new NameInput( this );
             map.add( nameInput );    // everyone has a name component        
         }
@@ -331,9 +331,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         redirect = InitUtils.getValue( el, "redirect" );
+
     }
 
     public final Element toXml( Element el ) {
+        log.warn( "toXml");
         Element e2 = new Element( "res" );
         el.addContent( e2 );
         populateXml( e2 );
@@ -358,10 +360,23 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void populateXml( Element e2 ) {
+        log.warn( "populateXml");
         e2.setAttribute( "name", getName() );
         e2.setAttribute( "id", getId().toString() );
         e2.setAttribute( "nameNodeId", getNameNodeId().toString() );
         InitUtils.setString( e2, "redirect", redirect );
+
+        Element elGroups = new Element( "groups" );
+        e2.addContent( elGroups );
+        log.trace( "add groups");
+        for( RoleAndGroup rag : getGroupPermissions() ) {
+            Element elRag = new Element( "group" );
+            elGroups.addContent( elRag );
+            elRag.setAttribute( "group", rag.getGroupName() );
+            elRag.setAttribute( "role", rag.getRole().name() );
+        }
+
+
         Element elRels = new Element( "relations" );
         e2.addContent( elRels );
         Element elFrom = new Element( "from" );
@@ -450,7 +465,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void init( NameNode nameNode ) {
-        if( nameNode == null ) throw new RuntimeException( "init called with null namenode");
+        if( nameNode == null )
+            throw new RuntimeException( "init called with null namenode" );
         this.nameNode = (RelationalNameNode) nameNode;
         getComponents().init( this );
         initName();
@@ -491,8 +507,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public String getName() {
-        if( nameNode == null) {
-            throw new NullPointerException( "Namenode has not been set, init has not been called");
+        if( nameNode == null ) {
+            throw new NullPointerException( "Namenode has not been set, init has not been called" );
         }
         return nameNode.getName();
     }
@@ -694,7 +710,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         // Something dodgy going on here. Seem to get different results wihthout
         // the transient variable
         if( this.creator == null ) {
-            this.creator = _( CreatorService.class ).getCreator( this );
+            this.creator = (User) _( CreatorService.class ).getCreator( this );
         }
         return creator;
     }
@@ -794,7 +810,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      * @return
      */
-    @BeanProperty(readRole=Role.AUTHENTICATED, writeRole=Role.AUTHENTICATED)
+    @BeanProperty( readRole = Role.AUTHENTICATED, writeRole = Role.AUTHENTICATED )
     public String getNewComment() {
         return null;
     }
@@ -845,5 +861,33 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void setTimestamp( Date timestamp ) {
         this.timestamp = timestamp;
+    }
+
+    public List<RoleAndGroup> getGroupPermissions() {
+        if( groupPermissions == null ) {
+            log.trace("create new list");
+            groupPermissions = new ArrayList<RoleAndGroup>();
+        }
+        return groupPermissions;
+    }
+
+    public static class RoleAndGroup implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private final Role role;
+        private final String systemUserGroupName;
+
+        public RoleAndGroup( Role role, String systemUserGroupName ) {
+            this.role = role;
+            this.systemUserGroupName = systemUserGroupName;
+        }
+
+        public Role getRole() {
+            return role;
+        }
+
+        public String getGroupName() {
+            return systemUserGroupName;
+        }
     }
 }

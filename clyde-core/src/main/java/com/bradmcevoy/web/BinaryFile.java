@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.binary.BinaryContainer;
 import com.bradmcevoy.binary.ClydeBinaryService;
 import com.bradmcevoy.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
@@ -24,7 +25,7 @@ import java.util.Map;
 import org.jdom.Element;
 
 @BeanPropertyResource( "clyde" )
-public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable {
+public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable, BinaryContainer {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BinaryFile.class );
     private static final long serialVersionUID = 1L;
