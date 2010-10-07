@@ -9,13 +9,18 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.Permission;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Subject;
+import com.bradmcevoy.web.security.UserGroup;
 import com.ettrema.console.Result;
 import com.ettrema.mail.MailboxAddress;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -58,19 +63,23 @@ public class Grant extends AbstractConsoleCommand {
             if( target == null ) {
                 return result( "Couldnt find: " + pSrc );
             }
-            List<User> users = new ArrayList<User>();
+            List<Subject> users = new ArrayList<Subject>();
             if( userName.equals( "*" ) ) {
                 users = findUsers( target, userHostName );
             } else {
                 User user = findUser( target, userHostName, userName );
                 if( user == null ) {
-                    return result( "user not found" );
+                    log.trace( "look for group: " + sUser);
+                    UserGroup userGroup = _(GroupService.class).getGroup( target, sUser );
+                    if( userGroup == null ) {
+                        return result( "user not found" );
+                    }
+                    users.add( userGroup );
                 }
-                users.add( user );
             }
 
             String res = "Granted ok<br/>";
-            for( User user : users ) {
+            for( Subject user : users ) {
                 PermissionChecker checker = ctx().get( PermissionChecker.class );
 
                 // check current user has admin
@@ -87,6 +96,7 @@ public class Grant extends AbstractConsoleCommand {
                     return result( "you're kidding, right??" );
                 }
                 target.permissions( true ).grant( role, user );
+
                 commit();
                 
                 for( Permission perm : target.permissions() ) {
@@ -108,11 +118,11 @@ public class Grant extends AbstractConsoleCommand {
         return null;
     }
 
-    private List<User> findUsers( BaseResource target, String userHostName ) {
+    private List<Subject> findUsers( BaseResource target, String userHostName ) {
         Host h = target.getHost();
         while( h != null ) {
             if( h.getName().equals( userHostName ) ) {
-                List<User> users = new ArrayList<User>();
+                List<Subject> users = new ArrayList<Subject>();
                 for( Resource r : h.getUsers().getChildren() ) {
                     if( r instanceof User ) {
                         users.add( (User) r );
