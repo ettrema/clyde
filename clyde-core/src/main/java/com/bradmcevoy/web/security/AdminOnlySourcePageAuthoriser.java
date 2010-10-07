@@ -36,10 +36,9 @@ public class AdminOnlySourcePageAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         log.debug( "authorise: " + resource.getName() + "(" + resource.getClass() + ")" );
         if( resource instanceof SourcePage || resource instanceof Console ) {
-            Auth auth = request.getAuthorization();
             if( auth == null || auth.getTag() == null ) {
                 return false;
             } else {

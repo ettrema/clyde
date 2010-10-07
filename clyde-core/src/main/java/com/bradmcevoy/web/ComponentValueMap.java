@@ -19,7 +19,7 @@ public class ComponentValueMap extends LinkedHashMap<String, ComponentValue> {
     }
 
     public Element toXml( Addressable container, Element el ) {
-        log.debug( "************ to xml");
+        log.trace( "to xml");
         if( this.size() > 0 ) {
             Element e2 = new Element( "componentValues" );
             el.addContent( e2 );

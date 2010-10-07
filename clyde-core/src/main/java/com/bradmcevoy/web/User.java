@@ -1,41 +1,39 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.mail.MessageFolder;
-import com.bradmcevoy.utils.StringUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.Text;
+import com.bradmcevoy.web.groups.GroupService;
+import com.bradmcevoy.web.groups.RelationalGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
+import com.bradmcevoy.web.security.UserGroup;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.jdom.Element;
 
+import static com.ettrema.context.RequestContext._;
+
 public class User extends Folder implements IUser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
     private static final long serialVersionUID = 1L;
     public Text password;
-    private List<String> groupNames;
     private boolean emailDisabled;
 
     public User( Folder parentFolder, String name ) {
         this( parentFolder, name, null );
-        groupNames = new ArrayList<String>();
     }
 
     public User( Folder parentFolder, String name, String password ) {
         super( parentFolder, name );
-        groupNames = new ArrayList<String>();
         this.password = new Text( this, "password" );
         this.password.setValue( password );
         this.componentMap.add( this.password );
@@ -44,8 +42,6 @@ public class User extends Folder implements IUser {
     @Override
     protected BaseResource copyInstance( Folder parent, String newName ) {
         User uNew = (User) super.copyInstance( parent, newName );
-        uNew.groupNames = new ArrayList<String>();
-        uNew.groupNames.addAll( this.groupNames );
         return uNew;
     }
 
@@ -57,8 +53,6 @@ public class User extends Folder implements IUser {
     @Override
     public void populateXml( Element e2 ) {
         super.populateXml( e2 );
-        String sGroupNames = StringUtils.toString( groupNames );
-        e2.setAttribute( "groupNames", sGroupNames );
         InitUtils.setBoolean( e2, "emailDisabled", emailDisabled );
 
         Element elEmail = new Element("email");
@@ -71,7 +65,6 @@ public class User extends Folder implements IUser {
         super.loadFromXml( el );
         password = (Text) this.componentMap.get( "password" );
         String s = el.getAttributeValue( "groupNames" );
-        this.groupNames = StringUtils.fromString( s );
         this.emailDisabled = InitUtils.getBoolean( el, "emailDisabled" );
         Element elEmail = el.getChild( "email");
         if( elEmail != null ) {
@@ -319,34 +312,12 @@ public class User extends Folder implements IUser {
     }
 
     public boolean isInGroup( String groupName ) {
-        Resource r = this.getHost().getUsers().child( groupName );
-        if( r instanceof Group ) {
-            Group g = (Group) r;
-            return isInGroup( g );
-        } else {
-            return false;
-        }
+        UserGroup group = _(GroupService.class).getGroup( this, groupName);
+        return group.isInGroup( this );
     }
 
     public boolean isInGroup( Group g ) {
-        if( getGroupNames() == null ) {
-            log.debug( "has no groups: " + this.getName() );
-            return false;
-        }
-        for( String name : getGroupNames() ) {
-            if( name != null && name.equals( g.getName() ) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public List<String> getGroupNames() {
-        return groupNames;
-    }
-
-    public void setGroupNames( List<String> names ) {
-        this.groupNames = names;
+        return g.isInGroup( this );
     }
 
     public String getMobileNumber() {
@@ -370,4 +341,14 @@ public class User extends Folder implements IUser {
     public User getUser() {
         return this;
     }
+
+    public String getSubjectName() {
+        return getName();
+    }
+
+    public void addToGroup(Group g) {
+        _(RelationalGroupHelper.class).addToGroup( this, g );
+    }
+
+
 }

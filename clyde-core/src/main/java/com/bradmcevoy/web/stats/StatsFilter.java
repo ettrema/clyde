@@ -35,6 +35,7 @@ public class StatsFilter extends VfsCommon implements Filter {
         }
         
         this.rootContext = rootContext;
+        log.warn( "Hello from the StatsFilter");
     }
 
     
@@ -141,7 +142,7 @@ public class StatsFilter extends VfsCommon implements Filter {
     }
     
     public void init() {
-        log.debug("starting stats logging daemon");
+        log.trace("starting stats logging daemon");
         threadInserter = new Thread(new Inserter());
         threadInserter.setDaemon(true);
         threadInserter.start();
@@ -156,6 +157,7 @@ public class StatsFilter extends VfsCommon implements Filter {
             while (running) {
                 try {
                     AccessLog a = queue.take();
+                    log.trace("insert log");
                     doInsert(a);
                 } catch (InterruptedException ex) {
                     log.warn("inserter operation terminated", ex);

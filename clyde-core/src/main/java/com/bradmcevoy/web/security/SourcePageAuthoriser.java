@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -22,10 +23,10 @@ public class SourcePageAuthoriser implements ClydeAuthoriser{
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         if(resource instanceof SourcePage) {
             SourcePage sp = (SourcePage) resource;
-            return sp.res.authorise( request, Request.Method.DELETE, request.getAuthorization());
+            return sp.res.authorise( request, Request.Method.DELETE, auth);
         } else {
             return null;
         }

@@ -8,11 +8,15 @@ import com.bradmcevoy.web.Group;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.groups.RelationalGroupHelper;
+import com.bradmcevoy.web.security.UserGroup;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class GroupsDef extends TextDef {
 
@@ -41,7 +45,16 @@ public class GroupsDef extends TextDef {
         List<String> oldNames = parseNames( (String) componentValue.getValue() );
         rc.addAttribute( "old.group.names", oldNames );
         componentValue.setValue( StringUtils.toString( names ) );
-        u.setGroupNames( names );
+        for( String groupName : names ) {
+            UserGroup userGroup = _( RelationalGroupHelper.class ).getGroup( u, groupName );
+            if( userGroup instanceof Group ) {
+                Group group = (Group) userGroup;
+                if( !group.isInGroup( u ) ) {
+                    u.addToGroup( group );
+                }
+            }
+        }
+
     }
 
     User parent( ComponentValue componentValue, RenderContext rc ) {
@@ -70,7 +83,15 @@ public class GroupsDef extends TextDef {
             throw new NullPointerException( "Parent is not set on the componentvalue" );
         if( parent instanceof User ) {
             User u = (User) parent;
-            u.setGroupNames( names );
+            for( String groupName : names ) {
+                UserGroup userGroup = _( RelationalGroupHelper.class ).getGroup( u, groupName );
+                if( userGroup instanceof Group ) {
+                    Group group = (Group) userGroup;
+                    if( !group.isInGroup( u ) ) {
+                        u.addToGroup( group );
+                    }
+                }
+            }
         } else {
             throw new RuntimeException( "Not a user: " + parent.getClass() );
         }

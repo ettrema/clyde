@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -66,12 +67,12 @@ public class FlexiAuthoriser implements ClydeAuthoriser{
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth) {
         if( resource.getClass().isAssignableFrom( theClass )) {
             for( Request.Method m : methods ) {
                 if( m.equals( method )) {
                     log.debug( "Found matching request");
-                    if( role == null || permissionChecker.hasRole( role, resource, request.getAuthorization())) {
+                    if( role == null || permissionChecker.hasRole( role, resource, auth)) {
                         log.debug( "user is of type");
                         return allow;
                     }

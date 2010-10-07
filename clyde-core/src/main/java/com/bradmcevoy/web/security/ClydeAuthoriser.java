@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -28,5 +29,5 @@ public interface ClydeAuthoriser {
      * @return - true means definitely does have access, false means defintely
      * do not. null means that this authoriser has no opinion.
      */
-    Boolean authorise( Resource resource, Request request, Method method );
+    Boolean authorise( Resource resource, Request request, Method method, Auth auth );
 }

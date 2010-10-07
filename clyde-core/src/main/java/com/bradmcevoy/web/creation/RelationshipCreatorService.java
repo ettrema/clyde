@@ -1,6 +1,8 @@
 package com.bradmcevoy.web.creation;
 
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
@@ -15,7 +17,8 @@ public class RelationshipCreatorService implements CreatorService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RelationshipCreatorService.class );
 
-    public User getCreator( BaseResource res ) {
+    public IUser getCreator( Resource r ) {
+        BaseResource res = (BaseResource) r;
         List<Relationship> rels = res.getNameNode().findFromRelations( "creator" );
         if( rels == null || rels.size() == 0 ) {
             return null;
@@ -39,7 +42,8 @@ public class RelationshipCreatorService implements CreatorService {
         }
     }
 
-    public void setCreator( User user, BaseResource res ) {
+    public void setCreator( IUser user, Resource r ) {
+        BaseResource res = (BaseResource) r;
         res.getNameNode().makeRelation( user.getNameNode(), "creator" );
     }
 }

@@ -6,12 +6,15 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.stats.StatsService;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.aws.BucketOwner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class Host extends Web implements BucketOwner {
     
@@ -307,7 +310,7 @@ public class Host extends Web implements BucketOwner {
         }
         user.password.setValue( pwd );
         if( group != null ) {
-            user.getGroupNames().add( group.getName());
+            user.addToGroup( group);
         }
         user.save();
         return user;
@@ -349,4 +352,12 @@ public class Host extends Web implements BucketOwner {
         return disabled;
     }
 
+    public int recentHits(String path, String method, int numDays) {
+        return _(StatsService.class).queryLastDays( this, path, numDays, method );
+    }
+
+    public int activeSubDomains( String method, int numDays) {
+        String baseDomain = this.getName().replace( "www.", "");
+        return _(StatsService.class).activeHosts( baseDomain, method, numDays );
+    }
 }

@@ -80,7 +80,8 @@ public class Page extends File implements Replaceable {
             throw new RuntimeException( ex );
         }
 
-        if( template == null ) {
+        if( template == null || template.getName().equals( "root" ) ) {
+
             Component cRoot = getComponent( "root" );
             if( cRoot == null ) {
                 cRoot = new HtmlInput( this, "root" );

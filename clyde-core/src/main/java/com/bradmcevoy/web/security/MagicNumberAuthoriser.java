@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -72,7 +73,7 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         log.trace( "authorise" );
         if( contentType != null ) {
             GetableResource gr = (GetableResource) resource;
@@ -94,7 +95,7 @@ public class MagicNumberAuthoriser implements ClydeAuthoriser {
         if(RequestParams.current() == null ) {
             return null;
         }
-        String reqNum = RequestParams.current().parameters.get( magicNumberParameterName );
+        String reqNum = request.getParams().get( magicNumberParameterName );
         if( reqNum == null || reqNum.length() == 0 ) {
             log.trace( "no request param" );
             return null;

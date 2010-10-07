@@ -249,6 +249,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     @Override
     public void populateXml( Element e2 ) {
+        log.trace("populateXml");
         super.populateXml( e2 );
         InitUtils.set( e2, "secureRead", secureRead2);
         InitUtils.set( e2, "versioningEnabled", versioningEnabled );
@@ -715,7 +716,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         log.trace( "uploaded bytes: " + bufOut.getSize() );
         in = bufOut.getInputStream();
-        BaseResource res = rc.createResource( this, ct, in, newName );
+        BaseResource res = (BaseResource)rc.createResource( this, ct, in, newName );
         if( res != null ) {
             log.debug( "created a: " + res.getClass() );
             if( res instanceof BinaryFile ) {

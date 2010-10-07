@@ -1,6 +1,8 @@
 package com.bradmcevoy.web.creation;
 
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
@@ -23,7 +25,8 @@ public class NameIdCreatorService implements CreatorService {
         this.wrapped = wrapped;
     }
                 
-    public User getCreator( BaseResource res ) {
+    public IUser getCreator( Resource r ) {
+        BaseResource res = (BaseResource) r;
         UUID creatorId = res.getCreatorNameNodeId();
         if( creatorId == null ) {
             return wrapped.getCreator( res );
@@ -49,7 +52,8 @@ public class NameIdCreatorService implements CreatorService {
         }
     }
 
-    public void setCreator( User user, BaseResource res ) {
+    public void setCreator( IUser user, Resource r ) {
+        BaseResource res = (BaseResource) r;
         res.setCreatorNameNodeId( user.getNameNodeId());
         res.save();
     }

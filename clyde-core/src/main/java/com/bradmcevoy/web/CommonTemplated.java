@@ -145,9 +145,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             Object o = cv.getValue();
             if( o != null ) {
                 String s = o.toString();
-                int pos = s.indexOf("<body");
-                if( pos>=0){
-                    s = s.substring(pos+5);
+                int pos = s.indexOf( "<body" );
+                if( pos >= 0 ) {
+                    s = s.substring( pos + 5 );
                 }
                 if( s.length() > 200 ) {
                     return s.substring( 1, 200 ) + "...";
@@ -199,7 +199,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     /** Commands should be invoked, if user clicked
      */
     @Override
-    public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException{
+    public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
         String redirectTo = null;
@@ -230,10 +230,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getHref() {
-        return _(HrefService.class).getHref(this);
+        return _( HrefService.class ).getHref( this );
     }
-
-
 
     /**
      * 
@@ -241,7 +239,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getUrl() {
-        return _(HrefService.class).getUrl(this);
+        return _( HrefService.class ).getUrl( this );
     }
 
     @Override
@@ -278,7 +276,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 size += ( (String) val ).length();
             } else {
                 size += 100; // approx
-                }
+            }
         }
         for( Component c : this.getComponents().values() ) {
             size += 100;
@@ -311,7 +309,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public void loadFromXml( Element el ) {
-        getValues().fromXml( el, this );
+        // if not present, just ignore values (eg for code behind page)
+        if( el.getChild( "componentValues") != null ) {
+            getValues().fromXml( el, this );
+        }
         getComponents().fromXml( this, el );
         templateSelect = (TemplateSelect) componentMap.get( "template" );
         this.contentType = InitUtils.getValue( el, "contentType" );
@@ -329,7 +330,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         User o = authenticator.authenticate( this, user, password );
         if( o == null ) {
-            log.warn("authentication failed by: " + authenticator.getClass());
+            log.warn( "authentication failed by: " + authenticator.getClass() );
         }
         return o;
     }
@@ -339,12 +340,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( this, digestRequest );
         if( o == null ) {
-            log.warn("authentication failed by: " + authenticator.getClass());
+            log.warn( "authentication failed by: " + authenticator.getClass() );
         }
         return o;
     }
-
-
 
     public Host findHost( String authority ) {
         Host h = getHost();
@@ -368,13 +367,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
-        boolean b = authoriser.authorise( this, request, method );
+        boolean b = authoriser.authorise( this, request, method, auth );
         return b;
     }
 
     @Override
     public String checkRedirect( Request request ) {
-        return _(RedirectService.class).checkRedirect( this, request );
+        return _( RedirectService.class ).checkRedirect( this, request );
     }
 
     @Override
@@ -415,14 +414,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         this.contentType = contentType;
     }
 
-
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {
-        log.trace("getMaxAgeSeconds");
+        log.trace( "getMaxAgeSeconds" );
         Component c = this.getComponent( "maxAge" );
         if( c != null ) {
             if( c instanceof NumberInput ) {
-                log.trace("using component for maxage");
+                log.trace( "using component for maxage" );
                 NumberInput n = (NumberInput) c;
                 Integer ii = n.getValue();
                 if( ii == null ) return null;
@@ -432,10 +430,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         } else {
             if( this.getTemplate() == null ) {
-                log.trace("no template, use large default max-age");
+                log.trace( "no template, use large default max-age" );
                 return 315360000l;
             } else {
-                log.trace("get default max age");
+                log.trace( "get default max age" );
                 return getDefaultMaxAge( auth );
             }
         }
@@ -443,10 +441,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     protected long getDefaultMaxAge( Auth auth ) {
         if( auth == null ) {
-            log.trace("no authentication, use long max-age");
+            log.trace( "no authentication, use long max-age" );
             return 60 * 60 * 24l;
         } else {
-            log.trace("authenticated, use short max-age");
+            log.trace( "authenticated, use short max-age" );
             return 60l;
         }
     }
@@ -460,14 +458,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
                 return null;
             }
-            TemplateManager tm = requestContext().get( TemplateManager.class);
+            TemplateManager tm = requestContext().get( TemplateManager.class );
             template = tm.lookup( templateName, web );
             if( template == null ) {
-//                    log.warn("no template: " + templateName + " for web: " + web.getName());
+                log.trace( "no template: " + templateName + " for web: " + web.getName() );
             } else {
                 if( template == this ) {
                     throw new RuntimeException( "my template is myself" );
-                    //log.warn("my template is myself!!! " + templateName + " == " + sel.getFormattedValue());
                 }
             }
         } else {
@@ -513,7 +510,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( t != null ) {
             return t.render( rc );
         } else {
-            log.debug( "no template, so use root parameter");
+            log.debug( "no template, so use root parameter" );
             Component cRoot = this.getParams().get( "root" );
             if( cRoot == null ) {
                 log.warn( "no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
@@ -530,8 +527,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        if( log.isTraceEnabled()) {
-            log.trace( "sendContent: " + this.getHref());
+        if( log.isTraceEnabled() ) {
+            log.trace( "sendContent: " + this.getHref() );
         }
         tlTargetPage.set( this );
         String s = null;
@@ -540,7 +537,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         } catch( Throwable e ) {
             // TODO move to context
             HtmlExceptionFormatter formatter = new HtmlExceptionFormatter();
-            s = formatter.formatExceptionAsHtml(e);
+            s = formatter.formatExceptionAsHtml( e );
         }
         out.write( s.getBytes() );
     }
@@ -565,6 +562,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     public Element toXml( Addressable container, Element el ) {
+        log.warn("toXml");
         Element e2 = new Element( "component" );
         el.addContent( e2 );
         populateXml( e2 );
@@ -588,6 +586,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public void populateXml( Element e2 ) {
+        log.trace("populateXml");
         e2.setAttribute( "class", this.getClass().getName() );
         getValues().toXml( this, e2 );
         getComponents().toXml( this, e2 );
@@ -649,9 +648,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( c != null ) {
             // nasty hacks to ensure the physical resource is always available
             // to components from subpages and templates
-            if( this instanceof BaseResource) {
+            if( this instanceof BaseResource ) {
 //                log.debug( "setting target container: " + this.getHref());
-                tlTargetContainer.set( (BaseResource)this );
+                tlTargetContainer.set( (BaseResource) this );
             } else {
 //                log.debug( "not setting: " + this.getClass());
             }
@@ -758,8 +757,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return t._invoke( name );
     }
 
-
-
     /**
      *
      * @param name
@@ -775,23 +772,22 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String getFirstPara() {
-        return firstPara("body");
+        return firstPara( "body" );
     }
 
-    public String firstPara(String paramName) {
-        String s = invoke(paramName);
-        int posEnd = s.indexOf( "</p>");
+    public String firstPara( String paramName ) {
+        String s = invoke( paramName );
+        int posEnd = s.indexOf( "</p>" );
         if( posEnd > 0 ) {
-            int posStart = s.indexOf( "<p>");
-            if( posStart > 0) {
+            int posStart = s.indexOf( "<p>" );
+            if( posStart > 0 ) {
                 posStart = posStart + 3; // for p tag
-                posEnd = s.indexOf( "</p>", posStart); // need to find first closing for this opening
-                return s.substring( posStart, posEnd);
+                posEnd = s.indexOf( "</p>", posStart ); // need to find first closing for this opening
+                return s.substring( posStart, posEnd );
             }
         }
         return "";
     }
-
 
     public class Params implements Map<String, Component> {
 
@@ -807,8 +803,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
         @Override
         public boolean containsKey( Object key ) {
-            if( key instanceof String) {
-                Component c = get( (String)key );
+            if( key instanceof String ) {
+                Component c = get( (String) key );
                 return c != null;
             } else {
                 return false;

@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -18,14 +19,14 @@ public class SecurePropFindAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         // Note that we deliberately look at the method on the request, rather then
         // the given method.
         // This is because the AJAX gateway will simulate a PROPFIND with a GET, but we do not
         // want the normal PROPFIND restriction to apply in this case.
         // eg simulated PROPFIND's should be allowed if GET is allowed
         if( request.getMethod().equals( Request.Method.PROPFIND)) {
-            boolean isLoggedIn = request.getAuthorization() != null && request.getAuthorization().getTag() != null;
+            boolean isLoggedIn = auth != null && auth.getTag() != null;
             if( !isLoggedIn ) {
                 log.debug( "not logged in, so disallowing PROPFIND access");
                 return false;

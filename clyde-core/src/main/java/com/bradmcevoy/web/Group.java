@@ -6,7 +6,9 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.groups.ClydeGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
+import com.bradmcevoy.web.security.CustomUserGroup;
 import com.ettrema.mail.MailboxAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +18,9 @@ import java.util.List;
 import javax.mail.internet.MimeMessage;
 import org.jdom.Element;
 
-public class Group extends Folder implements Mailbox {
+import static com.ettrema.context.RequestContext._;
+
+public class Group extends Folder implements Mailbox, CustomUserGroup {
   
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Group.class);
     
@@ -136,23 +140,6 @@ public class Group extends Folder implements Mailbox {
         this.commit();
     }
 
-    public List<User> getMembers() {
-        List<User> list = new ArrayList<User>();
-        Folder usersFolder = this.getHost().getUsers();
-        if( usersFolder == null ) return list;
-        
-        for( Resource r : usersFolder.getChildren() ) {
-            if( r instanceof User ) {
-                User u = (User) r;
-                if( u.isInGroup(this) ) {
-                    list.add(u);
-                }
-            }
-        }
-        return list;
-    }
-
-
     public boolean isSecure() {
         return secure;
     }
@@ -180,5 +167,30 @@ public class Group extends Folder implements Mailbox {
             throw new RuntimeException(ex);
         }
     }
+
+    public String getSubjectName() {
+        return getName();
+    }
+
+    public boolean isInGroup( IUser user ) {
+        return _(ClydeGroupHelper.class).isInGroup( user, this );
+    }
+
+    public List<User> getMembers() {
+        List<User> list = new ArrayList<User>();
+        Folder usersFolder = this.getHost().getUsers();
+        if( usersFolder == null ) return list;
+
+        for( Resource r : usersFolder.getChildren() ) {
+            if( r instanceof User ) {
+                User u = (User) r;
+                if( u.isInGroup(this) ) {
+                    list.add(u);
+                }
+            }
+        }
+        return list;
+    }
+    
 
 }

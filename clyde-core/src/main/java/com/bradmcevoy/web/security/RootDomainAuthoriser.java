@@ -34,8 +34,7 @@ public class RootDomainAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
-        Auth auth = request.getAuthorization();
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         if( auth == null ) {
             return null;
         } else {

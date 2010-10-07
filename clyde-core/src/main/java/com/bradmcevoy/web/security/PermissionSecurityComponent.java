@@ -56,7 +56,7 @@ public class PermissionSecurityComponent implements Component, Serializable {
             throw new IllegalStateException( "Not found in configuration: " + PermissionsAuthoriser.class );
 
 
-        Boolean b = permissionsAuthoriser.authorise( resource, request, request.getMethod() );
+        Boolean b = permissionsAuthoriser.authorise( resource, request, request.getMethod(), request.getAuthorization() );
         log.debug( "result: " + b );
         if( b == null ) return null;
         else return b.toString();

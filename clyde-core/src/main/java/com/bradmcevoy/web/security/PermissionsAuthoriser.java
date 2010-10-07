@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
@@ -41,12 +42,12 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method ) {
+    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         Role requiredRole = findRole( resource, method );
         if( requiredRole == null ) {
             return null;
         } else {
-            Boolean bb = permissionChecker.hasRole( requiredRole, resource, request.getAuthorization() );
+            Boolean bb = permissionChecker.hasRole( requiredRole, resource, auth );
             if( bb != null && !bb.booleanValue() ) {
                 log.warn( "denying access due to permissionChecker: " + permissionChecker.getClass() + " for role: " + requiredRole.name() );
             }
@@ -112,9 +113,11 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
             } else {
                 if( nonClydeAccess == null ) {
                     Role role = defaultRequiredRole( resource, perm );
+                    Auth auth = request.getAuthorization();
+                    log.trace( "auth: " + auth);
                     nonClydeAccess = permissionChecker.hasRole( role, resource, request.getAuthorization() );
                     if( log.isTraceEnabled() ) {
-                        log.trace( "check if user has access to non-clyde properties with default role: " + role + " = " + nonClydeAccess );
+                        log.trace( "does user have access to non-clyde properties with default role: " + role + " = " + nonClydeAccess );
                     }
                 }
                 if( !nonClydeAccess ) {

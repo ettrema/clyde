@@ -1,8 +1,10 @@
 package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.BaseResource.RoleAndGroup;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
@@ -15,6 +17,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
+import org.apache.commons.collections.CollectionUtils;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * This class is used as an instance hanging off a BaseResource. ie It is associated
@@ -43,26 +48,36 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     public static final String NAME_NODE_KEY = "_sys_permissions";
     private UUID dataNodeId;
     private transient RelationalNameNode nameNode;
+    private transient BaseResource _granted;
 
-    public void grant( String roleName, PermissionRecipient user ) {
-        grant( Role.valueOf( roleName ), user );
+    public void grant( String roleName, Subject subject ) {
+        grant( Role.valueOf( roleName ), subject );
     }
 
-    public void grant( Role role, PermissionRecipient user ) {
-//        Permission p = new Permission(role, user.getNameNodeId());
-//        add( p );
-//        return p;
-        // create a relationship to the user
-        if( this.nameNode == null )
+    public void grant( Role role, Subject subject ) {
+        if( this.nameNode == null ) {
             throw new IllegalStateException( "name node is not set" );
-        if( user == null ) throw new IllegalArgumentException( "user is null" );
-        if( role == null ) throw new IllegalArgumentException( "role is null" );
-        this.nameNode.makeRelation( user.getNameNode(), role.toString() );
+        }
+        if( subject == null ) {
+            throw new IllegalArgumentException( "user is null" );
+        }
+        if( role == null ) {
+            throw new IllegalArgumentException( "role is null" );
+        }
+        if( subject instanceof PermissionRecipient ) {
+            PermissionRecipient res = (PermissionRecipient) subject;
+            this.nameNode.makeRelation( res.getNameNode(), role.toString() );
+        } else if( subject instanceof SystemUserGroup ) {
+            RoleAndGroup rag = new RoleAndGroup( role, subject.getSubjectName() );
+            addGroup( rag );
+        } else {
+            throw new RuntimeException( "Cant grant to subject of type: " + subject.getClass() );
+        }
         if( role.equals( Role.ADMINISTRATOR ) ) {
-            grant( Role.AUTHOR, user );
+            grant( Role.AUTHOR, subject );
         }
         if( role.equals( Role.AUTHOR ) ) {
-            grant( Role.VIEWER, user );
+            grant( Role.VIEWER, subject );
         }
     }
 
@@ -93,21 +108,29 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     private List<Permission> list() {
-        BaseResource granted = (BaseResource) this.nameNode.getParent().getData();
-        List<Relationship> rels = this.nameNode.findFromRelations( null );
-        if( rels == null || rels.size() == 0 ) return null;
         List<Permission> list = new ArrayList<Permission>();
-        for( Relationship r : rels ) {
-            String roleName = r.relationship();
-            try {
-                Role role = Role.valueOf( roleName );
-                PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
-                if( grantee != null ) {
-                    Permission p = new Permission( role, grantee, granted );
-                    list.add( p );
+        List<Relationship> rels = this.nameNode.findFromRelations( null );
+        if( !CollectionUtils.isEmpty( rels ) ) {
+            for( Relationship r : rels ) {
+                String roleName = r.relationship();
+                try {
+                    Role role = Role.valueOf( roleName );
+                    PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
+                    if( grantee != null ) {
+                        Permission p = new Permission( role, grantee, granted() );
+                        list.add( p );
+                    }
+                } catch( IllegalArgumentException e ) {
+                    log.warn( "Invalid role: " + roleName );
                 }
-            } catch(IllegalArgumentException e) {
-                log.warn("Invalid role: " + roleName);
+            }
+        }
+
+        for( RoleAndGroup rag : granted().getGroupPermissions() ) {
+            UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
+            if( group != null ) {
+                Permission p = new Permission( rag.getRole(), group, granted() );
+                list.add( p );
             }
         }
         return list;
@@ -260,25 +283,51 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @return - true if the user should be permitted the requested access
      */
     public boolean allows( User user, Role requestedRole ) {
-//        log.debug( "allows: " + requestedRole );
-        List<Relationship> rels = this.nameNode.findFromRelations( requestedRole.toString() );
-        if( rels == null || rels.size() == 0 ) {
-            log.debug( "no relations found: from: " + this.nameNode.getId() );
-            return false;
+        if( log.isTraceEnabled() ) {
+            log.trace( "allows: " + requestedRole );
         }
-
-        for( Relationship r : rels ) {
-            NameNode to = r.to();
-            if( to != null ) {
-                PermissionRecipient grantee = (PermissionRecipient) to.getData();
-                if( grantee != null ) {
-                    IUser grantedUser = grantee.getUser();
-                    if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
+        List<Relationship> rels = this.nameNode.findFromRelations( requestedRole.toString() );
+        if( !CollectionUtils.isEmpty( rels ) ) {
+            for( Relationship r : rels ) {
+                NameNode to = r.to();
+                if( to != null ) {
+                    PermissionRecipient grantee = (PermissionRecipient) to.getData();
+                    if( grantee != null ) {
+                        IUser grantedUser = grantee.getUser();
+                        if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
+                            log.trace( "found granted user" );
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        for( RoleAndGroup rag : granted().getGroupPermissions() ) {
+            if( rag.getRole() == requestedRole ) {
+                UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
+                if( group != null ) {
+                    log.trace( "found group with role" );
+                    if( group.isInGroup( user ) ) {
+                        log.trace( "user is in group" );
                         return true;
                     }
                 }
             }
         }
+
         return false;
+    }
+
+    private void addGroup( RoleAndGroup rag ) {
+        log.trace( "addGroup: " + rag.getGroupName() );
+        granted().getGroupPermissions().add( rag );
+        granted().save();
+    }
+
+    private BaseResource granted() {
+        if( _granted == null ) {
+            _granted = (BaseResource) nameNode.getParent().getData();
+        }
+        return _granted;
     }
 }

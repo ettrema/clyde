@@ -49,9 +49,11 @@ public class ClydePermissionChecker implements PermissionChecker {
                 if( auth.getTag() instanceof User ) {
                     user = (User) auth.getTag();
                 }
+            } else {
+                log.trace( "auth is null, no user");
             }
             if( user == null ) {
-//                log.debug( "no current user so deny access");
+                log.trace( "no current user so deny access");
                 return false;
             }
             return hasRoleRes( user, res, role );
@@ -69,7 +71,10 @@ public class ClydePermissionChecker implements PermissionChecker {
     }
 
     private boolean hasRoleRes( User user, BaseResource res, Role role ) {
-        if( res == null ) return false;
+        if( res == null ) {
+            log.trace("resource is null");
+            return false;
+        }
 
         Permissions ps = res.permissions();
         if( ps != null ) {
@@ -78,6 +83,7 @@ public class ClydePermissionChecker implements PermissionChecker {
             }
         }
         if( res instanceof Host ) {
+            log.trace("reached host, no permissions found");
             return false;
         } else {
             return hasRoleRes( user, res.getParent(), role );

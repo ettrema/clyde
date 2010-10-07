@@ -552,8 +552,8 @@ public class RenderContext implements Map<String, Component> {
         String ct = t.getContentType( null );
         if( ct == null || ct.trim().length() == 0 || ct.equals( "text/html" ) ) { // ct==null means prolly template
             // interfere's with xml
-            log.debug( "ct: " + ct );
-            return PARSER.addMarkers( s, name );
+            //return PARSER.addMarkers( s, name );
+            return s;
         } else {
             log.debug( "not ct: " + ct );
             return s;
