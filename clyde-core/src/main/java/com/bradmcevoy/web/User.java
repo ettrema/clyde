@@ -1,6 +1,8 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.mail.MessageFolder;
@@ -55,9 +57,9 @@ public class User extends Folder implements IUser {
         super.populateXml( e2 );
         InitUtils.setBoolean( e2, "emailDisabled", emailDisabled );
 
-        Element elEmail = new Element("email");
-        elEmail.setText(getExternalEmailText() );
-        e2.addContent( elEmail);
+        Element elEmail = new Element( "email" );
+        elEmail.setText( getExternalEmailText() );
+        e2.addContent( elEmail );
     }
 
     @Override
@@ -66,7 +68,7 @@ public class User extends Folder implements IUser {
         password = (Text) this.componentMap.get( "password" );
         String s = el.getAttributeValue( "groupNames" );
         this.emailDisabled = InitUtils.getBoolean( el, "emailDisabled" );
-        Element elEmail = el.getChild( "email");
+        Element elEmail = el.getChild( "email" );
         if( elEmail != null ) {
             String newEmail = elEmail.getText();
             setExternalEmailText( newEmail );
@@ -95,7 +97,6 @@ public class User extends Folder implements IUser {
 //        String thatWeb = web.getPath().toString();
 //        return thatWeb.contains( thisWeb ) && thatWeb.length() > thisWeb.length();
 //    }
-
     @Override
     public boolean authenticate( String password ) {
         if( this.password == null ) {
@@ -179,6 +180,10 @@ public class User extends Folder implements IUser {
                 emailFolder = (Folder) createCollection( emailFolderName, false );
             } catch( ConflictException ex ) {
                 throw new RuntimeException( ex );
+            } catch( NotAuthorizedException ex ) {
+                throw new RuntimeException( ex );
+            } catch( BadRequestException ex ) {
+                throw new RuntimeException( ex );
             }
         }
         return emailFolder;
@@ -206,27 +211,27 @@ public class User extends Folder implements IUser {
      * @param secretNumber - i'm not telling
      * @return
      */
-    public String getPassword(int secretNumber) {
-        if( secretNumber == 847202) {
+    public String getPassword( int secretNumber ) {
+        if( secretNumber == 847202 ) {
             if( this.password == null ) {
                 return null;
             } else {
                 return this.password.getValue();
             }
         } else {
-            throw new RuntimeException( "Illegal secret number");
+            throw new RuntimeException( "Illegal secret number" );
         }
     }
 
-    public void setPassword(String newPassword, int secretNumber) {
-        if( secretNumber == 847202) {
+    public void setPassword( String newPassword, int secretNumber ) {
+        if( secretNumber == 847202 ) {
             if( this.password == null ) {
                 this.password = new Text( this, "password" );
                 this.componentMap.add( this.password );
             }
             this.password.setValue( newPassword );
         } else {
-            throw new RuntimeException( "Illegal secret number");
+            throw new RuntimeException( "Illegal secret number" );
         }
 
     }
@@ -239,13 +244,13 @@ public class User extends Folder implements IUser {
         if( actualPassword == null ) {
             boolean b = password == null || password.length() == 0;
             if( !b ) {
-                log.warn("actual password is blank, but provided password is not");
+                log.warn( "actual password is blank, but provided password is not" );
             }
             return b;
         } else {
             boolean b = actualPassword.equals( password );
             if( !b ) {
-                log.warn("passwords don't match");
+                log.warn( "passwords don't match" );
             }
             return b;
         }
@@ -261,10 +266,10 @@ public class User extends Folder implements IUser {
         }
 
         DigestGenerator digestGenerator = new DigestGenerator();
-        String serverDigest = digestGenerator.generateDigest( digestRequest, actualPassword );        
+        String serverDigest = digestGenerator.generateDigest( digestRequest, actualPassword );
         boolean b = serverDigest.equals( digestRequest.getResponseDigest() );
         if( !b ) {
-            log.warn("digest checkPassword failed: " + this.getName() + "/" + actualPassword);
+            log.warn( "digest checkPassword failed: " + this.getName() + "/" + actualPassword );
         }
         return b;
     }
@@ -274,7 +279,7 @@ public class User extends Folder implements IUser {
      * @return - the user's specified external email address as a string. Null if not specified
      */
     public String getExternalEmailText() {
-        String s = getExternalEmailTextV2("default");
+        String s = getExternalEmailTextV2( "default" );
         if( s != null ) {
             return s;
         } else {
@@ -312,7 +317,7 @@ public class User extends Folder implements IUser {
     }
 
     public boolean isInGroup( String groupName ) {
-        UserGroup group = _(GroupService.class).getGroup( this, groupName);
+        UserGroup group = _( GroupService.class ).getGroup( this, groupName );
         return group.isInGroup( this );
     }
 
@@ -346,9 +351,7 @@ public class User extends Folder implements IUser {
         return getName();
     }
 
-    public void addToGroup(Group g) {
-        _(RelationalGroupHelper.class).addToGroup( this, g );
+    public void addToGroup( Group g ) {
+        _( RelationalGroupHelper.class ).addToGroup( this, g );
     }
-
-
 }

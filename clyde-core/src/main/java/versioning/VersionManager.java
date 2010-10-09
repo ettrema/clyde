@@ -1,8 +1,8 @@
 package versioning;
 
-import com.bradmcevoy.event.Event;
-import com.bradmcevoy.event.EventListener;
-import com.bradmcevoy.event.PreSaveEvent;
+import com.ettrema.event.Event;
+import com.ettrema.event.EventListener;
+import com.ettrema.event.PreSaveEvent;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.ComponentValueMap;
 import com.ettrema.vfs.DataNode;

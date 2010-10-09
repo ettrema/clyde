@@ -1,5 +1,8 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.mail.MessageHelper;
 import com.bradmcevoy.web.component.InitUtils;
 import com.ettrema.mail.Attachment;
@@ -13,6 +16,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -47,6 +52,20 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
         super(parentFolder, newName);
         this.setTemplateName("email");
     }
+
+    public void deleteMessage() {
+        try {
+            this.delete();
+        } catch( NotAuthorizedException ex ) {
+            throw new RuntimeException( ex );
+        } catch( ConflictException ex ) {
+            throw new RuntimeException( ex );
+        } catch( BadRequestException ex ) {
+            throw new RuntimeException( ex );
+        }
+    }
+
+
 
     @Override
     public void populateXml(Element e2) {
@@ -298,5 +317,4 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
             return text;
         }
     }
-
 }

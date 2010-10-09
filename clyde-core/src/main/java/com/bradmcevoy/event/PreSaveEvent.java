@@ -1,4 +1,4 @@
-package com.bradmcevoy.event;
+package com.ettrema.event;
 
 import com.bradmcevoy.http.Resource;
 

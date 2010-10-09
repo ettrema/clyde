@@ -1,7 +1,9 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.children.ThemeFinder;
 import com.bradmcevoy.web.component.ThemeSelect;
 
@@ -18,9 +20,7 @@ public class Web extends Folder {
         return find( t.getParent() );
     }
     public static final String TRASH_FOLDER_NAME = "Trash";
-
     public static final String RECENT_FOLDER_NAME = "Recent";
-
     private transient Folder recent;
 
     public Web( Folder parentFolder, String newName ) {
@@ -39,7 +39,11 @@ public class Web extends Folder {
             try {
                 r = this.createCollection( TRASH_FOLDER_NAME, false );
             } catch( ConflictException ex ) {
-                throw new RuntimeException( "Cant create " + TRASH_FOLDER_NAME + " in " + this.getHref(), ex );
+                throw new RuntimeException( ex );
+            } catch( NotAuthorizedException ex ) {
+                throw new RuntimeException( ex );
+            } catch( BadRequestException ex ) {
+                throw new RuntimeException( ex );
             }
             return (Folder) r;
         } else {
@@ -53,13 +57,13 @@ public class Web extends Folder {
     }
 
     public Folder getRecentFolder() {
-        return getRecentFolder(false);
+        return getRecentFolder( false );
     }
 
-    public Folder getRecentFolder(boolean create) {
-        log.trace("getRecentFolder: " + create + " --" + this.getHref());
+    public Folder getRecentFolder( boolean create ) {
+        log.trace( "getRecentFolder: " + create + " --" + this.getHref() );
         if( recent != null ) {
-            log.trace("already got a recent");
+            log.trace( "already got a recent" );
             return recent;
         }
         Resource r = this.child( RECENT_FOLDER_NAME );
@@ -68,13 +72,16 @@ public class Web extends Folder {
                 try {
                     r = this.createCollection( RECENT_FOLDER_NAME, false );
                 } catch( ConflictException ex ) {
-                    log.debug("cant create recent!!!!!!!!!!!!!!!!");
-                    throw new RuntimeException( "Cant create " + RECENT_FOLDER_NAME + " in " + this.getHref(), ex );
+                    throw new RuntimeException( ex );
+                } catch( NotAuthorizedException ex ) {
+                    throw new RuntimeException( ex );
+                } catch( BadRequestException ex ) {
+                    throw new RuntimeException( ex );
                 }
                 recent = (Folder) r;
                 return recent;
             } else {
-                log.trace("recent folder does not exist, and create is false");
+                log.trace( "recent folder does not exist, and create is false" );
                 return null;
             }
         } else {
@@ -88,7 +95,6 @@ public class Web extends Folder {
         }
 
     }
-
 
     /**
      * 
@@ -114,7 +120,7 @@ public class Web extends Folder {
     }
 
     public Folder getTemplates() {
-        Folder themeFolder = _(ThemeFinder.class).getThemeFolder( this );
+        Folder themeFolder = _( ThemeFinder.class ).getThemeFolder( this );
         if( themeFolder != null ) {
             return themeFolder;
         }
@@ -192,8 +198,8 @@ public class Web extends Folder {
         templates.save();
     }
 
-    ITemplate createTemplate(String name, String baseTemplate) {
-        Template t = new Template( getTemplates(), name);
+    ITemplate createTemplate( String name, String baseTemplate ) {
+        Template t = new Template( getTemplates(), name );
         t.setTemplateName( baseTemplate );
         t.save();
         return t;

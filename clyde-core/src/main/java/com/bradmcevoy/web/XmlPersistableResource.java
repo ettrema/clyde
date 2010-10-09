@@ -2,6 +2,9 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.DigestResource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -26,7 +29,7 @@ public interface XmlPersistableResource extends DigestResource {
 
     public void save();
 
-    public void delete();
+    public void delete() throws NotAuthorizedException, ConflictException, BadRequestException;
     
     public String getHref();
 }

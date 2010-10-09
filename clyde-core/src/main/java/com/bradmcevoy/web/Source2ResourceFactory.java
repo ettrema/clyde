@@ -14,7 +14,9 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.utils.XmlUtils2;
@@ -101,7 +103,7 @@ public class Source2ResourceFactory extends CommonResourceFactory {
         }
         
         @Override
-        public void delete() {
+        public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
             res.delete();
         }
                 
@@ -177,7 +179,7 @@ public class Source2ResourceFactory extends CommonResourceFactory {
         }
         
         @Override
-        public Resource createNew(String newName, InputStream inputStream, Long length, String contentType) throws IOException, ConflictException {
+        public Resource createNew(String newName, InputStream inputStream, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
             if( newName.endsWith(".meta.xml")) {
                 newName = newName.replace(".meta.xml", "");
                 ByteArrayOutputStream out = FileUtils.readIn(inputStream);
@@ -209,7 +211,7 @@ public class Source2ResourceFactory extends CommonResourceFactory {
         }
 
         @Override
-        public CollectionResource createCollection(String newName) throws ConflictException{
+        public CollectionResource createCollection(String newName) throws ConflictException, NotAuthorizedException, BadRequestException{
             if( newName.endsWith(".meta.xml")) {
                 throw new RuntimeException("Can't create a folder with an extension of .meta.xml");
             } else {

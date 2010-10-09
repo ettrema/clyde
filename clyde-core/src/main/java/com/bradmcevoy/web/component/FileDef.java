@@ -2,7 +2,9 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
@@ -47,20 +49,20 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public boolean validate( ComponentValue c, RenderContext rc ) {
-        log.debug("validate: " + name);
+        log.debug( "validate: " + name );
         if( required ) {
             if( c.getValue() == null ) {
                 // Note this will be null if an error occurred in pre-processing
                 // but he message will have been set
                 if( c.getValidationMessage() == null ) {
-                    c.setValidationMessage("A value is required");
+                    c.setValidationMessage( "A value is required" );
                 } else {
-                    log.debug("not valid, message already set");
+                    log.debug( "not valid, message already set" );
                 }
                 return false;
             }
         }
-        log.debug("validation ok");
+        log.debug( "validation ok" );
         return true;
     }
 
@@ -68,7 +70,6 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
     public boolean validate( RenderContext rc ) {
         return true;
     }
-
 
     @Override
     public Element toXml( Addressable container, Element el ) {
@@ -96,10 +97,9 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
     public ComponentValue createComponentValue( Templatable newPage ) {
         ComponentValue cv = new ComponentValue( name, newPage );
         cv.init( newPage );
-        cv.setValue(null);
+        cv.setValue( null );
         return cv;
     }
-
 
     protected String editChildTemplate() {
         String template = "<input type='file' name='${path}' value='${value}' size='${def.cols}' />";
@@ -176,26 +176,32 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
      */
     @Override
     public void onPreProcess( ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
-        FileItem fitem = files.get(this.getName());
-        if( fitem != null ) {            
-            if( componentValue.getContainer() instanceof Templatable ) {                
+        FileItem fitem = files.get( this.getName() );
+        if( fitem != null ) {
+            if( componentValue.getContainer() instanceof Templatable ) {
                 Templatable res = (Templatable) componentValue.getContainer();
                 if( res instanceof Folder ) {
                     Folder f = (Folder) res;
                     try {
-                        f.createNew_notx(fitem.getName(), fitem.getInputStream(), fitem.getSize(), fitem.getContentType());
+                        f.createNew_notx( fitem.getName(), fitem.getInputStream(), fitem.getSize(), fitem.getContentType() );
                         componentValue.setValue( fitem );
-                    } catch (IOException ex) {
-                        throw new RuntimeException("Couldnt read file",ex);
-                    } catch (ConflictException ex) {
-                        log.warn("Conflict exception writing uploaded file", ex);
-                        componentValue.setValidationMessage("You dont have permission to write to this location");
+                    } catch( NotAuthorizedException ex ) {
+                        log.warn( "Conflict exception writing uploaded file", ex );
+                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
+                    } catch( BadRequestException ex ) {
+                        log.warn( "Conflict exception writing uploaded file", ex );
+                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
+                    } catch( IOException ex ) {
+                        throw new RuntimeException( "Couldnt read file", ex );
+                    } catch( ConflictException ex ) {
+                        log.warn( "Conflict exception writing uploaded file", ex );
+                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
                     }
                 } else {
-                    componentValue.setValidationMessage("Can't save the file because the new resource isnt a folder");
+                    componentValue.setValidationMessage( "Can't save the file because the new resource isnt a folder" );
                 }
             } else {
-                componentValue.setValidationMessage("Can't save the file because the container isnt a Templatable type");
+                componentValue.setValidationMessage( "Can't save the file because the container isnt a Templatable type" );
             }
         }
     }

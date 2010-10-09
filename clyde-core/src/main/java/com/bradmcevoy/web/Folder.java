@@ -1,9 +1,10 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.creation.ResourceCreator;
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.event.EventManager;
-import com.bradmcevoy.event.PutEvent;
+import com.ettrema.event.PutEvent;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Range;
@@ -314,12 +315,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     @Override
-    public CollectionResource createCollection( String newName ) throws ConflictException {
+    public CollectionResource createCollection( String newName ) throws ConflictException, NotAuthorizedException, BadRequestException {
         log.debug( "createCollection: " + newName + " in folder with id: " + this.getNameNodeId() );
         return createCollection( newName, true );
     }
 
-    public CollectionResource createCollection( String newName, boolean commit ) throws ConflictException {
+    public CollectionResource createCollection( String newName, boolean commit ) throws ConflictException, NotAuthorizedException, BadRequestException {
         Resource res;
         BaseResource child = childRes( newName );
         if( child != null ) {
@@ -454,17 +455,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     @Override
-    public Resource createNew( String newName, InputStream in, Long length, String contentType ) throws IOException, ConflictException {
+    public Resource createNew( String newName, InputStream in, Long length, String contentType ) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
         Resource res = createNew_notx( newName, in, length, contentType );
-        EventManager mgr = requestContext().get( EventManager.class );
-        if( mgr != null && ( res instanceof BaseResource ) ) {
-            mgr.fireEvent( new PutEvent( (BaseResource) res ) );
-        }
+        fireEvent( new PutEvent( (BaseResource) res ) );
         commit();
         return res;
     }
 
-    public Resource createNew_notx( String newName, InputStream in, Long length, String contentType ) throws IOException, ConflictException {
+    public Resource createNew_notx( String newName, InputStream in, Long length, String contentType ) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
         checkHost();
         Resource rExisting = child( newName );
         if( rExisting != null ) {
@@ -716,7 +714,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         log.trace( "uploaded bytes: " + bufOut.getSize() );
         in = bufOut.getInputStream();
-        BaseResource res = (BaseResource)rc.createResource( this, ct, in, newName );
+        BaseResource res = rc.createResource( this, ct, in, newName );
         if( res != null ) {
             log.debug( "created a: " + res.getClass() );
             if( res instanceof BinaryFile ) {

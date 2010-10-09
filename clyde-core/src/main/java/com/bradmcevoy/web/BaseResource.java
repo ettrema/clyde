@@ -1,15 +1,17 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.event.DeleteEvent;
-import com.bradmcevoy.event.EventManager;
-import com.bradmcevoy.event.PostSaveEvent;
-import com.bradmcevoy.event.PreSaveEvent;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.ettrema.event.DeleteEvent;
+import com.ettrema.event.EventManager;
+import com.ettrema.event.PostSaveEvent;
+import com.ettrema.event.PreSaveEvent;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.LockInfo;
 import com.bradmcevoy.http.LockResult;
 import com.bradmcevoy.http.LockTimeout;
 import com.bradmcevoy.http.LockToken;
 import com.bradmcevoy.http.LockableResource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
@@ -27,10 +29,13 @@ import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.creation.CreatorService;
+import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.locking.ClydeLockManager;
 import com.bradmcevoy.web.security.BeanProperty;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.bradmcevoy.web.security.Permissions;
+import com.bradmcevoy.web.security.UserGroup;
+import com.ettrema.event.ResourceEvent;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;
@@ -44,6 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext.*;
@@ -65,7 +73,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private UUID creatorNameNodeId;
     private Date timestamp;
     private List<RoleAndGroup> groupPermissions;
-    
     protected transient RelationalNameNode nameNode;
     private transient User creator;
 
@@ -246,7 +253,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      */
     @Override
-    public void delete() {
+    public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
         deleteNoTx();
         commit();
     }
@@ -255,7 +262,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * Delete without committing the transaction
      *
      */
-    public void deleteNoTx() {
+    public void deleteNoTx() throws NotAuthorizedException, ConflictException, BadRequestException {
         log.debug( "delete: " + this.getName() );
         _delete();
         EventManager mgr = requestContext().get( EventManager.class );
@@ -329,13 +336,43 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void loadFromXml( Element el ) {
+        log.warn("loadFromXml");
         super.loadFromXml( el );
         redirect = InitUtils.getValue( el, "redirect" );
 
+
+        Element elGroups = el.getChild( "groups" );
+        if( elGroups != null ) {
+            log.warn( "processing groups" );
+            GroupService groupService = _( GroupService.class );
+            for( Object oGroup : elGroups.getChildren() ) {
+                Element elGroup = (Element) oGroup;
+                String groupName = elGroup.getAttributeValue( "group" );
+                UserGroup group = groupService.getGroup( this, groupName );
+                if( group != null ) {
+                    String roleName = elGroup.getAttributeValue( "role" );
+                    if( !StringUtils.isEmpty( roleName)) {
+                        roleName = roleName.trim();
+                        try {
+                            Role role = Role.valueOf( roleName );
+                            this.permissions(true).grant( role, group );
+                        } catch( Exception e ) {
+                            log.error( "unknown role: " + roleName, e );
+                        }
+                    } else {
+                        log.warn("empty role name");
+                    }
+                } else {
+                    log.warn( "group not found: " + groupName );
+                }
+            }
+        } else {
+            log.warn( "no groups element" );
+        }
     }
 
     public final Element toXml( Element el ) {
-        log.warn( "toXml");
+        log.warn( "toXml" );
         Element e2 = new Element( "res" );
         el.addContent( e2 );
         populateXml( e2 );
@@ -360,7 +397,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void populateXml( Element e2 ) {
-        log.warn( "populateXml");
+        log.warn( "populateXml" );
         e2.setAttribute( "name", getName() );
         e2.setAttribute( "id", getId().toString() );
         e2.setAttribute( "nameNodeId", getNameNodeId().toString() );
@@ -368,7 +405,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
         Element elGroups = new Element( "groups" );
         e2.addContent( elGroups );
-        log.trace( "add groups");
+        log.trace( "add groups" );
         for( RoleAndGroup rag : getGroupPermissions() ) {
             Element elRag = new Element( "group" );
             elGroups.addContent( elRag );
@@ -420,18 +457,29 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void save() {
         preSave();
 
-        EventManager mgr = requestContext().get( EventManager.class );
-        if( mgr != null ) {
-            mgr.fireEvent( new PreSaveEvent( this ) );
-        }
+        fireEvent( new PreSaveEvent( this ) );
 
         nameNode.save();
 
+        fireEvent( new PostSaveEvent( this ) );
+        
+        afterSave();
+    }
+
+    protected void fireEvent(ResourceEvent e) {
+        EventManager mgr = _( EventManager.class );
         if( mgr != null ) {
-            mgr.fireEvent( new PostSaveEvent( this ) );
+            try {
+                mgr.fireEvent( e );
+            } catch( ConflictException ex ) {
+                throw new RuntimeException( ex );
+            } catch( BadRequestException ex ) {
+                throw new RuntimeException( ex );
+            } catch( NotAuthorizedException ex ) {
+                throw new RuntimeException( ex );
+            }
         }
 
-        afterSave();
     }
 
     /**
@@ -865,7 +913,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public List<RoleAndGroup> getGroupPermissions() {
         if( groupPermissions == null ) {
-            log.trace("create new list");
+            log.trace( "create new list" );
             groupPermissions = new ArrayList<RoleAndGroup>();
         }
         return groupPermissions;

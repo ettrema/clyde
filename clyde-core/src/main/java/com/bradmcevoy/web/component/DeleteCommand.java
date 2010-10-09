@@ -1,6 +1,9 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
@@ -64,7 +67,7 @@ public class DeleteCommand extends Command {
             } else {
                 redirectTo = f.getParent().getHref();
             }
-            f.delete();
+            doDelete(f);
             commit();
             log.debug("  - deleted. redireting to: " + redirectTo);
             return redirectTo;
@@ -74,9 +77,23 @@ public class DeleteCommand extends Command {
         }
     }
 
+
+
     @Override
     public boolean validate(RenderContext rc) {
         return true;
+    }
+
+    private void doDelete( BaseResource f ) {
+        try {
+            f.delete();
+        } catch( NotAuthorizedException ex ) {
+            throw new RuntimeException( ex );
+        } catch( ConflictException ex ) {
+            throw new RuntimeException( ex );
+        } catch( BadRequestException ex ) {
+            throw new RuntimeException( ex );
+        }
     }
     
 
