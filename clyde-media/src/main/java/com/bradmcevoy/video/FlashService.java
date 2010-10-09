@@ -1,5 +1,8 @@
 package com.bradmcevoy.video;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BinaryFile;
@@ -27,7 +30,9 @@ public class FlashService {
         Folder thumbs = f.getThumbsFolder( true );
         String thumbName = f.getName() + ".jpg";
         BaseResource r = thumbs.childRes( thumbName );
-        if( r != null ) r.delete();
+        if( r != null ) {
+            delete(r);
+        }
         BinaryFile thumb = new BinaryFile( thumbs, thumbName );
         thumb.save();
 
@@ -70,5 +75,17 @@ public class FlashService {
 
     public void setThumbWidth( int thumbWidth ) {
         this.thumbWidth = thumbWidth;
+    }
+
+    private void delete( BaseResource r ) {
+        try {
+            r.delete();
+        } catch( NotAuthorizedException ex ) {
+            throw new RuntimeException( ex );
+        } catch( ConflictException ex ) {
+            throw new RuntimeException( ex );
+        } catch( BadRequestException ex ) {
+            throw new RuntimeException( ex );
+        }
     }
 }

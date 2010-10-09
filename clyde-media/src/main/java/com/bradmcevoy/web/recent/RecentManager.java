@@ -1,10 +1,10 @@
 package com.bradmcevoy.web.recent;
 
-import com.bradmcevoy.event.DeleteEvent;
-import com.bradmcevoy.event.Event;
-import com.bradmcevoy.event.EventListener;
-import com.bradmcevoy.event.EventManager;
-import com.bradmcevoy.event.PostSaveEvent;
+import com.ettrema.event.DeleteEvent;
+import com.ettrema.event.Event;
+import com.ettrema.event.EventListener;
+import com.ettrema.event.EventManager;
+import com.ettrema.event.PostSaveEvent;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;

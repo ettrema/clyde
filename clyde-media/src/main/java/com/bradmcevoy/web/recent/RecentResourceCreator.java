@@ -3,12 +3,17 @@ package com.bradmcevoy.web.recent;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.Web;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,12 +32,12 @@ public class RecentResourceCreator {
      * @param r
      * @return
      */
-    public RecentResource create(BaseResource r) {
-        if( log.isDebugEnabled()){
-            log.debug("create recent resource: " + r.getHref());
+    public RecentResource create( BaseResource r ) {
+        if( log.isDebugEnabled() ) {
+            log.debug( "create recent resource: " + r.getHref() );
         }
         Web web = r.getWeb();
-        Folder folder = web.getRecentFolder(true);
+        Folder folder = web.getRecentFolder( true );
 
         IUser currentUser;
         Auth auth = HttpManager.request().getAuthorization();
@@ -44,20 +49,20 @@ public class RecentResourceCreator {
 
 
         String recentName = r.getNameNodeId().toString();
-        BaseResource existing = (BaseResource) folder.getChildResource(recentName);
+        BaseResource existing = (BaseResource) folder.getChildResource( recentName );
         RecentResource rr;
         if( existing != null ) {
-            log.debug("found existing recent resource");
-            if( existing instanceof RecentResource) {
+            log.debug( "found existing recent resource" );
+            if( existing instanceof RecentResource ) {
                 rr = (RecentResource) existing;
-                rr.setUser(currentUser);
+                rr.setUser( currentUser );
             } else {
                 existing.deletePhysically();
-                rr = new RecentResource(folder, r, currentUser);
+                rr = new RecentResource( folder, r, currentUser );
             }
         } else {
-            checkMaxRecent(folder);
-            rr = new RecentResource(folder, r, currentUser);
+            checkMaxRecent( folder );
+            rr = new RecentResource( folder, r, currentUser );
         }
         rr.save();
         return null;
@@ -69,33 +74,49 @@ public class RecentResourceCreator {
      * 
      * @param recentFolder - the Recent folder
      */
-    private void checkMaxRecent(Folder recentFolder) {
+    private void checkMaxRecent( Folder recentFolder ) {
         List<? extends Resource> children = recentFolder.getChildren();
-        if (children != null && children.size() > getMaxRecentSize()) {
+        if( children != null && children.size() > getMaxRecentSize() ) {
             Date earliestDate = new Date(); // now
             RecentResource toDelete = null;
-            for (Resource child : children) {
-                if (child instanceof RecentResource) {
+            for( Resource child : children ) {
+                if( child instanceof RecentResource ) {
                     Date childMod = child.getModifiedDate();
-                    if (childMod != null && childMod.before(earliestDate)) {
+                    if( childMod != null && childMod.before( earliestDate ) ) {
                         earliestDate = childMod;
                         toDelete = (RecentResource) child;
                     }
                 }
             }
-            if (toDelete != null) {
-                toDelete.deleteNoTx();
+            if( toDelete != null ) {
+                try {
+                    toDelete.deleteNoTx();
+                } catch( NotAuthorizedException ex ) {
+                    throw new RuntimeException( ex );
+                } catch( ConflictException ex ) {
+                    throw new RuntimeException( ex );
+                } catch( BadRequestException ex ) {
+                    throw new RuntimeException( ex );
+                }
             }
         }
     }
 
-    public void onDelete(BaseResource r) {
+    public void onDelete( BaseResource r ) {
         Web web = r.getWeb();
-        Folder folder = web.getRecentFolder(true);
+        Folder folder = web.getRecentFolder( true );
         String recentName = r.getNameNodeId().toString();
-        BaseResource existing = (BaseResource) folder.getChildResource(recentName);
+        BaseResource existing = (BaseResource) folder.getChildResource( recentName );
         if( existing != null ) {
-            existing.delete();
+            try {
+                existing.delete();
+            } catch( NotAuthorizedException ex ) {
+                throw new RuntimeException( ex );
+            } catch( ConflictException ex ) {
+                throw new RuntimeException( ex );
+            } catch( BadRequestException ex ) {
+                throw new RuntimeException( ex );
+            }
         }
 
     }
