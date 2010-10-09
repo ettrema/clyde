@@ -1,11 +1,11 @@
 package com.bradmcevoy.manage;
 
-import com.bradmcevoy.event.DeleteEvent;
-import com.bradmcevoy.event.Event;
-import com.bradmcevoy.event.EventListener;
-import com.bradmcevoy.event.EventManager;
-import com.bradmcevoy.event.PutEvent;
-import com.bradmcevoy.event.ResourceEvent;
+import com.ettrema.event.DeleteEvent;
+import com.ettrema.event.Event;
+import com.ettrema.event.EventListener;
+import com.ettrema.event.EventManager;
+import com.ettrema.event.PutEvent;
+import com.ettrema.event.ResourceEvent;
 import com.bradmcevoy.process.ProcessDef;
 import com.bradmcevoy.process.TokenValue;
 import com.bradmcevoy.vfs.VfsCommon;
