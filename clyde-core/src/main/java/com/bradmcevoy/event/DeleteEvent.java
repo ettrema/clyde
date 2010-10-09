@@ -1,20 +1,21 @@
 package com.bradmcevoy.event;
 
-import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.http.Resource;
+
 
 /**
  *
  * @author brad
  */
-public class DeleteEvent implements ClydeResourceEvent{
-    private final BaseResource res;
+public class DeleteEvent implements ResourceEvent{
+    private final Resource res;
 
-    public DeleteEvent( BaseResource res ) {
+    public DeleteEvent( Resource res ) {
         this.res = res;
     }
 
     @Override
-    public BaseResource getResource() {
+    public Resource getResource() {
         return res;
     }
 

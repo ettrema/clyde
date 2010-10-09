@@ -28,6 +28,7 @@
 		</developer>
 	</developers>
 	<modules>
+        <module>clyde-api</module>
         <module>clyde-ant</module>
         <module>clyde-console</module>
 		<module>clyde-core</module>

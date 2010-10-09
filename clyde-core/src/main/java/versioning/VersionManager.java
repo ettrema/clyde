@@ -33,7 +33,9 @@ public class VersionManager implements EventListener {
     public void onEvent( Event e ) {
         if( e instanceof PreSaveEvent ) {
             PreSaveEvent pse = (PreSaveEvent) e;
-            createVersion( pse.getResource() );
+            if( pse.getResource() instanceof BaseResource ) {
+                createVersion( (BaseResource) pse.getResource());
+            }
         }
     }
 
@@ -42,10 +44,10 @@ public class VersionManager implements EventListener {
         VersionDataNode dn;
         for( VersioningHandler h : versioningHandlers ) {
             if( h.supports( r ) ) {
-                if(nnVersionParent == null ) {
-                    nnVersionParent = getOrCreateVersionParent(r.getNameNode());
-                }                
-                dn = h.createVersion(nnVersionParent, r);
+                if( nnVersionParent == null ) {
+                    nnVersionParent = getOrCreateVersionParent( r.getNameNode() );
+                }
+                dn = h.createVersion( nnVersionParent, r );
                 String versionName = "version_" + nnVersionParent.children().size() + 1;
                 nnVersionParent.add( versionName, dn );
             }
@@ -60,14 +62,13 @@ public class VersionManager implements EventListener {
 
         @Override
         public boolean supports( BaseResource r ) {
-                return true;
+            return true;
         }
 
         @Override
         public VersionDataNode createVersion( NameNode nnVersionParent, BaseResource r ) {
             return null;
         }
-
     }
 
     public static class ValuesVersionDataNode implements VersionDataNode {

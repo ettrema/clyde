@@ -5,6 +5,7 @@ import com.bradmcevoy.event.Event;
 import com.bradmcevoy.event.EventListener;
 import com.bradmcevoy.event.EventManager;
 import com.bradmcevoy.event.PutEvent;
+import com.bradmcevoy.event.ResourceEvent;
 import com.bradmcevoy.process.ProcessDef;
 import com.bradmcevoy.process.TokenValue;
 import com.bradmcevoy.vfs.VfsCommon;
@@ -52,10 +53,18 @@ public class ProcessQuotaManager extends VfsCommon implements EventListener {
         log.debug( "onEvent: " + e.getClass() );
         long amount;
         Host host;
+        if( !(e instanceof ResourceEvent)){
+            return ;
+        }
+        ResourceEvent resourceEvent = (ResourceEvent) e;
+        if( !(resourceEvent.getResource() instanceof BaseResource) ) {
+            log.trace( "not  a baseresource");
+            return ;
+        }
         if( e instanceof PutEvent ) {
             PutEvent event = (PutEvent) e;
-            BaseResource r = event.getResource();
-            if( event.getResource().getContentLength() != null ) {
+            BaseResource r = (BaseResource) event.getResource();
+            if( r.getContentLength() != null ) {
                 amount = r.getContentLength();
                 host = r.getHost();
             } else {
@@ -64,7 +73,7 @@ public class ProcessQuotaManager extends VfsCommon implements EventListener {
             }
         } else if( e instanceof DeleteEvent ) {
             DeleteEvent event = (DeleteEvent) e;
-            BaseResource r = event.getResource();
+            BaseResource r = (BaseResource) event.getResource();
             if( r != null ) {
                 if( r instanceof Folder ) {
                     log.debug( "ignoring folder delete");
@@ -72,7 +81,7 @@ public class ProcessQuotaManager extends VfsCommon implements EventListener {
                 } else {
                     if(r.getContentLength() != null ) {
                         amount = r.getContentLength() * -1;
-                        host = event.getResource().getHost();
+                        host = r.getHost();
                     } else {
                         log.warn( "no contentlength associated with resource: " + r.getHref() + ". Usage will not be accurate");
                         return ;

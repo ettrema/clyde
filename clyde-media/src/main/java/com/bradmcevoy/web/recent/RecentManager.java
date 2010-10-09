@@ -43,7 +43,11 @@ public class RecentManager implements EventListener{
             }
 
             PostSaveEvent pse = (PostSaveEvent) e;
-            BaseResource res = pse.getResource();
+            if( !(pse.getResource() instanceof BaseResource) ) {
+                log.trace( "not a baseresource");
+                return ;
+            }
+            BaseResource res = (BaseResource) pse.getResource();
             if( res instanceof RecentResource) {
                 log.trace("not creating recent, because is a recent resource");
                 return ;
@@ -76,7 +80,10 @@ public class RecentManager implements EventListener{
         } else if( e instanceof DeleteEvent ) {
             log.trace("onEvent: DeleteEvent");
             DeleteEvent de = (DeleteEvent) e;
-            BaseResource res = de.getResource();
+            if( !(de.getResource() instanceof BaseResource)) {
+                return ;
+            }
+            BaseResource res = (BaseResource) de.getResource();
             if( res instanceof RecentResource) {
                 return ;
             }
