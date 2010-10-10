@@ -243,7 +243,8 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     }
 
     public Folder getThumbsFolder( boolean autoCreate ) {
-        return this.getParent().thumbs( "thumb", autoCreate );
+        Folder f = getParent().thumbs( "_sys_thumb", autoCreate );
+        return f;
     }
 
     public HtmlImage getThumb() {

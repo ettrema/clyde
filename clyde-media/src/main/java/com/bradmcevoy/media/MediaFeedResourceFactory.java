@@ -3,7 +3,7 @@ package com.bradmcevoy.media;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.Host;
 
 /**
  *
@@ -16,6 +16,7 @@ public class MediaFeedResourceFactory implements ResourceFactory {
     private final ResourceFactory wrapped;
     private final MediaLogService logService;
     private Long cacheSeconds;
+    private boolean secure;
 
     public MediaFeedResourceFactory( String rssName, ResourceFactory wrapped, MediaLogService logService ) {
         this.feedName = rssName;
@@ -29,10 +30,11 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         if( path.getName().equals( feedName ) ) {
             log.trace( "got media feed name" );
             Resource parent = wrapped.getResource( host, path.getParent().toString() );
-            if( parent instanceof Folder ) {
-                Folder folder = (Folder) parent;
+            if( parent instanceof Host ) {
+                Host folder = (Host) parent;
+                String basePath = buildBasePath(host, path.getParent());
                 log.trace( "got media feed resource" );
-                return new MediaFeedResource( logService, feedName, folder.getHost(), cacheSeconds );
+                return new MediaFeedResource( logService, feedName, folder, cacheSeconds, basePath );
             } else {
                 log.trace( "did not find: " + path.getParent() );
                 return null;
@@ -50,4 +52,21 @@ public class MediaFeedResourceFactory implements ResourceFactory {
     public void setCacheSeconds( Long cacheSeconds ) {
         this.cacheSeconds = cacheSeconds;
     }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure( boolean secure ) {
+        this.secure = secure;
+    }
+
+    private String buildBasePath( String host, Path parent ) {
+        String prot = secure ? "https" : "http";
+        String s = prot + "://" + host + parent.toString();
+        log.debug( "base path: " + s);
+        return s;
+    }
+
+
 }

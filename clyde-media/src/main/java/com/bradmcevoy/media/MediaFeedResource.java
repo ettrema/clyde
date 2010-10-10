@@ -40,12 +40,14 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     private final MediaLogService logService;
     private final Host host;
     private final Long cacheSeconds;
+    private final String basePath;
 
-    public MediaFeedResource( MediaLogService logService, String name, Host host, Long cacheSeconds ) {
+    public MediaFeedResource( MediaLogService logService, String name, Host host, Long cacheSeconds, String basePath ) {
         this.name = name;
         this.logService = logService;
         this.host = host;
         this.cacheSeconds = cacheSeconds;
+        this.basePath = basePath;
     }
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
@@ -56,45 +58,58 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         } else {
             page = Integer.parseInt( sPage );
         }
-        log.warn("sendContent: page:" + page);
+        log.warn( "sendContent: page:" + page );
 
         XmlWriter writer = new XmlWriter( out );
         writer.writeXMLHeader();
-        String hostUrl = "https://" + host.getName();
-        final Element elChannel = writer.begin( "rss" )
-            .writeAtt( "version", "2.0" )
-            .writeAtt( "xmlns:media", "http://search.yahoo.com/mrss/" )
-            .writeAtt( "xmlns:atom", "http://www.w3.org/2005/Atom" )
-            .begin( "channel" )
-            .prop( "title", host.getName() )
-            .prop( "link", hostUrl );
+        String hostUrl = hostUrl();
 
-        logService.search( host.getNameNodeId(), page, new MediaLogService.ResultCollector() {
+        final Element elChannel = writer.begin( "rss" ).writeAtt( "version", "2.0" ).writeAtt( "xmlns:media", "http://search.yahoo.com/mrss/" ).writeAtt( "xmlns:atom", "http://www.w3.org/2005/Atom" ).begin( "channel" ).prop( "title", host.getName() ).prop( "link", hostUrl );
+
+        int numResults = logService.search( host.getNameNodeId(), page, new MediaLogService.ResultCollector() {
 
             public void onResult( UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
-                log.debug( "onResult: " + type);
-                Path path = Path.path( mainContentPath);
+                log.debug( "onResult: " + type );
+                Path path = Path.path( mainContentPath );
                 if( type == MediaType.IMAGE ) {
                     appendImage( elChannel, path.getName(), dateTaken, mainContentPath, thumbPath );
                 }
             }
         } );
 
+        if( page > 0 ) {
+            appendPageLink("previous", elChannel, page-1);
+        }
+        if( numResults >= logService.getPageSize()) {
+            appendPageLink("next",elChannel, page+1);
+        }
+
         elChannel.close().close();
 
         writer.flush();
     }
 
+    private void appendPageLink( String rel, Element elChannel, int page ) {
+        log.trace("appendPage: " + rel + " - " + page);
+        String feedHref = basePath + "/" + name + "?page=" + page;
+        elChannel.begin( "atom:link" )
+            .writeAtt( "rel", rel)
+            .writeAtt( "href", feedHref)
+            .close();
+
+    }
+
+    private String hostUrl() {
+        return basePath;
+    }
+
     private void appendImage( Element elChannel, String title, Date dateTaken, String mainContentPath, String thumbPath ) {
-        String hostUrl = "https://" + host.getName();
+        String hostUrl = hostUrl();
         String thumbUrl = hostUrl + thumbPath;
         String contentUrl = hostUrl + mainContentPath;
-        Element elImg = elChannel.begin( "item" )
-            .prop( "title", title )
-            .prop( "media:description", title )
-            .prop( "link", mainContentPath );
-        elImg.begin( "media:thumbnail").writeAtt( "url", thumbUrl).close();
-        elImg.begin( "media:content").writeAtt( "url", contentUrl).close();
+        Element elImg = elChannel.begin( "item" ).prop( "title", title ).prop( "media:description", title ).prop( "link", mainContentPath );
+        elImg.begin( "media:thumbnail" ).writeAtt( "url", thumbUrl ).close();
+        elImg.begin( "media:content" ).writeAtt( "url", contentUrl ).close();
         elImg.close( true );
     }
 
@@ -158,4 +173,6 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     protected RequestContext requestContext() {
         return RequestContext.getCurrent();
     }
+
+
 }

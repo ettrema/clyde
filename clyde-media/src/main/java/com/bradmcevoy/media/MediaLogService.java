@@ -45,8 +45,9 @@ public class MediaLogService implements TableDefinitionSource {
      *
      * @param hostId
      * @param page - zero indexed. Ie 0 = first page
+     * @return - the number of results processed
      */
-    public void search( UUID hostId, int page, ResultCollector collector ) {
+    public int search( UUID hostId, int page, ResultCollector collector ) {
         log.trace( "search: " + hostId);
         int limit = pageSize;
         int offset = page * pageSize;
@@ -60,8 +61,10 @@ public class MediaLogService implements TableDefinitionSource {
             ResultSet rs = null;
             try {
                 rs = stmt.executeQuery();
+                int num = 0;
                 while( rs.next() ) {
                     log.debug( "rs.next");
+                    num++;
                     UUID nameId = UUID.fromString( rs.getString( 1 ) );
                     Date dateTaken = rs.getTimestamp( 3 );
                     Double locLat = getDouble( rs, 4 );
@@ -74,6 +77,7 @@ public class MediaLogService implements TableDefinitionSource {
                     collector.onResult( nameId, dateTaken, locLat, locLong, mainPath, thumbPath, type );
                 }
                 log.debug( "finished");
+                return num;
             } catch( SQLException ex ) {
                 throw new RuntimeException( ex );
             } finally {
