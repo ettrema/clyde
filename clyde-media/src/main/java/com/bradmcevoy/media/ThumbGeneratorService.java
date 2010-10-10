@@ -5,8 +5,6 @@ import com.bradmcevoy.web.ImageFile;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.PostSaveEvent;
-import com.bradmcevoy.thumbs.ThumbSelector;
-import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Thumb;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
@@ -28,13 +26,10 @@ import java.util.UUID;
 public class ThumbGeneratorService implements Service, CommitListener, EventListener {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbGeneratorService.class );
-
-    private final ThumbSelector thumbSelector;
     private final RootContextLocator rootContextLocator;
     private MediaLogService mediaLogService;
 
-    public ThumbGeneratorService( RootContextLocator rootContextLocator,ThumbSelector thumbSelector ) {
-        this.thumbSelector = thumbSelector;
+    public ThumbGeneratorService( RootContextLocator rootContextLocator ) {
         this.rootContextLocator = rootContextLocator;
     }
 
@@ -52,31 +47,9 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     }
 
     public void stop() {
-        
     }
 
-
-
     public void onEvent( Event e ) {
-        if( e instanceof PostSaveEvent ) {
-            PostSaveEvent pse = (PostSaveEvent) e;
-            if( pse.getResource() instanceof ImageFile ) {
-                ImageFile img = (ImageFile) pse.getResource();
-                //log.debug( "check to see if parentFolder needs thumbHref set: " + img.getHref() );
-                Folder parentFolder = img.getParentFolder();
-                if( parentFolder.getName().equals( "_sys_thumbs" ) ) {
-                  //  log.debug("parent folder is thumbs, so check its parent");
-                    parentFolder = parentFolder.getParent();
-                    //log.debug( "is a thumb, so check parent parent");
-                    if( thumbSelector.checkThumbHref( parentFolder ) ) {
-                        log.debug( "folder modified by checking thumbs" );
-                        parentFolder.save();
-                    }
-                } else {
-                    //log.debug( "not a thumb, so do nothing");
-                }
-            }
-        }
     }
 
     public void destroy() {
@@ -102,7 +75,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         }
     }
 
-    public void processGenerator( Context context, String targetName, UUID imageFileNameNodeId) {
+    public void processGenerator( Context context, String targetName, UUID imageFileNameNodeId ) {
         log.debug( "generating thumbs: " + targetName + "..." );
         VfsSession vfs = context.get( VfsSession.class );
         NameNode pageNameNode = vfs.get( imageFileNameNodeId );
@@ -145,14 +118,11 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         log.debug( "doing generation: " + targetPage.getUrl() );
         int num = targetPage.generateThumbs();
         if( num > 0 ) {
-            Folder parentFolder = targetPage.getParentFolder();
-            log.debug( "checking thumbs: " + parentFolder.getHref() );
-            thumbSelector.checkThumbHref( parentFolder );
             if( mediaLogService != null ) {
-                log.warn("generating media log");
+                log.warn( "generating media log" );
                 mediaLogService.onThumbGenerated( targetPage );
             } else {
-                log.warn("no media log");
+                log.warn( "no media log" );
             }
         } else {
             log.debug( "not checking thumbs because no thumbs generated" );

@@ -7,6 +7,8 @@ import com.bradmcevoy.web.ImageFile;
 /**
  * Populates a folder with a thumb href based on the contents of the folder
  *
+ * deprecated!!!!!
+ *
  * @author brad
  */
 public class ThumbSelector {

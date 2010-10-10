@@ -154,13 +154,15 @@ public class MediaLogService implements TableDefinitionSource {
         try {
             PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
             stmt.setString( 1, nameId.toString() );
-            stmt.execute();
+            int numRecords = stmt.executeUpdate();
+            log.warn("deleted: " + numRecords + " for name id: " + nameId + " - " + sql);
         } catch( SQLException ex ) {
             throw new RuntimeException( sql, ex );
         }
     }
 
     private void insert( UUID nameId, UUID hostId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, String type ) {
+        log.warn( "insert: " + nameId);
         String sql = MEDIA_TABLE.getInsert();
         try {
             PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
@@ -175,7 +177,7 @@ public class MediaLogService implements TableDefinitionSource {
 
             stmt.execute();
         } catch( SQLException ex ) {
-            throw new RuntimeException( sql, ex );
+            throw new RuntimeException( "nameId:" + nameId + " - " + sql, ex );
         }
     }
 
