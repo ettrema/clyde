@@ -16,7 +16,7 @@ public class MediaThumbHrefService implements ThumbHrefService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MediaThumbHrefService.class );
 
-    private String suffix = "_sys_thumbs";
+    private String suffix = "_sys_thumb";
 
     public String getThumbPath( Resource r ) {
         log.trace("getThumbPath");

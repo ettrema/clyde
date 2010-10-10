@@ -11,4 +11,6 @@ public interface WallItem {
     Date getLastUpdated();
 
     void pleaseImplementSerializable();
+
+    String getType();
 }

@@ -43,14 +43,24 @@ public class WallService implements EventListener {
         Wall wall = null;
         if( e.getResource() instanceof BaseResource ) {
             BaseResource res = (BaseResource) e.getResource();
-            wall = processPut( res );
+            wall = onUpdatedFile( res );
         }
         if( wall != null ) {
             checkWallSize( wall );
         }
     }
 
-    private Wall processPut( BaseResource res ) {
+    public void clearWall( BaseResource res ) {
+        Web web = res.getWeb();
+        Wall wall = getWall( web, false );
+        if( wall == null ) {
+            log.trace( "no wall found" );
+        } else {
+            wall.delete();
+        }
+    }
+
+    public Wall onUpdatedFile( BaseResource res ) {
         log.trace( "processPut" );
         Web web = res.getWeb();
         Wall wall = getWall( web, true );
@@ -61,7 +71,7 @@ public class WallService implements EventListener {
                 FolderUpdateWallItem fu = (FolderUpdateWallItem) wallItem;
                 if( fu.getFolderPath().equals( folderPath ) ) {
                     log.trace( "found existing folder update item" );
-                    updateWallItem = fu;
+                    updateWallItem = fu;                    
                     break;
                 }
             }
@@ -70,12 +80,16 @@ public class WallService implements EventListener {
         if( updateWallItem == null ) {
             log.trace( "create new folder update wall item" );
             updateWallItem = new FolderUpdateWallItem( folderPath );
+            wall.addItem( updateWallItem );
         }
 
-        wall.addItem( updateWallItem );
         addUpdatedFile( res, updateWallItem );
         wall.save();
         return wall;
+    }
+
+    public Wall getWall( Web web ) {
+        return getWall( web, false );
     }
 
     private Wall getWall( Web web, boolean create ) {
@@ -104,6 +118,9 @@ public class WallService implements EventListener {
 
     private void addUpdatedFile( BaseResource res, FolderUpdateWallItem fu ) {
         String thumbPath = thumbHrefService.getThumbPath( res );
+        if( log.isTraceEnabled() ) {
+            log.trace( "addUpdatedFile: " + res.getUrl() + " thumb:" + thumbPath );
+        }
         fu.addUpdated( res.getModifiedDate(), res.getUrl(), thumbPath );
     }
 

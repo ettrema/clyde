@@ -310,7 +310,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public HtmlImage thumb( String suffix ) {
         Folder f = this.getParent().thumbs( suffix );
         if( f == null ) {
-            log.warn( "no folder: " + suffix );
+            log.warn( "no thumb spec: " + suffix + " in " + this.getParent().getUrl() );
             return new NoImageResource();
         }
         BaseResource res = f.childRes( this.getName() );

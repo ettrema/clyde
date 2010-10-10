@@ -4,11 +4,18 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.children.ThemeFinder;
 import com.bradmcevoy.web.component.ThemeSelect;
+import com.bradmcevoy.web.wall.Wall;
+import com.bradmcevoy.web.wall.WallItem;
+import com.bradmcevoy.web.wall.WallService;
+import java.util.Collections;
+import java.util.List;
 
 import static com.ettrema.context.RequestContext._;
 
+@BeanPropertyResource( "clyde" )
 public class Web extends Folder {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Web.class );
@@ -204,4 +211,17 @@ public class Web extends Folder {
         t.save();
         return t;
     }
+
+    public List<WallItem> getWall() {
+        log.warn( "getWall");
+        Wall wall = _(WallService.class).getWall( this );
+        if( wall == null ) {
+            return Collections.emptyList();
+        } else {
+            List<WallItem> list = wall.getItems();
+            log.warn("wall items: " + list.size());
+            return list;
+        }
+    }
+
 }

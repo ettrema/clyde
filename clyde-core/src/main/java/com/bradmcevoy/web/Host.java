@@ -7,6 +7,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.stats.StatsService;
 import com.ettrema.vfs.NameNode;
@@ -18,6 +19,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
+@BeanPropertyResource( "clyde" )
 public class Host extends Web implements BucketOwner {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Host.class );
@@ -347,4 +349,5 @@ public class Host extends Web implements BucketOwner {
         String baseDomain = this.getName().replace( "www.", "" );
         return _( StatsService.class ).activeHosts( baseDomain, method, numDays );
     }
+
 }

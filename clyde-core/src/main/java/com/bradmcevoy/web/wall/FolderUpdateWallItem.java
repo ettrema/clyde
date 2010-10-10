@@ -21,6 +21,10 @@ public class FolderUpdateWallItem implements WallItem, Serializable {
         this.folderPath = folderPath;
     }
 
+    public String getType() {
+        return "folder";
+    }
+
     public String getFolderPath() {
         return folderPath;
     }
@@ -38,9 +42,15 @@ public class FolderUpdateWallItem implements WallItem, Serializable {
         if( updatedFiles.size() > MAX_SIZE ) {
             updatedFiles.remove( 0 );
         }
-        String thumbHref = null;
-
-        updatedFiles.add( new UpdatedFile( contentPath, thumbHref ) );
+        // If one exists just update it
+        for( UpdatedFile uf : updatedFiles) {
+            if( uf.href.equals( contentPath)) {
+                uf.thumbHref = thumbPath;
+                return ;
+            }
+        }
+        // add a new one
+        updatedFiles.add( new UpdatedFile( contentPath, thumbPath ) );
     }
 
     public void pleaseImplementSerializable() {

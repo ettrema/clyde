@@ -6,6 +6,7 @@ import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.PostSaveEvent;
 import com.bradmcevoy.web.Thumb;
+import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
@@ -28,6 +29,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbGeneratorService.class );
     private final RootContextLocator rootContextLocator;
     private MediaLogService mediaLogService;
+    private WallService wallService;
 
     public ThumbGeneratorService( RootContextLocator rootContextLocator ) {
         this.rootContextLocator = rootContextLocator;
@@ -76,11 +78,13 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     }
 
     public void processGenerator( Context context, String targetName, UUID imageFileNameNodeId ) {
-        log.debug( "generating thumbs: " + targetName + "..." );
+        if( log.isTraceEnabled() ) {
+            log.trace( "generating thumbs: " + targetName + "..." );
+        }
         VfsSession vfs = context.get( VfsSession.class );
         NameNode pageNameNode = vfs.get( imageFileNameNodeId );
         if( pageNameNode == null ) {
-            log.debug( "..name node not found. prolly deleted: " + targetName );
+            log.trace( "..name node not found. prolly deleted: " + targetName );
             return;
         }
         DataNode dn = pageNameNode.getData();
@@ -115,17 +119,22 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
      * @return - number of thumbs generated
      */
     private int generate( ImageFile targetPage ) {
-        log.debug( "doing generation: " + targetPage.getUrl() );
+        if( log.isTraceEnabled() ) {
+            log.trace( "doing generation: " + targetPage.getUrl() );
+        }
         int num = targetPage.generateThumbs();
+
         if( num > 0 ) {
             if( mediaLogService != null ) {
-                log.warn( "generating media log" );
                 mediaLogService.onThumbGenerated( targetPage );
-            } else {
-                log.warn( "no media log" );
+            }
+
+            if( wallService != null ) {
+                log.trace( "updating wall" );
+                wallService.onUpdatedFile( targetPage );
             }
         } else {
-            log.debug( "not checking thumbs because no thumbs generated" );
+            log.trace( "not checking thumbs because no thumbs generated" );
         }
         return num;
     }
@@ -136,5 +145,13 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
 
     public void setMediaLogService( MediaLogService mediaLogService ) {
         this.mediaLogService = mediaLogService;
+    }
+
+    public WallService getWallService() {
+        return wallService;
+    }
+
+    public void setWallService( WallService wallService ) {
+        this.wallService = wallService;
     }
 }

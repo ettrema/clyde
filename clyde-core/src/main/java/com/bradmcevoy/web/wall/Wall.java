@@ -4,6 +4,7 @@ import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,10 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
 
     public void onDeleted( NameNode nameNode ) {
 
+    }
+
+    public void delete() {
+        nameNode.delete();
     }
 
     public void save() {
@@ -67,6 +72,14 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
 
     NameNode getNameNode() {
         return nameNode;
+    }
+
+    public List<WallItem> getItems() {
+        if( wallItems == null ) {
+            return Collections.emptyList();
+        }
+        return wallItems;
+
     }
 
 
