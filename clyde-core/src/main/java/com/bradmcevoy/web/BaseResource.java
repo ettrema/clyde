@@ -49,8 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
@@ -336,7 +334,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void loadFromXml( Element el ) {
-        log.warn("loadFromXml");
+        log.warn( "loadFromXml" );
         super.loadFromXml( el );
         redirect = InitUtils.getValue( el, "redirect" );
 
@@ -351,16 +349,16 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 UserGroup group = groupService.getGroup( this, groupName );
                 if( group != null ) {
                     String roleName = elGroup.getAttributeValue( "role" );
-                    if( !StringUtils.isEmpty( roleName)) {
+                    if( !StringUtils.isEmpty( roleName ) ) {
                         roleName = roleName.trim();
                         try {
                             Role role = Role.valueOf( roleName );
-                            this.permissions(true).grant( role, group );
+                            this.permissions( true ).grant( role, group );
                         } catch( Exception e ) {
                             log.error( "unknown role: " + roleName, e );
                         }
                     } else {
-                        log.warn("empty role name");
+                        log.warn( "empty role name" );
                     }
                 } else {
                     log.warn( "group not found: " + groupName );
@@ -462,11 +460,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         nameNode.save();
 
         fireEvent( new PostSaveEvent( this ) );
-        
+
         afterSave();
     }
 
-    protected void fireEvent(ResourceEvent e) {
+    protected void fireEvent( ResourceEvent e ) {
         EventManager mgr = _( EventManager.class );
         if( mgr != null ) {
             try {
@@ -513,8 +511,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     @Override
     public void init( NameNode nameNode ) {
-        if( nameNode == null )
+        if( nameNode == null ) {
             throw new RuntimeException( "init called with null namenode" );
+        }
         this.nameNode = (RelationalNameNode) nameNode;
         getComponents().init( this );
         initName();
