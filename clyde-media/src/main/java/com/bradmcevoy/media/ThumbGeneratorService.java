@@ -31,6 +31,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
 
     private final ThumbSelector thumbSelector;
     private final RootContextLocator rootContextLocator;
+    private MediaLogService mediaLogService;
 
     public ThumbGeneratorService( RootContextLocator rootContextLocator,ThumbSelector thumbSelector ) {
         this.thumbSelector = thumbSelector;
@@ -61,16 +62,18 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
             PostSaveEvent pse = (PostSaveEvent) e;
             if( pse.getResource() instanceof ImageFile ) {
                 ImageFile img = (ImageFile) pse.getResource();
-                log.debug( "check to see if parentFolder needs thumbHref set: " + img.getHref() );
+                //log.debug( "check to see if parentFolder needs thumbHref set: " + img.getHref() );
                 Folder parentFolder = img.getParentFolder();
-                if( parentFolder.getName().equals( "thumbs" ) ) {
-                    log.debug("parent folder is thumbs, so check its parent");
+                if( parentFolder.getName().equals( "_sys_thumbs" ) ) {
+                  //  log.debug("parent folder is thumbs, so check its parent");
                     parentFolder = parentFolder.getParent();
-                    log.debug( "is a thumb, so check parent parent");
+                    //log.debug( "is a thumb, so check parent parent");
                     if( thumbSelector.checkThumbHref( parentFolder ) ) {
                         log.debug( "folder modified by checking thumbs" );
                         parentFolder.save();
                     }
+                } else {
+                    //log.debug( "not a thumb, so do nothing");
                 }
             }
         }
@@ -104,7 +107,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         VfsSession vfs = context.get( VfsSession.class );
         NameNode pageNameNode = vfs.get( imageFileNameNodeId );
         if( pageNameNode == null ) {
-            ThumbGeneratorService.log.debug( "..name node not found. prolly deleted: " + targetName );
+            log.debug( "..name node not found. prolly deleted: " + targetName );
             return;
         }
         DataNode dn = pageNameNode.getData();
@@ -139,16 +142,29 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
      * @return - number of thumbs generated
      */
     private int generate( ImageFile targetPage ) {
-        log.debug( "...doing generation..." );
+        log.debug( "doing generation: " + targetPage.getUrl() );
         int num = targetPage.generateThumbs();
         if( num > 0 ) {
             Folder parentFolder = targetPage.getParentFolder();
             log.debug( "checking thumbs: " + parentFolder.getHref() );
             thumbSelector.checkThumbHref( parentFolder );
+            if( mediaLogService != null ) {
+                log.warn("generating media log");
+                mediaLogService.onThumbGenerated( targetPage );
+            } else {
+                log.warn("no media log");
+            }
         } else {
-            ThumbGeneratorService.log.debug( "not checking thumbs because no thumbs generated" );
+            log.debug( "not checking thumbs because no thumbs generated" );
         }
         return num;
     }
 
+    public MediaLogService getMediaLogService() {
+        return mediaLogService;
+    }
+
+    public void setMediaLogService( MediaLogService mediaLogService ) {
+        this.mediaLogService = mediaLogService;
+    }
 }

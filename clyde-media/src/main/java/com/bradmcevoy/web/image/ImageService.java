@@ -1,13 +1,22 @@
 package com.bradmcevoy.web.image;
 
+import java.text.ParseException;
 import org.apache.sanselan.*;
 import com.bradmcevoy.common.UnrecoverableException;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
+import org.apache.sanselan.common.IImageMetadata;
+import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
+import org.apache.sanselan.formats.tiff.TiffField;
+import org.apache.sanselan.formats.tiff.TiffImageMetadata;
+import org.apache.sanselan.formats.tiff.constants.TiffConstants;
 
 /**
  *
@@ -39,22 +48,50 @@ public class ImageService {
         }
     }
 
-//    public void getExifData(InputStream in, String name) {
-//        try {
-//            IImageMetadata meta = Sanselan.getMetadata( in, name );
-//            if( meta instanceof JpegImageMetadata) {
-//                JpegImageMetadata jpegMeta = (JpegImageMetadata) meta;
-//                jpegMeta.getExif().
-//            } else {
-//
-//            }
-//        } catch( ImageReadException ex ) {
-//            throw new RuntimeException( ex );
-//        } catch( IOException ex ) {
-//            throw new RuntimeException( ex );
-//        }
-//
-//    }
+    public ExifData getExifData( InputStream in, String name ) {
+
+        try {
+            IImageMetadata meta = Sanselan.getMetadata( in, name );
+            if( meta instanceof JpegImageMetadata ) {
+                JpegImageMetadata jpegMeta = (JpegImageMetadata) meta;
+
+                Double locLat = null;
+                Double locLong = null;
+                TiffImageMetadata exif = jpegMeta.getExif();
+                if( exif != null ) {
+                    TiffImageMetadata.GPSInfo info = exif.getGPS();
+                    if( info != null ) {
+                        locLat = info.getLatitudeAsDegreesNorth();
+                        locLong = info.getLongitudeAsDegreesEast();
+                    }
+                }
+
+                TiffField valDate = jpegMeta.findEXIFValue( TiffConstants.TIFF_TAG_DATE_TIME );
+                if( valDate != null ) {
+                    log.warn( "date: " + valDate.getStringValue() + " - " + valDate.getValueDescription() );
+                    log.warn(" - " + valDate.getValue() );
+                    DateFormat dateFormat = new SimpleDateFormat( "y:M:d H:m:s");
+                    try {
+                        Date takenDate = dateFormat.parse( valDate.getStringValue() );
+                        return new ExifData( takenDate, locLat, locLong );
+                    } catch( ParseException ex ) {
+                        return null;
+                    }
+                } else {
+                    log.warn("date not found");
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch( ImageReadException ex ) {
+            throw new RuntimeException( ex );
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        }
+
+    }
+
     public Dimensions getImageDimensions( File in ) {
         try {
             Dimensions d = null;
@@ -218,6 +255,38 @@ public class ImageService {
         ImageInputStream iis = ImageIO.createImageInputStream( is );
         // BufferedInputStream buf = new BufferedInputStream(is);
         return ImageIO.read( iis );
+    }
+
+    public class ExifData {
+
+        private final Date date;
+        private final Double locLat;
+        private final Double locLong;
+
+        public ExifData( Date date, Double locLat, Double locLong ) {
+            this.date = date;
+            this.locLat = locLat;
+            this.locLong = locLong;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public Double getLocLat() {
+            return locLat;
+        }
+
+        public Double getLocLong() {
+            return locLong;
+        }
+
+        @Override
+        public String toString() {
+            return "Exif: date: " + date + " lat:" + locLat + " long:" + locLong;
+        }
+
+
     }
 
     private class Proportion {

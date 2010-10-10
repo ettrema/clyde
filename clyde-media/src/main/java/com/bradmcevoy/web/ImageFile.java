@@ -150,6 +150,7 @@ public class ImageFile extends BinaryFile {
 
 
 
+
     public class ImageData {
         private int height;
         private int width;
