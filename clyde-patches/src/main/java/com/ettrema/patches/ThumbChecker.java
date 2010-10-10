@@ -2,7 +2,6 @@ package com.ettrema.patches;
 
 import com.bradmcevoy.web.console2.PatchApplicator;
 
-import com.bradmcevoy.thumbs.ThumbSelector;
 import com.bradmcevoy.web.Folder;
 import com.ettrema.context.Context;
 import com.ettrema.grid.AsynchProcessor;
@@ -15,6 +14,7 @@ import java.util.UUID;
 
 
 /**
+ * Does nothing, but might use later...
  *
  */
 public class ThumbChecker implements PatchApplicator {
@@ -26,7 +26,6 @@ public class ThumbChecker implements PatchApplicator {
      */
     private UUID nodeId;
     private String parentPath;
-    private transient ThumbSelector thumbSelector;
 
     public ThumbChecker() {
         parentPath = "";
@@ -52,7 +51,6 @@ public class ThumbChecker implements PatchApplicator {
     public void doProcess( Context context ) {
         VfsSession sess = context.get( VfsSession.class );
 
-        thumbSelector = context.get(ThumbSelector.class);
         NameNode node;
         if( nodeId == null ) {
             node = sess.root();
@@ -93,7 +91,6 @@ public class ThumbChecker implements PatchApplicator {
         if( dn instanceof Folder ) {
             Folder f = (Folder) dn;
             log.debug( "process folder: " + f.getHref() );
-            thumbSelector.checkThumbHref( f );
         }
     }
 
