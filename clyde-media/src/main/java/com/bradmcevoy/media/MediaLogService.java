@@ -51,7 +51,7 @@ public class MediaLogService implements TableDefinitionSource {
         log.trace( "search: " + hostId);
         int limit = pageSize;
         int offset = page * pageSize;
-        String sql = MEDIA_TABLE.getSelect() + " WHERE " + MEDIA_TABLE.hostId.getName() + " = ? LIMIT " + limit + " OFFSET " + offset;
+        String sql = MEDIA_TABLE.getSelect() + " WHERE " + MEDIA_TABLE.hostId.getName() + " = ? ORDER BY " + MEDIA_TABLE.dateTaken.getName() + " LIMIT " + limit + " OFFSET " + offset;
         log.debug( "sql: " + sql);
         PreparedStatement stmt = null;
         try {
