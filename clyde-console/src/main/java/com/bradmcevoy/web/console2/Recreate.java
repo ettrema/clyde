@@ -2,7 +2,9 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.StreamToStream;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
@@ -133,6 +135,10 @@ public class Recreate extends AbstractConsoleCommand {
             fin = new FileInputStream( input );
             bufIn = new BufferedInputStream( fin );
             col.createNew_notx( name, bufIn, input.length(), null );
+        } catch( NotAuthorizedException ex ) {
+            throw new RuntimeException( ex );
+        } catch( BadRequestException ex ) {
+            throw new RuntimeException( ex );
         } catch( ConflictException ex ) {
             throw new RuntimeException( ex );
         } catch( IOException ex ) {

@@ -2,6 +2,9 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.ettrema.console.Result;
@@ -49,7 +52,15 @@ public class Rm extends AbstractConsoleCommand{
             }
             StringBuffer sb = new StringBuffer();
             for( BaseResource r : list ) {
-                r._delete();
+                try {
+                    r._delete();
+                } catch( ConflictException ex ) {
+                    throw new RuntimeException( ex );
+                } catch( BadRequestException ex ) {
+                    throw new RuntimeException( ex );
+                } catch( NotAuthorizedException ex ) {
+                    throw new RuntimeException( ex );
+                }
                 sb.append(r.getHref()).append(",");
             }
             commit();
