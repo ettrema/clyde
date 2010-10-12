@@ -45,7 +45,7 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
         nameNode.save();
     }
 
-    public void addItem( FolderUpdateWallItem fu ) {
+    public void addItem( WallItem fu ) {
         if( wallItems == null ) {
             wallItems = new ArrayList<WallItem>();
         }

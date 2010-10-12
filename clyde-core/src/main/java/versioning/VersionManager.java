@@ -2,7 +2,6 @@ package versioning;
 
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
-import com.ettrema.event.PreSaveEvent;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.ComponentValueMap;
 import com.ettrema.vfs.DataNode;
@@ -31,12 +30,12 @@ public class VersionManager implements EventListener {
 
     @Override
     public void onEvent( Event e ) {
-        if( e instanceof PreSaveEvent ) {
-            PreSaveEvent pse = (PreSaveEvent) e;
-            if( pse.getResource() instanceof BaseResource ) {
-                createVersion( (BaseResource) pse.getResource());
-            }
-        }
+//        if( e instanceof PreSaveEvent ) {
+//            PreSaveEvent pse = (PreSaveEvent) e;
+//            if( pse.getResource() instanceof BaseResource ) {
+//                createVersion( (BaseResource) pse.getResource());
+//            }
+//        }
     }
 
     private void createVersion( BaseResource r ) {

@@ -1,10 +1,12 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.event.LogicalDeleteEvent;
+import com.bradmcevoy.event.PhysicalDeleteEvent;
+import com.bradmcevoy.event.PostSaveEvent;
+import com.bradmcevoy.event.PreSaveEvent;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.ettrema.event.DeleteEvent;
 import com.ettrema.event.EventManager;
-import com.ettrema.event.PostSaveEvent;
-import com.ettrema.event.PreSaveEvent;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.LockInfo;
 import com.bradmcevoy.http.LockResult;
@@ -275,21 +277,23 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      * we don't put Host's in trash because they define their own Trash folder
      */
-    public final void _delete() {
+    public void _delete() throws ConflictException, BadRequestException, NotAuthorizedException {
         if( this instanceof Host ) {
             log.debug( "physically deleting host: " + this.getName() );
-            nameNode.delete();
+            _( EventManager.class ).fireEvent( new PhysicalDeleteEvent( this ) );
+            deletePhysically();
         } else {
             if( this.getHost().isDisabled() ) {
                 log.debug( "physically delete because host is disabled" );
-                nameNode.delete();
+                deletePhysically();
 
-            } else {
-                Folder trashFolder = getTrashFolder();
+            } else {                
                 if( isTrash() ) {
-                    log.debug( "physically delete trash item" );
+                    _( EventManager.class ).fireEvent( new PhysicalDeleteEvent( this ) );
                     deletePhysically();
                 } else {
+                    _( EventManager.class ).fireEvent( new LogicalDeleteEvent( this ) );
+                    Folder trashFolder = getTrashFolder();
                     moveWithRename( this, trashFolder );
                 }
             }
@@ -303,6 +307,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      */
     public void deletePhysically() {
+        if( log.isInfoEnabled() ) {
+            log.info( "physically delete item: " + getHref() );
+        }
         nameNode.delete();
     }
 

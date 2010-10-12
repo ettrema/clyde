@@ -1,11 +1,13 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.creation.ResourceCreator;
 import com.bradmcevoy.common.Path;
 import com.ettrema.event.PutEvent;
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.DeletableCollectionResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
@@ -42,11 +44,14 @@ import static com.ettrema.context.RequestContext.*;
 
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
- * 
+ *
+ * Implements DeletableCollectionResource so that delete is not called recursively from
+ * milton.
+ *
  * @author brad
  */
 @BeanPropertyResource( "clyde" )
-public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource {
+public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Folder.class );
     private static final long serialVersionUID = 1L;
@@ -121,7 +126,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if( log.isTraceEnabled() ) {
             log.trace( "isSecureRead: " + this.getName() + " - " + secureRead );
         }
-        if( secureRead  ) {
+        if( secureRead ) {
             return true;
         }
         if( secureRead2 != null ) {
@@ -250,9 +255,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     @Override
     public void populateXml( Element e2 ) {
-        log.trace("populateXml");
+        log.trace( "populateXml" );
         super.populateXml( e2 );
-        InitUtils.set( e2, "secureRead", secureRead2);
+        InitUtils.set( e2, "secureRead", secureRead2 );
         InitUtils.set( e2, "versioningEnabled", versioningEnabled );
         InitUtils.setString( e2, "thumbHref", thumbHref );
         if( templateSpecs == null ) {
@@ -418,7 +423,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                 }
             }
         } else {
-            log.debug( "null namenode");
+            log.debug( "null namenode" );
         }
 
         Collections.sort( children );
@@ -745,6 +750,26 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public String getLink() {
         String text = getLinkText();
         return "<a href='" + getHref() + "index.html'>" + text + "</a>";
+    }
+
+    /**
+     * If this folder is a thumb folder, or some other type of system folder
+     * which users generally arent interested in
+     *
+     * @return
+     */
+    public boolean isSystemFolder() {
+        // TODO: should check specific conditions, eg parent's thumb specs
+        if( getName().startsWith( "_sys_" ) ) {
+            return true;
+        } else if( getName().equals( "Recent" ) ) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isLockedOutRecursive( Request request ) {
+        return false; // TODO: lookup from clydelock thingo
     }
 
     /**

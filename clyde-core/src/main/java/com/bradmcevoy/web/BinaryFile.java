@@ -355,9 +355,11 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         }
 
         String versionNum = null;
-        Map<String, String> ps = HttpManager.request().getParams();
-        if( ps != null ) {
-            versionNum = ps.get( "_version" );
+        if( HttpManager.request() != null ) {
+            Map<String, String> ps = HttpManager.request().getParams();
+            if( ps != null ) {
+                versionNum = ps.get( "_version" );
+            }
         }
         return svc.getContentLength( this, versionNum );
     }
