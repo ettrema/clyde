@@ -37,14 +37,16 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MediaFeedResource.class );
     public static final String PATTERN_RESPONSE_HEADER = "E, dd MMM yyyy HH:mm:ss Z"; // Tue, 29 Jun 2010 10:37:14 +1200
     private final String name;
+    private final MediaFeedLinkGenerator linkGenerator;
     private final MediaLogService logService;
     private final Host host;
     private final Long cacheSeconds;
     private final String basePath;
 
-    public MediaFeedResource( MediaLogService logService, String name, Host host, Long cacheSeconds, String basePath ) {
+    public MediaFeedResource( MediaLogService logService, MediaFeedLinkGenerator linkGenerator, String name, Host host, Long cacheSeconds, String basePath ) {
         this.name = name;
         this.logService = logService;
+        this.linkGenerator = linkGenerator;
         this.host = host;
         this.cacheSeconds = cacheSeconds;
         this.basePath = basePath;
@@ -73,15 +75,19 @@ public class MediaFeedResource implements GetableResource, DigestResource {
                 Path path = Path.path( mainContentPath );
                 if( type == MediaType.IMAGE ) {
                     appendImage( elChannel, path.getName(), dateTaken, mainContentPath, thumbPath );
+                } else if( type == MediaType.VIDEO ) {
+                    appendVideo( elChannel, path.getName(), dateTaken, mainContentPath, thumbPath );
+                } else {
+                    log.trace( "unknown type: " + type );
                 }
             }
         } );
 
         if( page > 0 ) {
-            appendPageLink("previous", elChannel, page-1);
+            appendPageLink( "previous", elChannel, page - 1 );
         }
-        if( numResults >= logService.getPageSize()) {
-            appendPageLink("next",elChannel, page+1);
+        if( numResults >= logService.getPageSize() ) {
+            appendPageLink( "next", elChannel, page + 1 );
         }
 
         elChannel.close().close();
@@ -90,12 +96,9 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     }
 
     private void appendPageLink( String rel, Element elChannel, int page ) {
-        log.trace("appendPage: " + rel + " - " + page);
+        log.trace( "appendPage: " + rel + " - " + page );
         String feedHref = basePath + "/" + name + "?page=" + page;
-        elChannel.begin( "atom:link" )
-            .writeAtt( "rel", rel)
-            .writeAtt( "href", feedHref)
-            .close();
+        elChannel.begin( "atom:link" ).writeAtt( "rel", rel ).writeAtt( "href", feedHref ).close();
 
     }
 
@@ -107,9 +110,27 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         String hostUrl = hostUrl();
         String thumbUrl = hostUrl + thumbPath;
         String contentUrl = hostUrl + mainContentPath;
-        Element elImg = elChannel.begin( "item" ).prop( "title", title ).prop( "media:description", title ).prop( "link", mainContentPath );
+        String link = mainContentPath;
+        if( linkGenerator != null ) {
+            link = linkGenerator.generateLink( MediaType.IMAGE, mainContentPath );
+        }
+        Element elImg = elChannel.begin( "item" ).prop( "title", title ).prop( "media:description", title ).prop( "link", link );
         elImg.begin( "media:thumbnail" ).writeAtt( "url", thumbUrl ).close();
         elImg.begin( "media:content" ).writeAtt( "url", contentUrl ).close();
+        elImg.close( true );
+    }
+
+    private void appendVideo( Element elChannel, String title, Date dateTaken, String mainContentPath, String thumbPath ) {
+        String hostUrl = hostUrl();
+        String thumbUrl = hostUrl + thumbPath;
+        String contentUrl = hostUrl + mainContentPath;
+        String link = mainContentPath;
+        if( linkGenerator != null ) {
+            link = linkGenerator.generateLink( MediaType.VIDEO, mainContentPath );
+        }
+        Element elImg = elChannel.begin( "item" ).prop( "title", title ).prop( "media:description", title ).prop( "link", link );
+        elImg.begin( "media:thumbnail" ).writeAtt( "url", thumbUrl ).close();
+        elImg.begin( "media:content" ).writeAtt( "url", contentUrl ).writeAtt( "type", "video/x-flv" ).close();
         elImg.close( true );
     }
 
@@ -173,6 +194,4 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     protected RequestContext requestContext() {
         return RequestContext.getCurrent();
     }
-
-
 }

@@ -14,6 +14,7 @@ public class MediaFeedResourceFactory implements ResourceFactory {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MediaFeedResourceFactory.class );
     private final String feedName;
     private final ResourceFactory wrapped;
+    private MediaFeedLinkGenerator linkGenerator;
     private final MediaLogService logService;
     private Long cacheSeconds;
     private boolean secure;
@@ -34,7 +35,7 @@ public class MediaFeedResourceFactory implements ResourceFactory {
                 Host folder = (Host) parent;
                 String basePath = buildBasePath(host, path.getParent());
                 log.trace( "got media feed resource" );
-                return new MediaFeedResource( logService, feedName, folder, cacheSeconds, basePath );
+                return new MediaFeedResource( logService, linkGenerator, feedName, folder, cacheSeconds, basePath );
             } else {
                 log.trace( "did not find: " + path.getParent() );
                 return null;
@@ -68,5 +69,14 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         return s;
     }
 
+    public MediaFeedLinkGenerator getLinkGenerator() {
+        return linkGenerator;
+    }
+
+    public void setLinkGenerator( MediaFeedLinkGenerator linkGenerator ) {
+        this.linkGenerator = linkGenerator;
+    }
+
+    
 
 }

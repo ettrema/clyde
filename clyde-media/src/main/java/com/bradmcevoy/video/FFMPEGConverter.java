@@ -6,6 +6,7 @@ import com.bradmcevoy.io.StreamToStream;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.utils.FileUtils;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,15 +15,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class FFMPEGConverter implements Converter {
+public class FFMPEGConverter implements Converter, Closeable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FFMPEGConverter.class );
     private static final File TEMP_DIR = new File( System.getProperty( "java.io.tmpdir" ) );
-    final InputStream in;
-    final File source;
-    final String inputFormat;
+    private final String process;
+    private final InputStream in;
+    private final File source;
+    private final String inputFormat;
 
-    public FFMPEGConverter( InputStream in, String inputFormat ) {
+    public FFMPEGConverter( String process, InputStream in, String inputFormat ) {
+        this.process = process;
         this.in = in;
         this.inputFormat = inputFormat;
         source = createSourceFile( in, inputFormat );
@@ -46,7 +49,6 @@ public class FFMPEGConverter implements Converter {
         File dest = getDestThumbFile( outputFormat );
         try {
             log.debug( " converting: " + source.getAbsolutePath() + "(" + source.length() + ") to: " + dest.getAbsolutePath() );
-            String process = "ffmpeg";
             String dimensions = width + "x" + height;
             //String[]  args = {"-i",source.getAbsolutePath(),"-s",dimensions,"-ss","s","-vframes","1","-f","mjpeg",dest.getAbsolutePath()};
             String[] args = {"-i", source.getAbsolutePath(), "-s", dimensions, "-ss", "1", "-vframes", "1", "-f", "mjpeg", dest.getAbsolutePath()};
@@ -92,7 +94,6 @@ public class FFMPEGConverter implements Converter {
         log.debug( "convert" );
         File dest = getDestFlvFile( outputFormat );
         log.debug( " converting: " + source.getAbsolutePath() + "(" + source.length() + ") to: " + dest.getAbsolutePath() );
-        String process = "ffmpeg";
         String[] args;
         if( useDimensions ) {
             String dimensions = width + "x" + height;

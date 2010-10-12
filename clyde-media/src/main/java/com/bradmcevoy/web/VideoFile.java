@@ -1,12 +1,14 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.video.FlashService;
 import com.bradmcevoy.web.component.InitUtils;
 import org.jdom.Element;
 
-@BeanPropertyResource("clyde")
+import static com.ettrema.context.RequestContext._;
+
+@BeanPropertyResource( "clyde" )
 public class VideoFile extends BinaryFile {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( VideoFile.class );
@@ -17,7 +19,6 @@ public class VideoFile extends BinaryFile {
     public VideoFile( String contentType, Folder parentFolder, String newName ) {
         super( contentType, parentFolder, newName );
     }
-
 
     public VideoFile( Folder parentFolder, String newName ) {
         super( "video", parentFolder, newName );
@@ -45,17 +46,6 @@ public class VideoFile extends BinaryFile {
     @Override
     protected void afterSetContent() {
         super.afterSetContent();
-        generateStreaming();
-    }
-
-    public void generateStreaming() {
-        // done on commit
-//        StreamingVideoGenerator gen = requestContext().get( StreamingVideoGenerator.class);
-//        if( gen == null ) {
-//            log.warn( "No streaming video converter");
-//        } else {
-//            gen.generateStreamingVideo( this );
-//        }
     }
 
     public Integer getConvertedHeight() {
@@ -75,15 +65,15 @@ public class VideoFile extends BinaryFile {
     }
 
     public FlashFile getStreamingVideo() {
-        Folder folderThumbs = getThumbsFolder();
+        FlashService gen = _( FlashService.class );
+        String thumbSpec = gen.getFlashThumbSuffix();
+        Folder folderThumbs = this.getParent().thumbs( thumbSpec );
         if( folderThumbs == null ) {
             return null;
         }
-        BaseResource resThumb = folderThumbs.childRes(this.getName());
-        if( resThumb == null ) {
-            resThumb = folderThumbs.childRes(this.getName() + ".flv");
-            if( resThumb == null ) return null;
-        }
+        BaseResource resThumb = folderThumbs.childRes( gen.getFlashFileNameForVideo( this ) );
+        if( resThumb == null ) return null;
+
         if( resThumb instanceof FlashFile ) {
             FlashFile thumb = (FlashFile) resThumb;
             return thumb;
@@ -98,28 +88,39 @@ public class VideoFile extends BinaryFile {
         return ff.getHref();
     }
 
+    public String getStreamingVideoUrl() {
+        FlashFile ff = getStreamingVideo();
+        if( ff == null ) return "";
+        return ff.getUrl();
+    }
+
+    @Override
+    public HtmlImage thumb( String suffix ) {
+        Folder f = this.getParent().thumbs( suffix );
+        if( f == null ) {
+            log.warn( "no thumb spec: " + suffix + " in " + this.getParent().getUrl() );
+            return new NoImageResource();
+        }
+        BaseResource res = f.childRes( _(FlashService.class).getThumbName( this ) ); 
+        if( res instanceof BinaryFile ) {
+            return (BinaryFile) res;
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public HtmlImage getThumb() {
-        Folder folderThumbs = getThumbsFolder();
-        if (folderThumbs != null) {
-            Resource nextThumbs = folderThumbs.child( "thumbs" );
-            if( nextThumbs instanceof Folder ) {
-                folderThumbs = (Folder) nextThumbs;
-                BaseResource resThumb = folderThumbs.childRes(this.getName() + ".flv.jpg");
-                if ( resThumb instanceof HtmlImage) {
-                    HtmlImage thumb = (HtmlImage) resThumb;
-                    return thumb;
-                }
-            }
+        FlashFile ff = getStreamingVideo();
+        if( ff == null ) {
+            return null;
+        } else {
+            return ff.getThumb();
         }
-        return new NoImageResource();
-
     }
 
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {
         return 60 * 60 * 24 * 7 * 4l; // 4 weeks
     }
-
 }

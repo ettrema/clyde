@@ -17,7 +17,7 @@ public class ThumbnailGeneratorProcessable implements Processable, Serializable 
     }
 
     public void doProcess( Context context ) {
-        context.get( ThumbGeneratorService.class).processGenerator(context, targetName, imageFileNameNodeId );
+        context.get( ThumbGeneratorService.class).initiateGeneration(context, targetName, imageFileNameNodeId );
     }
 
     public void pleaseImplementSerializable() {

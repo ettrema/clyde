@@ -1,16 +1,14 @@
 package com.bradmcevoy.web.recent;
 
+import com.bradmcevoy.event.PostSaveEvent;
 import com.ettrema.event.DeleteEvent;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
-import com.ettrema.event.PostSaveEvent;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Thumb;
 import com.bradmcevoy.web.Web;
-import java.util.List;
 
 /**
  *
@@ -32,13 +30,13 @@ public class RecentManager implements EventListener{
         if(e instanceof PostSaveEvent) {
             log.trace("onEvent: PostSaveEvent");
             if(HttpManager.request() == null ) {
-                log.debug("no current request, so dont create a recent file");
+                log.trace("no current request, so dont create a recent file");
                 return ;
             } else if( HttpManager.request().getAuthorization() == null ) {
-                log.debug("no current auth");
+                log.trace("no current auth");
                 return ;
             } else if( HttpManager.request().getAuthorization().getTag() == null ) {
-                log.debug("no current user");
+                log.trace("no current user");
                 return ;
             }
 
@@ -52,6 +50,12 @@ public class RecentManager implements EventListener{
                 log.trace("not creating recent, because is a recent resource");
                 return ;
             }
+            Folder parent = res.getParent();
+            if( parent != null && parent.isSystemFolder())    {
+                log.trace("not creating recent, because parent is a system folder");
+                return ;
+            }
+
             if( res instanceof Web ){
                 log.trace("not creating recent for Web");
                 return ;
@@ -64,15 +68,6 @@ public class RecentManager implements EventListener{
                         log.trace("not creating recent because is the Recent folder");
                         return ;
                     }
-                }
-                if( isThumbs(fNew) ) { // don't create recent for thumb folders
-                    log.debug("is in thumbs folder");
-                    return ;
-                }
-            } else {
-                if( isThumbs(res.getParent()) ) {  // don't create recent files for thumb nails
-                    log.debug("is in thumbs folder");
-                    return ;
                 }
             }
             log.trace("crate recent resource");
@@ -97,24 +92,5 @@ public class RecentManager implements EventListener{
 
     public void setCreator(RecentResourceCreator creator) {
         this.creator = creator;
-    }
-
-    /**
-     * True if the given folder is a thumbs folder
-     * 
-     * @param f
-     * @return
-     */
-    private boolean isThumbs(Folder f) {
-        List<Thumb> thumbs = Thumb.getThumbSpecs( f.getParent() );
-        if( thumbs != null ) {
-            for( Thumb t : thumbs ) {
-                String thumbFolderName = t.getSuffix() + "s";
-                if( f.getName().equals(thumbFolderName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

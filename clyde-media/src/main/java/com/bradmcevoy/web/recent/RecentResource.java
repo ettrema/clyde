@@ -2,6 +2,9 @@ package com.bradmcevoy.web.recent;
 
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BinaryFile;
@@ -46,8 +49,14 @@ public class RecentResource extends File {
         if( target instanceof Folder) {
             isFolder = true;
         }
-
     }
+
+    @Override
+    public void _delete() throws ConflictException, BadRequestException, NotAuthorizedException {
+        deletePhysically();
+    }
+
+
 
     public void setUser(IUser user) {
         if (user != null) {

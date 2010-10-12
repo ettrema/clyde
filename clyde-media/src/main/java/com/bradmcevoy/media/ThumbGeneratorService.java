@@ -1,24 +1,33 @@
 package com.bradmcevoy.media;
 
+import com.bradmcevoy.event.PostSaveEvent;
+import com.bradmcevoy.vfs.VfsCommon;
+import com.bradmcevoy.video.FlashService;
+import com.bradmcevoy.web.BinaryFile;
+import com.bradmcevoy.web.FlashFile;
 import com.ettrema.event.Event;
 import com.bradmcevoy.web.ImageFile;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
-import com.ettrema.event.PostSaveEvent;
 import com.bradmcevoy.web.Thumb;
+import com.bradmcevoy.web.VideoFile;
 import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.grid.Processable;
 import com.ettrema.vfs.CommitListener;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsProvider;
 import com.ettrema.vfs.VfsSession;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -63,44 +72,64 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     public void onCommit( NameNode n ) throws Exception {
         DataNode dn = n.getData();
         if( dn instanceof ImageFile ) {
-            RequestContext context = RequestContext.getCurrent();
-            ImageFile f = (ImageFile) dn;
+            if( enqueue( (ImageFile) dn ) ) return;
+        } else if( dn instanceof VideoFile ) {
+            if( enqueue( (VideoFile) dn ) ) return;
+        } else if( dn instanceof FlashFile ) {
+            if( enqueue( (FlashFile) dn ) ) return;
+        }
+
+    }
+
+    private boolean enqueue( BinaryFile f ) {
+        RequestContext context = RequestContext.getCurrent();
+        if( f.isTrash() ) {
+            log.trace( "not generating thumbs because is in trash" );
+        } else {
             if( f.getParentFolder() != null ) {
                 List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder() );
-                if( thumbSpecs == null || thumbSpecs.size() == 0 ) return;
-                ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( n.getId(), n.getName() );
+                if( thumbSpecs == null || thumbSpecs.size() == 0 ) return true;
+                ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( f.getNameNodeId(), f.getName() );
                 AsynchProcessor asynchProc = context.get( AsynchProcessor.class );
                 asynchProc.enqueue( proc );
             } else {
                 log.warn( "image has no parent folder! " + f.getName() );
             }
         }
+        return false;
     }
 
-    public void processGenerator( Context context, String targetName, UUID imageFileNameNodeId ) {
+    public void initiateGeneration( Context context, String targetName, UUID fileNameNodeId ) {
         if( log.isTraceEnabled() ) {
             log.trace( "generating thumbs: " + targetName + "..." );
         }
         VfsSession vfs = context.get( VfsSession.class );
-        NameNode pageNameNode = vfs.get( imageFileNameNodeId );
+        NameNode pageNameNode = vfs.get( fileNameNodeId );
         if( pageNameNode == null ) {
             log.trace( "..name node not found. prolly deleted: " + targetName );
             return;
         }
         DataNode dn = pageNameNode.getData();
         if( dn == null ) {
-            log.warn( "Could not find target: " + imageFileNameNodeId );
+            log.warn( "Could not find target: " + fileNameNodeId );
             return;
         }
-        ImageFile targetPage;
+        int count;
         if( dn instanceof ImageFile ) {
-            targetPage = (ImageFile) dn;
+            count = generate( (ImageFile) dn );
+        } else if( dn instanceof VideoFile ) {
+            count = generate( (VideoFile) dn );
+        } else if( dn instanceof FlashFile ) {
+            count = generate( (FlashFile) dn );
         } else {
             log.warn( "Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName() );
             return;
         }
+        log.trace( "generated: " + count );
+        if( dn instanceof BinaryFile ) {
+            notifyWallEtc( count, (BinaryFile) dn );
+        }
         try {
-            int count = generate( targetPage );
             if( count > 0 ) {
                 vfs.commit();
             } else {
@@ -108,7 +137,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
             }
         } catch( Exception e ) {
             // consume exception so we don't keep trying to process same message
-            ThumbGeneratorService.log.error( "failed to generate thumbs for: " + targetPage.getHref(), e );
+            log.error( "failed to generate thumbs for: " + fileNameNodeId, e );
             vfs.rollback();
         }
     }
@@ -119,24 +148,78 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
      * @return - number of thumbs generated
      */
     private int generate( ImageFile targetPage ) {
-        if( log.isTraceEnabled() ) {
-            log.trace( "doing generation: " + targetPage.getUrl() );
-        }
         int num = targetPage.generateThumbs();
+        return num;
+    }
 
-        if( num > 0 ) {
+    private int generate( VideoFile videoFile ) {
+        int num = _( FlashService.class ).generateStreamingVideo( videoFile );
+        return num;
+    }
+
+    private int generate( FlashFile flashFile ) {
+        int num = _( FlashService.class ).generateThumbs( flashFile );
+        return num;
+    }
+
+    private void notifyWallEtc( int numThumbs, BinaryFile file ) {
+        if( file.getParent().isSystemFolder() ) {
+            log.trace( "parent is sys folder: " + file.getParent().getUrl() );
+            return;
+        }
+        if( numThumbs > 0 ) {
             if( mediaLogService != null ) {
-                mediaLogService.onThumbGenerated( targetPage );
+                mediaLogService.onThumbGenerated( file );
             }
 
             if( wallService != null ) {
                 log.trace( "updating wall" );
-                wallService.onUpdatedFile( targetPage );
+                wallService.onUpdatedFile( file );
             }
         } else {
             log.trace( "not checking thumbs because no thumbs generated" );
         }
-        return num;
+    }
+
+    public static class StreamingVideoProcessable extends VfsCommon implements Processable, Serializable {
+
+        private static final long serialVersionUID = 1L;
+        private final String sourceName;
+        private final UUID id;
+
+        public StreamingVideoProcessable( String sourceName, UUID id ) {
+            this.sourceName = sourceName;
+            this.id = id;
+        }
+
+        public void doProcess( Context context ) {
+            log.debug( "processing: " + sourceName );
+            VfsSession vfs = context.get( VfsSession.class );
+            NameNode nn = vfs.get( id );
+            if( nn == null ) {
+                log.warn( "Couldnt find node: " + id );
+                return;
+            }
+            DataNode data = nn.getData();
+            if( data == null ) {
+                log.warn( "node was found but datanode was null: name node id: " + id );
+            } else if( data instanceof VideoFile ) {
+                VideoFile file = (VideoFile) data;
+                FlashService gen = _( FlashService.class );
+                try {
+                    gen.generateStreamingVideo( file );
+                    commit();
+                } catch( Exception e ) {
+                    log.warn( "Exception generating streaming video: " + file.getHref(), e );
+                    rollback();
+                }
+            } else {
+                log.warn( "Not an instanceof video file: " + data.getClass() );
+            }
+        }
+
+        public void pleaseImplementSerializable() {
+        }
     }
 
     public MediaLogService getMediaLogService() {

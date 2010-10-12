@@ -237,8 +237,8 @@ public class ImageService {
         try {
             BufferedOutputStream buffOut = new BufferedOutputStream( out );
             ImageIO.write( image, format, buffOut );
+            buffOut.flush();
         } catch( IOException ex ) {
-            System.out.println( "throwing exception" );
             throw new UnrecoverableException( ex );
         }
     }

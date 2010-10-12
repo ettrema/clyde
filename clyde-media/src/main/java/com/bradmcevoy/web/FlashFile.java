@@ -3,6 +3,7 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.video.FlashService;
 
+
 import static com.ettrema.context.RequestContext._;
 
 @BeanPropertyResource( value = "clyde" )
@@ -34,12 +35,17 @@ public class FlashFile extends BinaryFile {
     }
 
     @Override
-    protected void afterSetContent() {
-        super.afterSetContent();
-        try {
-            generateThumb();
-        } catch( Exception e ) {
-            log.warn( "Failed to generate thumbnail for: " + this.getHref(), e );
+    public HtmlImage thumb( String suffix ) {
+        Folder f = this.getParent().thumbs( suffix );
+        if( f == null ) {
+            log.warn( "no thumb spec: " + suffix + " in " + this.getParent().getUrl() );
+            return new NoImageResource();
+        }
+        BaseResource res = f.childRes( _(FlashService.class).getThumbName( this ) );
+        if( res != null && res instanceof BinaryFile ) {
+            return (BinaryFile) res;
+        } else {
+            return null;
         }
     }
 
@@ -60,7 +66,4 @@ public class FlashFile extends BinaryFile {
         return r.getUrl();
     }
 
-    public void generateThumb() {
-        _(FlashService.class).generateThumb( this );
-    }
 }
