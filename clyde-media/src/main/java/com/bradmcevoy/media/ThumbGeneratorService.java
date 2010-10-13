@@ -5,6 +5,7 @@ import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.video.FlashService;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.FlashFile;
+import com.bradmcevoy.web.Folder;
 import com.ettrema.event.Event;
 import com.bradmcevoy.web.ImageFile;
 import com.ettrema.event.EventListener;
@@ -71,12 +72,24 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
 
     public void onCommit( NameNode n ) throws Exception {
         DataNode dn = n.getData();
-        if( dn instanceof ImageFile ) {
-            if( enqueue( (ImageFile) dn ) ) return;
-        } else if( dn instanceof VideoFile ) {
-            if( enqueue( (VideoFile) dn ) ) return;
-        } else if( dn instanceof FlashFile ) {
-            if( enqueue( (FlashFile) dn ) ) return;
+        if( dn instanceof BinaryFile ) {
+            BinaryFile bf = (BinaryFile) dn;
+            Folder parent = bf.getParent();
+            if( parent != null && parent.isSystemFolder() ) {
+                log.trace( "parent is a system folder,not generating" );
+                return;
+            } else {
+                log.trace("enqueuing");
+                if( dn instanceof ImageFile ) {
+                    if( enqueue( (ImageFile) dn ) ) return;
+                } else if( dn instanceof VideoFile ) {
+                    if( enqueue( (VideoFile) dn ) ) return;
+                } else if( dn instanceof FlashFile ) {
+                    if( enqueue( (FlashFile) dn ) ) return;
+                }
+            }
+        } else {
+            log.trace("not enqueing non-binary file");
         }
 
     }

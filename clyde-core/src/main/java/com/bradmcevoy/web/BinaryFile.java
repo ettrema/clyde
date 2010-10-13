@@ -307,17 +307,23 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         return s;
     }
 
+    protected String getThumbName() {
+        return this.getName();
+    }
+
     public HtmlImage thumb( String suffix ) {
         Folder f = this.getParent().thumbs( suffix );
         if( f == null ) {
             log.warn( "no thumb spec: " + suffix + " in " + this.getParent().getUrl() );
-            return new NoImageResource();
+            return null;
         }
-        BaseResource res = f.childRes( this.getName() );
+        String thumbName = getThumbName();
+        BaseResource res = f.childRes( thumbName );
         if( res != null && res instanceof BinaryFile ) {
             return (BinaryFile) res;
         } else {
-            return new NoImageResource();
+            log.info("no thumb with name: " + thumbName + " in folder: " + f.getName() );
+            return null;
         }
     }
 

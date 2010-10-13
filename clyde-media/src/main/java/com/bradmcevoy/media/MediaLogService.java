@@ -108,7 +108,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void onThumbGenerated( FlashFile file ) {
-        log.trace("onThumbGenerated: flashFile");
+        log.trace( "onThumbGenerated: flashFile" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         String contentPath = file.getUrl();
         if( thumbPath != null && contentPath != null ) {
@@ -120,15 +120,24 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void onThumbGenerated( VideoFile file ) {
-        log.trace("onThumbGenerated: video");
+        log.trace( "onThumbGenerated: video" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
-        String contentPath = file.getStreamingVideoUrl();
-        if( thumbPath != null && contentPath != null ) {
-            log.warn( "create log" );
-            mediaLogDao.createOrUpdate( file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
-        } else {
-            log.warn( "no thumb, or not right type" );
+        if( thumbPath == null ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "no thumb for: " + file.getUrl() );
+            }
+            return;
         }
+        String contentPath = file.getStreamingVideoUrl();
+        if( contentPath == null ) {
+            if(log.isTraceEnabled()) {
+                log.trace( "no content path for: " + file.getUrl());
+            }
+            return ;
+        }
+
+        log.warn( "create log" );
+        mediaLogDao.createOrUpdate( file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
     }
 
     public void onThumbGenerated( ImageFile file ) {
@@ -175,19 +184,18 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         }
         HtmlImage thumb = file.thumb( suffix );
         if( thumb == null ) {
-            log.trace("no thumb");
+            log.trace( "no thumb" );
             return null;
         } else if( thumb instanceof BinaryFile ) {
             BinaryFile bf = (BinaryFile) thumb;
             String s = bf.getUrl();
-            log.trace( "thumb url: " + s);
+            log.trace( "thumb url: " + s );
             return s;
         } else {
-            log.trace("thumb not right type");
+            log.trace( "thumb not right type: " + thumb.getClass() );
             return null;
         }
     }
-    
 
     public int getPageSize() {
         return pageSize;

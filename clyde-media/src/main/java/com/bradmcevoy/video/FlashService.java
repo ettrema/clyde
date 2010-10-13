@@ -71,7 +71,7 @@ public class FlashService {
             }
             log.debug( "finished generateStreaming" );
 
-            int numThumbs = generateThumbs( flash, source.getParent(), converter );
+            int numThumbs = generateThumbs( flash, source, converter );
 
             return 1 + numThumbs;
         } finally {
@@ -104,10 +104,6 @@ public class FlashService {
     }
 
     public int generateThumbs( FlashFile f ) {
-        return generateThumbs( f, f.getParent() );
-    }
-
-    private int generateThumbs( FlashFile f, Folder thumbsParent ) {
         FFMPEGConverter c = null;
         InputStream in = null;
         try {
@@ -117,7 +113,7 @@ public class FlashService {
                 return 0;
             }
             c = new FFMPEGConverter( ffmpegProcess, in, "flv" );
-            return generateThumbs( f, thumbsParent, c );
+            return generateThumbs( f, f, c );
         } finally {
             close( c );
             FileUtils.close( in );
@@ -160,16 +156,13 @@ public class FlashService {
         this.ffmpegProcess = ffmpegProcess;
     }
 
-    public String getThumbName( FlashFile f ) {
+    public String getThumbName( BinaryFile f ) {
         return f.getName() + ".jpg";
     }
 
-    public String getThumbName( VideoFile f ) {
-        return f.getName() + ".jpg";
-    }
 
-    private int generateThumbs( FlashFile f, Folder thumbsParent, final FFMPEGConverter c ) {
-        String thumbName = getThumbName(f );
+    private int generateThumbs( FlashFile f, BinaryFile source, final FFMPEGConverter c ) {
+        String thumbName = getThumbName( source );
         try {
             List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParent() );
             if( thumbSpecs == null ) {
@@ -180,7 +173,7 @@ public class FlashService {
             for( Thumb ts : thumbSpecs ) {
                 count++;
                 final Thumb thumbSpec = ts;
-                Folder thumbs = thumbsParent.thumbs( thumbSpec.getSuffix(), true );
+                Folder thumbs = source.getParent().thumbs( thumbSpec.getSuffix(), true );
                 BaseResource r = thumbs.childRes( thumbName );
                 if( r != null ) {
                     delete( r );
