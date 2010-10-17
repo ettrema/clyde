@@ -5,6 +5,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
@@ -23,6 +24,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
+@BeanPropertyResource( "clyde" )
 public class User extends Folder implements IUser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
