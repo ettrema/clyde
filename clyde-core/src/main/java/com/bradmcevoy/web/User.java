@@ -1,5 +1,10 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.wall.Wall;
+import com.bradmcevoy.web.wall.WallItem;
+import com.bradmcevoy.web.wall.WallService;
+import java.util.Collections;
+import java.util.List;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
@@ -355,5 +360,17 @@ public class User extends Folder implements IUser {
 
     public void addToGroup( Group g ) {
         _( RelationalGroupHelper.class ).addToGroup( this, g );
+    }
+
+    public List<WallItem> getWall() {
+        log.warn( "getWall");
+        Wall wall = _(WallService.class).getUserWall( this,false );
+        if( wall == null ) {
+            return Collections.emptyList();
+        } else {
+            List<WallItem> list = wall.getItems();
+            log.warn("wall items: " + list.size());
+            return list;
+        }
     }
 }

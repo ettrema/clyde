@@ -214,7 +214,7 @@ public class Web extends Folder {
 
     public List<WallItem> getWall() {
         log.warn( "getWall");
-        Wall wall = _(WallService.class).getWall( this );
+        Wall wall = _(WallService.class).getWebWall( this,false );
         if( wall == null ) {
             return Collections.emptyList();
         } else {

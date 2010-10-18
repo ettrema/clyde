@@ -113,7 +113,7 @@ public class WallService implements EventListener {
         for( WallItem wallItem : wall ) {
             if( wallItem instanceof FolderUpdateWallItem ) {
                 FolderUpdateWallItem fu = (FolderUpdateWallItem) wallItem;
-                if( fu.getFolderPath().equals( folderPath ) ) {
+                if( fu.getFolderPath() != null && fu.getFolderPath().equals( folderPath ) ) {
                     log.trace( "found existing folder update item" );
                     updateWallItem = fu;
                     break;
