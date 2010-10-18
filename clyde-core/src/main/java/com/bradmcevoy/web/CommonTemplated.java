@@ -456,6 +456,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( web != null ) {
             String templateName = getTemplateName();
             if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
+                log.debug( "empty template name");
                 return null;
             }
             TemplateManager tm = requestContext().get( TemplateManager.class );
@@ -471,7 +472,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             log.warn( "no web for: " + this.getName() );
         }
         if( template != null ) {
-//            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
+            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
         }
         return template;
     }
@@ -505,9 +506,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String render( RenderContext child ) {
+        log.debug( "render---- " + getName());
         ITemplate t = getTemplate();
+        if( t == null ) {
+            log.debug( "null template for: " + this.getName());
+        }
         RenderContext rc = new RenderContext( t, this, child, false );
         if( t != null ) {
+            log.debug( "rendering from template " + t.getName());
             return t.render( rc );
         } else {
             log.debug( "no template, so use root parameter" );
@@ -516,6 +522,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 log.warn( "no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
                 return "";
             } else {
+                log.debug( "rendering from root component");
                 return cRoot.render( rc );
             }
         }

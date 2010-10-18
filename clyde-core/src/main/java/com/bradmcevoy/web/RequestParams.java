@@ -21,17 +21,17 @@ public class RequestParams {
     }
 
     public final Resource resource;
+    public final Request request;
     public final String href;
-    public final Auth auth;
     public final Map<String, String> parameters;
     public final Map<String, FileItem> files;
     public final Map<String, Object> attributes;
     public final Method method;
 
     public RequestParams(Resource resource, Request request, Map<String, String> parameters, Map<String, FileItem> files) {
+        this.request = request;
         this.resource = resource;
         this.href = request.getAbsolutePath();
-        this.auth = request.getAuthorization();
         this.method = request.getMethod();
         this.parameters = parameters;
         this.files = files;
@@ -53,8 +53,14 @@ public class RequestParams {
     }
 
     public Auth getAuth() {
-        return auth;
+        return request.getAuthorization();
     }
+
+    public Request getRequest() {
+        return request;
+    }
+
+    
 
     public String getHref() {
         return href;

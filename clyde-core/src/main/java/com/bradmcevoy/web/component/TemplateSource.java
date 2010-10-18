@@ -52,7 +52,7 @@ public class TemplateSource {
     }
 
     public Auth getAuth() {
-        return RequestParams.current().auth;
+        return RequestParams.current().getAuth();
     }
 
     public String getActualHref() {

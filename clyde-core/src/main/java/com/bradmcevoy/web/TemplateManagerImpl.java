@@ -12,7 +12,7 @@ public class TemplateManagerImpl implements TemplateManager{
         if( templateName == null ) return null;
         Web web = folder.getWeb();
         Folder templates = web.getTemplates();
-//        log.debug( "templates: " + templates.getPath());
+        log.debug( "lookup: " + templateName + " templates: " + templates.getPath());
         if( templates == null ) {
             throw new NullPointerException( "No templates folder for web: " + web.getName() );
         }
@@ -29,15 +29,19 @@ public class TemplateManagerImpl implements TemplateManager{
             }
             template = (Template) res;
             if( template == null ) {
+                log.debug("..not found1");
                 Web parentWeb = web.getParentWeb();
                 if( parentWeb != null && parentWeb != web ) {
                     ITemplate t = lookup( templateName, parentWeb );
                     if( t != null ) {
+                        log.debug("got wrapped template");
                         return new WrappedTemplate( t, web );
                     } else {
+                        log.debug("..not found3");
                         return null;
                     }
                 } else {
+                    log.debug("..not found4");
                     return null;
                 }
             } else {
