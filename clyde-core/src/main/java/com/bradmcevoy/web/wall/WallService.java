@@ -4,6 +4,7 @@ import com.bradmcevoy.event.LogicalDeleteEvent;
 import com.bradmcevoy.event.PhysicalDeleteEvent;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.Web;
 import com.bradmcevoy.web.image.ThumbHrefService;
 import com.ettrema.event.Event;
@@ -23,6 +24,7 @@ public class WallService implements EventListener {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( WallService.class );
     private final ThumbHrefService thumbHrefService;
+    private String thumbSuffix = "_sys_thumb";
     private int maxWallSize = 50;
     private List<String> excludedDirs = Arrays.asList( "/Recent/" );
 
@@ -46,7 +48,7 @@ public class WallService implements EventListener {
         }
     }
 
-    private Wall createWall( Web web ) {
+    private Wall createWall( BaseResource web ) {
         log.trace( "create" );
         Wall wall = new Wall();
         web.getNameNode().add( "_sys_wall", wall );
@@ -78,8 +80,8 @@ public class WallService implements EventListener {
     }
 
     private void onLogicalDelete( BaseResource res ) {
-        if( isExcluded( res )) {
-            return ;
+        if( isExcluded( res ) ) {
+            return;
         }
         Web web = res.getWeb();
         Wall wall = getWall( web, true );
@@ -90,8 +92,8 @@ public class WallService implements EventListener {
     }
 
     private void onPhysicalDelete( BaseResource res ) {
-        if( isExcluded( res )) {
-            return ;
+        if( isExcluded( res ) ) {
+            return;
         }
         Web web = res.getWeb();
         Wall wall = getWall( web, true );
@@ -134,32 +136,37 @@ public class WallService implements EventListener {
         return getWall( web, false );
     }
 
-    private Wall getWall( Web web, boolean create ) {
+    public Wall getUserWall( User user, boolean create ) {
+        return getWall( user, create );
+    }
+
+    public Wall getWebWall( Web web, boolean create ) {
+        return getWall( web, create );
+    }
+
+    private Wall getWall( BaseResource res, boolean create ) {
         log.trace( "getWall" );
-        NameNode nn = web.getNameNode().child( "_sys_wall" );
+        NameNode nn = res.getNameNode().child( "_sys_wall" );
+        Wall wall = null;
         if( nn == null ) {
             log.trace( "no wall node" );
-            if( create ) {
-                return createWall( web );
-            } else {
-                log.trace( "Wall not found" );
-                return null;
-            }
         } else {
-            Wall wall = (Wall) nn.getData();
+            wall = (Wall) nn.getData();
             if( wall == null || wall.getId() == null ) {
                 log.trace( "no data node or no id, delete and create a new one" );
-                wall.getNameNode().delete();
-                wall = createWall( web );
+                nn.delete();
             } else {
                 log.trace( "return existing wall" );
             }
-            return wall;
         }
+        if( wall == null && create ) {
+            wall = createWall( res );
+        }
+        return wall;
     }
 
     private void addUpdatedFile( BaseResource res, FolderUpdateWallItem fu ) {
-        String thumbPath = thumbHrefService.getThumbPath( res );
+        String thumbPath = thumbHrefService.getThumbPath( res, thumbSuffix );
         if( log.isTraceEnabled() ) {
             log.trace( "addUpdatedFile: " + res.getUrl() + " thumb:" + thumbPath );
         }
@@ -206,7 +213,7 @@ public class WallService implements EventListener {
         }
         if( res instanceof Folder ) {
             Folder fRes = (Folder) res;
-            if( fRes.isSystemFolder()) {
+            if( fRes.isSystemFolder() ) {
                 return true;
             }
         } else {
@@ -228,5 +235,13 @@ public class WallService implements EventListener {
             if( pathFromHost.startsWith( s ) ) return true;
         }
         return false;
+    }
+
+    public String getThumbSuffix() {
+        return thumbSuffix;
+    }
+
+    public void setThumbSuffix( String thumbSuffix ) {
+        this.thumbSuffix = thumbSuffix;
     }
 }

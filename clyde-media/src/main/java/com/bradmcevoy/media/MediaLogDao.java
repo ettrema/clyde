@@ -70,9 +70,8 @@ public class MediaLogDao {
 
     }
 
-    public void createOrUpdate( BaseResource file, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
+    public void createOrUpdate( UUID hostId, BaseResource file, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
         UUID nameId = file.getNameNodeId();
-        UUID hostId = file.getHost().getNameNodeId();
         deleteLogByNameId( nameId );
         insert( nameId, hostId, dateTaken, locLat, locLong, mainContentPath, thumbPath, type.name() );
 

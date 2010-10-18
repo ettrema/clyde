@@ -1,59 +1,30 @@
 package com.bradmcevoy.web.wall;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  *
  * @author brad
  */
-public class FolderUpdateWallItem implements WallItem, Serializable {
+public class FolderUpdateWallItem extends  FolderWallItem implements  Serializable {
 
     private static final long serialVersionUID = 1L;
     private static int MAX_SIZE = 5;
-    private String folderPath;
-    private Date lastUpdated;
-    private List<UpdatedFile> updatedFiles = new ArrayList<UpdatedFile>();
 
     public FolderUpdateWallItem( String folderPath ) {
-        this.folderPath = folderPath;
+        super( folderPath );
     }
 
     public String getType() {
         return "folder";
     }
 
-    public String getFolderPath() {
-        return folderPath;
-    }
-
-    public List<UpdatedFile> getUpdatedFiles() {
-        return updatedFiles;
-    }
-
-    public Date getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void addUpdated( Date modDate, String contentPath, String thumbPath ) {
-        this.lastUpdated = modDate;
-        if( updatedFiles.size() > MAX_SIZE ) {
-            updatedFiles.remove( 0 );
-        }
-        // If one exists just update it
-        for( UpdatedFile uf : updatedFiles) {
-            if( uf.href.equals( contentPath)) {
-                uf.thumbHref = thumbPath;
-                return ;
-            }
-        }
-        // add a new one
-        updatedFiles.add( new UpdatedFile( contentPath, thumbPath ) );
-    }
-
     public void pleaseImplementSerializable() {
+    }
+
+    @Override
+    protected int maxSize() {
+        return MAX_SIZE;
     }
 
     public static class UpdatedFile implements Serializable {
@@ -73,6 +44,10 @@ public class FolderUpdateWallItem implements WallItem, Serializable {
 
         public String getThumbHref() {
             return thumbHref;
+        }
+
+        public void setThumbHref( String thumbHref ) {
+            this.thumbHref = thumbHref;
         }
     }
 }

@@ -16,8 +16,9 @@ public interface ThumbHrefService {
      * thumbs
      *
      * @param r
+     * @param - an identifier for the resolution of the thumb -eg _sys_thumb
      * @return - null if no thumb, otherwise a path from the resource's host to
      * its thumb if one exists
      */
-    String getThumbPath(Resource r);
+    String getThumbPath(Resource r, String suffix);
 }

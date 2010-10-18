@@ -34,7 +34,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
             throw new NullPointerException( "Attempt to add resource with null name: " + e.getClass().getName() );
         if( map.containsKey( e.getName() ) ) {
 //            Exception ex = new Exception("identical child names");
-            log.warn( "identical child names: " + e.getName() );//,ex);
+            log.debug( "identical child names: " + e.getName() );//,ex);
             Templatable cur = map.get( e.getName() );
             if( e.getModifiedDate().after( cur.getModifiedDate() ) ) {
                 remove( cur );
@@ -53,8 +53,8 @@ public class BaseResourceList extends ArrayList<Templatable> {
 
     @Override
     public boolean remove( Object o ) {
-        if( o instanceof BaseResource ) {
-            BaseResource e = (BaseResource) o;
+        if( o instanceof Templatable ) {
+            Templatable e = (Templatable) o;
             map.remove( e.getName() );
         }
         return super.remove( o );
@@ -89,7 +89,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
         for( Templatable res : this ) {
             if( type == null || res.is( type ) ) list.add( res );
         }
-        if( list.size() == 0 ) return null;
+        if( list.isEmpty() ) return null;
 
         Random rnd = new Random();
         int pos = rnd.nextInt( list.size() );

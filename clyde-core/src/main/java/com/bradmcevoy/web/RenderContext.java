@@ -149,7 +149,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public Auth getAuth() {
-        return RequestParams.current().auth;
+        return RequestParams.current().getAuth();
     }
 
     public String getActualHref() {

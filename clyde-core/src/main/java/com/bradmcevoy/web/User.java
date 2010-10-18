@@ -246,13 +246,13 @@ public class User extends Folder implements IUser {
         if( actualPassword == null ) {
             boolean b = password == null || password.length() == 0;
             if( !b ) {
-                log.warn( "actual password is blank, but provided password is not" );
+                log.info( "actual password is blank, but provided password is not" );
             }
             return b;
         } else {
             boolean b = actualPassword.equals( password );
             if( !b ) {
-                log.warn( "passwords don't match" );
+                log.info( "passwords don't match" );
             }
             return b;
         }

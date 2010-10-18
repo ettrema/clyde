@@ -11,6 +11,7 @@ import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.VideoFile;
 import com.bradmcevoy.web.image.ImageService;
 import com.bradmcevoy.web.image.ImageService.ExifData;
+import com.bradmcevoy.web.image.ThumbHrefService;
 import com.ettrema.db.Table;
 import com.ettrema.db.TableDefinitionSource;
 import com.ettrema.event.Event;
@@ -38,20 +39,21 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
     private final MediaLogDao mediaLogDao;
     private final ImageService imageService;
+    private final ThumbHrefService hrefService;
     private int pageSize = 100;
     private String thumbSuffix = "_sys_hero";
     private String previewSuffix = "_sys_slideshow";
 
-    public MediaLogService( ImageService imageService, EventManager eventManager ) {
-        this( new MediaLogDao(), imageService, eventManager );
+    public MediaLogService( ImageService imageService, EventManager eventManager, ThumbHrefService hrefService ) {
+        this( new MediaLogDao(), imageService, eventManager, hrefService );
     }
 
-    public MediaLogService( MediaLogDao mediaLogDao, ImageService imageService, EventManager eventManager ) {
+    public MediaLogService( MediaLogDao mediaLogDao, ImageService imageService, EventManager eventManager, ThumbHrefService hrefService ) {
         this.mediaLogDao = mediaLogDao;
         this.imageService = imageService;
+        this.hrefService = hrefService;
         eventManager.registerEventListener( this, LogicalDeleteEvent.class );
         eventManager.registerEventListener( this, PhysicalDeleteEvent.class );
-
     }
 
     public void onEvent( Event e ) {
@@ -108,18 +110,26 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void onThumbGenerated( FlashFile file ) {
+        addFlash( file.getHost().getNameNodeId(), file);
+    }
+
+    public void addFlash(UUID hostId, FlashFile file ) {
         log.trace( "onThumbGenerated: flashFile" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         String contentPath = file.getUrl();
         if( thumbPath != null && contentPath != null ) {
             log.warn( "create log" );
-            mediaLogDao.createOrUpdate( file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
+            mediaLogDao.createOrUpdate(hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
         } else {
             log.warn( "no thumb, or not right type" );
         }
     }
 
     public void onThumbGenerated( VideoFile file ) {
+        addVideo( file.getHost().getNameNodeId(), file);
+    }
+
+    public void addVideo(UUID hostId, VideoFile file ) {
         log.trace( "onThumbGenerated: video" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         if( thumbPath == null ) {
@@ -137,10 +147,14 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         }
 
         log.warn( "create log" );
-        mediaLogDao.createOrUpdate( file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
+        mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
     }
 
-    public void onThumbGenerated( ImageFile file ) {
+    private void onThumbGenerated( ImageFile file ) {
+        addImage( file.getHost().getNameNodeId(), file );
+    }
+
+    public void addImage(UUID hostId, ImageFile file) {
         log.warn( "onThumbGenerated: image" );
         InputStream in = null;
         try {
@@ -168,7 +182,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             String previewPath = getThumbUrl( previewSuffix, file );
             if( thumbPath != null && previewPath != null ) {
                 log.warn( "create log" );
-                mediaLogDao.createOrUpdate( file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
+                mediaLogDao.createOrUpdate(hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
             } else {
                 log.warn( "no thumb, or not right type" );
             }
@@ -179,22 +193,23 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     private String getThumbUrl( String suffix, BinaryFile file ) {
-        if( log.isTraceEnabled() ) {
-            log.trace( "getThumbUrl: " + suffix + " for " + file.getUrl() );
-        }
-        HtmlImage thumb = file.thumb( suffix );
-        if( thumb == null ) {
-            log.trace( "no thumb" );
-            return null;
-        } else if( thumb instanceof BinaryFile ) {
-            BinaryFile bf = (BinaryFile) thumb;
-            String s = bf.getUrl();
-            log.trace( "thumb url: " + s );
-            return s;
-        } else {
-            log.trace( "thumb not right type: " + thumb.getClass() );
-            return null;
-        }
+        return hrefService.getThumbPath( file, suffix );
+//        if( log.isTraceEnabled() ) {
+//            log.trace( "getThumbUrl: " + suffix + " for " + file.getUrl() );
+//        }
+//        HtmlImage thumb = file.thumb( suffix );
+//        if( thumb == null ) {
+//            log.trace( "no thumb" );
+//            return null;
+//        } else if( thumb instanceof BinaryFile ) {
+//            BinaryFile bf = (BinaryFile) thumb;
+//            String s = bf.getUrl();
+//            log.trace( "thumb url: " + s );
+//            return s;
+//        } else {
+//            log.trace( "thumb not right type: " + thumb.getClass() );
+//            return null;
+//        }
     }
 
     public int getPageSize() {

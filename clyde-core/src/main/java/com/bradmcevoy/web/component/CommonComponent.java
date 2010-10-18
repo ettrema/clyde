@@ -49,7 +49,7 @@ public abstract class CommonComponent implements Component, Serializable {
         }
         RequestParams rq = RequestParams.current();
         if( rq != null ) {
-            vc.put("auth", rq.auth);
+            vc.put("auth", rq.getAuth());
         }
         vc.put( "formatter", Formatter.getInstance());
         vc.put("value", value);

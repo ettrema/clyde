@@ -64,7 +64,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
 
         XmlWriter writer = new XmlWriter( out );
         writer.writeXMLHeader();
-        String hostUrl = hostUrl();
+        String hostUrl = basePath;
 
         final Element elChannel = writer.begin( "rss" ).writeAtt( "version", "2.0" ).writeAtt( "xmlns:media", "http://search.yahoo.com/mrss/" ).writeAtt( "xmlns:atom", "http://www.w3.org/2005/Atom" ).begin( "channel" ).prop( "title", host.getName() ).prop( "link", hostUrl );
 
@@ -102,12 +102,8 @@ public class MediaFeedResource implements GetableResource, DigestResource {
 
     }
 
-    private String hostUrl() {
-        return basePath;
-    }
-
     private void appendImage( Element elChannel, String title, Date dateTaken, String mainContentPath, String thumbPath ) {
-        String hostUrl = hostUrl();
+        String hostUrl = "";
         String thumbUrl = hostUrl + thumbPath;
         String contentUrl = hostUrl + mainContentPath;
         String link = mainContentPath;
@@ -121,7 +117,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     }
 
     private void appendVideo( Element elChannel, String title, Date dateTaken, String mainContentPath, String thumbPath ) {
-        String hostUrl = hostUrl();
+        String hostUrl = "";
         String thumbUrl = hostUrl + thumbPath;
         String contentUrl = hostUrl + mainContentPath;
         String link = mainContentPath;
