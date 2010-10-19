@@ -76,10 +76,12 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
             BinaryFile bf = (BinaryFile) dn;
             Folder parent = bf.getParent();
             if( parent != null && parent.isSystemFolder() ) {
-                log.trace( "parent is a system folder,not generating" );
+                if( log.isTraceEnabled() ) {
+                    log.trace( "parent is a system folder,not generating: " + n.getName() );
+                }
                 return;
             } else {
-                log.trace("enqueuing");
+                log.trace( "enqueuing" );
                 if( dn instanceof ImageFile ) {
                     if( enqueue( (ImageFile) dn ) ) return;
                 } else if( dn instanceof VideoFile ) {
@@ -89,7 +91,14 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
                 }
             }
         } else {
-            log.trace("not enqueing non-binary file");
+            if( log.isTraceEnabled() ) {
+                log.trace( "not enqueing non-binary: "  + n.getName());
+                if( dn == null ) {
+                    log.trace( " -  null datanode on name node: " + n.getId() );
+                } else {
+                    log.trace( " - class is : " + dn.getClass() );
+                }
+            }
         }
 
     }
@@ -101,7 +110,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         } else {
             if( f.getParentFolder() != null ) {
                 List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder() );
-                if( thumbSpecs == null || thumbSpecs.size() == 0 ) return true;
+                if( thumbSpecs == null || thumbSpecs.isEmpty() ) return true;
                 ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( f.getNameNodeId(), f.getName() );
                 AsynchProcessor asynchProc = context.get( AsynchProcessor.class );
                 asynchProc.enqueue( proc );

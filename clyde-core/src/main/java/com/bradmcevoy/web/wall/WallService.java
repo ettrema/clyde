@@ -178,10 +178,18 @@ public class WallService implements EventListener {
             log.trace( "checkWallSize: Find oldest and remove" );
             WallItem oldest = null;
             for( WallItem item : wall ) {
+                Date dt1 = item.getLastUpdated();
                 if( oldest == null ) {
                     oldest = item;
-                } else if( item.getLastUpdated().before( oldest.getLastUpdated() ) ) {
-                    oldest = item;
+                } else {
+                    Date dt2 = oldest.getLastUpdated();
+                    if( dt2 == null ) {
+                        oldest = item;
+                    } else {
+                        if( dt1 != null && dt1.before( dt2 ) ) {
+                            oldest = item;
+                        }
+                    }
                 }
             }
             wall.remove( oldest );

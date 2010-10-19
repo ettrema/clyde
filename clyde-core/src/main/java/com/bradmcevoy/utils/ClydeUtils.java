@@ -39,7 +39,7 @@ public class ClydeUtils {
             isFirst = false;
             r = col.child(name);
         }
-        return name;
+        return name.trim();
     }
 
     public static String pad(int i) {
