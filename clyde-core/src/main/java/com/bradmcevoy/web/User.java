@@ -325,7 +325,11 @@ public class User extends Folder implements IUser {
 
     public boolean isInGroup( String groupName ) {
         UserGroup group = _( GroupService.class ).getGroup( this, groupName );
-        return group.isInGroup( this );
+        if( group != null ) {
+            return group.isInGroup( this );
+        } else {
+            return false;
+        }
     }
 
     public boolean isInGroup( Group g ) {
