@@ -52,8 +52,17 @@ public class Migrate extends AbstractConsoleCommand {
         }
 
         BinaryMigrator migrator = new BinaryMigrator( from, to );
+        long tm = System.currentTimeMillis();
         if( migrator.migrate( node, -1 ) ) {
-            commit();
+            tm = (System.currentTimeMillis()-tm)/1000;
+            log.warn("migration took: " + tm + "sec");
+
+            log.warn("deleting data from: " + from);
+            tm = System.currentTimeMillis();
+            from.delete( sess, node );
+            sess.commit();
+            tm = System.currentTimeMillis() - tm;
+            log.warn("deleting took: " + tm + "secs");
             return result( "migrated ok" );
         } else {
             return result( "migration failed" );
