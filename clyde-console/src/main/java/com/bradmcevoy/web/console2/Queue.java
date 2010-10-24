@@ -105,7 +105,7 @@ public class Queue extends AbstractConsoleCommand {
         String s = "query num: " + num + "<br/>";
         s += "<ul>";
         while( num > 0 ) {
-            log.warn( " - delete batch size: " + 10 );
+            log.warn( " - query batch size: " + 10 );
             List<ProcessableMessage> list = queueManager.receive( 10 );
             if( list.size() == 0 ) {
                 log.warn("no more messages");

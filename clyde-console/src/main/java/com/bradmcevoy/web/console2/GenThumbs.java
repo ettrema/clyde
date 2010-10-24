@@ -2,9 +2,12 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.media.MediaLogService;
 import com.bradmcevoy.vfs.VfsCommon;
+import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ImageFile;
+import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
@@ -39,7 +42,7 @@ public class GenThumbs extends AbstractConsoleCommand {
                 skipIfExists = true;
             }
         }
-        int folders = crawl( f, proc,skipIfExists );
+        int folders = crawl( f, proc, skipIfExists );
 
         return result( "Processing folders: " + folders );
     }
@@ -47,12 +50,15 @@ public class GenThumbs extends AbstractConsoleCommand {
     private int crawl( Folder f, AsynchProcessor proc, boolean skipIfExists ) {
         log.warn( "crawl: " + f.getHref() );
         int cnt = 1;
-        ThumbGenerator gen = new ThumbGenerator( f.getNameNodeId(), skipIfExists );
+        ThumbGenerator gen = new ThumbGenerator( f.getNameNodeId(), skipIfExists, f.getPath().toString() );
         proc.enqueue( gen );
 
         for( Resource r : f.getChildren() ) {
             if( r instanceof Folder ) {
-                cnt += crawl( (Folder) r, proc, skipIfExists );
+                Folder fChild = (Folder) r;
+                if( !fChild.isSystemFolder() ) {
+                    cnt += crawl( fChild, proc, skipIfExists );
+                }
             }
         }
         return cnt;
@@ -63,14 +69,17 @@ public class GenThumbs extends AbstractConsoleCommand {
         final UUID folderId;
         private static final long serialVersionUID = 1L;
         private final boolean skipIfExists;
+        private final String path;
 
-        public ThumbGenerator( UUID folderId, boolean skipIfExists ) {
+        public ThumbGenerator( UUID folderId, boolean skipIfExists, String path ) {
             this.folderId = folderId;
             this.skipIfExists = skipIfExists;
+            this.path = path;
         }
 
         @Override
         public void doProcess( Context context ) {
+            log.warn("starting: " + this);
             VfsSession session = context.get( VfsSession.class );
             NameNode nHost = session.get( folderId );
             if( nHost == null ) {
@@ -91,19 +100,41 @@ public class GenThumbs extends AbstractConsoleCommand {
             for( Resource r : folder.getChildren() ) {
                 if( r instanceof ImageFile ) {
                     ImageFile imageFile = (ImageFile) r;
-                    imageFile.generateThumbs(skipIfExists);
+                    int numThumbs = imageFile.generateThumbs( skipIfExists );
+                    notifyWallEtc( numThumbs, imageFile );
                 }
             }
             commit();
+            log.warn("finished: " + this);
+        }
+
+        private void notifyWallEtc( int numThumbs, BinaryFile file ) {
+            MediaLogService mediaLogService = requestContext().get( MediaLogService.class );
+            WallService wallService = requestContext().get( WallService.class );
+            if( file.getParent().isSystemFolder() ) {
+                log.trace( "parent is sys folder: " + file.getParent().getUrl() );
+                return;
+            }
+            if( numThumbs > 0 ) {
+                if( mediaLogService != null ) {
+                    mediaLogService.onThumbGenerated( file );
+                }
+
+                if( wallService != null ) {
+                    log.trace( "updating wall" );
+                    wallService.onUpdatedFile( file );
+                }
+            } else {
+                log.trace( "not checking thumbs because no thumbs generated" );
+            }
         }
 
         @Override
         public String toString() {
-            return "Crawler: " + folderId;
+            return "Crawler: " + path;
         }
 
         public void pleaseImplementSerializable() {
         }
     }
 }
-

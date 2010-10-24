@@ -6,7 +6,6 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.FlashFile;
 import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.HtmlImage;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.VideoFile;
 import com.bradmcevoy.web.image.ImageService;
@@ -118,10 +117,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         String thumbPath = getThumbUrl( thumbSuffix, file );
         String contentPath = file.getUrl();
         if( thumbPath != null && contentPath != null ) {
-            log.warn( "create log" );
             mediaLogDao.createOrUpdate(hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
         } else {
-            log.warn( "no thumb, or not right type" );
+            log.debug( "no thumb, or not right type" );
         }
     }
 
@@ -146,7 +144,6 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             return ;
         }
 
-        log.warn( "create log" );
         mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
     }
 
@@ -155,11 +152,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void addImage(UUID hostId, ImageFile file) {
-        log.warn( "onThumbGenerated: image" );
         InputStream in = null;
         try {
             in = file.getInputStream();
-            log.warn( "check exif" );
             ExifData exifData = imageService.getExifData( in, file.getName() );
             Date takenDate;
             Double locLat;
@@ -172,7 +167,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
                     takenDate = file.getCreateDate();
                 }
             } else {
-                log.warn( "no exif data" );
+                log.trace( "no exif data" );
                 locLat = null;
                 locLong = null;
                 takenDate = file.getCreateDate();
@@ -181,10 +176,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             String thumbPath = getThumbUrl( thumbSuffix, file );
             String previewPath = getThumbUrl( previewSuffix, file );
             if( thumbPath != null && previewPath != null ) {
-                log.warn( "create log" );
                 mediaLogDao.createOrUpdate(hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
             } else {
-                log.warn( "no thumb, or not right type" );
+                log.trace( "no thumb, or not right type" );
             }
 
         } finally {

@@ -68,8 +68,6 @@ public class ImageService {
 
                 TiffField valDate = jpegMeta.findEXIFValue( TiffConstants.TIFF_TAG_DATE_TIME );
                 if( valDate != null ) {
-                    log.warn( "date: " + valDate.getStringValue() + " - " + valDate.getValueDescription() );
-                    log.warn(" - " + valDate.getValue() );
                     DateFormat dateFormat = new SimpleDateFormat( "y:M:d H:m:s");
                     try {
                         Date takenDate = dateFormat.parse( valDate.getStringValue() );
@@ -149,7 +147,6 @@ public class ImageService {
      */
     public BufferedImage getScaleImage( BufferedImage source, double xscale, double yscale ) {
         //assert(source != null && width > 0 && height > 0);
-        System.out.println( "scaling: " + xscale + " - " + yscale );
         return getScaleImage( source, (int) ( source.getWidth() * xscale ), (int) ( source.getHeight() * yscale ) );
     }
 
@@ -238,6 +235,7 @@ public class ImageService {
             BufferedOutputStream buffOut = new BufferedOutputStream( out );
             ImageIO.write( image, format, buffOut );
             buffOut.flush();
+            out.flush();
         } catch( IOException ex ) {
             throw new UnrecoverableException( ex );
         }

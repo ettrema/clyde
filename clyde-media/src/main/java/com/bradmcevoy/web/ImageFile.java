@@ -62,6 +62,10 @@ public class ImageFile extends BinaryFile {
         } finally {
             IOUtils.closeQuietly( in );
         }
+        byte[] thumbData = out.toByteArray();
+        if( thumbData.length == 0 ) {
+            throw new RuntimeException( "Generated a zero size thumb nail: " + this.getPath());
+        }
 
         BaseResource resExisting = folder.childRes( this.getName() );
         if( resExisting != null ) {
@@ -74,7 +78,7 @@ public class ImageFile extends BinaryFile {
         ImageFile thumb = new ImageFile( "image/jpeg", folder, this.getName() );
         log.debug( "create thumb: " + thumb.getHref());
         thumb.save();
-        in = new ByteArrayInputStream( out.toByteArray() );
+        in = new ByteArrayInputStream( thumbData );
         thumb.setContent( in );
 
     }

@@ -34,6 +34,9 @@ public class DefaultClydeBinaryService implements ClydeBinaryService {
     }
 
     public InputStream readInputStream( BinaryContainer file, String versionNum ) {
+        if( log.isTraceEnabled() ) {
+            log.trace( "readInputStream: " + file.getName() + " ver: " + versionNum );
+        }
         return file.getNameNode().getBinaryContent();
     }
 
