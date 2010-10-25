@@ -10,11 +10,11 @@ import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
-import com.ettrema.context.RequestContext;
-import com.ettrema.grid.AsynchProcessor;
-import com.ettrema.grid.Processable;
+import com.ettrema.context.Executable2;
+import com.ettrema.context.RootContextLocator;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,16 +25,17 @@ import java.util.UUID;
 public class GenThumbs extends AbstractConsoleCommand {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( GenThumbs.class );
+    private final RootContextLocator rootContextLocator;
 
-    GenThumbs( List<String> args, String host, String currentDir, ResourceFactory resourceFactory ) {
+    GenThumbs( List<String> args, String host, String currentDir, ResourceFactory resourceFactory, RootContextLocator rootContextLocator ) {
         super( args, host, currentDir, resourceFactory );
+        this.rootContextLocator = rootContextLocator;
     }
 
     @Override
     public Result execute() {
         Resource r = currentResource();
         Folder f = (Folder) r;
-        AsynchProcessor proc = RequestContext.getCurrent().get( AsynchProcessor.class );
         boolean skipIfExists = false;
         if( args.size() > 0 ) {
             String opt = args.get( 0 );
@@ -42,70 +43,99 @@ public class GenThumbs extends AbstractConsoleCommand {
                 skipIfExists = true;
             }
         }
-        int folders = crawl( f, proc, skipIfExists );
+        List<Folder> folders = new ArrayList<Folder>();
+        long tm = System.currentTimeMillis();
+        crawl( f, folders, skipIfExists );
+        tm = System.currentTimeMillis() - tm;
+        log.warn( "crawled: " + folders.size() + " in " + tm / 1000 + " secs" );
 
-        return result( "Processing folders: " + folders );
+        ThumbGenerator gen = new ThumbGenerator( folders, skipIfExists, f.getPath().toString() );
+
+        Thread thread = new Thread( gen );
+        thread.setDaemon( true );
+        thread.start();
+
+
+        return result( "Processing folders: " + folders.size() );
     }
 
-    private int crawl( Folder f, AsynchProcessor proc, boolean skipIfExists ) {
+    private void crawl( Folder f, List<Folder> folders, boolean skipIfExists ) {
         log.warn( "crawl: " + f.getHref() );
-        int cnt = 1;
-        ThumbGenerator gen = new ThumbGenerator( f.getNameNodeId(), skipIfExists, f.getPath().toString() );
-        proc.enqueue( gen );
-
         for( Resource r : f.getChildren() ) {
             if( r instanceof Folder ) {
                 Folder fChild = (Folder) r;
                 if( !fChild.isSystemFolder() ) {
-                    cnt += crawl( fChild, proc, skipIfExists );
+                    folders.add( fChild );
+                    crawl( fChild, folders, skipIfExists );
                 }
             }
         }
-        return cnt;
     }
 
-    public static class ThumbGenerator extends VfsCommon implements Processable {
+    public class ThumbGenerator extends VfsCommon implements Runnable {
 
-        final UUID folderId;
-        private static final long serialVersionUID = 1L;
+        final List<Folder> folders;
         private final boolean skipIfExists;
         private final String path;
 
-        public ThumbGenerator( UUID folderId, boolean skipIfExists, String path ) {
-            this.folderId = folderId;
+        public ThumbGenerator( List<Folder> folders, boolean skipIfExists, String path ) {
+            this.folders = folders;
             this.skipIfExists = skipIfExists;
             this.path = path;
         }
 
-        @Override
-        public void doProcess( Context context ) {
-            log.warn("starting: " + this);
-            VfsSession session = context.get( VfsSession.class );
-            NameNode nHost = session.get( folderId );
-            if( nHost == null ) {
-                log.error( "Name node for host does not exist: " + folderId );
-                return;
-            }
-            Object data = nHost.getData();
-            if( data == null ) {
-                log.error( "Data node does not exist. Name node: " + folderId );
-                return;
-            }
-            if( !( data instanceof Folder ) ) {
-                log.error( "Node does not reference a Folder. Instead references a: " + data.getClass() + " ID:" + folderId );
-                return;
-            }
+        public void run() {
+            int cnt = 0;
+            for( final Folder f : folders ) {
+                final int num = cnt++;
+                rootContextLocator.getRootContext().execute( new Executable2() {
 
-            Folder folder = (Folder) data;
-            for( Resource r : folder.getChildren() ) {
-                if( r instanceof ImageFile ) {
-                    ImageFile imageFile = (ImageFile) r;
-                    int numThumbs = imageFile.generateThumbs( skipIfExists );
-                    notifyWallEtc( numThumbs, imageFile );
-                }
+                    public void execute( Context context ) {
+                        log.warn( "processing thumb item " + num + " of " + folders.size() );
+                        doProcess( context, f.getNameNodeId() );
+                    }
+                } );
             }
-            commit();
-            log.warn("finished: " + this);
+        }
+
+        public void doProcess( Context context, UUID folderId ) {
+            long tm = System.currentTimeMillis();
+            log.warn( "starting: " + this );
+            int totalThumbs = 0;
+            try {
+                VfsSession session = context.get( VfsSession.class );
+                NameNode nHost = session.get( folderId );
+                if( nHost == null ) {
+                    log.error( "Name node for host does not exist: " + folderId );
+                    return;
+                }
+                Object data = nHost.getData();
+                if( data == null ) {
+                    log.error( "Data node does not exist. Name node: " + folderId );
+                    return;
+                }
+                if( !( data instanceof Folder ) ) {
+                    log.error( "Node does not reference a Folder. Instead references a: " + data.getClass() + " ID:" + folderId );
+                    return;
+                }
+
+                Folder folder = (Folder) data;
+                log.warn( "processing thumbs: " + folder.getHref() );
+                for( Resource r : folder.getChildren() ) {
+                    if( r instanceof ImageFile ) {
+                        ImageFile imageFile = (ImageFile) r;
+                        int numThumbs = imageFile.generateThumbs( skipIfExists );
+                        totalThumbs += numThumbs;
+                        notifyWallEtc( numThumbs, imageFile );
+                    }
+                }
+                commit();
+            } catch( Exception e ) {
+                rollback();
+            } finally {
+                tm = System.currentTimeMillis() - tm;
+                log.warn( "generated: " + totalThumbs + " thumbs in " + tm / 1000 + "secs" );
+            }
         }
 
         private void notifyWallEtc( int numThumbs, BinaryFile file ) {
