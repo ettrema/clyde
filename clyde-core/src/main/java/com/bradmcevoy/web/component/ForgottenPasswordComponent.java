@@ -35,19 +35,12 @@ public class ForgottenPasswordComponent implements Component {
     private String fromAdd;
     private String replyTo;
     private String subject;
-    private String bodyTemplate;
+    private String bodyTemplate;    
+    private String thankyouPage;
 
     public ForgottenPasswordComponent( Addressable container, Element el ) {
         this.container = container;
         fromXml( el );
-    }
-
-    public void fromXml( Element el ) {
-        name = el.getAttributeValue( "name" );
-        fromAdd = el.getAttributeValue( "from" );
-        replyTo = el.getAttributeValue( "replyTo" );
-        subject = el.getChildText( "subject" );
-        bodyTemplate = el.getChildText( "body" );
     }
 
     public void init( Addressable container ) {
@@ -63,7 +56,7 @@ public class ForgottenPasswordComponent implements Component {
         try {
             // Parsing validates the email
             MailboxAddress add = MailboxAddress.parse( email );
-            RequestParams.current().attributes.put( "parsedEmail", add);
+            RequestParams.current().attributes.put( "parsedEmail", add );
             VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
             List<NameNode> list = vfs.find( EmailAddress.class, email );
             if( list == null || list.size() == 0 ) {
@@ -124,7 +117,7 @@ public class ForgottenPasswordComponent implements Component {
         }
         MailSender sender = RequestContext.getCurrent().get( MailSender.class );
         List<User> list = (List<User>) rc.getAttribute( name + "_found" );
-        MailboxAddress to = (MailboxAddress) RequestParams.current().attributes.get( "parsedEmail");
+        MailboxAddress to = (MailboxAddress) RequestParams.current().attributes.get( "parsedEmail" );
         for( User user : list ) {
             String password = user.getPassword( 847202 );
             String text = evalTemplate( user, password );
@@ -141,7 +134,11 @@ public class ForgottenPasswordComponent implements Component {
             sender.sendMail( sm );
         }
         RequestParams.current().getAttributes().put( name + "_confirmed", Boolean.TRUE );
-        return null;
+        if( thankyouPage != null && thankyouPage.length() > 0 ) {
+            return thankyouPage;
+        } else {
+            return null;
+        }
     }
 
     public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
@@ -157,12 +154,23 @@ public class ForgottenPasswordComponent implements Component {
         return e2;
     }
 
+    public void fromXml( Element el ) {
+        name = el.getAttributeValue( "name" );
+        fromAdd = el.getAttributeValue( "from" );
+        replyTo = el.getAttributeValue( "replyTo" );
+        thankyouPage = el.getAttributeValue( "thankyouPage" );
+        subject = el.getChildText( "subject" );
+        bodyTemplate = el.getChildText( "body" );        
+    }
+
+
     private void populateXml( Element e2 ) {
         e2.setAttribute( "class", getClass().getName() );
         e2.setAttribute( "name", name );
 
         InitUtils.setString( e2, "from", fromAdd );
         InitUtils.setString( e2, "replyTo", replyTo );
+        InitUtils.setString( e2, "thankyouPage", thankyouPage );
 
         Element elSubject = new Element( "subject" );
         e2.addContent( elSubject );

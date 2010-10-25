@@ -26,6 +26,7 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CookieAuthenticationHandler.class );
     private static final String HANDLER_ATT_NAME = "_delegatedAuthenticationHandler";
     private String requestParamName = "_clydeauthid";
+    private String requestParamLogout = "_clydelogout";
     private String cookieAuthIdName = "_clydeauthid";
     private String cookieUserUrl = "_clydeUser";
     private final List<AuthenticationHandler> handlers;
@@ -37,6 +38,19 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
     }
 
     public boolean supports( Resource r, Request request ) {
+        // find the authId, if any, from the request
+        String authId = getAuthId( request );
+
+        // check for a logout command, if so logout
+        
+        if( isLogout( request ) ) {
+            if( authId != null && authId.length() > 0 ) {
+                log.trace( "logout: authId: " + authId);
+                authIdMap.remove( authId);
+                clearCookieValue( HttpManager.response() );
+            }
+        }
+
         for( AuthenticationHandler hnd : handlers ) {
             if( hnd.supports( r, request ) ) {
                 request.getAttributes().put( HANDLER_ATT_NAME, hnd );
@@ -45,8 +59,7 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
             }
         }
 
-        // We will support it if there is either a auth id request param, or a cookie
-        String authId = getAuthId( request );
+        // We will support it if there is either a auth id request param
         if( authId != null ) {
             UUID id = authIdMap.get( authId );
             if( id != null ) {
@@ -74,8 +87,7 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
             if( tag != null ) {
                 if( tag instanceof User ) {
                     User user = (User) tag;
-                    String authId = generateAuthId();
-                    log.info( "authenticated ok. created authId: " + authId );
+                    String authId = generateAuthId(request);
                     request.getAttributes().put( requestParamName, authId );
                     authIdMap.put( authId, user.getNameNodeId() );
                     String userUrl = user.getHref();
@@ -143,6 +155,15 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
         return false;
     }
 
+    private boolean isLogout(Request request) {
+        if( request.getParams() == null ) {
+            return false;
+        }
+
+        String logoutCommand = request.getParams().get( requestParamLogout);
+        return ( logoutCommand != null && logoutCommand.length() > 0 );
+    }
+
     private String getAuthId( Request request ) {
         String authId = null;
         if( request.getParams() != null ) {
@@ -171,8 +192,20 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
         response.setCookie( cookieUserUrl, userUrl );
     }
 
-    private String generateAuthId() {
-        return UUID.randomUUID().toString();
+    private void clearCookieValue( Response response ) {
+        response.setCookie( cookieAuthIdName, "" );
+        response.setCookie( cookieUserUrl, "" );
+    }
+
+    private String generateAuthId(Request request) {
+        String authId = getAuthId( request );
+        if( authId != null && authIdMap.containsKey( authId)) {
+            log.trace("use existing authid");
+            return authId;
+        } else {
+            log.trace( "generate new authid");
+            return UUID.randomUUID().toString();
+        }
     }
 
     public List<CookieAuthEventHandler> getEventHandlers() {
