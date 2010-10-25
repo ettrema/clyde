@@ -173,8 +173,12 @@ public class ImageService {
     }
 
     public boolean scaleProportionallyWithMax( InputStream in, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
-        format = format.toLowerCase();
         BufferedImage image = read( in );
+        return scaleProportionallyWithMax( image, out, maxHeight, maxWidth, format );
+    }
+
+    public boolean scaleProportionallyWithMax( BufferedImage image, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
+        format = format.toLowerCase();
         if( image == null ) return false;
         Proportion prop = new Proportion( image.getWidth(), image.getHeight(), maxWidth, maxHeight );
         // find which dimension is the larger given its proportions
@@ -241,7 +245,7 @@ public class ImageService {
         }
     }
 
-    private BufferedImage read( InputStream is ) throws FileNotFoundException, IOException {
+    public BufferedImage read( InputStream is ) throws FileNotFoundException, IOException {
 //        Iterator readers = ImageIO.getImageReadersByFormatName("jpg");
 //        ImageReader reader = (ImageReader)readers.next();
 //        ImageInputStream iis = ImageIO.createImageInputStream(is);

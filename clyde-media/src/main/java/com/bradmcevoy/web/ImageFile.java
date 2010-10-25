@@ -2,15 +2,14 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.io.StreamUtils;
+import com.bradmcevoy.media.ThumbProcessor;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.image.Dimensions;
 import com.bradmcevoy.web.image.ImageService;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 
 import static com.ettrema.context.RequestContext._;
 
@@ -47,72 +46,32 @@ public class ImageFile extends BinaryFile {
 //        this.generateThumbs();
     }
 
-    public void createThumb( Folder folder, int width, int height ) {
-        createThumb( folder, width, height, false );
-    }
 
-    public void createThumb( Folder folder, int width, int height, boolean skipIfExists ) {
-        InputStream in = null;
-        ByteArrayOutputStream out = new ByteArrayOutputStream( 50000 );
-        try {
-            in = getInputStream();
-            _(ImageService.class).scaleProportionallyWithMax( in, out, height, width, "jpeg" );
-        } catch( IOException ex ) {
-            throw new RuntimeException( ex );
-        } finally {
-            IOUtils.closeQuietly( in );
-        }
-        byte[] thumbData = out.toByteArray();
-        if( thumbData.length == 0 ) {
-            throw new RuntimeException( "Generated a zero size thumb nail: " + this.getPath());
-        }
-
-        BaseResource resExisting = folder.childRes( this.getName() );
-        if( resExisting != null ) {
-            if( skipIfExists ) {
-                return;
-            } else {
-                resExisting.deletePhysically();
-            }
-        }
-        ImageFile thumb = new ImageFile( "image/jpeg", folder, this.getName() );
-        log.debug( "create thumb: " + thumb.getHref());
-        thumb.save();
-        in = new ByteArrayInputStream( thumbData );
-        thumb.setContent( in );
-
-    }
 
     public int generateThumbs() {
         return generateThumbs( false );
     }
 
     public int generateThumbs( boolean skipIfExists ) {
-        if( this.isTrash() ) {
-            log.debug( "in trash, not generating: : " + this.getPath() );
-            return 0;
-        }
         List<Thumb> thumbs = Thumb.getThumbSpecs( getParent() );
-        int count = 0;
-        if( thumbs != null ) {
-            for( Thumb t : thumbs ) {
-                Folder thumbsFolder = getParent().thumbs( t.suffix, true );
-                // Ensure we dont do versioning of thumbs
-                if( thumbsFolder.isVersioningEnabled() == null ) {
-                    thumbsFolder.setVersioningEnabled( false );
-                    thumbsFolder.save();
-                }
-                createThumb( thumbsFolder, t.width, t.height, skipIfExists );
-                count++;
-            }
+        ThumbProcessor proc = new ThumbProcessor( this, thumbs );
+        try {
+            return proc.generateThumbs( skipIfExists );
+        } catch( FileNotFoundException ex ) {
+            throw new RuntimeException( ex );
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
         }
-        return count;
     }
 
 
 
     public ImageData getImageData() {
         return imageData(true);
+    }
+
+    public void setImageData(ImageData data) {
+        this.imageData = data;
     }
 
     public ImageData imageData(boolean create) {
