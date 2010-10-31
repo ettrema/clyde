@@ -31,6 +31,8 @@ public class ThumbProcessor {
     }
 
     public int generateThumbs( boolean skipIfExists ) throws FileNotFoundException, IOException {
+        log.trace( "generateThumbs: " + skipIfExists );
+
         if( thumbs == null ) {
             log.trace( "no thumbs" );
             return 0;
@@ -40,13 +42,24 @@ public class ThumbProcessor {
             return 0;
         }
 
+        if( log.isTraceEnabled() ) {
+            log.trace( "doing thumb processing with thumbs: " + Thumb.format( thumbs ) );
+        }
+
         ImageService imageService = _( ImageService.class );
 
         BufferedImage image = imageService.read( imageFile.getInputStream() );
+        if( image == null ) {
+            log.warn("Couldnt get an image for: " + imageFile.getPath());
+            return 0;
+        }
 
         Folder parent = imageFile.getParent();
         int count = 0;
         for( Thumb t : thumbs ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "gen thumb: " + t.toString() );
+            }
             Folder thumbsFolder = parent.thumbs( t.getSuffix(), true );
             // Ensure we dont do versioning of thumbs
             if( thumbsFolder.isVersioningEnabled() == null ) {
@@ -56,19 +69,21 @@ public class ThumbProcessor {
             createThumb( thumbsFolder, t.getWidth(), t.getHeight(), skipIfExists, image );
             count++;
         }
+        log.trace( "generated: " + count );
         return count;
     }
 
     public void createThumb( Folder folder, int width, int height, boolean skipIfExists, BufferedImage image ) {
+        log.trace("createThumb");
         ByteArrayOutputStream out = new ByteArrayOutputStream( 50000 );
         try {
-            _(ImageService.class).scaleProportionallyWithMax( image, out, height, width, "jpeg" );
+            _( ImageService.class ).scaleProportionallyWithMax( image, out, height, width, "jpeg" );
         } catch( IOException ex ) {
             throw new RuntimeException( ex );
         }
         byte[] thumbData = out.toByteArray();
         if( thumbData.length == 0 ) {
-            throw new RuntimeException( "Generated a zero size thumb nail: " + imageFile.getPath());
+            throw new RuntimeException( "Generated a zero size thumb nail: " + imageFile.getPath() );
         }
 
         BaseResource resExisting = folder.childRes( imageFile.getName() );
@@ -80,7 +95,7 @@ public class ThumbProcessor {
             }
         }
         ImageFile thumb = new ImageFile( "image/jpeg", folder, imageFile.getName() );
-        log.debug( "create thumb: " + thumb.getHref());
+        log.debug( "create thumb: " + thumb.getHref() );
         thumb.save();
         InputStream in = new ByteArrayInputStream( thumbData );
         thumb.setContent( in );

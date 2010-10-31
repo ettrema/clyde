@@ -78,11 +78,11 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
      * @param page - zero indexed. Ie 0 = first page
      * @return - the number of results processed
      */
-    public int search( UUID hostId, int page, ResultCollector collector ) {
+    public int search( UUID hostId, String folderPath, int page, ResultCollector collector ) {
         log.trace( "search: " + hostId );
         int limit = pageSize;
         int offset = page * pageSize;
-        return mediaLogDao.search( hostId, limit, offset, collector );
+        return mediaLogDao.search( hostId, folderPath, limit, offset, collector );
     }
 
     public interface ResultCollector {

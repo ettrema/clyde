@@ -10,7 +10,8 @@ public class EditResourceFactory extends CommonResourceFactory {
 
     private final ResourceFactory next;
 
-    public EditResourceFactory(ResourceFactory next) {
+    public EditResourceFactory(ResourceFactory next, HostFinder hostFinder) {
+        super(hostFinder );
         this.next = next;
     }
         

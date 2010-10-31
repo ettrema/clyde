@@ -3,6 +3,7 @@ package com.bradmcevoy.media;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 
 /**
@@ -31,8 +32,8 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         if( path.getName().equals( feedName ) ) {
             log.trace( "got media feed name" );
             Resource parent = wrapped.getResource( host, path.getParent().toString() );
-            if( parent instanceof Host ) {
-                Host folder = (Host) parent;
+            if( parent instanceof Folder ) {
+                Folder folder = (Folder) parent;
                 String basePath = buildBasePath(host, path.getParent());
                 log.trace( "got media feed resource" );
                 return new MediaFeedResource( logService, linkGenerator, feedName, folder, cacheSeconds, basePath );

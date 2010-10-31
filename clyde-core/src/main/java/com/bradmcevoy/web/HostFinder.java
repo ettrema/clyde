@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.ettrema.vfs.NameNode;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -12,11 +13,21 @@ import java.util.List;
 public class HostFinder extends VfsCommon {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( HostFinder.class );
+    private Map<String, String> hostMappings;
+
+    public HostFinder() {
+    }
 
     public Host getHost( String hostName ) {
         if( hostName == null ) {
             log.debug( "getHost with null name" );
             return null;
+        }
+        if( hostMappings != null ) {
+            String mappedHost = hostMappings.get( hostName );
+            if( mappedHost != null ) {
+                hostName = mappedHost;
+            }
         }
         List<NameNode> hosts = vfs().find( Host.class, hostName );
         if( hosts == null || hosts.size() == 0 ) {
@@ -39,5 +50,13 @@ public class HostFinder extends VfsCommon {
             log.error( "host is not a host type: " + hostName );
             return null;
         }
+    }
+
+    public Map<String, String> getHostMappings() {
+        return hostMappings;
+    }
+
+    public void setHostMappings( Map<String, String> hostMappings ) {
+        this.hostMappings = hostMappings;
     }
 }

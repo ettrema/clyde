@@ -276,7 +276,7 @@ public class User extends Folder implements IUser {
         String serverDigest = digestGenerator.generateDigest( digestRequest, actualPassword );
         boolean b = serverDigest.equals( digestRequest.getResponseDigest() );
         if( !b ) {
-            log.warn( "digest checkPassword failed: " + this.getName() + "/" + actualPassword );
+            log.warn( "digest checkPassword failed: " + this.getPath() + "/" + actualPassword );
         }
         return b;
     }

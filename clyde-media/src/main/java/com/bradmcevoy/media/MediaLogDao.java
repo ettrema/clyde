@@ -23,9 +23,18 @@ public class MediaLogDao {
     public final static MediaTable TABLE = new MediaTable();
 
     public int search( UUID hostId, int limit, int offset, ResultCollector collector ) {
+        return search( hostId, null, limit, offset, collector );
+    }
+
+    public int search( UUID hostId, String path, int limit, int offset, ResultCollector collector ) {
 
         // ORder by date descending so newest pics first
-        String sql = TABLE.getSelect() + " WHERE " + TABLE.hostId.getName() + " = ? ORDER BY " + TABLE.dateTaken.getName() + " DESC LIMIT " + limit + " OFFSET " + offset;
+        String sql = TABLE.getSelect() + " WHERE " + TABLE.hostId.getName() + " = ? ";
+        if( path != null ) {
+            log.trace( "adding path clause: " + path );
+            sql = sql + " AND " + TABLE.mainContentPath.getName() + " LIKE ? || '%' ";
+        }
+        sql = sql + " ORDER BY " + TABLE.dateTaken.getName() + " DESC LIMIT " + limit + " OFFSET " + offset;
         if( log.isTraceEnabled() ) {
             log.trace( "search: hostid: " + hostId + " sql: " + sql );
         }
@@ -33,10 +42,18 @@ public class MediaLogDao {
         try {
             stmt = PostgresUtils.con().prepareStatement( sql );
             stmt.setString( 1, hostId.toString() );
+            if( path != null ) {
+                stmt.setString( 2, path );
+            }
 
             ResultSet rs = null;
             try {
+                long tm = System.currentTimeMillis();
                 rs = stmt.executeQuery();
+                if( log.isTraceEnabled() ) {
+                    tm = System.currentTimeMillis() - tm;
+                    log.trace("executed media sql in: " + tm + "ms");
+                }
                 int num = 0;
                 while( rs.next() ) {
                     num++;
@@ -45,7 +62,7 @@ public class MediaLogDao {
                     try {
                         nameId = UUID.fromString( sNameId );
                     } catch( java.lang.IllegalArgumentException e ) {
-                        log.warn( "invalid UUID in media log: " + sNameId);
+                        log.warn( "invalid UUID in media log: " + sNameId );
                     }
                     Date dateTaken = rs.getTimestamp( 3 );
                     Double locLat = getDouble( rs, 4 );
@@ -78,7 +95,6 @@ public class MediaLogDao {
     }
 
     private void insert( UUID nameId, UUID hostId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, String type ) {
-        log.warn( "insert: " + nameId );
         String sql = TABLE.getInsert();
         try {
             PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );

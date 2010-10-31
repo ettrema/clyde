@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.sanselan.common.IImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffField;
@@ -68,7 +69,7 @@ public class ImageService {
 
                 TiffField valDate = jpegMeta.findEXIFValue( TiffConstants.TIFF_TAG_DATE_TIME );
                 if( valDate != null ) {
-                    DateFormat dateFormat = new SimpleDateFormat( "y:M:d H:m:s");
+                    DateFormat dateFormat = new SimpleDateFormat( "y:M:d H:m:s" );
                     try {
                         Date takenDate = dateFormat.parse( valDate.getStringValue() );
                         return new ExifData( takenDate, locLat, locLong );
@@ -76,7 +77,7 @@ public class ImageService {
                         return null;
                     }
                 } else {
-                    log.warn("date not found");
+                    log.warn( "date not found" );
                     return null;
                 }
             } else {
@@ -179,20 +180,30 @@ public class ImageService {
 
     public boolean scaleProportionallyWithMax( BufferedImage image, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
         format = format.toLowerCase();
-        if( image == null ) return false;
+        if( image == null ) {
+            log.warn( "null image!!" );
+            return false;
+        }
         Proportion prop = new Proportion( image.getWidth(), image.getHeight(), maxWidth, maxHeight );
         // find which dimension is the larger given its proportions
         if( prop.scaleByHeight() ) {
+            log.trace( "scale by height" );
             int width = (int) ( image.getWidth() / prop.heightProp );
             if( width > 0 ) {
                 image = getScaleImage( image, width, maxHeight );
+            } else {
+                throw new RuntimeException( "got non-positive width: " + width );
             }
         } else if( prop.scaleByWidth() ) {
+            log.trace( "scale by width" );
             int height = (int) ( image.getHeight() / prop.widthProp );
             if( height > 0 ) {
                 image = getScaleImage( image, maxWidth, height );
+            } else {
+                throw new RuntimeException( "got non-positive height: " + height );
             }
         } else {
+            log.warn( "doing nothing" );
             // do nothing
         }
         write( image, out, format );
@@ -236,16 +247,30 @@ public class ImageService {
 
     private static void write( BufferedImage image, OutputStream out, String format ) {
         try {
+//            Sanselan.writeImage( image, out, ImageFormat.IMAGE_FORMAT_JPEG, null);
             BufferedOutputStream buffOut = new BufferedOutputStream( out );
-            ImageIO.write( image, format, buffOut );
+            if( !ImageIO.write( image, format, buffOut ) ) {
+                throw new RuntimeException( "No writer could be found for format: " + format );
+            }
             buffOut.flush();
             out.flush();
+//        } catch( ImageWriteException ex ) {
+//            throw new UnrecoverableException( ex );
         } catch( IOException ex ) {
             throw new UnrecoverableException( ex );
         }
     }
 
     public BufferedImage read( InputStream is ) throws FileNotFoundException, IOException {
+//        BufferedImage image;
+//        try {
+//            image = Sanselan.getBufferedImage( is );
+//        } catch( ImageReadException ex ) {
+//            throw new IOException( ex );
+//        }
+//        return image;
+
+
 //        Iterator readers = ImageIO.getImageReadersByFormatName("jpg");
 //        ImageReader reader = (ImageReader)readers.next();
 //        ImageInputStream iis = ImageIO.createImageInputStream(is);
@@ -254,9 +279,21 @@ public class ImageService {
 //        param.setSourceSubsampling(9, 9, 0, 0);
 //        BufferedImage bi = reader.read(0, param);
 //        return bi;
-        ImageInputStream iis = ImageIO.createImageInputStream( is );
-        // BufferedInputStream buf = new BufferedInputStream(is);
-        return ImageIO.read( iis );
+//
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        BufferedInputStream buf = new BufferedInputStream( is );
+        IOUtils.copy( buf, bout );
+        //ImageInputStream iis = ImageIO.createImageInputStream( buf );
+        byte[] arr = bout.toByteArray();
+        ImageInputStream iis = ImageIO.createImageInputStream( new ByteArrayInputStream( arr ) );
+        BufferedImage image = ImageIO.read( iis );
+        if( image == null ) {
+            log.debug( "No ImageReader supports the given image data: listing known formats. input size: " + arr.length );
+            for( String s : ImageIO.getReaderFormatNames() ) {
+                log.debug( " - " + s );
+            }
+        }
+        return image;
     }
 
     public class ExifData {
@@ -287,8 +324,6 @@ public class ImageService {
         public String toString() {
             return "Exif: date: " + date + " lat:" + locLat + " long:" + locLong;
         }
-
-
     }
 
     private class Proportion {

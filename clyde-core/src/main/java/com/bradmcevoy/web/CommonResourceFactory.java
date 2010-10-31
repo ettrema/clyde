@@ -8,7 +8,12 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommonResourceFactory.class);
 
-    private HostFinder hostFinder = new HostFinder();
+    private final HostFinder hostFinder;
+
+    public CommonResourceFactory( HostFinder hostFinder ) {
+        this.hostFinder = hostFinder;
+    }
+    
 
     protected Host getHost(String hostName) {
         if( hostName == null ) {
@@ -22,6 +27,12 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
             } else {
                 String h2 = hostName.substring( 4 );
                 h = hostFinder.getHost( h2 );
+            }
+        }
+        if( h != null ) {
+            Host aliased = h.getAliasedHost();
+            if( aliased != null ) {
+                h = aliased;
             }
         }
         return h;

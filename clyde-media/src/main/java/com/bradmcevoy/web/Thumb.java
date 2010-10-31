@@ -12,22 +12,38 @@ public class Thumb implements Serializable {
 
     public static List<Thumb> getThumbSpecs( Folder folder ) {
         if( folder == null ) {
+            log.trace("getThumbSpecs: folder is null");
             return null;
         }
         ThumbsComponent thumbs = (ThumbsComponent) folder.getComponent( "thumbSpecs" );
         if( thumbs == null ) {
+            log.trace("getThumbSpecs: not on component");
             if( folder.isSystemFolder() ) {
                 folder = folder.getParent();
                 if( folder != null ) {
+                    log.trace("getThumbSpecs: try parent..");
                     thumbs = (ThumbsComponent) folder.getComponent( "thumbSpecs" );
+                } else {
+                    log.trace("getThumbSpecs: parent is null");
                 }
+            } else {
+                log.trace("getThumbSpecs: is not a system folder: " + folder.getName());
             }
+        } else {
+            log.trace("getThumbSpecs: got from component");
         }
 
         if( thumbs == null ) {
+            log.trace("getThumbSpecs: no thumbs");
             return null;
-        } else {
-            return thumbs.getValue();
+        } else {            
+            List<Thumb> val = thumbs.getValue();
+            if( val == null ) {
+                log.trace("getThumbSpecs: got null val from component");
+            } else {
+                log.trace("getThumbSpecs: get value from thumbs: " + val.size());
+            }
+            return val;
         }
     }
     String suffix;

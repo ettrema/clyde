@@ -23,12 +23,13 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
     private final String processName;
     private final String limitVarName;
     private final String usageVarName;
-    private HostFinder hostFinder = new HostFinder();
+    private final HostFinder hostFinder;
 
-    public QuotaManager( String processName, String limitVarName, String usageVarName ) {
+    public QuotaManager( String processName, String limitVarName, String usageVarName, HostFinder hostFinder ) {
         this.processName = processName;
         this.limitVarName = limitVarName;
         this.usageVarName = usageVarName;
+        this.hostFinder = hostFinder;
     }
 
     public Integer getUsagePercentage( Host host ) {

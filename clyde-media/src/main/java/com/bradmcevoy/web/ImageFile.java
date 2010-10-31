@@ -52,8 +52,14 @@ public class ImageFile extends BinaryFile {
         return generateThumbs( false );
     }
 
-    public int generateThumbs( boolean skipIfExists ) {
-        List<Thumb> thumbs = Thumb.getThumbSpecs( getParent() );
+    public int generateThumbs( boolean skipIfExists ) {        
+        return generateThumbs( skipIfExists, null );
+    }
+
+    public int generateThumbs( boolean skipIfExists, List<Thumb> thumbs ) {
+        if( thumbs == null ) {
+            thumbs = Thumb.getThumbSpecs( getParent() );
+        }
         ThumbProcessor proc = new ThumbProcessor( this, thumbs );
         try {
             return proc.generateThumbs( skipIfExists );

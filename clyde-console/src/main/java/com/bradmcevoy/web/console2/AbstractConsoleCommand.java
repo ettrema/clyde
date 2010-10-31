@@ -14,6 +14,7 @@ import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.VfsSession;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,6 +124,23 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
      * @return
      */
     protected Result findWithRegex(Folder cur, Path path, List<BaseResource> list) {
+        if(path.getLength() > 1) {
+            String first = path.getFirst();
+            if( "**".equals( first ) ) {
+                List<Folder> folders = crawl(cur);
+                for( Folder f : folders ) {
+                    findInFolderWithRegex( f, path, list );
+                }
+                return null;
+            } else {
+                return findInFolderWithRegex( cur, path, list );
+            }
+        } else {
+            return findInFolderWithRegex( cur, path, list );
+        }
+    }
+
+    protected Result findInFolderWithRegex(Folder cur, Path path, List<BaseResource> list) {
         log.debug("findWithWildCard");
         Folder start = cur;
         if (path.getLength() > 1) {
@@ -157,5 +175,16 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
             }
         }
         return null;
-    }    
+    }
+
+    private List<Folder> crawl( Folder cur ) {
+        List<Folder> list = new ArrayList<Folder>();
+        list.add(cur);
+        for( Resource r : cur.getChildren()) {
+            if( r instanceof Folder ) {
+                list.addAll( crawl((Folder)r));
+            }
+        }
+        return list;
+    }
 }

@@ -25,6 +25,12 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ExistingResourceFactory.class );
 
+    public ExistingResourceFactory(HostFinder hostFinder) {
+        super(hostFinder );
+    }
+
+
+
     @Override
     public Resource getResource( String host, String url ) {
         String sPath = url;

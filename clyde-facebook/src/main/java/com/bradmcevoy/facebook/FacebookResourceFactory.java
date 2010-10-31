@@ -167,11 +167,15 @@ public class FacebookResourceFactory implements ResourceFactory {
                 log.debug( "destAlbum: " + destAlbum );
                 String destAlbumId = getOrCreateAlbum( facebookClient, destAlbum );
                 log.debug( "destAlbumId: " + destAlbumId );
+                String caption = parameters.get( "caption");
+                if(caption == null || caption.length() == 0 ) {
+                    caption = "Published by shmego.com";
+                }
                 InputStream content = null;
                 try {
                     content = getContent();
                     destAlbumId = destAlbumId + "/photos";
-                    FacebookType publishPhotoResponse = facebookClient.publish( destAlbumId, FacebookType.class, content, Parameter.with( "message", "Published by shmego.com" ) );
+                    FacebookType publishPhotoResponse = facebookClient.publish( destAlbumId, FacebookType.class, content, Parameter.with( "message", caption ) );
                     log.debug( "publishjed ok: " + publishPhotoResponse.getId() );
                 } catch( IOException ex ) {
                     throw new RuntimeException( ex );

@@ -29,13 +29,13 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
-
 public class SourceResourceFactory extends CommonResourceFactory {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SourceResourceFactory.class );
     private final ResourceFactory next;
 
-    public SourceResourceFactory( ResourceFactory next ) {
+    public SourceResourceFactory( ResourceFactory next, HostFinder hostFinder ) {
+        super( hostFinder );
         this.next = next;
     }
 
