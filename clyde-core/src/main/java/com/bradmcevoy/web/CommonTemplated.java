@@ -326,9 +326,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     @Override
-    public User authenticate( String user, String password ) {
+    public IUser authenticate( String user, String password ) {
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
-        User o = authenticator.authenticate( this, user, password );
+        IUser o = authenticator.authenticate( this, user, password );
         if( o == null ) {
             log.warn( "authentication failed by: " + authenticator.getClass() );
         }

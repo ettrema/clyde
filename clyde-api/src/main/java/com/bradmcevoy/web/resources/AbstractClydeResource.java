@@ -1,5 +1,8 @@
 package com.bradmcevoy.web.resources;
 
+import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.CopyableResource;
 import com.bradmcevoy.http.DeletableResource;
@@ -24,26 +27,31 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public abstract class AbstractClydeResource implements CopyableResource, DeletableResource, GetableResource, MoveableResource, DataNode, PropFindableResource {
+public abstract class AbstractClydeResource implements CopyableResource, DeletableResource, GetableResource, MoveableResource, DataNode, PropFindableResource, Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger( AbstractClydeResource.class );
     /**
      * set by the framework in setId
      */
     private UUID dataId;
-
     /**
      * Hold a transient instance to the nameNode which owns this datanode. This
      * is set by the framework in init
      */
     private transient NameNode nameNode;
 
-
     public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
+        log.info("delete: " + getName());
         nameNode.delete();
     }
 
     public String getUniqueId() {
-        return dataId.toString();
+        if( dataId == null ) {
+            log.warn( "null dataId!! " + this.getName() );
+            return null;
+        } else {
+            return dataId.toString();
+        }
     }
 
     public String getName() {
@@ -61,7 +69,6 @@ public abstract class AbstractClydeResource implements CopyableResource, Deletab
     public void moveTo( CollectionResource rDest, String name ) throws ConflictException {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
-
 
     public Date getModifiedDate() {
         return nameNode.getModifiedDate();
@@ -84,13 +91,11 @@ public abstract class AbstractClydeResource implements CopyableResource, Deletab
     }
 
     public Long getMaxAgeSeconds( Auth auth ) {
-        return _(CachePolicyService.class).getMaxAgeSeconds( this, auth );
+        return _( CachePolicyService.class ).getMaxAgeSeconds( this, auth );
     }
 
-
-
-
     public void setId( UUID id ) {
+        log.debug( "setId: " + id);
         this.dataId = id;
     }
 
@@ -108,5 +113,4 @@ public abstract class AbstractClydeResource implements CopyableResource, Deletab
     public NameNode getNameNode() {
         return nameNode;
     }
-
 }

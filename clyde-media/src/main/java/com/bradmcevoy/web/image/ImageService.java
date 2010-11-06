@@ -36,6 +36,23 @@ public class ImageService {
         ImageIO.setCacheDirectory( cache );
     }
 
+    public BufferedImage rotateLeft( BufferedImage image) {
+        BufferedImage target = new BufferedImage( image.getHeight(), image.getWidth(), image.getType() );
+        Graphics2D graphics = target.createGraphics();
+        graphics.rotate( -Math.PI / 2 );
+        graphics.translate( -image.getWidth(), 0 );
+
+        return target;
+    }
+
+    public BufferedImage rotateRight( BufferedImage image ) {
+        BufferedImage target = new BufferedImage( image.getHeight(), image.getWidth(), image.getType() );
+        Graphics2D graphics = target.createGraphics();
+        graphics.rotate( Math.PI / 2 );
+        graphics.translate( 0, -image.getHeight() );
+        return target;
+    }
+
     public Dimensions getDimenions( InputStream in, String name ) {
         try {
             ImageInfo info = Sanselan.getImageInfo( in, name );
@@ -281,8 +298,8 @@ public class ImageService {
 //        return bi;
 //
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        BufferedInputStream buf = new BufferedInputStream( is );
-        IOUtils.copy( buf, bout );
+   
+        IOUtils.copy( is, bout );
         //ImageInputStream iis = ImageIO.createImageInputStream( buf );
         byte[] arr = bout.toByteArray();
         ImageInputStream iis = ImageIO.createImageInputStream( new ByteArrayInputStream( arr ) );

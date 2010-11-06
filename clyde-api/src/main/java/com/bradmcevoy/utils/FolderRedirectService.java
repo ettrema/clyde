@@ -14,7 +14,6 @@ public class FolderRedirectService implements RedirectService {
 
     public String checkRedirect( Resource resource, Request request ) {
         if( resource instanceof CollectionResource ) {
-            CollectionResource folder = (CollectionResource) resource;
             String s = request.getAbsoluteUrl();
             if( !s.endsWith( "/" ) ) {
                 s = s + "/";

@@ -59,7 +59,7 @@ public class ForgottenPasswordComponent implements Component {
             RequestParams.current().attributes.put( "parsedEmail", add );
             VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
             List<NameNode> list = vfs.find( EmailAddress.class, email );
-            if( list == null || list.size() == 0 ) {
+            if( list == null || list.isEmpty() ) {
                 log.debug( "no nodes found" );
                 setValidationError( "That email address wasn't found." );
                 return false;

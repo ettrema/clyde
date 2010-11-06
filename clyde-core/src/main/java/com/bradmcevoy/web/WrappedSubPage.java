@@ -63,12 +63,12 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
 
     @Override
-    public User authenticate( String user, String password ) {
+    public IUser authenticate( String user, String password ) {
         if( log.isTraceEnabled()) {
             log.trace( "authenticate(basic): actualParent: " + actualParent.getHref());
         }
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
-        User o = authenticator.authenticate( actualParent, user, password );
+        IUser o = authenticator.authenticate( actualParent, user, password );
         if( o == null ) {
             log.warn("authentication failed by: " + authenticator.getClass());
         }

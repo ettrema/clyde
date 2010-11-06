@@ -151,8 +151,8 @@ public class GenThumbs extends AbstractConsoleCommand {
                     log.warn( "processing thumbs: " + name + " with thumb specs: " + Thumb.format( thumbs ) );
                     for( Resource r : folder.getChildren() ) {
                         if( r instanceof ImageFile ) {
-                            log.trace( "process image file" );
                             ImageFile imageFile = (ImageFile) r;
+                            log.trace( "process image file: " + imageFile.getPath() );
                             int numThumbs = imageFile.generateThumbs( skipIfExists, thumbs );
                             totalThumbs += numThumbs;
                             notifyWallEtc( numThumbs, imageFile );

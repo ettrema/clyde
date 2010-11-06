@@ -1,18 +1,18 @@
 package com.bradmcevoy.web.resources;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bradmcevoy.binary.BinaryContainer;
 import com.bradmcevoy.binary.ClydeBinaryService;
-import com.bradmcevoy.http.CopyableResource;
-import com.bradmcevoy.http.DeletableResource;
-import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.ettrema.vfs.DataNode;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 
 import static com.ettrema.context.RequestContext._;
 
@@ -21,7 +21,11 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public class BinaryResource extends AbstractClydeResource implements CopyableResource, DeletableResource, GetableResource, MoveableResource, DataNode, BinaryContainer {
+public class BinaryResource extends AbstractClydeResource implements BinaryContainer, Serializable {
+
+    private static final Logger log = LoggerFactory.getLogger( BinaryResource.class );
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Persist a CRC value of the binary data
@@ -37,7 +41,17 @@ public class BinaryResource extends AbstractClydeResource implements CopyableRes
 
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        _( ClydeBinaryService.class ).readInputStream( this, null );
+        InputStream in = _( ClydeBinaryService.class ).readInputStream( this, null );
+        if( in != null ) {
+            IOUtils.copy( in, out );
+        } else {
+            log.warn("null inputstream returned");
+        }
+    }
+
+    public void setContent(InputStream inputStream) {
+        localContentLength = _( ClydeBinaryService.class ).setContent( this, inputStream );
+
     }
 
     public String getContentType( String accepts ) {

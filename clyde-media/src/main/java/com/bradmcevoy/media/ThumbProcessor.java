@@ -21,6 +21,12 @@ import static com.ettrema.context.RequestContext._;
  */
 public class ThumbProcessor {
 
+    public enum Rotate {
+        NONE,
+        LEFT,
+        RIGHT
+    }
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbProcessor.class );
     private final ImageFile imageFile;
     private final List<Thumb> thumbs;
@@ -31,6 +37,10 @@ public class ThumbProcessor {
     }
 
     public int generateThumbs( boolean skipIfExists ) throws FileNotFoundException, IOException {
+        return generateThumbs( Rotate.NONE, skipIfExists );
+    }
+
+    public int generateThumbs( Rotate rotate, boolean skipIfExists ) throws FileNotFoundException, IOException {
         log.trace( "generateThumbs: " + skipIfExists );
 
         if( thumbs == null ) {
@@ -53,6 +63,18 @@ public class ThumbProcessor {
             log.warn("Couldnt get an image for: " + imageFile.getPath());
             return 0;
         }
+
+        switch(rotate) {
+            case NONE:
+                break;
+            case LEFT:
+                image = imageService.rotateLeft( image );
+                break;
+            case RIGHT:
+                image = imageService.rotateRight( image );
+                break;
+        }
+
 
         Folder parent = imageFile.getParent();
         int count = 0;
@@ -101,4 +123,6 @@ public class ThumbProcessor {
         thumb.setContent( in );
 
     }
+
+
 }

@@ -13,28 +13,29 @@ import com.ettrema.vfs.NameNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author brad
  */
-public class FolderResource extends AbstractClydeResource implements CollectionResource, MakeCollectionableResource, PutableResource {
+public class FolderResource extends AbstractClydeResource implements CollectionResource, MakeCollectionableResource, PutableResource, Serializable {
 
-    /**
-     * set by the framework in setId
-     */
-    private UUID dataId;
+    private static final Logger log = LoggerFactory.getLogger( FolderResource.class );
+
+    private static final long serialVersionUID = 1L;
+
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         // folder has no content
     }
 
-    
     public String getContentType( String accepts ) {
         return null; // folder has no content type
     }
@@ -91,10 +92,13 @@ public class FolderResource extends AbstractClydeResource implements CollectionR
     }
 
     public Resource createNew( String newName, InputStream inputStream, Long length, String contentType ) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
+        log.info("createNew: " + newName);
         BinaryResource res = new BinaryResource();
         NameNode newResourceNode = getNameNode().add( newName, res );
+        log.debug("created id: " + res.getId());
         newResourceNode.save();
-        newResourceNode.setBinaryContent( inputStream );
+        res.setContent( inputStream );
+        newResourceNode.save(); // save content length
         return res;
 
     }

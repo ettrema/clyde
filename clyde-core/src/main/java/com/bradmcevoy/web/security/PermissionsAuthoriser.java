@@ -17,6 +17,16 @@ import javax.xml.namespace.QName;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
+ * Implements role based authorisation, both for page level and field level access.
+ *
+ * This implements PropertyAuthoriser so it can be used for property access directly
+ * from milton's PROPFIND and PROPPATCH support.
+ *
+ * It implements ClydeAuthoriser so it can authorise page requests.
+ *
+ * It uses AuthoringPermissionService to determine what role is required for
+ * different actions, and then uses PermissionChecker to check if the current
+ * user has the required role.
  *
  * @author brad
  */
@@ -45,6 +55,8 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
     public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
         Role requiredRole = findRole( resource, method );
         if( requiredRole == null ) {
+            // This means the authoriser has no opinion. Another authoriser might
+            // be in the chain, or else we fall through to the default policy
             return null;
         } else {
             Boolean bb = permissionChecker.hasRole( requiredRole, resource, auth );

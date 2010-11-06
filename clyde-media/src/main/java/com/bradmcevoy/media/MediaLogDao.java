@@ -5,6 +5,7 @@ import com.bradmcevoy.media.MediaLogService.ResultCollector;
 import com.bradmcevoy.web.BaseResource;
 import com.ettrema.db.Table;
 import com.ettrema.db.Table.Field;
+import com.ettrema.db.types.FieldTypes;
 import com.ettrema.vfs.PostgresUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -156,14 +157,14 @@ public class MediaLogDao {
 
     public static class MediaTable extends Table {
 
-        public final Field nameId = add( "name_uuid", "character varying", false );
-        public final Field hostId = add( "host_uuid", "character varying", false );
-        public final Field dateTaken = add( "date_taken", "timestamp", false );
-        public final Field locLat = add( "loc_lat", "double precision", true );
-        public final Field locLong = add( "loc_long", "double precision", true );
-        public final Field mainContentPath = add( "main_path", "character varying", false );
-        public final Field mainContentType = add( "main_type", "character varying", false );
-        public final Field thumbPath = add( "thumbPath", "character varying", false );
+        public final Field nameId = add( "name_uuid",FieldTypes.CHARACTER_VARYING, false );
+        public final Field hostId = add( "host_uuid", FieldTypes.CHARACTER_VARYING, false );
+        public final Field dateTaken = add( "date_taken", FieldTypes.TIMESTAMP, false );
+        public final Field locLat = add( "loc_lat", FieldTypes.FLOAT8, true );
+        public final Field locLong = add( "loc_long", FieldTypes.FLOAT8, true );
+        public final Field mainContentPath = add( "main_path", FieldTypes.CHARACTER_VARYING, false );
+        public final Field mainContentType = add( "main_type", FieldTypes.CHARACTER_VARYING, false );
+        public final Field thumbPath = add( "thumbPath", FieldTypes.CHARACTER_VARYING, false );
 
         public MediaTable() {
             super( "media" );

@@ -16,7 +16,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import com.ettrema.context.RequestContext;
@@ -194,9 +194,9 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     }
 
     @Override
-    public User authenticate( String user, String password ) {
+    public IUser authenticate( String user, String password ) {
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
-        User o = authenticator.authenticate( folder, user, password );
+        IUser o = authenticator.authenticate( folder, user, password );
         if( o == null ) {
             log.warn( "authentication failed by: " + authenticator.getClass() );
         }

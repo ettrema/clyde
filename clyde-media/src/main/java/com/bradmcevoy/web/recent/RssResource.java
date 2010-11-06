@@ -15,6 +15,7 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.ImageFile.ImageData;
 import com.bradmcevoy.web.Page;
@@ -173,9 +174,9 @@ public class RssResource implements GetableResource, DigestResource {
     }
 
     @Override
-    public User authenticate(String user, String password) {
+    public IUser authenticate(String user, String password) {
         ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
-        User o = authenticator.authenticate(folder, user, password);
+        IUser o = authenticator.authenticate(folder, user, password);
         if (o == null) {
             log.warn("authentication failed by: " + authenticator.getClass());
         }
