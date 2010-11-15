@@ -197,12 +197,12 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     @Override
     public String checkRedirect( Request request ) {
-        String t = templateName(request.getParams());
-        if( t == null || t.length() == 0) {
+        String t = templateName( request.getParams() );
+        if( t == null || t.length() == 0 ) {
             List<Template> allowedTemplates = folder.getAllowedTemplates();
             if( allowedTemplates != null && allowedTemplates.size() == 1 ) {
                 String templateName = allowedTemplates.get( 0 ).getName();
-                log.debug( "no template selected, and only one allowed, so auto-select it");
+                log.debug( "no template selected, and only one allowed, so auto-select it" );
                 return request.getAbsoluteUrl() + "?templateSelect=" + templateName;
             }
         }
@@ -220,7 +220,12 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         }
         String nameToUse = newName;
         if( newName.equals( AUTO_NAME ) ) {
-            nameToUse = ClydeUtils.getDateAsNameUnique( this.folder );
+            if( parameters.containsKey( "title " ) ) {
+                String title = parameters.get( "title" );
+                nameToUse = ClydeUtils.getUniqueName( this.folder, title );
+            } else {
+                nameToUse = ClydeUtils.getDateAsNameUnique( this.folder );
+            }
         }
         editee = template.createPageFromTemplate( folder, nameToUse );
         if( editee instanceof EditableResource ) {

@@ -24,9 +24,15 @@ import static com.ettrema.context.RequestContext._;
  */
 public class PageCreator implements Creator {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PageCreator.class );
+
     @Override
     public boolean accepts( String contentType ) {
-        return contentType.contains( "html" );
+        if( contentType.contains( "html" ) ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -51,13 +57,19 @@ public class PageCreator implements Creator {
             ComponentValue cvBody = page.getValues().get( "body" );
             if( cvBody == null ) {
                 ComponentDef bodyDef = template.getComponentDef( "body" );
-                cvBody = bodyDef.createComponentValue( page );
+                if( bodyDef != null ) {
+                    cvBody = bodyDef.createComponentValue( page );
+                    cvBody.setValue( bout.toString() );
+                } else {
+                    log.warn( "Found template, but no body componentdef. Can't set content!" );
+                }
+            } else {
+                cvBody.setValue( bout.toString() );
             }
-            cvBody.setValue( bout.toString() );
         }
-        IUser creator = _(CurrentUserService.class).getOnBehalfOf();
-        if( creator instanceof User){
-            page.setCreator( (User)creator );
+        IUser creator = _( CurrentUserService.class ).getOnBehalfOf();
+        if( creator instanceof User ) {
+            page.setCreator( (User) creator );
         }
         page.save();
         return page;

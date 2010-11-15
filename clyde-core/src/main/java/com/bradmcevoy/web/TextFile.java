@@ -5,11 +5,16 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 
 public class TextFile extends File implements SimpleEditPage.SimpleEditable, Replaceable {
 
@@ -104,5 +109,14 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
         return true;
     }
 
-
+    public long getCrc() {
+        try {
+            CheckedInputStream cin = new CheckedInputStream( new ByteArrayInputStream( content.getBytes() ), new CRC32() );
+            IOUtils.copy( cin, new NullOutputStream() );
+            long crc = cin.getChecksum().getValue();
+            return crc;
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        }
+    }
 }

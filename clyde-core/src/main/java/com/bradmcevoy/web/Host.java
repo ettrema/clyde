@@ -178,9 +178,9 @@ public class Host extends Web implements BucketOwner {
                     users.templateSpecs.add( "-*" );
                 } catch( ConflictException ex ) {
                     throw new RuntimeException( ex );
-                } catch(NotAuthorizedException ex) {
+                } catch( NotAuthorizedException ex ) {
                     throw new RuntimeException( ex );
-                } catch(BadRequestException ex) {
+                } catch( BadRequestException ex ) {
                     throw new RuntimeException( ex );
                 }
             }

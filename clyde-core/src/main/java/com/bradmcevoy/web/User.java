@@ -1,5 +1,8 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.property.BeanPropertyAccess;
+import java.util.ArrayList;
+import java.util.UUID;
 import com.bradmcevoy.web.wall.Wall;
 import com.bradmcevoy.web.wall.WallItem;
 import com.bradmcevoy.web.wall.WallService;
@@ -36,6 +39,7 @@ public class User extends Folder implements IUser {
     private static final long serialVersionUID = 1L;
     public Text password;
     private boolean emailDisabled;
+    private List<String> accessKeys;
 
     public User( Folder parentFolder, String name ) {
         this( parentFolder, name, null );
@@ -252,15 +256,27 @@ public class User extends Folder implements IUser {
             boolean b = password == null || password.length() == 0;
             if( !b ) {
                 log.info( "actual password is blank, but provided password is not" );
+            } else {
+                return b;
             }
-            return b;
         } else {
             boolean b = actualPassword.equals( password );
             if( !b ) {
                 log.info( "passwords don't match" );
+            } else {
+                return b;
             }
-            return b;
         }
+        // No match found, so check for accessKey
+        if( accessKeys != null ) {
+            for( String s : accessKeys ) {
+                if( s.equals( password)) {
+                    log.trace("found matching accesskey");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     boolean checkPassword( DigestResponse digestRequest ) {
@@ -376,5 +392,29 @@ public class User extends Folder implements IUser {
             log.warn("wall items: " + list.size());
             return list;
         }
+    }
+
+
+    @BeanPropertyAccess( false )
+    public List<String> getAccessKeys() {
+        if( accessKeys == null ) {
+            return Collections.emptyList();
+        } else {
+            return new ArrayList( accessKeys );
+        }
+    }
+
+    /**
+     * Creates a new access key and adds it to the list on this host
+     *
+     * @return
+     */
+    public String createNewAccessKey() {
+        UUID newId = UUID.randomUUID();
+        if( accessKeys == null ) {
+            accessKeys = new ArrayList<String>();
+        }
+        accessKeys.add( newId.toString() );
+        return newId.toString();
     }
 }
