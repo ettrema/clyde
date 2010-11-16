@@ -115,6 +115,10 @@ public class CodeBehindPage extends VfsCommon implements GetableResource, Replac
         return res.authenticate( digestRequest );
     }
 
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );

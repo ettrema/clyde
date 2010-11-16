@@ -2,7 +2,10 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.common.UnrecoverableException;
+import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.MakeCollectionableResource;
+import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -29,7 +32,7 @@ public class FckQuickUploaderResource extends FckCommon {
     private int code;
     private String filename;
 
-    public FckQuickUploaderResource( Host host ) {
+    public FckQuickUploaderResource( CollectionResource host ) {
         super( host, URL );
     }
 
@@ -40,7 +43,7 @@ public class FckQuickUploaderResource extends FckCommon {
 
     @Override
     public String processForm( Map<String, String> params, Map<String, FileItem> files ) {
-        if( files == null || files.size() == 0 ) {
+        if( files == null || files.isEmpty() ) {
             log.warn( "no files to upload" );
             return null;
         }
@@ -51,14 +54,19 @@ public class FckQuickUploaderResource extends FckCommon {
     }
 
     private void processFileUpload( FileItem f, Map<String, String> params ) {
-        Folder target = null;
-        if( host == null ) {
+        CollectionResource target = null;
+        if( wrappedResource == null ) {
             throw new UnrecoverableException( "host not found" );
         }
-        target = (Folder) host.child( "uploads" );
+        target = (CollectionResource) wrappedResource.child( "uploads" );
         if( target == null ) {
             try {
-                target = (Folder) host.createCollection( "uploads" );
+                if( wrappedResource instanceof MakeCollectionableResource ) {
+                    MakeCollectionableResource mk = (MakeCollectionableResource) wrappedResource;
+                    target = (Folder) mk.createCollection( "uploads" );
+                } else {
+                    throw new BadRequestException( target, "Cant create subfolder" );
+                }
             } catch( ConflictException ex ) {
                 throw new RuntimeException( ex );
             } catch( NotAuthorizedException ex ) {
@@ -66,14 +74,13 @@ public class FckQuickUploaderResource extends FckCommon {
             } catch( BadRequestException ex ) {
                 throw new RuntimeException( ex );
             }
-            target.save();
         }
 
         String name = FileUtils.sanitiseName( f.getName() );
         log.debug( "processFileUpload: " + name );
         boolean isFirst = true;
         String newName = null;
-        while( target.hasChild( name ) ) {
+        while( target.child( name ) != null ) {
             name = FileUtils.incrementFileName( name, isFirst );
             newName = name;
             isFirst = false;
@@ -81,7 +88,17 @@ public class FckQuickUploaderResource extends FckCommon {
 
         long size = f.getSize();
         try {
-            Resource newRes = target.createNew( name, f.getInputStream(), size, null );
+            if( target instanceof PutableResource ) {
+                PutableResource putable = (PutableResource) target;
+                Resource newRes = putable.createNew( name, f.getInputStream(), size, null );
+                if( newRes != null ) {
+                    log.trace( "created: " + newRes.getName() + " of type: " + newRes.getClass() );
+                } else {
+                    log.trace( "createNew returned null" );
+                }
+            } else {
+                throw new BadRequestException(target, "Does not implement PutableResource");
+            }
         } catch( ConflictException ex ) {
             throw new RuntimeException( ex );
         } catch( NotAuthorizedException ex ) {

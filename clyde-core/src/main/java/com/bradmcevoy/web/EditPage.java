@@ -120,6 +120,12 @@ public class EditPage implements PostableResource, DigestResource {
         return editee.authenticate( digestRequest );
     }
 
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
+
+
 
 
     @Override

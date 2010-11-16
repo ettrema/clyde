@@ -102,4 +102,10 @@ public class ErrorPage implements GetableResource, PostableResource, DigestResou
     public Object authenticate( DigestResponse digestRequest ) {
         return digestRequest.getUser();
     }
+
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
+
 }

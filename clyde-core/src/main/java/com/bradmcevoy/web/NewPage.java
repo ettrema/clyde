@@ -167,6 +167,12 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.authenticate( digestRequest );
     }
 
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
+
+
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ITemplate t = getTemplate( request.getParams() );

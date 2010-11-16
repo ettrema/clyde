@@ -179,5 +179,9 @@ public class NewResourceFactory extends CommonResourceFactory {
         public Object authenticate( DigestResponse digestRequest ) {
             return digestRequest.getUser();
         }
+
+        public boolean isDigestAllowed() {
+            return true;
+        }
     }
 }

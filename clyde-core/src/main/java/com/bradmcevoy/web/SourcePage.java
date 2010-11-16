@@ -114,6 +114,10 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return res.authenticate( digestRequest );
     }
 
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
@@ -300,6 +304,10 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         @Override
         public Object authenticate( DigestResponse digestRequest ) {
             return SourcePage.this.authenticate( digestRequest );
+        }
+
+        public boolean isDigestAllowed() {
+            return true;
         }
 
         @Override

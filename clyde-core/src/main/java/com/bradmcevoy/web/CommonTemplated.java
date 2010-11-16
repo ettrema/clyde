@@ -345,6 +345,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return o;
     }
 
+    public boolean isDigestAllowed() {
+        return true;
+    }
+
+
+
     public Host findHost( String authority ) {
         Host h = getHost();
         if( authority == null ) {

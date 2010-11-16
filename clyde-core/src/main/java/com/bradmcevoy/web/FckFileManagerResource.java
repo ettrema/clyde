@@ -5,6 +5,8 @@ import com.bradmcevoy.common.UnrecoverableException;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.MakeCollectionableResource;
+import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
@@ -34,8 +36,8 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
         + "</script>\n";
     private FckPostParams uploadParams;
 
-    public FckFileManagerResource( Host host ) {
-        super( host, URL );
+    public FckFileManagerResource( CollectionResource folder ) {
+        super( folder, URL );
     }
 
     @Override
@@ -82,7 +84,7 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
      */
     abstract class FckParams {
 
-        Folder target;   // from params                
+        PutableResource target;   // from params
         final Map<String, String> params;
 
         FckParams( Map<String, String> params ) {
@@ -120,9 +122,9 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
         void process() {
             String relFolder = sFolder.substring( 1 );
             Path p = Path.path( relFolder );
-            Resource r = host.find( p );
+            Resource r = find(wrappedResource, p );
             if( r instanceof Folder ) {
-                target = (Folder) host.find( p );
+                target = (Folder)r;
             }
             if( target == null ) {
                 throw new UnrecoverableException( "No folder with that path: " + sFolder );
@@ -201,17 +203,22 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             log.debug( "processCreateFolderCommand: " + newFolderName );
             int errNumber;
             try {
-                if( target.hasChild( newFolderName ) ) {
+                if( target.child( newFolderName ) != null ) {
                     log.debug( "has child" );
                     errNumber = 101;
                 } else {
-                    CollectionResource f = target.createCollection( newFolderName );
+                    if( target instanceof MakeCollectionableResource) {
+                        MakeCollectionableResource mk = (MakeCollectionableResource) target;
+                        CollectionResource f = mk.createCollection( newFolderName );
+                    } else {
+                        throw new BadRequestException( target, "Folder does not allow creating subfolders");
+                    }
                     log.debug( "add new child ok" );
                     errNumber = 0;
                 }
             } catch( Throwable e ) {
                 errNumber = 103;
-                log.error( "Exception creating new folder: " + newFolderName + " in " + target.getPath(), e );
+                log.error( "Exception creating new folder: " + newFolderName + " in " + target.getName(), e );
                 rollback();
             }
             initXml();
@@ -238,7 +245,7 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             if( uploadParams == null ) {
                 throw new NullPointerException( "no post for upload command" );
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append( "<script type='text/javascript'>\n" );
             sb.append( "window.parent.frames['frmUpload'].OnUploadCompleted(" + uploadParams.code );
             if( uploadParams.message != null ) {
@@ -256,6 +263,24 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
         }
     }
 
+    private Resource find( CollectionResource wrappedResource, Path p ) {
+        Resource r = wrappedResource;
+        for( String s : p.getParts() ) {
+            if( r instanceof CollectionResource ) {
+                CollectionResource col = (CollectionResource) r;
+                r = col.child( s );
+                if( r == null ) {
+                    log.trace("not found: " + s + " in path: " + p);
+                    return null;
+                }
+            } else {
+                log.trace("not a collection: " + r.getName() + " in path: " + p);
+                return null;
+            }
+        }
+        return r;
+    }
+
     class FckPostParams extends FckParams {
 
         int code;
@@ -268,7 +293,7 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
 
         void processFileUploadCommand( Map<String, FileItem> files ) {
             Collection<FileItem> col = files.values();
-            if( col == null || col.size() == 0 ) {
+            if( col == null || col.isEmpty() ) {
                 log.debug( "no files uploaded" );
             } else {
                 log.debug( "files: " + col.size() );
@@ -285,18 +310,18 @@ public class FckFileManagerResource extends FckCommon implements GetableResource
             log.debug( "sFolder: " + sFolder + " - " + sFolder.length() );
             String relFolder = sFolder.substring( 1 );
             Path p = Path.path( relFolder );
-            Resource r = host.find( p );
-            if( r instanceof Folder ) {
-                target = (Folder) host.find( p );
+            Resource r = find( wrappedResource, p );
+            if( r instanceof PutableResource ) {
+                target = (PutableResource)r;
             }
             if( target == null ) {
-                throw new UnrecoverableException( "No folder with that path: " + sFolder );
+                throw new UnrecoverableException( "No putable folder with that path: " + sFolder );
             }
 
             String name = f.getName(); //utilFile().sanitiseName(f.getName());
             log.debug( "processFileUpload: " + name );
             boolean isFirst = true;
-            while( target.hasChild( name ) ) {
+            while( target.child( name ) != null ) {
                 name = FileUtils.incrementFileName( name, isFirst );
                 newName = name;
                 isFirst = false;

@@ -155,6 +155,10 @@ public class SourceResourceFactory extends CommonResourceFactory {
             return parent.authenticate( digestRequest );
         }
 
+        public boolean isDigestAllowed() {
+            return true;
+        }
+
         @Override
         public boolean authorise( Request request, Request.Method method, Auth auth ) {
             ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );

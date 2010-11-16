@@ -2,6 +2,7 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Request;
@@ -12,10 +13,10 @@ import java.util.Date;
 public abstract class FckCommon extends VfsCommon implements PostableResource, DigestResource {
 
     protected Path url;
-    protected final Host host;
+    protected final CollectionResource wrappedResource;
 
-    FckCommon( Host host, Path url ) {
-        this.host = host;
+    FckCommon( CollectionResource wrappedResource, Path url ) {
+        this.wrappedResource = wrappedResource;
         this.url = url;
     }
 
@@ -26,18 +27,28 @@ public abstract class FckCommon extends VfsCommon implements PostableResource, D
 
     @Override
     public String getName() {
-        return "connector.html";
+        return url.getName();
     }
 
     @Override
     public Object authenticate( String user, String password ) {
-        return host.authenticate( user, password );
+        return wrappedResource.authenticate( user, password );
     }
 
     @Override
     public Object authenticate( DigestResponse dr ) {
-        return host.authenticate( dr );
+        if( wrappedResource instanceof DigestResource) {
+            return ((DigestResource)wrappedResource).authenticate( dr );
+        } else {
+            return null;
+        }
     }
+
+    public boolean isDigestAllowed() {
+        return wrappedResource instanceof DigestResource;
+    }
+
+
 
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
@@ -46,7 +57,7 @@ public abstract class FckCommon extends VfsCommon implements PostableResource, D
 
     @Override
     public String getRealm() {
-        return host.getRealm();
+        return wrappedResource.getRealm();
     }
 
     @Override
