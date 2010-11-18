@@ -54,6 +54,7 @@ public class RssResource implements GetableResource, DigestResource {
     }
 
     public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        log.trace("sendContent");
         String where = params.get("where");
         boolean includeImages = true;
         boolean includePages = true;
@@ -191,6 +192,11 @@ public class RssResource implements GetableResource, DigestResource {
             log.warn("authentication failed by: " + authenticator.getClass());
         }
         return o;
+    }
+
+
+    public boolean isDigestAllowed() {
+        return folder.isDigestAllowed();
     }
 
     protected RequestContext requestContext() {

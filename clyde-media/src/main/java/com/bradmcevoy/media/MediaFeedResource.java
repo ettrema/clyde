@@ -213,6 +213,12 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         return o;
     }
 
+    public boolean isDigestAllowed() {
+        return folder.isDigestAllowed();
+    }
+
+
+
     protected RequestContext requestContext() {
         return RequestContext.getCurrent();
     }
