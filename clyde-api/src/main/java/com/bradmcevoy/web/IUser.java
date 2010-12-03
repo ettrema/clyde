@@ -46,4 +46,6 @@ public interface IUser extends Mailbox, PermissionRecipient {
 
     String getName();
 
+    boolean isInGroup( String groupName );
+
 }

@@ -45,6 +45,7 @@ public class NewResourceFactory extends CommonResourceFactory {
                 try {
                     return new RedirectToNewPage( path.getParent(), f.getRealm() );
                 } catch( IllegalArgumentException e ) {
+                    log.warn("illegal argument", e);
                     return new NewResourceErrorPage( url, pRes.getName(), f, e.getMessage() );
                 }
             }
@@ -60,6 +61,7 @@ public class NewResourceFactory extends CommonResourceFactory {
                 try {
                     return new NewPage( f, pRes.getName() );
                 } catch( IllegalArgumentException e ) {
+                    log.warn("illegal argument", e);
                     return new NewResourceErrorPage( url, pRes.getName(), f, e.getMessage() );
                 }
             }

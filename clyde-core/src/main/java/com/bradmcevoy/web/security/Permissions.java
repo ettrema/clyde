@@ -66,6 +66,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         }
         if( subject instanceof PermissionRecipient ) {
             PermissionRecipient res = (PermissionRecipient) subject;
+            log.trace("make relation: " + role);
             this.nameNode.makeRelation( res.getNameNode(), role.toString() );
         } else if( subject instanceof SystemUserGroup ) {
             RoleAndGroup rag = new RoleAndGroup( role, subject.getSubjectName() );

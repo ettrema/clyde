@@ -29,11 +29,13 @@ public class GenThumbs extends AbstractConsoleCommand {
     private final RootContextLocator rootContextLocator;
     private final int workers;
     private int runningWorkers;
+    private final boolean updateWall;
 
-    GenThumbs( List<String> args, String host, String currentDir, ResourceFactory resourceFactory, RootContextLocator rootContextLocator, int workers ) {
+    GenThumbs( List<String> args, String host, String currentDir, ResourceFactory resourceFactory, RootContextLocator rootContextLocator, int workers, boolean updateWall ) {
         super( args, host, currentDir, resourceFactory );
         this.rootContextLocator = rootContextLocator;
         this.workers = workers;
+        this.updateWall = updateWall;
     }
 
     @Override
@@ -145,7 +147,7 @@ public class GenThumbs extends AbstractConsoleCommand {
                 Folder folder = (Folder) data;
                 name = folder.getPath().toString();
                 if( isDeprecatedThumbs( folder ) ) {
-                    log.warn("Found deprecated thumbs folder - DELETING: " + folder.getHref());
+                    log.warn( "Found deprecated thumbs folder - DELETING: " + folder.getHref() );
                     folder.delete();
                 } else {
                     log.warn( "processing thumbs: " + name + " with thumb specs: " + Thumb.format( thumbs ) );
@@ -155,7 +157,9 @@ public class GenThumbs extends AbstractConsoleCommand {
                             log.trace( "process image file: " + imageFile.getPath() );
                             int numThumbs = imageFile.generateThumbs( skipIfExists, thumbs );
                             totalThumbs += numThumbs;
-                            notifyWallEtc( numThumbs, imageFile );
+                            if( updateWall ) {
+                                notifyWallEtc( numThumbs, imageFile );
+                            }
                         } else {
                             log.trace( "not an imagefile" );
                         }

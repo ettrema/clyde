@@ -9,6 +9,7 @@ import com.bradmcevoy.http.Response;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.webdav.DefaultWebDavResponseHandler;
+import com.bradmcevoy.http.webdav.ResourceTypeHelper;
 import java.io.IOException;
 
 /**
@@ -26,12 +27,16 @@ public class LoginResponseHandler extends DefaultWebDavResponseHandler {
         super( authenticationService );
     }
 
+    public LoginResponseHandler( AuthenticationService authenticationService, ResourceTypeHelper resourceTypeHelper ) {
+        super(authenticationService, resourceTypeHelper );
+    }
+
     @Override
     public void respondUnauthorised( Resource resource, Response response, Request request ) {
         if( isPage( resource ) ) {
             Resource rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
             if( rLogin == null || !(rLogin instanceof GetableResource) ) {
-                log.warn( "Couldnt find login resource: " + request.getHostHeader() + "/" + loginPage);
+                log.trace( "Couldnt find login resource: " + request.getHostHeader() + "/" + loginPage);
                 wrapped.respondUnauthorised( resource, response, request );
             } else {
                 log.trace("respond with 403 to suppress login prompt");

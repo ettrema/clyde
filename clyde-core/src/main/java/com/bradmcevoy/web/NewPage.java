@@ -68,6 +68,30 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.getHref() + newName + ".new";
     }
 
+    private String findAutoName( Map<String, String> parameters ) {
+        String nameToUse;
+        if( parameters.containsKey( "name " ) ) {
+            String name = parameters.get( "name" );
+            name = name.toLowerCase().replace( "/", "-");
+            nameToUse = ClydeUtils.getUniqueName( this.folder, name );
+        } else if( parameters.containsKey( "firstName" ) ) {
+            String fullName = parameters.get( "firstName" );
+            if( parameters.containsKey( "surName")) {
+                fullName = fullName + "." + parameters.get( "surName");
+            }
+            fullName = fullName.toLowerCase().replace( "/", "-");
+
+            nameToUse = ClydeUtils.getUniqueName( this.folder, fullName );
+        } else if( parameters.containsKey( "title" ) ) {
+            String title = parameters.get( "title" );
+            nameToUse = ClydeUtils.getUniqueName( this.folder, title );
+        } else {
+            nameToUse = ClydeUtils.getDateAsNameUnique( this.folder );
+        }
+
+        return nameToUse;
+    }
+
     private ITemplate getTemplate( Map<String, String> params ) {
         if( template == null ) {
             String templateName = templateName( params );
@@ -104,7 +128,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             out.write( s.getBytes() );
         } else {
             ITemplate template = getTemplate( params );
-            if( template == null ) {
+            if( templateName == null ) {
                 throw new RuntimeException( "Template not found: " + templateName );
             }
             if( editee == null ) {
@@ -126,7 +150,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     private String renderSelectTemplate() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append( "<html><body>" );
         sb.append( "<h1></h1>" );
         sb.append( "<h1>Select Template for New Page</h1>" );
@@ -170,8 +194,6 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     public boolean isDigestAllowed() {
         return true;
     }
-
-
 
     @Override
     public boolean authorise( Request request, Request.Method method, Auth auth ) {
@@ -226,12 +248,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         }
         String nameToUse = newName;
         if( newName.equals( AUTO_NAME ) ) {
-            if( parameters.containsKey( "title " ) ) {
-                String title = parameters.get( "title" );
-                nameToUse = ClydeUtils.getUniqueName( this.folder, title );
-            } else {
-                nameToUse = ClydeUtils.getDateAsNameUnique( this.folder );
-            }
+            nameToUse = findAutoName( parameters );
         }
         editee = template.createPageFromTemplate( folder, nameToUse );
         if( editee instanceof EditableResource ) {

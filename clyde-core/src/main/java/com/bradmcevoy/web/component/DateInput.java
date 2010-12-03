@@ -10,7 +10,7 @@ public class DateInput extends AbstractInput<Date>{
     
     private static final long serialVersionUID = 1L;
     
-    BooleanInput showTime = new BooleanInput(this, "showTime");
+    private boolean hasTime;
     
     public DateInput(Addressable container,String name) {
         super(container,name);
@@ -18,35 +18,19 @@ public class DateInput extends AbstractInput<Date>{
 
     public DateInput(Addressable container, Element el) {
         super(container,el);
-        String s = el.getAttributeValue("showTime");
-        if( s != null ) {
-            Boolean b = Boolean.valueOf(s);
-            this.showTime.setValue(b);
-        } else {
-            this.showTime.setValue(null);
-        }
-        
+        hasTime = InitUtils.getBoolean( el, "hasTime");
     }
 
     @Override
     public Element toXml(Addressable container, Element el) {
         Element e2 = super.toXml(container, el);
-        String s = showTime == null ? "" : showTime.getFormattedValue();
-        e2.setAttribute("showTime", s);
+        InitUtils.set( e2, "hasTime", hasTime);
         return e2;
     }
 
     @Override
     public void fromXml(Element el) {
         super.fromXml(el);
-        if( showTime == null ) showTime = new BooleanInput(this, "showTime"); 
-        String s = el.getAttributeValue("showTime");
-        if( s != null ) {
-            Boolean b = Boolean.valueOf(s);
-            this.showTime.setValue(b);
-        } else {
-            this.showTime.setValue(null);
-        }
     }
     
     
@@ -54,13 +38,13 @@ public class DateInput extends AbstractInput<Date>{
     
     @Override
     protected String editTemplate() {        
-        String tm = getShowTime().getValue() ? " %H:%M" : "";
+        String tm = hasTime ? " %H:%M" : "";
         return "<input type='text' name='${path}' id='${path}' value='${formattedValue}' />\n"
                 + "<script type='text/javascript'>\n"
                 + "Calendar.setup({\n"
                 + "inputField     :    '${path}',   // id of the input field\n"
                 + "ifFormat       :    '%d/%m/%Y" + tm + "',       // format of the input field\n"
-                + "showsTime      :    ${input.showTime.value},\n"
+                + "showsTime      :    ${input.hasTime},\n"
                 + "timeFormat     :    '24',\n"
                 + "});"
                 + "</script>\n";
@@ -71,7 +55,7 @@ public class DateInput extends AbstractInput<Date>{
     protected Date parse(String s) {
         if( s == null || s.trim().length() == 0 ) return null;
         try {
-            Date dt = DateDef.sdf.parse(s);
+            Date dt = DateDef.sdf(hasTime).parse(s);
             log.debug("parsed " + s + " -> " + dt);
             return dt;
         } catch (ParseException ex) {
@@ -79,9 +63,9 @@ public class DateInput extends AbstractInput<Date>{
             return null;
         }
     }    
-    
-    public BooleanInput getShowTime() {
-        if( showTime == null ) showTime = new BooleanInput(this, "showTime");
-        return showTime;
+
+    public boolean hasTime() {
+        return hasTime;
     }
+
 }

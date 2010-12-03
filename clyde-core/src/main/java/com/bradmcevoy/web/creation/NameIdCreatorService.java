@@ -18,33 +18,32 @@ import static com.ettrema.context.RequestContext._;
 public class NameIdCreatorService implements CreatorService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( NameIdCreatorService.class );
-
     private final CreatorService wrapped;
 
     public NameIdCreatorService( CreatorService wrapped ) {
         this.wrapped = wrapped;
     }
-                
+
     public IUser getCreator( Resource r ) {
         BaseResource res = (BaseResource) r;
         UUID creatorId = res.getCreatorNameNodeId();
         if( creatorId == null ) {
             return wrapped.getCreator( res );
         } else {
-            NameNode nn = _(VfsSession.class).get( creatorId );
+            NameNode nn = _( VfsSession.class ).get( creatorId );
             if( nn == null ) {
-                log.warn( "user name node not found: " + creatorId);
+                log.warn( "user name node not found: " + creatorId );
                 return null;
             } else {
                 DataNode dn = nn.getData();
                 if( dn == null ) {
-                    log.warn("no data node");
+                    log.warn( "no data node" );
                     return null;
                 } else {
                     if( dn instanceof User ) {
                         return (User) dn;
                     } else {
-                        log.warn("not a user. is a: " + dn.getClass().getCanonicalName());
+                        log.warn( "not a user. is a: " + dn.getClass().getCanonicalName() );
                         return null;
                     }
                 }
@@ -54,8 +53,7 @@ public class NameIdCreatorService implements CreatorService {
 
     public void setCreator( IUser user, Resource r ) {
         BaseResource res = (BaseResource) r;
-        res.setCreatorNameNodeId( user.getNameNodeId());
+        res.setCreatorNameNodeId( user.getNameNodeId() );
         res.save();
     }
-
 }

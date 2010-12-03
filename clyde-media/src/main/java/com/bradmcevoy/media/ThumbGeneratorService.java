@@ -104,7 +104,6 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     }
 
     private boolean enqueue( BinaryFile f ) {
-        RequestContext context = RequestContext.getCurrent();
         if( f.isTrash() ) {
             log.trace( "not generating thumbs because is in trash" );
         } else {
@@ -112,7 +111,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
                 List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder() );
                 if( thumbSpecs == null || thumbSpecs.isEmpty() ) return true;
                 ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( f.getNameNodeId(), f.getName() );
-                AsynchProcessor asynchProc = context.get( AsynchProcessor.class );
+                AsynchProcessor asynchProc = _( AsynchProcessor.class );
                 asynchProc.enqueue( proc );
             } else {
                 log.warn( "image has no parent folder! " + f.getName() );

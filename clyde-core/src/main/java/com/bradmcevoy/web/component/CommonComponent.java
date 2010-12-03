@@ -44,6 +44,7 @@ public abstract class CommonComponent implements Component, Serializable {
             Templatable targetPage = rc.getTargetPage();
             if( targetPage != null ){
                 vc.put("targetPage", targetPage);
+                vc.put("folder", targetPage.getParent());
                 vc.put("web", targetPage.getWeb());
             }
         }

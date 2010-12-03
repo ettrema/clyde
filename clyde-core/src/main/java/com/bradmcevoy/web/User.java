@@ -77,7 +77,10 @@ public class User extends Folder implements IUser {
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         password = (Text) this.componentMap.get( "password" );
+
+        // TODO: ??
         String s = el.getAttributeValue( "groupNames" );
+
         this.emailDisabled = InitUtils.getBoolean( el, "emailDisabled" );
         Element elEmail = el.getChild( "email" );
         if( elEmail != null ) {
@@ -270,8 +273,8 @@ public class User extends Folder implements IUser {
         // No match found, so check for accessKey
         if( accessKeys != null ) {
             for( String s : accessKeys ) {
-                if( s.equals( password)) {
-                    log.trace("found matching accesskey");
+                if( s.equals( password ) ) {
+                    log.trace( "found matching accesskey" );
                     return true;
                 }
             }
@@ -378,22 +381,49 @@ public class User extends Folder implements IUser {
         return getName();
     }
 
+    public void addToGroup( String groupName ) {
+        Group g = (Group) _( RelationalGroupHelper.class ).getGroup( this, groupName );
+        if( g == null ) {
+            throw new RuntimeException( "Group not found: " + groupName );
+        }
+        addToGroup( g );
+    }
+
     public void addToGroup( Group g ) {
         _( RelationalGroupHelper.class ).addToGroup( this, g );
     }
 
+    public void removeFromGroup( String groupName ) {
+        if( groupName == null || groupName.length() == 0 ) {
+            throw new IllegalArgumentException( "Group name is empty or null");
+        }
+        RelationalGroupHelper groupService = _( RelationalGroupHelper.class );
+        UserGroup userGroup = groupService.getGroup( this, groupName );
+        if( userGroup == null ) {
+            throw new NullPointerException( "Group not found: " + groupName);
+        } else if( userGroup instanceof Group ) {
+            if( userGroup != null ) {
+                if( userGroup.isInGroup( this ) ) {
+                    groupService.removeFromGroup( this, (Group) userGroup );
+                }
+            }
+        } else {
+            throw new RuntimeException( "Cant remove group type: " + userGroup.getClass() );
+        }
+
+    }
+
     public List<WallItem> getWall() {
-        log.warn( "getWall");
-        Wall wall = _(WallService.class).getUserWall( this,false );
+        log.warn( "getWall" );
+        Wall wall = _( WallService.class ).getUserWall( this, false );
         if( wall == null ) {
             return Collections.emptyList();
         } else {
             List<WallItem> list = wall.getItems();
-            log.warn("wall items: " + list.size());
+            log.warn( "wall items: " + list.size() );
             return list;
         }
     }
-
 
     @BeanPropertyAccess( false )
     public List<String> getAccessKeys() {

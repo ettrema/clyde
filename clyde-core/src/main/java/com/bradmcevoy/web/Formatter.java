@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.joda.time.DateTime;
 
 /**
  * Handy functions exposes to rendering logic for formatting.
@@ -19,7 +20,7 @@ public class Formatter {
     private static final Formatter theInstance = new Formatter();
     public static DateFormat sdfDateUk = new SimpleDateFormat( "dd/MM/yyyy" );
 
-    public static final Formatter getInstance() {
+    public static Formatter getInstance() {
         return theInstance;
     }
 
@@ -38,13 +39,13 @@ public class Formatter {
         } else if( o instanceof String ) {
             String s = (String) o;
             s = s.trim();
-            if( s.length() == 0 ){
+            if( s.length() == 0 ) {
                 return BigDecimal.ZERO;
             } else {
                 try {
-                    return new BigDecimal( s ).setScale( places, RoundingMode.HALF_UP  );
+                    return new BigDecimal( s ).setScale( places, RoundingMode.HALF_UP );
                 } catch( NumberFormatException numberFormatException ) {
-                    throw new RuntimeException( "Non-numeric data: " + s);
+                    throw new RuntimeException( "Non-numeric data: " + s );
                 }
             }
         } else {
@@ -52,26 +53,26 @@ public class Formatter {
         }
     }
 
-    public Double toDouble(Object o) {
+    public Double toDouble( Object o ) {
         if( o == null ) {
             return 0d;
         } else if( o instanceof String ) {
             String s = (String) o;
             s = s.trim();
-            if( s.length() == 0 ){
+            if( s.length() == 0 ) {
                 return 0d;
             } else {
                 try {
                     return Double.valueOf( s );
                 } catch( NumberFormatException numberFormatException ) {
-                    throw new RuntimeException( "Non-numeric data: " + s);
+                    throw new RuntimeException( "Non-numeric data: " + s );
                 }
             }
         } else if( o instanceof Double ) {
             return (Double) o;
         } else if( o instanceof Integer ) {
             Integer i = (Integer) o;
-            return (double)i;
+            return (double) i;
         } else if( o instanceof Float ) {
             Float f = (Float) o;
             return f.doubleValue();
@@ -80,15 +81,15 @@ public class Formatter {
         }
     }
 
-    public Long toLong(Object oLimit) {
+    public Long toLong( Object oLimit ) {
         Long limit;
         if( oLimit == null ) {
             limit = 0l;
         } else if( oLimit instanceof Long ) {
             limit = (Long) oLimit;
-        } else if( oLimit instanceof Integer ){
-            int i = (Integer)oLimit;
-            limit = (long)i;
+        } else if( oLimit instanceof Integer ) {
+            int i = (Integer) oLimit;
+            limit = (long) i;
         } else if( oLimit instanceof String ) {
             String s = (String) oLimit;
             limit = Long.parseLong( s );
@@ -116,16 +117,31 @@ public class Formatter {
         return cal.get( Calendar.MONTH ) + 1;
     }
 
+    public int getDayOfMonth( Object o ) {
+        if( o == null || !( o instanceof Date ) ) return 0;
+        Date dt = (Date) o;
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime( dt );
+        return cal.get( Calendar.DAY_OF_MONTH ) + 1;
+    }
+
+
     public String formatDate( Object o ) {
         if( o == null ) {
             return "";
         } else if( o instanceof Date ) {
             return sdfDateUk.format( o );
-        } else if( o instanceof ComponentValue) {
+        } else if( o instanceof ComponentValue ) {
             DateVal dv = (DateVal) o;
             return formatDate( dv.getValue() );
         } else {
-            throw new RuntimeException( "Unsupported type: " + o.getClass());
+            throw new RuntimeException( "Unsupported type: " + o.getClass() );
         }
+    }
+
+    public org.joda.time.DateTime getDateTime( Object o ) {
+        if( o == null ) return null;
+        return new DateTime( o );
     }
 }

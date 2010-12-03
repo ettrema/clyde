@@ -9,11 +9,15 @@ import com.bradmcevoy.web.component.HtmlDef;
 import com.bradmcevoy.web.component.NumberDef;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TextDef;
+import com.bradmcevoy.web.security.CurrentUserService;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.jdom.Element;
+
+
+import static com.ettrema.context.RequestContext._;
 
 public class Template extends Page implements ITemplate {
 
@@ -146,6 +150,11 @@ public class Template extends Page implements ITemplate {
                 log.debug("  created a: " + newRes.getClass());
             }
         }
+        IUser creator = _( CurrentUserService.class ).getOnBehalfOf();
+        if( creator instanceof User ) {
+            newRes.setCreator( (User) creator );
+        }
+
         newRes.setTemplate( this );
         for( ComponentDef def : componentDefs.values() ) {
             ComponentValue cv = def.createComponentValue( newRes );
@@ -199,7 +208,7 @@ public class Template extends Page implements ITemplate {
             return null;
         } else {
             sClass = sClass.trim();
-            log.debug( "creating a '" + sClass + "'" );
+            log.debug( "creating a '" + sClass + "' called: " + name  );
             Class clazz = ReflectionUtils.findClass( sClass );
             return (BaseResource) ReflectionUtils.create( clazz, location, name );
         }

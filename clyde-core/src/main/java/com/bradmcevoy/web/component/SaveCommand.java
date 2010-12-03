@@ -50,13 +50,13 @@ public class SaveCommand extends Command {
 
     @Override
     protected String doProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.debug( "..saving" );
+        log.trace( "..saving" );
         boolean isNew = false;
         if( rc.getTargetPage() instanceof BaseResource ) {
             BaseResource bres = (BaseResource) rc.getTargetPage();
             isNew = bres.isNew();
         }
-        log.debug( "isNew: " + isNew);
+        log.trace( "isNew: " + isNew);
         Role requiredRole;
         if( isNew ) {
             Folder folder = rc.getTargetPage().getParentFolder();
@@ -65,7 +65,7 @@ public class SaveCommand extends Command {
         } else {
             requiredRole = _( AuthoringPermissionService.class ).getEditRole( rc.getTargetPage() );
         }
-        log.debug( "required role: " + requiredRole);
+        log.trace( "required role: " + requiredRole);
         if( !_( PermissionChecker.class ).hasRole( requiredRole, rc.getTargetPage(), RequestParams.current().getAuth() ) ) {
             throw new NotAuthorizedException( rc.getTargetPage() );
         }

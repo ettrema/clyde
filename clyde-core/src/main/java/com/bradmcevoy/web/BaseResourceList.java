@@ -154,6 +154,10 @@ public class BaseResourceList extends ArrayList<Templatable> {
         return new Calc( this );
     }
 
+    public BaseResourceList where(String mvelExpr) {
+        return getCalc().filter( mvelExpr );
+    }
+
     public BaseResourceList sortByField( final String fieldName ) {
         BaseResourceList list = new BaseResourceList( this );
         Collections.sort( list, new Comparator<Templatable>() {

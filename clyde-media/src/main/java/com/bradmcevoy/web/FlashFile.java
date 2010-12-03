@@ -36,7 +36,7 @@ public class FlashFile extends BinaryFile {
 
     @Override
     protected String getThumbName() {
-        return _(FlashService.class).getThumbName( this );
+        return _( FlashService.class ).getThumbName( this );
     }
 
     public String getStreamingVideoHref() {
@@ -61,7 +61,10 @@ public class FlashFile extends BinaryFile {
         if( thumbs == null ) return "";
         String thumbName = this.getName() + ".jpg";
         BaseResource r = thumbs.childRes( thumbName );
-        return r.getUrl();
+        if( r == null ) {
+            return null;
+        } else {
+            return r.getUrl();
+        }
     }
-
 }

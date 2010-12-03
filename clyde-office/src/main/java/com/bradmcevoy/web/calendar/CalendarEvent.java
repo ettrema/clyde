@@ -4,30 +4,34 @@ import com.bradmcevoy.http.DateUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.TextFile;
+import com.bradmcevoy.web.calendar.utils.CalendarUtils;
+import com.bradmcevoy.web.component.ComponentValue;
+import com.bradmcevoy.web.component.DateVal;
 import com.ettrema.http.ICalResource;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
-import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Version;
 
 /**
  *
  */
-@BeanPropertyResource(value="CAL")
-public class CalendarEvent extends TextFile implements ICalResource {
+@BeanPropertyResource( value = "clyde" )
+public class CalendarEvent extends Folder implements ICalResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CalendarEvent.class );
     private static final long serialVersionUID = 1L;
-
-    private transient Calendar calendar;
 
     public CalendarEvent( Folder parentFolder, String name ) {
         super( parentFolder, name );
@@ -44,111 +48,178 @@ public class CalendarEvent extends TextFile implements ICalResource {
         return new CalendarEvent( parent, newName );
     }
 
-
     @Override
     public String getContentType( String accepts ) {
         return "text/calendar";
     }
 
     public String getICalData() {
-        return getContent();
+        try {
+            Calendar cal = getCalendar();
+            CalendarOutputter outputter = new CalendarOutputter();
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            outputter.output( cal, bout );
+            return bout.toString( "UTF-8" );
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        } catch( ValidationException ex ) {
+            throw new RuntimeException( ex );
+        }
     }
 
     public void setiCalData( String iCalData ) {
-        setContent(iCalData);
+
+        ByteArrayInputStream fin = null;
+        try {
+            fin = new ByteArrayInputStream( iCalData.getBytes( "UTF-8" ) );
+            CalendarBuilder builder = new CalendarBuilder();
+            Calendar calendar = builder.build( fin );
+            setCalendar( calendar );
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        } catch( ParserException ex ) {
+            throw new RuntimeException( ex );
+        } finally {
+            try {
+                fin.close();
+            } catch( IOException ex ) {
+                Logger.getLogger( CalendarEvent.class.getName() ).log( Level.SEVERE, null, ex );
+            }
+        }
+
     }
 
     public Calendar getCalendar() {
-        if( calendar == null ) {
-            CalendarBuilder builder = new CalendarBuilder();
-            StringReader sin = new StringReader(getContent());
-            try {
-                calendar = builder.build(sin);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (ParserException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+        Calendar calendar = new Calendar();
+        calendar.getProperties().add( new ProdId( "-//Ben Fortuna//iCal4j 1.0//EN" ) );
+        calendar.getProperties().add( Version.VERSION_2_0 );
+        calendar.getProperties().add( CalScale.GREGORIAN );
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        Date dt = getStartDate();
+        cal.setTime( dt );
+
+        VEvent event = new VEvent( new net.fortuna.ical4j.model.Date( cal.getTime() ), getSummary() );
+// initialise as an all-day event..
+//        christmas.getProperties().getProperty( Property.DTSTART ).getParameters().add( Value.DATE );
+        calendar.getComponents().add( event );
         return calendar;
     }
 
+    private void setCalendar( Calendar calendar ) {
+        VEvent ev = event( calendar );
+        setStartDate( ev.getStartDate().getDate() );
+        Date endDate = null;
+        if( ev.getEndDate() != null ) {
+            endDate = ev.getEndDate().getDate();
+        }
+        setEndDate( endDate );
+        String summary = null;
+        if( ev.getSummary() != null ) {
+            summary = ev.getSummary().getValue();
+        }
+        setSummary( summary );
+    }
+
+    private VEvent event( Calendar cal ) {
+        return (VEvent) cal.getComponent( "VEVENT" );
+    }
+
     public VEvent getEvent() {
-        return (VEvent) getCalendar().getComponent("VEVENT");
+        return event( getCalendar() );
     }
-
-    public String getSummary() {
-        return getEvent().getSummary().getValue();
-    }
-
-    public void setSummary(String s) {
-        getEvent().getSummary().setValue(s);
-        toData();
-    }
-
-    @Override
-    public String getTitle() {
-        return getSummary();
-    }
-
 
     public Date getStartDate() {
-        long tm = getEvent().getStartDate().getDate().getTime();
-        return new Date(tm);
+        ComponentValue cv = this.getValues().get( "startDate" );
+        if( cv == null ) {
+            return null;
+        } else {
+            Object val = cv.getValue();
+            Date dt = (Date) val;
+            return dt;
+        }
     }
 
-    public void setStartDate(Date d) {
-        log.debug("setStartDate: " + d);
-        DateTime dt = new DateTime(d.getTime());
-        getEvent().getStartDate().setDate(dt);
-        log.debug("start date is now: " + getEvent().getEndDate().getValue());
-        toData();
+    public void setStartDate( Date d ) {
+        ComponentValue cv = this.getValues().get( "startDate" );
+        if( cv == null ) {
+            cv = new DateVal( "startDate", this );
+            this.getValues().add( cv );
+        }
+        cv.setValue( d );
     }
 
     public String getStart() {
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.setTime(getEvent().getStartDate().getDate());
-        log.debug("start hour: " + cal.get(java.util.Calendar.HOUR_OF_DAY));
-        return DateUtils.formatDate(getStartDate());
+        return CalendarUtils.formatDate( getStartDate() );
     }
 
     public Date getEndDate() {
-        long tm = getEvent().getEndDate().getDate().getTime();
-        return new Date(tm);
+        ComponentValue cv = this.getValues().get( "endDate" );
+        if( cv == null ) {
+            return null;
+        } else {
+            Object val = cv.getValue();
+            return (Date) val;
+        }
     }
 
     public String getEnd() {
-        return DateUtils.formatDate(getEndDate());
+        return DateUtils.formatDate( getEndDate() );
     }
 
-    public void setEndDate(Date d) {
-        log.debug("setStartDate: " + d);
-        DateTime icalDate = new DateTime(d.getTime());
-        getEvent().getEndDate().setDate(icalDate);
-        log.debug("end date is now: " + getEvent().getEndDate().getValue());
-        toData();
+    public void setEndDate( Date d ) {
+        ComponentValue cv = this.getValues().get( "endDate" );
+        if( cv == null ) {
+            cv = new DateVal( "endDate", this );
+            this.getValues().add( cv );
+        }
+        cv.setValue( d );
     }
 
     public String getDescription() {
-        return getEvent().getDescription().getValue();
-    }
-
-    public void setDescription(String d) {
-        getEvent().getDescription().setValue(d);
-        toData();
-    }
-
-    private void toData() {
-        CalendarOutputter outputter = new CalendarOutputter(false);
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        try {
-            outputter.output(calendar, bout);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (ValidationException ex) {
-            throw new RuntimeException(ex);
+        ComponentValue cv = this.getValues().get( "body" );
+        if( cv == null ) {
+            return null;
+        } else {
+            Object val = cv.getValue();
+            if( val == null ) {
+                return null;
+            } else {
+                return val.toString();
+            }
         }
-        setContent(bout.toString());
+    }
+
+    public void setDescription( String d ) {
+        ComponentValue cv = this.getValues().get( "body" );
+        if( cv == null ) {
+            cv = new ComponentValue( "body", this );
+            this.getValues().add( cv );
+        }
+        cv.setValue( d );
+    }
+
+    public String getSummary() {
+        ComponentValue cv = this.getValues().get( "brief" );
+        if( cv == null ) {
+            return null;
+        } else {
+            Object val = cv.getValue();
+            if( val == null ) {
+                return null;
+            } else {
+                return val.toString();
+            }
+        }
+    }
+
+    public void setSummary( String d ) {
+        ComponentValue cv = this.getValues().get( "brief" );
+        if( cv == null ) {
+            cv = new ComponentValue( "brief", this );
+            this.getValues().add( cv );
+        }
+        cv.setValue( d );
     }
 
 

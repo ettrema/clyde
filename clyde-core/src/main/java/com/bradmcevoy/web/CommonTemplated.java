@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.ettrema.event.ClydeEventDispatcher;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
@@ -119,6 +120,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public Templatable find( Path path ) {
         return RenderContext.find( this, path );
+    }
+
+    public Templatable find(String sPath) {
+        Path p = Path.path(sPath);
+        return find(p);
     }
 
     public String getTitle() {
@@ -447,10 +453,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     protected long getDefaultMaxAge( Auth auth ) {
         if( auth == null ) {
-            log.trace( "no authentication, use long max-age" );
+            //log.trace( "no authentication, use long max-age" );
             return 60 * 60 * 24l;
         } else {
-            log.trace( "authenticated, use short max-age" );
+            //log.trace( "authenticated, use short max-age" );
             return 60l;
         }
     }
@@ -462,13 +468,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( web != null ) {
             String templateName = getTemplateName();
             if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
-                log.debug( "empty template name");
+                //log.debug( "empty template name");
                 return null;
             }
             TemplateManager tm = requestContext().get( TemplateManager.class );
             template = tm.lookup( templateName, web );
             if( template == null ) {
-                log.trace( "no template: " + templateName + " for web: " + web.getName() );
+                log.warn( "no template: " + templateName + " for web: " + web.getName() );
             } else {
                 if( template == this ) {
                     throw new RuntimeException( "my template is myself" );
@@ -477,9 +483,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         } else {
             log.warn( "no web for: " + this.getName() );
         }
-        if( template != null ) {
-            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
-        }
+//        if( template != null ) {
+//            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
+//        }
         return template;
     }
 
@@ -512,23 +518,23 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String render( RenderContext child ) {
-        log.debug( "render---- " + getName());
+        _(ClydeEventDispatcher.class).beforeRender( this, child );
         ITemplate t = getTemplate();
         if( t == null ) {
-            log.debug( "null template for: " + this.getName());
+            log.debug( "render: null template for: " + this.getName());
         }
         RenderContext rc = new RenderContext( t, this, child, false );
         if( t != null ) {
-            log.debug( "rendering from template " + t.getName());
+            log.debug( "render: rendering from template " + t.getName());
             return t.render( rc );
         } else {
-            log.debug( "no template, so use root parameter" );
+            log.debug( "render: no template, so try to use root parameter" );
             Component cRoot = this.getParams().get( "root" );
             if( cRoot == null ) {
-                log.warn( "no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
+                log.warn( "render: no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
                 return "";
             } else {
-                log.debug( "rendering from root component");
+                log.debug( "render: rendering from root component");
                 return cRoot.render( rc );
             }
         }
@@ -720,13 +726,19 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         Component c;
         if( includeValues ) {
             c = getValues().get( paramName );
-            if( c != null ) return c;
+            if( c != null ) {
+                return c;
+            }
         }
         c = getComponents().get( paramName );
-        if( c != null ) return c;
+        if( c != null ) {
+            return c;
+        }
 
         ITemplate t = getTemplate();
-        if( t == null ) return null;
+        if( t == null ) {
+            return null;
+        }
 
         c = t.getComponent( paramName, includeValues );
         if( c != null ) {

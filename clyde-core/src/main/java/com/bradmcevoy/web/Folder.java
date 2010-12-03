@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import java.util.Arrays;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
@@ -26,19 +27,13 @@ import com.bradmcevoy.web.component.TypeMapping;
 import com.bradmcevoy.web.component.TypeMappingsComponent;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
-import com.ettrema.vfs.OutputStreamWriter;
-import com.ettrema.vfs.RelationalNameNode;
-import com.ettrema.vfs.Relationship;
-import eu.medsea.util.MimeUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 
@@ -81,7 +76,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * ClydeBinaryService
      */
     private Boolean versioningEnabled;
-    private transient List<TransientNameNode> transientNameNodes;
+    //private transient List<TransientNameNode> transientNameNodes;
 
     /** Create a root folder
      */
@@ -367,20 +362,20 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                 return null;
             }
         } else {
-            if( transientNameNodes != null ) {
-                for( TransientNameNode nn : transientNameNodes ) {
-                    if( nn.getName().equals( name ) ) {
-                        DataNode dn = nn.getData();
-                        if( dn == null ) {
-                            return null;
-                        } else if( dn instanceof BaseResource ) {
-                            return (BaseResource) dn;
-                        } else {
-                            return null;
-                        }
-                    }
-                }
-            }
+//            if( transientNameNodes != null ) {
+//                for( TransientNameNode nn : transientNameNodes ) {
+//                    if( nn.getName().equals( name ) ) {
+//                        DataNode dn = nn.getData();
+//                        if( dn == null ) {
+//                            return null;
+//                        } else if( dn instanceof BaseResource ) {
+//                            return (BaseResource) dn;
+//                        } else {
+//                            return null;
+//                        }
+//                    }
+//                }
+//            }
             return null;
         }
     }
@@ -535,17 +530,17 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public Resource doCreate( String newName, InputStream in, Long length, String contentType ) throws ReadingException, WritingException {
         log.debug( "doCreate: " + newName + " contentType: " + contentType );
         BaseResource res = null;
-        String ct;
+        Iterable<Path> contentTypePaths;
         if( contentType == null || contentType.length() == 0 || contentType.equals( "application/octet-stream" ) ) {
-            ct = MimeUtil.getMimeType( newName );
+            contentTypePaths = ContentTypeUtil.getContentTypeList( newName );
         } else {
-            ct = contentType;
+            contentTypePaths = Arrays.asList( Path.path(contentType));
         }
 
         List<TypeMapping> typeMappings = getTypeMappings();
 
         if( typeMappings != null ) {
-            for( Path p : ContentTypeUtil.splitContentTypeList( ct ) ) {
+            for( Path p : contentTypePaths ) {
                 for( TypeMapping tm : typeMappings ) {
                     if( tm.contentType.equals( p.toString() ) ) {
                         ITemplate t = getTemplate( tm.templateName );
@@ -560,10 +555,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                     }
                 }
             }
+        } else {
+            for( Path p : contentTypePaths ) {
+                contentType = p.toString();
+            }
         }
         if( res == null ) {
 //            log.debug("res was not created through type mappings. falling back to default");
-            res = defaultCreateItem( ct, in, newName, length );
+            res = defaultCreateItem( contentType, in, newName, length );
         }
 
         return res;
@@ -614,12 +613,13 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     NameNode onChildCreated( String newName, BaseResource baseResource ) {
 //        NameNode nn = nameNode.add(newName,baseResource);
-        if( transientNameNodes == null ) {
-            transientNameNodes = new ArrayList<TransientNameNode>();
-        }
-        TransientNameNode nn = new TransientNameNode( newName, baseResource );
-        transientNameNodes.add( nn );
-        return nn;
+//        if( transientNameNodes == null ) {
+//            transientNameNodes = new ArrayList<TransientNameNode>();
+//        }
+//        TransientNameNode nn = new TransientNameNode( newName, baseResource );
+//        transientNameNodes.add( nn );
+//        return nn;
+        return nameNode.add( newName, baseResource );
     }
 
     boolean hasChild( String name ) {
@@ -776,6 +776,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * TODO: using this as the name node until save is called. better solution then
      *  relying on connections closing to flush transient data
      */
+    /**
     public class TransientNameNode implements RelationalNameNode {
 
         final UUID id;
@@ -783,6 +784,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         final DataNode data;
         //final List<Relationship> relations = new ArrayList<Relationship>();
         RelationalNameNode persistedNameNode;
+        private boolean isNew = true;
 
         public TransientNameNode( String name, BaseResource data ) {
             this.id = UUID.randomUUID();
@@ -890,6 +892,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         public void save() {
             persistedNameNode = (RelationalNameNode) getNameNode().add( name, data );
             persistedNameNode.save();
+//            isNew = false;
 //            ( (BaseResource) data ).nameNode = persistedNameNode;
 //            for( Relationship r : relations ) {
 //                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
@@ -994,6 +997,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             return persistedNameNode.findToRelations( relationshipName );
         }
 
+
         @Override
         public List<Relationship> findFromRelations( String relationshipName ) {
             if( persistedNameNode == null ) {
@@ -1027,7 +1031,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             }
             persistedNameNode.onDeletedToRelationship( r );
         }
+
+        public boolean isNew() {
+            log.debug( "isNew: " + isNew);
+            return isNew;
+        }
+
+
     }
+     **/
 
     @Override
     public void loadFromXml( Element el, Map<String, String> params ) {

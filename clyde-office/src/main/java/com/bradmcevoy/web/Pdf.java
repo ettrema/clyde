@@ -4,6 +4,7 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.stats.CountingOutputStream;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayInputStream;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
+import org.jdom.Document;
+import org.jdom.JDOMException;
 import org.xhtmlrenderer.util.XRRuntimeException;
 import org.xml.sax.SAXException;
 
@@ -49,7 +52,7 @@ public class Pdf extends BinaryFile{
             throw new RuntimeException(e);
         }
         final InputStream in = new ByteArrayInputStream(outContent.toByteArray());
-        final MyTextRenderer renderer = new MyTextRenderer();        
+        final MyTextRenderer renderer = new MyTextRenderer();
         this.useOutputStream(new OutputStreamWriter<Long>() {
 
             public Long writeTo(OutputStream outToPersistence) {
@@ -96,5 +99,55 @@ public class Pdf extends BinaryFile{
         });
         
     }
+//
+//
+//	public static void main(String[] args) {
+//		if(args.length!=2)
+//		{
+//			System.err.println("Usage:Pdf2Image pdf imageFolder");
+//			return;
+//		}
+//		File file = new File(args[0]);
+//		RandomAccessFile raf;
+//		try {
+//			raf = new RandomAccessFile(file, "r");
+//
+//			FileChannel channel = raf.getChannel();
+//			ByteBuffer buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+//			PDFFile pdffile = new PDFFile(buf);
+//			// draw the first page to an image
+//			int num=pdffile.getNumPages();
+//			for(int i=0;i<num;i++)
+//			{
+//				PDFPage page = pdffile.getPage(i);
+//
+//				//get the width and height for the doc at the default zoom
+//				int width=(int)page.getBBox().getWidth();
+//				int height=(int)page.getBBox().getHeight();
+//
+//				Rectangle rect = new Rectangle(0,0,width,height);
+//				int rotation=page.getRotation();
+//				Rectangle rect1=rect;
+//				if(rotation==90 || rotation==270)
+//					rect1=new Rectangle(0,0,rect.height,rect.width);
+//
+//				//generate the image
+//				BufferedImage img = (BufferedImage)page.getImage(
+//							rect.width, rect.height, //width & height
+//							rect1, // clip rect
+//							null, // null for the ImageObserver
+//							true, // fill background with white
+//							true  // block until drawing is done
+//					);
+//
+//				ImageIO.write(img, "png", new File(args[1]+i+".png"));
+//			}
+//		}
+//		catch (FileNotFoundException e1) {
+//			System.err.println(e1.getLocalizedMessage());
+//		} catch (IOException e) {
+//			System.err.println(e.getLocalizedMessage());
+//		}
+//	}
 
 }

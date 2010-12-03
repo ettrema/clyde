@@ -5,7 +5,6 @@ import com.bradmcevoy.event.PhysicalDeleteEvent;
 import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.event.PreSaveEvent;
 import com.bradmcevoy.http.exceptions.ConflictException;
-import com.ettrema.event.DeleteEvent;
 import com.ettrema.event.EventManager;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.LockInfo;
@@ -75,6 +74,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private List<RoleAndGroup> groupPermissions;
     protected transient RelationalNameNode nameNode;
     private transient User creator;
+    private transient boolean isNew;
 
     protected abstract BaseResource newInstance( Folder parent, String newName );
 
@@ -103,16 +103,21 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     /** Usual constructor;
      */
     public BaseResource( String contentType, Folder parentFolder, String newName ) {
-        if( newName.contains( "/" ) )
-            throw new IllegalArgumentException( "Names cannot contain forward slashes" );
+        if( newName.contains( "/" ) ) {
+            throw new IllegalArgumentException( "Names cannot contain forward slashes: " + newName );
+        }
+        isNew = true;
         this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
+        log.warn( "namenode: " + nameNode.getClass() + " - name: " + newName);
         setContentType( contentType );
         initName();
 
     }
 
     public boolean isNew() {
-        return nameNode instanceof Folder.TransientNameNode;
+        return isNew;
+//        log.warn( "isNew: " + nameNode.isNew() + " - "+ nameNode.getClass() );
+//        return nameNode.isNew();
     }
 
     @Override
@@ -120,7 +125,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return null;
     }
 
-    protected void initName() {
+    final protected void initName() {
         ComponentMap map = this.getComponents();
         if( !map.containsKey( "name" ) ) {
             nameInput = new NameInput( this );
@@ -265,10 +270,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void deleteNoTx() throws NotAuthorizedException, ConflictException, BadRequestException {
         log.debug( "delete: " + this.getName() );
         _delete();
-        EventManager mgr = requestContext().get( EventManager.class );
-        if( mgr != null ) {
-            mgr.fireEvent( new DeleteEvent( this ) );
-        }
     }
 
     /**
@@ -588,7 +589,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     public String getModifiedDateFormatted() {
-        return DateDef.sdf.format( getModifiedDate() );
+        return DateDef.sdfDateAndTime.get().format( getModifiedDate() );
     }
 
     public Long getModifiedDateAsLong() {
@@ -649,7 +650,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     private Relationship getRelationNode( String relationName ) {
         List<Relationship> list = nameNode.findFromRelations( relationName );
-        if( list == null || list.size() == 0 ) return null;
+        if( list == null || list.isEmpty() ) return null;
         Relationship r = list.get( 0 );
         return r;
     }
@@ -665,7 +666,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public BaseResourceList getRelations( String relationName ) {
         BaseResourceList resList = new BaseResourceList();
         List<Relationship> list = nameNode.findFromRelations( relationName );
-        if( list == null || list.size() == 0 ) return resList;
+        if( list == null || list.isEmpty() ) return resList;
 
         for( Relationship r : list ) {
             BaseResource res = (BaseResource) r.to().getData();
@@ -677,7 +678,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public BaseResourceList getToRelations( String relationName ) {
         BaseResourceList resList = new BaseResourceList();
         List<Relationship> list = nameNode.findToRelations( relationName );
-        if( list == null || list.size() == 0 ) return resList;
+        if( list == null || list.isEmpty() ) return resList;
 
         for( Relationship r : list ) {
             NameNode from = r.from();
@@ -803,7 +804,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 //        log.debug( "getExternalEmailTextV2: " + emailCategory + " nnid: " + this.getNameNodeId());
         NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory );
         if( nEmailContainer == null ) {
-            log.warn( "no container" );
+            //log.warn( "no container" );
             return null;
         }
         for( NameNode child : nEmailContainer.children() ) {

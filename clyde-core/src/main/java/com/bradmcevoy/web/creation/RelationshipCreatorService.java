@@ -20,22 +20,22 @@ public class RelationshipCreatorService implements CreatorService {
     public IUser getCreator( Resource r ) {
         BaseResource res = (BaseResource) r;
         List<Relationship> rels = res.getNameNode().findFromRelations( "creator" );
-        if( rels == null || rels.size() == 0 ) {
+        if( rels == null || rels.isEmpty() ) {
             return null;
         } else {
             NameNode nTo = rels.get( 0 ).to();
             if( nTo == null ) {
-                log.warn("found relationship, but to node is null");
+                log.warn( "found relationship, but to node is null" );
                 return null;
             } else {
                 DataNode data = nTo.getData();
                 if( data == null ) {
-                    log.debug( "found to node, but data is null");
+                    log.debug( "found to node, but data is null" );
                     return null;
                 } else if( data instanceof User ) {
                     return (User) data;
                 } else {
-                    log.debug( "found to node, but data is not a user. Is a: " + data.getClass().getCanonicalName());
+                    log.debug( "found to node, but data is not a user. Is a: " + data.getClass().getCanonicalName() );
                     return null;
                 }
             }

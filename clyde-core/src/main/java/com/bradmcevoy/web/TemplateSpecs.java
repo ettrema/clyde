@@ -260,7 +260,7 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
                     sb.append( createNewRole.name() );
                 }
                 sb.append( "," );
-                if( createNewRole != null ) {
+                if( editRole != null ) {
                     sb.append( editRole.name() );
                 }
                 sb.append( ")" );

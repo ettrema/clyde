@@ -15,13 +15,15 @@ public class GenThumbsFactory extends AbstractFactory {
 
     private int numWorkers = 1;
 
+    private boolean updateWall;
+
     public GenThumbsFactory( RootContextLocator rootContextLocator ) {
         super( "Recursively search for image files which need thumbnails generated, option -skipIfExists", new String[]{"genthumbs"} );
         this.rootContextLocator = rootContextLocator;
     }
 
     public ConsoleCommand create( List<String> args, String host, String currentDir, Auth auth ) {
-        return new GenThumbs( args, host, currentDir, resourceFactory, rootContextLocator, numWorkers );
+        return new GenThumbs( args, host, currentDir, resourceFactory, rootContextLocator, numWorkers, updateWall );
     }
 
     public int getNumWorkers() {
@@ -32,5 +34,11 @@ public class GenThumbsFactory extends AbstractFactory {
         this.numWorkers = numWorkers;
     }
 
+    public boolean isUpdateWall() {
+        return updateWall;
+    }
 
+    public void setUpdateWall( boolean updateWall ) {
+        this.updateWall = updateWall;
+    }
 }

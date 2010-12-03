@@ -13,6 +13,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.Permission;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Permissions;
 import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.web.security.UserGroup;
 import com.ettrema.console.Result;
@@ -35,14 +36,14 @@ public class Grant extends AbstractConsoleCommand {
     }
 
     public Result execute() {
-        if( args.size() != 3) {
-            return result("need 3 args");
+        if( args.size() != 3 ) {
+            return result( "need 3 args" );
         }
         String roleName = args.get( 0 );
         String sUser = args.get( 1 );
         String userName;
         String userHostName;
-        if( sUser.contains( "@")) {
+        if( sUser.contains( "@" ) ) {
             MailboxAddress mbox = MailboxAddress.parse( sUser );
             userName = mbox.user;
             userHostName = mbox.domain;
@@ -54,6 +55,7 @@ public class Grant extends AbstractConsoleCommand {
 
         log.debug( "grant: " + roleName + " - " + sUser + "->" + srcPath );
         Folder curFolder = currentResource();
+        Permissions perms;
         if( curFolder == null ) {
             log.debug( "current folder not found: " + currentDir );
             return result( "current dir not found: " + currentDir );
@@ -69,19 +71,24 @@ public class Grant extends AbstractConsoleCommand {
             } else {
                 User user = findUser( target, userHostName, userName );
                 if( user == null ) {
-                    log.trace( "look for group: " + sUser);
-                    UserGroup userGroup = _(GroupService.class).getGroup( target, sUser );
+                    log.trace( "look for group: " + sUser );
+                    UserGroup userGroup = _( GroupService.class ).getGroup( target, sUser );
                     if( userGroup == null ) {
-                        return result( "user not found" );
+                        return result( "user and user group not found" );
                     }
+                    log.trace("found user group: " + userGroup.getSubjectName());
                     users.add( userGroup );
+                } else {
+                    log.trace("found user: " + user.getName());
+                    users.add( user );
                 }
             }
 
             String res = "Granted ok<br/>";
+            PermissionChecker checker = ctx().get( PermissionChecker.class );
+            log.trace("granting to users: " + users.size());
             for( Subject user : users ) {
-                PermissionChecker checker = ctx().get( PermissionChecker.class );
-
+                log.trace( "grant to: " + user );
                 // check current user has admin
                 Auth auth = RequestParams.current().getAuth();
                 if( !checker.hasRole( Role.ADMINISTRATOR, target, auth ) ) {
@@ -97,12 +104,17 @@ public class Grant extends AbstractConsoleCommand {
                 }
                 target.permissions( true ).grant( role, user );
 
-                commit();
-                
-                for( Permission perm : target.permissions() ) {
-                    res += perm.toString() + "<br/>";
+                perms = target.permissions();
+                if( perms.isEmpty() ) {
+                    log.warn("grant appeared to succeed, but there are no permissions!!!");
+                } else {
+                    log.trace("perms: " + perms.size());
+                    for( Permission perm : perms ) {
+                        res += perm.toString() + "<br/>";
+                    }
                 }
             }
+            commit();
             return result( res );
         }
     }

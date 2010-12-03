@@ -140,7 +140,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     protected String editChildTemplate() {
         String template = "";
         if( choices != null && choices.size() > 0 ) {
-            StringBuffer sb = new StringBuffer( "<select name='${path}' >" );
+            StringBuilder sb = new StringBuilder( "<select name='${path}' >" );
             sb.append( "#foreach($choice in $def.choices)" );
             sb.append( "<option #if($value==$choice)selected #end>$choice</option>" );
             sb.append( "#end" );
@@ -148,7 +148,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             template = sb.toString();
         } else {
             if( rows == null || rows.getValue() == null || rows.getValue() == 1 ) {
-                template = "<input type='text' name='${path}' value='${value}' size='${def.cols}' />";
+                template = "<input type='text' name='${path}' value='${val.formattedValue}' size='${def.cols}' />";
             } else {
                 template = "<textarea name='${path}' rows='${def.rows}' cols='${def.cols}'>${value}</textarea>";
                 //template = "<div id='${path}' class='editDiv' onclick='enableEdit(this)'>${value}</div>";

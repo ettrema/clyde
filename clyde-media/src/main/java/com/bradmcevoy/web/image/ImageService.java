@@ -4,15 +4,17 @@ import java.text.ParseException;
 import org.apache.sanselan.*;
 import com.bradmcevoy.common.UnrecoverableException;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.image.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import javax.imageio.*;
 import javax.imageio.stream.ImageInputStream;
-import org.apache.commons.io.IOUtils;
+import javax.imageio.stream.ImageOutputStream;
 import org.apache.sanselan.common.IImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffField;
@@ -26,6 +28,8 @@ import org.apache.sanselan.formats.tiff.constants.TiffConstants;
 public class ImageService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ImageService.class );
+//scale limit to when apply 2-phase downscaling or not
+    public static final float SCALE_LIMIT = 0.25f;
 
     public ImageService() {
         ImageIO.setUseCache( false );
@@ -36,7 +40,7 @@ public class ImageService {
         ImageIO.setCacheDirectory( cache );
     }
 
-    public BufferedImage rotateLeft( BufferedImage image) {
+    public BufferedImage rotateLeft( BufferedImage image ) {
         BufferedImage target = new BufferedImage( image.getHeight(), image.getWidth(), image.getType() );
         Graphics2D graphics = target.createGraphics();
         graphics.rotate( -Math.PI / 2 );
@@ -129,31 +133,81 @@ public class ImageService {
      * @return the new image scaled
      */
     public BufferedImage getScaleImage( BufferedImage source, int width, int height ) {
-        //assert(source != null && width > 0 && height > 0);
         long t = System.currentTimeMillis();
-        Image img = source.getScaledInstance( width, height, Image.SCALE_FAST );
 
-        BufferedImage bi = new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB );
-        Graphics2D biContext = null;
-        try {
-            biContext = bi.createGraphics();
-            biContext.drawImage( img, 0, 0, null );
-        } finally {
-            biContext.dispose();
-        }
-//        biContext.setComposite( AlphaComposite.Src );
-//        biContext.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR );
-//        biContext.setRenderingHint( RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY );
-//        biContext.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+//        BufferedImage bi = getScaledInstance_ImageResize4J( source, width, height );
+        BufferedImage bi = getScaledInstance( source, width, height );
 
-
-//        BufferedImage image = new BufferedImage(width, height, source.getType());
-//        image.createGraphics().drawImage(source, 0, 0, width, height, null);
         t = System.currentTimeMillis() - t;
         log.debug( "scaling time: " + t );
         return bi;
     }
 
+    /**
+     * Convenience method that returns a scaled instance of the
+     * provided {@code BufferedImage}.
+     *
+     * @param img the original image to be scaled
+     * @param targetWidth the desired width of the scaled instance,
+     *    in pixels
+     * @param targetHeight the desired height of the scaled instance,
+     *    in pixels
+     * @param hint one of the rendering hints that corresponds to
+     *    {@code RenderingHints.KEY_INTERPOLATION} (e.g.
+     *    {@code RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR},
+     *    {@code RenderingHints.VALUE_INTERPOLATION_BILINEAR},
+     *    {@code RenderingHints.VALUE_INTERPOLATION_BICUBIC})
+     * @param higherQuality if true, this method will use a multi-step
+     *    scaling technique that provides higher quality than the usual
+     *    one-step technique (only useful in downscaling cases, where
+     *    {@code targetWidth} or {@code targetHeight} is
+     *    smaller than the original dimensions, and generally only when
+     *    the {@code BILINEAR} hint is specified)
+     * @return a scaled version of the original {@code BufferedImage}
+     */
+    public BufferedImage getScaledInstance( BufferedImage img, int targetWidth, int targetHeight ) {
+        log.trace("using getScaledInstance");
+        int type = ( img.getTransparency() == Transparency.OPAQUE ) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage ret = img;
+        int w, h;
+
+        // Use multi-step technique: start with original size, then
+        // scale down in multiple passes with drawImage()
+        // until the target size is reached
+        w = img.getWidth();
+        h = img.getHeight();
+
+        do {
+            System.out.println( "loop: " + w + " - " + h + " target:" + targetWidth + " - " + targetHeight );
+            if( w > targetWidth ) {
+                w /= 2;
+                if( w < targetWidth ) {
+                    w = targetWidth;
+                }
+            }
+
+            if( h > targetHeight ) {
+                h /= 2;
+                if( h < targetHeight ) {
+                    h = targetHeight;
+                }
+            }
+
+            BufferedImage tmp = new BufferedImage( w, h, type );
+            Graphics2D g2 = tmp.createGraphics();
+            try {
+                g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+                g2.setRenderingHint( RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON );
+                g2.drawImage( ret, 0, 0, w, h, null );
+            } finally {
+                g2.dispose();
+            }
+
+            ret = tmp;
+        } while( w != targetWidth && h != targetHeight );
+
+        return ret;
+    }
     /**
      * Return scaled image.
      * Pre-conditions: (source != null) && (xscale > 0) && (yscale > 0)
@@ -262,7 +316,24 @@ public class ImageService {
         }
     }
 
-    private static void write( BufferedImage image, OutputStream out, String format ) {
+    
+    public void write(BufferedImage input, OutputStream out) throws IOException {
+        Iterator iter = ImageIO.getImageWritersByFormatName("JPG");
+        if (iter.hasNext()) {
+            ImageWriter writer = (ImageWriter) iter.next();
+            ImageWriteParam iwp = writer.getDefaultWriteParam();
+            iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            iwp.setCompressionQuality(0.85f);
+            //iwp.setCompressionQuality(0.95f);
+            ImageOutputStream output = ImageIO.createImageOutputStream( out );
+            writer.setOutput(output);
+            IIOImage image = new IIOImage(input, null, null);
+            writer.write(null, image, iwp);
+            return ;
+        }
+    }
+
+    public void write( BufferedImage image, OutputStream out, String format ) {
         try {
 //            Sanselan.writeImage( image, out, ImageFormat.IMAGE_FORMAT_JPEG, null);
             BufferedOutputStream buffOut = new BufferedOutputStream( out );
@@ -288,30 +359,34 @@ public class ImageService {
 //        return image;
 
 
-//        Iterator readers = ImageIO.getImageReadersByFormatName("jpg");
-//        ImageReader reader = (ImageReader)readers.next();
-//        ImageInputStream iis = ImageIO.createImageInputStream(is);
-//        reader.setInput( iis );
+        Iterator readers = ImageIO.getImageReadersByFormatName( "jpg" );
+        ImageReader reader = (ImageReader) readers.next();
+        ImageInputStream iis = ImageIO.createImageInputStream( is );
+        reader.setInput( iis );
 //        ImageReadParam param = reader.getDefaultReadParam();
 //        param.setSourceSubsampling(9, 9, 0, 0);
-//        BufferedImage bi = reader.read(0, param);
-//        return bi;
+        //BufferedImage bi = reader.read(0, param);
+        BufferedImage bi = reader.read( 0 );
+        return bi;
+////
+//        ByteArrayOutputStream bout = new ByteArrayOutputStream();
 //
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-   
-        IOUtils.copy( is, bout );
-        //ImageInputStream iis = ImageIO.createImageInputStream( buf );
-        byte[] arr = bout.toByteArray();
-        ImageInputStream iis = ImageIO.createImageInputStream( new ByteArrayInputStream( arr ) );
-        BufferedImage image = ImageIO.read( iis );
-        if( image == null ) {
-            log.debug( "No ImageReader supports the given image data: listing known formats. input size: " + arr.length );
-            for( String s : ImageIO.getReaderFormatNames() ) {
-                log.debug( " - " + s );
-            }
-        }
-        return image;
+//        int num = IOUtils.copy( is, bout );
+//        log.debug("copied bytes: " + num);
+//        //ImageInputStream iis = ImageIO.createImageInputStream( buf );
+//        byte[] arr = bout.toByteArray();
+//        ImageInputStream iis = ImageIO.createImageInputStream( new ByteArrayInputStream( arr ) );
+//        BufferedImage image = ImageIO.read( iis );
+//        if( image == null ) {
+//            log.debug( "No ImageReader supports the given image data: listing known formats. input size: " + arr.length );
+//            for( String s : ImageIO.getReaderFormatNames() ) {
+//                log.debug( " - " + s );
+//            }
+//        }
+//        return image;
     }
+
+
 
     public class ExifData {
 

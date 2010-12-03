@@ -23,6 +23,7 @@ public class Calc {
 
     public Object eval(String mvelExpr, Object r) {
         Object o = org.mvel.MVEL.eval(mvelExpr, r);
+        //log.debug( "eval: returned: " + o);
         if( o instanceof ComponentValue ) {
             ComponentValue cv = (ComponentValue) o;
             return cv.getValue();
@@ -37,6 +38,7 @@ public class Calc {
     }
 
     public BaseResourceList filter(String mvelExpr) {
+        //log.debug( "filter");
         ListFilter filter = new ListFilter();
         accumulate(filter, mvelExpr);
         return filter.dest;
