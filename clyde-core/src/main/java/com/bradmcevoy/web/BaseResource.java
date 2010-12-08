@@ -108,7 +108,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         isNew = true;
         this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
-        log.warn( "namenode: " + nameNode.getClass() + " - name: " + newName);
         setContentType( contentType );
         initName();
 

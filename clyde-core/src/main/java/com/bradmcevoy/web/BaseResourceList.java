@@ -28,18 +28,27 @@ public class BaseResourceList extends ArrayList<Templatable> {
 
     @Override
     public boolean add( Templatable e ) {
-        if( e == null )
+        if( e == null ) {
             throw new NullPointerException( "Attempt to add null node" );
-        if( e.getName() == null )
+        }
+        if( e.getName() == null ) {
             throw new NullPointerException( "Attempt to add resource with null name: " + e.getClass().getName() );
+        }
         if( map.containsKey( e.getName() ) ) {
 //            Exception ex = new Exception("identical child names");
             log.debug( "identical child names: " + e.getName() );//,ex);
             Templatable cur = map.get( e.getName() );
-            if( e.getModifiedDate().after( cur.getModifiedDate() ) ) {
+            if( cur.getModifiedDate() == null ) {
                 remove( cur );
-            } else {
+            } else if( e.getModifiedDate() == null ) {
+                // ignore
                 return true;
+            } else {
+                if( e.getModifiedDate().after( cur.getModifiedDate() ) ) {
+                    remove( cur );
+                } else {
+                    return true;
+                }
             }
         }
         map.put( e.getName(), e );
@@ -154,7 +163,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
         return new Calc( this );
     }
 
-    public BaseResourceList where(String mvelExpr) {
+    public BaseResourceList where( String mvelExpr ) {
         return getCalc().filter( mvelExpr );
     }
 

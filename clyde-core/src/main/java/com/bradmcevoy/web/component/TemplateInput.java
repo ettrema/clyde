@@ -4,6 +4,11 @@ import com.bradmcevoy.web.RenderContext;
 import org.mvel.TemplateInterpreter;
 import org.jdom.Element;
 
+/**
+ * A text component which renders its output using velocity
+ *
+ * @author brad
+ */
 public class TemplateInput extends Text {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TemplateInput.class);

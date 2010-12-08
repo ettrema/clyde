@@ -45,11 +45,13 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     public WrappedSubPage(SubPage subPage, CommonTemplated actualParent) {
         this.subPage = subPage;
         this.actualParent = actualParent;
+        setContentType( subPage.getContentType());
     }
 
     public WrappedSubPage(WrappedSubPage subPage, CommonTemplated actualParent) {
         this.subPage = subPage;
         this.actualParent = actualParent;
+        setContentType( subPage.getContentType());
     }
 
     @Override
@@ -260,5 +262,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     public boolean isSecure() {
         return subPage.isSecure();
     }
+
+
     
 }

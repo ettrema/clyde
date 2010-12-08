@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 
@@ -730,6 +733,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                         throw new RuntimeException( "Content length mismatch: persisted: " + actualLength + " header: " + length );
                     }
                 }
+                readItBack(bf, length);
             }
         } else {
             log.debug( "resourcecreator returned null" );
@@ -1076,5 +1080,22 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public boolean isIndexable() {
         return true;
+    }
+
+    private void readItBack( BinaryFile bf, long length ) {
+        InputStream in = bf.getInputStream();
+        NullOutputStream nullOut = new NullOutputStream();
+        CountingOutputStream cout = new CountingOutputStream( nullOut );
+        try {
+            IOUtils.copy( in, cout );
+        } catch( IOException ex ) {
+            throw new RuntimeException( "io exception when attempting to read back data", ex);
+        }
+        long persistedSize = cout.getByteCount();
+        if( persistedSize != length ) {
+            throw new RuntimeException( "Data integrity failure. Byte sizes do not match: persisted: " + persistedSize );
+        }
+        log.info("byte sizes matched ok");
+
     }
 }

@@ -193,7 +193,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public String renderEdit( ComponentValue c, RenderContext rc ) {
-        log.debug("renderEdit: " + c.getName() + " - " + c.getValidationMessage());
+        //log.debug("renderEdit: " + c.getName() + " - " + c.getValidationMessage());
         String t = editChildTemplate();
         VelocityContext vc = velocityContext( rc, c );
         return _render( t, vc );

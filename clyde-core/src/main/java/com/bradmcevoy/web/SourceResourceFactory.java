@@ -114,10 +114,6 @@ public class SourceResourceFactory extends CommonResourceFactory {
                 el = (Element) el.getChildren().get( 0 );
 
                 String className = el.getAttributeValue( "class" );
-                String xmlName = el.getAttributeValue( "name" );
-                if( !xmlName.equals( name ) ) {
-                    throw new IllegalArgumentException( "the name in the url does not match that in the xml. xmlname: " + xmlName + " url name: " + name );
-                }
                 Resource r = (Resource) ReflectionUtils.create( className, parent, name );
                 if( r instanceof XmlPersistableResource ) {
                     XmlPersistableResource xmlpr = (XmlPersistableResource) r;

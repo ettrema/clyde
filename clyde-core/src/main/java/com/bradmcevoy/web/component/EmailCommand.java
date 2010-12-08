@@ -104,7 +104,7 @@ public class EmailCommand extends Command {
 
     @Override
     public String renderEdit(RenderContext rc) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(template.renderEdit(rc));
         sb.append("<br/>");
         return sb.toString();
@@ -207,7 +207,7 @@ public class EmailCommand extends Command {
     }
 
     public String getAllFields() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Addressable parent = this.getContainer();
         if (parent instanceof Page) {
             Page page = (Page) parent;

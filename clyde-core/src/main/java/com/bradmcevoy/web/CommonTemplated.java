@@ -127,6 +127,28 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return find(p);
     }
 
+//    public BaseResourceList list(String sPath) {
+//        Path p = Path.path(sPath);
+//        return list(p);
+//    }
+//
+//    public BaseResourceList list(Path path) {
+//        BaseResourceList list = new BaseResourceList();
+//        _list(this, list,path,0);
+//        return list;
+//    }
+//
+//    private void _list(CommonTemplated from, BaseResourceList list, Path path, int index) {
+//        String part = path.getParts()[index];
+//        if( part.equals( "*")) {
+//
+//        }
+//        from.find( part );
+//    }
+
+    
+
+
     public String getTitle() {
         ComponentValue cv = this.getValues().get( "title" );
         if( cv != null ) {
@@ -172,6 +194,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
+        log.info("processForm");
         preProcess( null, parameters, files );
         String s = process( null, parameters, files );
         return s;
@@ -206,6 +229,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
+        log.info("process form");
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
         String redirectTo = null;
@@ -214,10 +238,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             Path path = Path.path( paramName );
             Component c = rc.findComponent( path );
             if( c != null ) {
-//                log.debug( "-- processing command: " + c.getClass().getName() + " - " + c.getName() );
+                log.info( "-- processing command: " + c.getClass().getName() + " - " + c.getName() );
                 redirectTo = c.onProcess( rc, parameters, files );
                 if( redirectTo != null ) {
-                    log.debug( ".. redirecting to: " + redirectTo );
+                    log.trace( ".. redirecting to: " + redirectTo );
                     return redirectTo;
                 }
             }
@@ -413,7 +437,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( this.contentType != null && contentType.length() > 0 ) {
             ct = contentType;
         } else {
-            ct = null;
+            //ct = null;
+            ct = "text/html"; // default to html page
         }
         return ct;
     }
@@ -493,7 +518,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public String getTemplateName() {
         TemplateSelect sel = getTemplateSelect();
         if( sel == null ) {
-            log.debug( "getTemplateName: no template component`" );
+            log.trace( "getTemplateName: no template component`" );
             return null;
         }
         return sel.getValue();
@@ -521,20 +546,20 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         _(ClydeEventDispatcher.class).beforeRender( this, child );
         ITemplate t = getTemplate();
         if( t == null ) {
-            log.debug( "render: null template for: " + this.getName());
+//            log.debug( "render: null template for: " + this.getName());
         }
         RenderContext rc = new RenderContext( t, this, child, false );
         if( t != null ) {
-            log.debug( "render: rendering from template " + t.getName());
+//            log.debug( "render: rendering from template " + t.getName());
             return t.render( rc );
         } else {
-            log.debug( "render: no template, so try to use root parameter" );
+//            log.debug( "render: no template, so try to use root parameter" );
             Component cRoot = this.getParams().get( "root" );
             if( cRoot == null ) {
                 log.warn( "render: no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
                 return "";
             } else {
-                log.debug( "render: rendering from root component");
+//                log.debug( "render: rendering from root component");
                 return cRoot.render( rc );
             }
         }

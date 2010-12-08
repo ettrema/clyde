@@ -195,7 +195,7 @@ public class RenderContext implements Map<String, Component> {
     public String doBody() {
         if( child == null ) {
             if( log.isDebugEnabled() ) {
-                log.debug( "no child, returning empty");
+                log.debug( "dobody: no child context so cant delegate, returning empty");
             }
             return "";
         }
@@ -365,7 +365,7 @@ public class RenderContext implements Map<String, Component> {
     /** Return html for the child's body
      */
     public String getToolBar() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Templatable targetPage = getTargetPage();
         Collection<Component> list = CommonTemplated.allComponents( targetPage );
         for( Component c : list ) {
@@ -385,10 +385,10 @@ public class RenderContext implements Map<String, Component> {
             return s.trim().length() == 0;
         } else if( o instanceof Collection ) {
             Collection col = (Collection) o;
-            return col.size() == 0;
+            return col.isEmpty();
         } else if( o instanceof Map ) {
             Map m = (Map) o;
-            return m.size() == 0;
+            return m.isEmpty();
         } else {
             return true;
         }
@@ -555,7 +555,7 @@ public class RenderContext implements Map<String, Component> {
             //return PARSER.addMarkers( s, name );
             return s;
         } else {
-            log.debug( "not ct: " + ct );
+            //log.debug( "not ct: " + ct );
             return s;
         }
     }

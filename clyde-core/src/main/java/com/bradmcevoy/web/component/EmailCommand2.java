@@ -32,6 +32,8 @@ public class EmailCommand2 extends Command {
 
     public EmailCommand2( Addressable container, Element el ) {
         super( container, el );
+        // Note: these fields identify the names of components on the parent
+        // resource
         templateComp = InitUtils.getValue( el, "templateComp" );
         fromComp = InitUtils.getValue( el, "fromComp" );
         toComp = InitUtils.getValue( el, "toComp" );
