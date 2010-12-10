@@ -208,5 +208,15 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
     
     public void setRequestScope(boolean requestScope) {
         this.requestScope = requestScope;
-    }        
+    }
+
+    public boolean isRequestScope() {
+        return requestScope;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    
 }

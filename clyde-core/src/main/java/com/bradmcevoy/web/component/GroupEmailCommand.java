@@ -235,4 +235,60 @@ public class GroupEmailCommand extends Command {
             return "ERR";
         }
     }
+
+    public String getBodyTextTemplate() {
+        return bodyTextTemplate;
+    }
+
+    public void setBodyTextTemplate( String bodyTextTemplate ) {
+        this.bodyTextTemplate = bodyTextTemplate;
+    }
+
+    public String getBodyHtmlTemplate() {
+        return bodyHtmlTemplate;
+    }
+
+    public void setBodyHtmlTemplate( String bodyHtmlTemplate ) {
+        this.bodyHtmlTemplate = bodyHtmlTemplate;
+    }
+
+    public String getFromComp() {
+        return fromComp;
+    }
+
+    public void setFromComp( String fromComp ) {
+        this.fromComp = fromComp;
+    }
+
+    public String getToGroupExpr() {
+        return toGroupExpr;
+    }
+
+    public void setToGroupExpr( String toGroupExpr ) {
+        this.toGroupExpr = toGroupExpr;
+    }
+
+    public String getSubjectComp() {
+        return subjectComp;
+    }
+
+    public void setSubjectComp( String subjectComp ) {
+        this.subjectComp = subjectComp;
+    }
+
+    public String getReplyToComp() {
+        return replyToComp;
+    }
+
+    public void setReplyToComp( String replyToComp ) {
+        this.replyToComp = replyToComp;
+    }
+
+    public String getConfirmationUrl() {
+        return confirmationUrl;
+    }
+
+    public void setConfirmationUrl( String confirmationUrl ) {
+        this.confirmationUrl = confirmationUrl;
+    }
 }

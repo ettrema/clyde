@@ -39,7 +39,7 @@ public class CodeBehindPage extends VfsCommon implements GetableResource, Replac
         if (path == null || path.getName() == null) {
             return false;
         }
-        log.debug( "isCodeBehing: " + path.getName());
+        log.debug( "isCodeBehind: " + path.getName());
         return path.getName().endsWith( ".code.xml" );
     }
     public final BaseResource res;

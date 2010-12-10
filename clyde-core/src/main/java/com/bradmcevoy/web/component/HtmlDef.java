@@ -60,6 +60,12 @@ public class HtmlDef extends TextDef {
             return "'" + toolbarSet.getValue() + "'";
         }
     }
+
+    public void setToolbarSetName(String s) {
+        if( toolbarSet == null ) {
+            toolbarSet = new Text(this,"toolbarSet");
+        }
+    }
     
     @Override
     protected String editChildTemplate() {

@@ -5,7 +5,6 @@ import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.*;
 import com.bradmcevoy.xml.XmlHelper;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,18 +12,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
-import org.jdom.Content;
-import org.jdom.DocType;
-import org.jdom.Document;
 import org.jdom.Element;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.ext.EntityResolver2;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ComponentValue implements Component, Serializable, ValueHolder {
 
@@ -153,34 +144,34 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
         return e2;
     }
-
-    List formatContentToXmlList( String content ) {
-        try {
-            XMLReader reader = XMLReaderFactory.createXMLReader();
-            try {
-                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true );
-            } catch( Exception e ) {
-                e.printStackTrace();
-            }
-            try {
-                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes", true );
-            } catch( Exception e ) {
-                e.printStackTrace();
-            }
-            System.out.println( "using reader: " + reader.getClass() );
-//            reader.setEntityResolver( new MyEntityResolver());
-            ContentParsingSaxHandler hnd = new ContentParsingSaxHandler();
-            reader.setContentHandler( hnd );
-            String xml = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE root PUBLIC '-//MyDT//DTD MYDTD-XML//MYDTD' 'xhtml-lat1.ent'><root>" + content + "</root>";
-            reader.parse( new InputSource( new ByteArrayInputStream( xml.getBytes() ) ) );
-            return hnd.getContent();
-        } catch( IOException ex ) {
-            throw new RuntimeException( ex );
-        } catch( SAXException ex ) {
-            throw new RuntimeException( ex );
-        }
-
-    }
+//
+//    List formatContentToXmlList( String content ) {
+//        try {
+//            XMLReader reader = XMLReaderFactory.createXMLReader();
+//            try {
+//                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true );
+//            } catch( Exception e ) {
+//                e.printStackTrace();
+//            }
+//            try {
+//                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes", true );
+//            } catch( Exception e ) {
+//                e.printStackTrace();
+//            }
+//            System.out.println( "using reader: " + reader.getClass() );
+////            reader.setEntityResolver( new MyEntityResolver());
+//            ContentParsingSaxHandler hnd = new ContentParsingSaxHandler();
+//            reader.setContentHandler( hnd );
+//            String xml = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE root PUBLIC '-//MyDT//DTD MYDTD-XML//MYDTD' 'xhtml-lat1.ent'><root>" + content + "</root>";
+//            reader.parse( new InputSource( new ByteArrayInputStream( xml.getBytes() ) ) );
+//            return hnd.getContent();
+//        } catch( IOException ex ) {
+//            throw new RuntimeException( ex );
+//        } catch( SAXException ex ) {
+//            throw new RuntimeException( ex );
+//        }
+//
+//    }
 
     @Override
     public String toString() {
@@ -323,7 +314,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         return null;
     }
 
-    private String getFormattedValue( CommonTemplated container ) {
+    public String getFormattedValue( CommonTemplated container ) {
         Object v = getValue();
         return getFormattedValue( container, v );
     }
@@ -364,70 +355,70 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             return null;
         }
     }
-
-    public class ContentParsingSaxHandler extends DefaultHandler {
-
-        private Document doc;
-        private StringBuilder sb = new StringBuilder();
-        private Stack<Element> elementPath = new Stack<Element>();
-
-        public ContentParsingSaxHandler() {
-            DocType docType = new DocType( "root", "-//MyDT//DTD MYDTD-XML//MYDTD", "xhtml-lat1.ent" );
-            doc = new Document( new Element( "root" ), docType );
-        }
-
-        @Override
-        public void startElement( String uri, String localName, String name, Attributes attributes ) throws SAXException {
-            Element el = new Element( name );
-            for( int i = 0; i < attributes.getLength(); i++ ) {
-                String attName = attributes.getQName( i );
-                String val = attributes.getValue( i );
-                el.setAttribute( attName, val );
-            }
-            Element parent = null;
-            if( elementPath.size() > 0 ) {
-                parent = elementPath.peek();
-                if( sb.length() > 0 ) {
-                    String content = sb.toString();
-                    parent.addContent( content );
-                }
-                parent.addContent( el );
-            } else {
-                doc.setRootElement( el );
-            }
-            elementPath.push( el );
-            super.startElement( uri, localName, name, attributes );
-        }
-
-        @Override
-        public void characters( char[] ch, int start, int length ) throws SAXException {
-            sb.append( ch, start, length );
-        }
-
-        @Override
-        public void endElement( String uri, String localName, String name ) throws SAXException {
-            String content = sb.toString();
-            Element el = elementPath.pop();
-            el.addContent( content );
-            sb.delete( 0, sb.length() );
-
-            super.endElement( uri, localName, name );
-        }
-
-        List getContent() {
-            List contents = new ArrayList();
-            List rootContents = doc.getRootElement().getContent();
-            rootContents = new ArrayList( rootContents );
-            for( Object o : rootContents ) {
-                if( o instanceof Content ) {
-                    Content c = (Content) o;
-                    c.detach();
-                }
-                contents.add( o );
-            }
-            return contents;
-        }
-    }
+//
+//    public class ContentParsingSaxHandler extends DefaultHandler {
+//
+//        private Document doc;
+//        private StringBuilder sb = new StringBuilder();
+//        private Stack<Element> elementPath = new Stack<Element>();
+//
+//        public ContentParsingSaxHandler() {
+//            DocType docType = new DocType( "root", "-//MyDT//DTD MYDTD-XML//MYDTD", "xhtml-lat1.ent" );
+//            doc = new Document( new Element( "root" ), docType );
+//        }
+//
+//        @Override
+//        public void startElement( String uri, String localName, String name, Attributes attributes ) throws SAXException {
+//            Element el = new Element( name );
+//            for( int i = 0; i < attributes.getLength(); i++ ) {
+//                String attName = attributes.getQName( i );
+//                String val = attributes.getValue( i );
+//                el.setAttribute( attName, val );
+//            }
+//            Element parent = null;
+//            if( elementPath.size() > 0 ) {
+//                parent = elementPath.peek();
+//                if( sb.length() > 0 ) {
+//                    String content = sb.toString();
+//                    parent.addContent( content );
+//                }
+//                parent.addContent( el );
+//            } else {
+//                doc.setRootElement( el );
+//            }
+//            elementPath.push( el );
+//            super.startElement( uri, localName, name, attributes );
+//        }
+//
+//        @Override
+//        public void characters( char[] ch, int start, int length ) throws SAXException {
+//            sb.append( ch, start, length );
+//        }
+//
+//        @Override
+//        public void endElement( String uri, String localName, String name ) throws SAXException {
+//            String content = sb.toString();
+//            Element el = elementPath.pop();
+//            el.addContent( content );
+//            sb.delete( 0, sb.length() );
+//
+//            super.endElement( uri, localName, name );
+//        }
+//
+//        List getContent() {
+//            List contents = new ArrayList();
+//            List rootContents = doc.getRootElement().getContent();
+//            rootContents = new ArrayList( rootContents );
+//            for( Object o : rootContents ) {
+//                if( o instanceof Content ) {
+//                    Content c = (Content) o;
+//                    c.detach();
+//                }
+//                contents.add( o );
+//            }
+//            return contents;
+//        }
+//    }
 
     public static class OldValue implements Serializable {
 

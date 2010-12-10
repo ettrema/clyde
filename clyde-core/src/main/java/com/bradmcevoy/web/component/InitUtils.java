@@ -7,9 +7,11 @@ import com.bradmcevoy.xml.XmlHelper;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -68,6 +70,14 @@ public class InitUtils {
         }
     }
 
+    public static void set( Element el, String name, Long anInteger ) {
+        if( anInteger == null ) {
+            el.removeAttribute( name );
+        } else {
+            el.setAttribute( name, anInteger.toString() );
+        }
+    }
+
     public static void set( Element el, String name, BigDecimal v ) {
         if( v == null ) {
             el.removeAttribute( name );
@@ -90,7 +100,7 @@ public class InitUtils {
 
     public static void setBoolean( Element e2, String name, Boolean b ) {
         if( b == null ) {
-            e2.removeAttribute(name);
+            e2.removeAttribute( name );
         } else {
             e2.setAttribute( name, b + "" );
         }
@@ -120,10 +130,10 @@ public class InitUtils {
     }
 
     public static void setString( Element el, String name, String val ) {
-        if( val != null ) {
-            el.setAttribute( name, val );
+        if( StringUtils.isEmpty( val ) ) {
+            el.removeAttribute( name );
         } else {
-            el.setAttribute( name, "" );
+            el.setAttribute( name, val );
         }
     }
 
@@ -151,13 +161,11 @@ public class InitUtils {
         if( s == null || s.length() == 0 ) return null;
         String[] arr = s.split( "," );
         List<String> list = new ArrayList<String>();
-        for( String s2 : arr ) {
-            list.add( s2 );
-        }
+        list.addAll( Arrays.asList( arr ) );
         return list;
     }
 
-    static Element addChild( Element e2, String elementName, String text ) {
+    public static Element addChild( Element e2, String elementName, String text ) {
         Element el = new Element( elementName );
         e2.addContent( el );
         el.setText( text );
@@ -170,13 +178,28 @@ public class InitUtils {
      * @param name
      * @return - the text of the given child
      */
-    static String getChild( Element el, String name ) {
+    public static String getChild( Element el, String name ) {
         Element e2 = el.getChild( name );
         if( e2 == null ) return null;
         return e2.getText();
     }
 
-    static String getValue( Element el ) {
+    public static String getValueOf( Element el, String name ) {
+        Element elChild = el.getChild( name );
+        if( elChild == null ) {
+            return null;
+        } else {
+            return getValue( elChild );
+        }
+    }
+
+    /**
+     * Gets all child content as xml, or the value attribute if present
+     *
+     * @param el
+     * @return
+     */
+    public static String getValue( Element el ) {
         Attribute att = el.getAttribute( "value" );
         String v = null;
         if( att != null ) {
@@ -231,7 +254,7 @@ public class InitUtils {
         }
     }
 
-    static Component getComponent( Field f, Object parent ) {
+    public static Component getComponent( Field f, Object parent ) {
         try {
             return (Component) f.get( parent );
         } catch( IllegalArgumentException ex ) {
@@ -241,8 +264,8 @@ public class InitUtils {
         }
     }
 
-    static void setList( Element e2, String name, List<String> choices ) {
-        StringBuffer sb = new StringBuffer();
+    public static void setList( Element e2, String name, List<String> choices ) {
+        StringBuilder sb = new StringBuilder();
         if( choices != null ) {
             boolean first = true;
             for( String s : choices ) {

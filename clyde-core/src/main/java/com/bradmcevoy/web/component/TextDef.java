@@ -60,8 +60,8 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     public boolean validate( ComponentValue c, RenderContext rc ) {
         String s;
         Object val = c.getValue();
-        if( val instanceof String) {
-            s = (String)val;
+        if( val instanceof String ) {
+            s = (String) val;
         } else if( val == null ) {
             s = null;
         } else {
@@ -69,17 +69,17 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         }
         if( required ) {
             if( s == null || s.trim().length() == 0 ) {
-                c.setValidationMessage("A value is required");
+                c.setValidationMessage( "A value is required" );
                 return false;
             }
         }
         if( choices != null && choices.size() > 0 ) {
-            if( !choices.contains(s)) {
+            if( !choices.contains( s ) ) {
                 String err = "The value must be one of: ";
                 for( String ch : choices ) {
                     err += ch + ",";
                 }
-                c.setValidationMessage(err);
+                c.setValidationMessage( err );
                 return false;
             }
         }
@@ -99,6 +99,35 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         return cols;
     }
 
+    public Integer getRowsVal() {
+        if( rows == null ) {
+            return null;
+        }
+        return rows.getValue();
+    }
+
+    public void setRowsVal( Integer i ) {
+        if( rows == null ) {
+            rows = new NumberInput( container, "rows" );
+        }
+        rows.setValue( i );
+    }
+
+    public Integer getColsVal() {
+        if( cols == null ) {
+            return null;
+        }
+        return cols.getValue();
+    }
+
+    public void setColsVal( Integer i ) {
+        if( rows == null ) {
+            cols = new NumberInput( container, "cols" );
+        }
+        cols.setValue( i );
+    }
+
+
     @Override
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "componentDef" );
@@ -117,6 +146,30 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
     @Override
     public Path getPath() {
         return container.getPath().child( name.getValue() );
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired( boolean required ) {
+        this.required = required;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription( String description ) {
+        this.description = description;
+    }
+
+    public boolean isDisAllowTemplating() {
+        return disAllowTemplating;
+    }
+
+    public void setDisAllowTemplating( boolean disAllowTemplating ) {
+        this.disAllowTemplating = disAllowTemplating;
     }
 
     /**
@@ -256,6 +309,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         componentValue.setValue( value );
     }
 
+
     public class EditSource {
 
         ComponentValue c;
@@ -285,9 +339,9 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
         public String getChecked() {
             if( c.getValue() != null ) {
-                if( BooleanDef.parse(c)) {
+                if( BooleanDef.parse( c ) ) {
                     return " checked='true' ";
-                } else{
+                } else {
                     return "";
                 }
             } else {

@@ -189,4 +189,16 @@ public class Group extends Folder implements Mailbox, CustomUserGroup {
         }
         return list;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmailDiscardSubjects() {
+        return emailDiscardSubjects;
+    }
+
+    
+
+    
 }

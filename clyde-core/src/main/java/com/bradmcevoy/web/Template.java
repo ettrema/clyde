@@ -197,21 +197,37 @@ public class Template extends Page implements ITemplate {
             throw new IllegalArgumentException( "location is null" );
         if( name == null )
             throw new IllegalArgumentException( "name cannot be null" );
+        String sClass = getClassToCreate();
+        if( sClass == null ) {
+            return null;
+        } else {
+            log.debug( "creating a '" + sClass + "' called: " + name  );
+            Class clazz = ReflectionUtils.findClass( sClass );
+            return (BaseResource) ReflectionUtils.create( clazz, location, name );
+        }
+    }
+
+    public String getClassToCreate() {
         Component c = this.getComponent( "class" );
         String sClass = null;
         if( c != null ) {
             Text t = (Text) c;
             sClass = t.getValue();
-            log.debug( "component source: " + t.getPath() );
         }
         if( sClass == null ) {
             return null;
         } else {
-            sClass = sClass.trim();
-            log.debug( "creating a '" + sClass + "' called: " + name  );
-            Class clazz = ReflectionUtils.findClass( sClass );
-            return (BaseResource) ReflectionUtils.create( clazz, location, name );
+            return sClass.trim();
         }
+    }
+
+    public void setClassToCreate(String s) {
+        Text c = (Text) this.getComponent( "class" );
+        if( c == null ) {
+            c = new Text( this, "class");
+            this.getComponents().add( c );
+        }
+        c.setValue( s );
     }
 
     @Override
@@ -270,4 +286,10 @@ public class Template extends Page implements ITemplate {
         this.componentDefs.add( d );
         return d;
     }
+
+    public String getAfterCreateScript() {
+        return afterCreateScript;
+    }
+
+    
 }

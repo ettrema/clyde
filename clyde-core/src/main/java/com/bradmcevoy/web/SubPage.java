@@ -231,4 +231,10 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public boolean isSecure() {
         return secure;
     }
+
+    public void setSecure( boolean secure ) {
+        this.secure = secure;
+    }
+
+    
 }

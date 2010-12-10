@@ -20,6 +20,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( LoginResponseHandler.class );
     private String loginPage = "/login.html";
     private ResourceFactory resourceFactory;
+    private String excludePath;
 
     public LoginResponseHandler( WebDavResponseHandler wrapped ) {
         super( wrapped );
@@ -28,7 +29,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
     @Override
     public void respondUnauthorised( Resource resource, Response response, Request request ) {
         String ctHeader = request.getContentTypeHeader();
-        if( isPage( resource, ctHeader ) ) {
+        if( isPage( resource, ctHeader ) && !excluded(request) ) {
             Resource rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
             if( rLogin == null || !( rLogin instanceof GetableResource ) ) {
                 log.trace( "Couldnt find login resource: " + request.getHostHeader() + "/" + loginPage );
@@ -93,4 +94,18 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
     public void setResourceFactory( ResourceFactory resourceFactory ) {
         this.resourceFactory = resourceFactory;
     }
+
+    public String getExcludePath() {
+        return excludePath;
+    }
+
+    public void setExcludePath( String excludePath ) {
+        this.excludePath = excludePath;
+    }
+
+    private boolean excluded( Request request ) {
+        return request.getAbsolutePath().startsWith( excludePath);
+    }
+
+
 }

@@ -135,6 +135,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         return this.getParent().isSecureRead(); // overridden by Host
     }
+    
+    public Boolean isSecureRead2() {
+        return secureRead2;
+    }
 
     public void setSecureRead( Boolean b ) {
         this.secureRead2 = b;
@@ -631,6 +635,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public TemplateSpecs getTemplateSpecs() {
         return templateSpecs;
+    }
+
+    public void setTemplateSpecs(TemplateSpecs s) {
+        this.templateSpecs = s;
     }
 
     public void setAllowedTemplates( String s ) {
