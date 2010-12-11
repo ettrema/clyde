@@ -198,6 +198,15 @@ public class Group extends Folder implements Mailbox, CustomUserGroup {
         return emailDiscardSubjects;
     }
 
+    public void setEmailDiscardSubjects( String emailDiscardSubjects ) {
+        this.emailDiscardSubjects = emailDiscardSubjects;
+    }
+    
+
+    public void setPassword( String value ) {
+        this.password = value;
+    }
+
     
 
     

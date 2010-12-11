@@ -45,14 +45,18 @@ public class DefaultValueHandler implements ValueHandler {
     public ComponentValue fromXml( CommonTemplated res, Element eAtt ) {
         String name = eAtt.getAttributeValue( "name" );
         ComponentValue cv = new ComponentValue( name, res );
+        fromXml( eAtt, res, cv );
+        return cv;
+    }
+
+    public void fromXml( Element eAtt, CommonTemplated res,  ComponentValue cv ) {
         String sVal = InitUtils.getValue( eAtt );
-        ComponentDef def = getDef( res, name );
+        ComponentDef def = getDef( res, cv.getName() );
         if( def == null ) {
             cv.setValue( sVal );
         } else {
             cv.setValue( def.parseValue( cv, res, sVal ) );
         }
-        return cv;
     }
 
     public ComponentDef getDef( Templatable page, String name ) {

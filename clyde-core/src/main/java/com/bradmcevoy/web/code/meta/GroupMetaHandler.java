@@ -42,11 +42,9 @@ public class GroupMetaHandler implements MetaHandler<Group> {
 
     public Group createFromXml( CollectionResource parent, Element d, String name ) {
         Group f = new Group( (Folder) parent, name );
-        updateFromXml(f, d );
+        updateFromXml( f, d );
         return f;
     }
-
-
 
     private void populateXml( Element el, Group page ) {
         InitUtils.setBoolean( el, "emailDisabled", page.isEmailDisabled() );
@@ -57,7 +55,10 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         folderMetaHandler.populateXml( el, page );
     }
 
-    public void updateFromXml( Group r, Element d ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    public void updateFromXml( Group group, Element el ) {
+        group.setEmailDisabled( InitUtils.getBoolean( el, "emailDisabled" ) );
+        group.setSecureRead( InitUtils.getBoolean( el, "secure" ) );
+        group.setPassword( InitUtils.getValue( el, "emailPassword" ) );
+        group.setEmailDiscardSubjects( InitUtils.getValue( el, "emailDiscardSubject" ) );
     }
 }

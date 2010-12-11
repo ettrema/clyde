@@ -3,43 +3,42 @@ package com.bradmcevoy.web.code.meta.comp;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.DateVal;
+import com.bradmcevoy.web.component.EmailVal;
 import org.jdom.Element;
 
 /**
  *
  * @author brad
  */
-public class DateValueHandler implements ValueHandler {
+public class EmailValHandler implements ValueHandler {
 
     private final DefaultValueHandler defaultValueHandler;
 
-    public DateValueHandler( DefaultValueHandler defaultValueHandler ) {
+    public EmailValHandler( DefaultValueHandler defaultValueHandler ) {
         this.defaultValueHandler = defaultValueHandler;
     }
 
-
     public Class getComponentValueClass() {
-        return DateVal.class;
+        return EmailVal.class;
     }
 
     public Element toXml( ComponentValue cv, CommonTemplated container ) {
         Element el = new Element(getAlias(), CodeMeta.NS);
-        populateXml(el, (DateVal) cv, container);
+        populateXml(el, (EmailVal) cv, container);
         return el;
     }
 
-    private void populateXml( Element e2, DateVal cv, CommonTemplated container ) {
+    private void populateXml( Element e2, EmailVal cv, CommonTemplated container ) {
         defaultValueHandler.populateXml( e2, cv, container );
-    }
+    }    
 
     public String getAlias() {
-        return "date";
+        return "email";
     }
 
     public ComponentValue fromXml( CommonTemplated res, Element eAtt ) {
         String name = eAtt.getAttributeValue( "name");
-        DateVal val = new DateVal( name, res);
+        EmailVal val = new EmailVal( name, res);
         defaultValueHandler.fromXml(eAtt, res, val );
         return val;
     }
