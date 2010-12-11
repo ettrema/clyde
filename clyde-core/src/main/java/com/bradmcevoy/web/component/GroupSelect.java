@@ -155,4 +155,14 @@ public final class GroupSelect implements WrappableComponent, Component {
     public boolean validate( RenderContext rc ) {
         return validate(rc.page, rc);
     }
+
+    public void setGroupName( String groupName ) {
+        this.groupName = groupName;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    
 }

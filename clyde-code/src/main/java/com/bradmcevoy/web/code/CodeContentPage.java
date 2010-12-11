@@ -33,7 +33,9 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
-        cth.generateContent( out, wrapped );
+        if( cth != null ) {
+            cth.generateContent( out, wrapped );
+        }
     }
 
     public Long getMaxAgeSeconds( Auth auth ) {
@@ -54,9 +56,11 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
     }
 
     public void replaceContent( InputStream in, Long l ) {
-        log.trace("replaceContent");
+        log.trace( "replaceContent" );
         ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
-        cth.replaceContent( in, l, wrapped );
-        CodeUtils.commit();
+        if( cth != null ) {
+            cth.replaceContent( in, l, wrapped );
+            CodeUtils.commit();
+        }
     }
 }

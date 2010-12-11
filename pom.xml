@@ -38,6 +38,7 @@
         <module>clyde-patches</module>
         <module>clyde-process</module>
         <module>clyde-facebook</module>
+        <module>clyde-code</module>
 	</modules>
 	<build>
 		<plugins>

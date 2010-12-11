@@ -9,7 +9,10 @@ import com.bradmcevoy.web.code.meta.comp.AbstractInputHandler;
 import com.bradmcevoy.web.code.meta.comp.CommandHandler;
 import com.bradmcevoy.web.code.meta.comp.DateValueHandler;
 import com.bradmcevoy.web.code.meta.comp.DefaultValueHandler;
+import com.bradmcevoy.web.code.meta.comp.EmailValHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
+import com.bradmcevoy.web.code.meta.comp.GroupSelectHandler;
+import com.bradmcevoy.web.code.meta.comp.NumberInputHandler;
 import com.bradmcevoy.web.code.meta.comp.SubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.TemplateInputHandler;
 import com.bradmcevoy.web.code.meta.comp.TextHandler;
@@ -43,6 +46,10 @@ public class CommonTemplatedMetaHandler {
         GroupEmailCommandHandler groupEmailCommandHandler = new GroupEmailCommandHandler( commandHandler );
         TextHandler textHandler = new TextHandler( abstractInputHandler );
         TemplateInputHandler templateInputHandler = new TemplateInputHandler( textHandler );
+        NumberInputHandler numberInputHandler = new NumberInputHandler( abstractInputHandler );
+        GroupSelectHandler groupSelectHandler = new GroupSelectHandler();
+        add( groupSelectHandler );
+        add( numberInputHandler );
         add( templateInputHandler );
         add( groupEmailCommandHandler );
         add( textHandler );
@@ -52,18 +59,19 @@ public class CommonTemplatedMetaHandler {
         mapOfValueAliases = new LinkedHashMap<String, ValueHandler>();
         DefaultValueHandler defaultValueHandler = new DefaultValueHandler();
         add( new DateValueHandler( defaultValueHandler ) );
+        add( new EmailValHandler( defaultValueHandler ) );
         add( defaultValueHandler );
     }
 
     private void add( ComponentHandler h ) {
         mapOfComponentHandlersByClass.put( h.getComponentClass(), h );
-        mapOfComponentHandlersByAlias.put(h.getAlias(), h);
-        
+        mapOfComponentHandlersByAlias.put( h.getAlias(), h );
+
     }
 
     private void add( ValueHandler h ) {
         mapOfValueHandlers.put( h.getComponentValueClass(), h );
-        mapOfValueAliases.put(h.getAlias(), h);
+        mapOfValueAliases.put( h.getAlias(), h );
     }
 
     public void populateXml( Element el, CommonTemplated res, boolean includeContentVals ) {
@@ -109,7 +117,6 @@ public class CommonTemplatedMetaHandler {
             || name.equals( "class" );
     }
 
-
     private void populateValues( CommonTemplated res, Element el, boolean includeContentVals ) {
         Element e2 = null;
         for( ComponentValue cv : res.getValues().values() ) {
@@ -146,7 +153,7 @@ public class CommonTemplatedMetaHandler {
     }
 
     public void updateFromXml( CommonTemplated res, Element el ) {
-        updateFromXml( res, el, false);
+        updateFromXml( res, el, false );
     }
 
     public void updateFromXml( CommonTemplated res, Element el, boolean includeContentVals ) {
@@ -168,10 +175,10 @@ public class CommonTemplatedMetaHandler {
                 it.remove();
             }
         }
-        
-        for( Element eAtt : JDomUtils.childrenOf( el, "attributes" )) {
+
+        for( Element eAtt : JDomUtils.childrenOf( el, "attributes" ) ) {
             ValueHandler h = mapOfValueAliases.get( eAtt.getName() );
-            ComponentValue cv = h.fromXml(res, eAtt);
+            ComponentValue cv = h.fromXml( res, eAtt );
             res.getValues().add( cv );
         }
 
@@ -186,14 +193,13 @@ public class CommonTemplatedMetaHandler {
             }
         }
 
-        for( Element eAtt : JDomUtils.childrenOf( el, "components" )) {
-            ComponentHandler h = mapOfComponentHandlersByAlias.get( eAtt.getName());
-            if( h == null) {
-                throw new RuntimeException( "Couldnt find component handler for element of type: " + eAtt.getName());
+        for( Element eAtt : JDomUtils.childrenOf( el, "components" ) ) {
+            ComponentHandler h = mapOfComponentHandlersByAlias.get( eAtt.getName() );
+            if( h == null ) {
+                throw new RuntimeException( "Couldnt find component handler for element of type: " + eAtt.getName() );
             }
-            Component c = h.fromXml(res, eAtt);
+            Component c = h.fromXml( res, eAtt );
             res.getComponents().add( c );
         }
     }
-
 }

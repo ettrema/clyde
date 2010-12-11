@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 /**
@@ -62,7 +63,6 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         return Template.class;
     }
 
-
     public boolean supports( Resource r ) {
         return r instanceof Template;
     }
@@ -90,12 +90,14 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             el.addContent( elScript );
         }
         String cn = template.getClassToCreate();
-        try {
-            Class c = Class.forName( cn );
-            String s = mapOfAliasesByClass.get( c );
-            if( s != null ) cn = s;
-        } catch( ClassNotFoundException ex ) {
-            Logger.getLogger( TemplateMetaHandler.class.getName() ).log( Level.SEVERE, null, ex );
+        if( !StringUtils.isEmpty( cn ) ) {
+            try {
+                Class c = Class.forName( cn );
+                String s = mapOfAliasesByClass.get( c );
+                if( s != null ) cn = s;
+            } catch( ClassNotFoundException ex ) {
+                Logger.getLogger( TemplateMetaHandler.class.getName() ).log( Level.SEVERE, null, ex );
+            }
         }
         InitUtils.set( el, "instanceType", cn );
 
@@ -124,7 +126,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     public void updateFromXml( Template r, Element d ) {
         String instanceType = InitUtils.getValue( d, "instanceType" );
         Class c = mapOfClassesByAlias.get( instanceType );
-        r.setClassToCreate( c.getCanonicalName());
+        r.setClassToCreate( c.getCanonicalName() );
 
         pageMetaHandler.populateXml( d, r );
 

@@ -17,7 +17,6 @@ import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.code.CodeBehindPage;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,20 +67,20 @@ public class SourceResourceFactory extends CommonResourceFactory {
                 log.debug( "found a resource, but is not source: " + res.getClass() );
                 return null;
             }
-        } else if( CodeBehindPage.isCodeBehind( path ) ) {
-            log.debug( "is code behind" );
-            Path pagePath = CodeBehindPage.getPagePath( path );
-            Resource res = next.getResource( host, pagePath.toString() );
-            if( res == null ) {
-                return null;
-            } else {
-                if( res instanceof BaseResource ) {
-                    return new CodeBehindPage( (BaseResource) res );
-                } else {
-                    log.debug( "not compat" );
-                    return null;
-                }
-            }
+//        } else if( CodeBehindPage.isCodeBehind( path ) ) {
+//            log.debug( "is code behind" );
+//            Path pagePath = CodeBehindPage.getPagePath( path );
+//            Resource res = next.getResource( host, pagePath.toString() );
+//            if( res == null ) {
+//                return null;
+//            } else {
+//                if( res instanceof BaseResource ) {
+//                    return new CodeBehindPage( (BaseResource) res );
+//                } else {
+//                    log.debug( "not compat" );
+//                    return null;
+//                }
+//            }
 
         } else {
             Resource res = next.getResource( host, url );

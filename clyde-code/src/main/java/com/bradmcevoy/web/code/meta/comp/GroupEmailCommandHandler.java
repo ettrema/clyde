@@ -38,7 +38,7 @@ public class GroupEmailCommandHandler implements ComponentHandler {
 
     private void populateXml( Element e2, GroupEmailCommand g ) {
         commandHandler.populateXml( e2, g );
-        InitUtils.addChild( e2, "c:text", g.getBodyTextTemplate() );
+        setText( e2, g.getBodyTextTemplate() );
         setHtml( e2, g.getBodyHtmlTemplate() );
         //        InitUtils.addChild( e2, "html", bodyHtmlTemplate );
         InitUtils.setString( e2, "fromComp", g.getFromComp() );
@@ -66,6 +66,12 @@ public class GroupEmailCommandHandler implements ComponentHandler {
         XmlHelper helper = new XmlHelper();
         List content = helper.getContent( value );
         child.setContent( content );
+        el.addContent( child );
+    }
+
+    private void setText(Element el, String text) {
+        Element child = new Element( "text", DefaultValueHandler.NS_HTML_DEFAULT );
+        child.setText( text );
         el.addContent( child );
     }
 }

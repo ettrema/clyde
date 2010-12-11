@@ -43,6 +43,14 @@ public class InitUtils {
         return Integer.parseInt( s );
     }
 
+    public static void set( Element el, String name, Path p ) {
+        if( p == null ) {
+            set( el, name, (String)null );
+        } else {
+            set( el, name, p.toString() );
+        }
+    }
+
     public static Path getPath( Element el, String name ) {
         String s = getValue( el, name );
         if( s == null || s.length() == 0 ) return null;
@@ -86,13 +94,6 @@ public class InitUtils {
         }
     }
 
-    public static void set( Element el, String name, Path path ) {
-        if( path == null ) {
-            el.setAttribute( name, "" );
-        } else {
-            el.setAttribute( name, path.toString() );
-        }
-    }
 
     public static void set( Element e2, String name, Boolean b ) {
         setBoolean( e2, name, b );

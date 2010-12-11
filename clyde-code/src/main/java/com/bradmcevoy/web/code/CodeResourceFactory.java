@@ -12,6 +12,7 @@ import com.bradmcevoy.web.code.content.TemplateContentTypeHandler;
 import com.bradmcevoy.web.code.meta.BaseResourceMetaHandler;
 import com.bradmcevoy.web.code.meta.BinaryFileMetaHandler;
 import com.bradmcevoy.web.code.meta.CommonTemplatedMetaHandler;
+import com.bradmcevoy.web.code.meta.CsvViewMetaHandler;
 import com.bradmcevoy.web.code.meta.FolderMetaHandler;
 import com.bradmcevoy.web.code.meta.GroupMetaHandler;
 import com.bradmcevoy.web.code.meta.PageMetaHandler;
@@ -178,7 +179,8 @@ public final class CodeResourceFactory implements ResourceFactory {
                 return cth;
             }
         }
-        throw new RuntimeException( "Unsupported type: " + wrapped.getClass() );
+        return null;
+        //throw new RuntimeException( "Unsupported type: " + wrapped.getClass() );
     }
 
     public MetaHandler getMetaHandler( Resource r ) {
@@ -198,9 +200,10 @@ public final class CodeResourceFactory implements ResourceFactory {
         GroupMetaHandler groupMetaHandler = new GroupMetaHandler( folderMetaHandler );
         PageMetaHandler pageMetaHandler = new PageMetaHandler( baseResourceMetaHandler );
         UserMetaHandler userMetaHandler = new UserMetaHandler( folderMetaHandler );
+        CsvViewMetaHandler csvViewMetaHandler = new CsvViewMetaHandler( baseResourceMetaHandler );
 
         Map<Class,String> mapOfAliases = new HashMap<Class, String>();
-        for(MetaHandler<?> h : Arrays.asList( userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler)) {
+        for(MetaHandler<?> h : Arrays.asList( userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler)) {
             for(String alias : h.getAliases()) {
                 mapOfAliases.put( h.getInstanceType(), alias);
             }
@@ -209,7 +212,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         TemplateMetaHandler templateMetaHandler = new TemplateMetaHandler( pageMetaHandler, mapOfAliases);
 
         this.metaHandlers = new ArrayList<MetaHandler>();
-        Collections.addAll( metaHandlers, templateMetaHandler, userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler );
+        Collections.addAll( metaHandlers, templateMetaHandler, userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler );
     }
 
     public MetaParser getMetaParser() {
