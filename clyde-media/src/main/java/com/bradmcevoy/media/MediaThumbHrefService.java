@@ -53,4 +53,22 @@ public class MediaThumbHrefService implements ThumbHrefService {
             return null;
         }
     }
+
+    public void setPrefixWithHost( boolean prefixWithHost ) {
+        this.prefixWithHost = prefixWithHost;
+    }
+
+    public boolean isPrefixWithHost() {
+        return prefixWithHost;
+    }
+
+    public String getRootPrefix() {
+        return rootPrefix;
+    }
+
+    public void setRootPrefix( String rootPrefix ) {
+        this.rootPrefix = rootPrefix;
+    }
+
+    
 }

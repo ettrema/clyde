@@ -10,6 +10,41 @@ public class Thumb implements Serializable {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Thumb.class );
     private static final long serialVersionUID = 1L;
 
+    public static void setThumbSpecs(Template template, List<Thumb> thumbs) {
+        ThumbsComponent thumbsComp = (ThumbsComponent) template.getComponents().get( "thumbSpecs" );
+        if( thumbsComp == null ) {
+            if( thumbs == null || thumbs.isEmpty()) {
+                // nothing to do;
+                return ;
+            }
+            thumbsComp = new ThumbsComponent( template, "thumbSpecs");
+            template.getComponents().add( thumbsComp );
+        } else {
+            if( thumbs == null || thumbs.isEmpty()) {
+                // nothing defined, so need to remove component
+                template.getComponents().remove( "thumbSpecs");
+                return ;
+            }
+        }
+        thumbsComp.setValue( thumbs );
+    }
+
+    public static List<Thumb> getThumbSpecs( Template template ) {
+
+        ThumbsComponent thumbs = (ThumbsComponent) template.getComponents().get( "thumbSpecs" );
+        if( thumbs == null ) {
+            return null;
+        } else {
+            List<Thumb> val = thumbs.getValue();
+            if( val == null ) {
+                log.trace("getThumbSpecs: got null val from component");
+            } else {
+                log.trace("getThumbSpecs: get value from thumbs: " + val.size());
+            }
+            return val;
+        }
+    }
+
     public static List<Thumb> getThumbSpecs( Folder folder ) {
         if( folder == null ) {
             log.trace("getThumbSpecs: folder is null");
@@ -17,11 +52,9 @@ public class Thumb implements Serializable {
         }
         ThumbsComponent thumbs = (ThumbsComponent) folder.getComponent( "thumbSpecs" );
         if( thumbs == null ) {
-            log.trace("getThumbSpecs: not on component");
             if( folder.isSystemFolder() ) {
                 folder = folder.getParent();
                 if( folder != null ) {
-                    log.trace("getThumbSpecs: try parent..");
                     thumbs = (ThumbsComponent) folder.getComponent( "thumbSpecs" );
                 } else {
                     log.trace("getThumbSpecs: parent is null");
@@ -51,7 +84,7 @@ public class Thumb implements Serializable {
     int width;
 
     public static String format( List<Thumb> thumbs ) {
-        if( thumbs == null || thumbs.size() == 0 ) return "";
+        if( thumbs == null || thumbs.isEmpty() ) return "";
         StringBuffer sb = null;
         for( Thumb t : thumbs ) {
             if( sb == null ) {

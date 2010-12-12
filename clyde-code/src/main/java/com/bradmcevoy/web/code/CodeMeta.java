@@ -36,7 +36,7 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
     }
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        DocType dt = new DocType( "meta", "http://clyde.ettrema.com/dtd/core.dtd" );
+        DocType dt = new DocType( "c:meta", "http://clyde.ettrema.com/dtd/core.dtd" );
         Element elRoot = new Element( "meta", NS );
         Document doc = new Document( elRoot, dt );
         Element el = metaHandler.toXml( wrapped );

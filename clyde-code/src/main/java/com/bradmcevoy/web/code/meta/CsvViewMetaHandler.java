@@ -63,5 +63,6 @@ public class CsvViewMetaHandler implements MetaHandler<CsvView> {
 
         r.setIsType( InitUtils.getValue( d, "type"));
         r.setSourceFolderPath( InitUtils.getPath( d, "sourceFolder"));
+        r.save();
     }
 }

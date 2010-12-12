@@ -82,6 +82,9 @@ public class BaseResourceMetaHandler {
     }
 
     void updateFromXml( BaseResource res, Element el, boolean includeContentVals ) {
+        
+        log.trace("updateFromXml2");
+
         commonTemplatedMetaHandler.updateFromXml( res, el, includeContentVals );
         
         res.setRedirect( InitUtils.getValue( el, "redirect" ) );

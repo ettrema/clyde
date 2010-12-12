@@ -122,9 +122,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return RenderContext.find( this, path );
     }
 
-    public Templatable find(String sPath) {
-        Path p = Path.path(sPath);
-        return find(p);
+    public Templatable find( String sPath ) {
+        Path p = Path.path( sPath );
+        return find( p );
     }
 
 //    public BaseResourceList list(String sPath) {
@@ -145,10 +145,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 //        }
 //        from.find( part );
 //    }
-
-    
-
-
     public String getTitle() {
         ComponentValue cv = this.getValues().get( "title" );
         if( cv != null ) {
@@ -194,7 +190,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.info("processForm");
+        log.info( "processForm" );
         preProcess( null, parameters, files );
         String s = process( null, parameters, files );
         return s;
@@ -229,7 +225,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.info("process form");
+        log.info( "process form" );
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
         String redirectTo = null;
@@ -340,7 +336,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     public void loadFromXml( Element el ) {
         // if not present, just ignore values (eg for code behind page)
-        if( el.getChild( "componentValues") != null ) {
+        if( el.getChild( "componentValues" ) != null ) {
             getValues().fromXml( el, this );
         }
         getComponents().fromXml( this, el );
@@ -378,8 +374,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public boolean isDigestAllowed() {
         return true;
     }
-
-
 
     public Host findHost( String authority ) {
         Host h = getHost();
@@ -451,20 +445,59 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         this.contentType = contentType;
     }
 
+    /**
+     * Gets the max age configuration on this instance (non-recursive)
+     * 
+     * @return
+     */
+    public Long getMaxAgeSecsThis() {
+        Component c = this.getComponent( "maxAge" );
+        if( c == null ) return null;
+        return getMaxAgeSecs( c );
+    }
+
+    public void setMaxAgeSecsThis( Long l ) {
+        if( l == null ) {
+            setMaxAgeSecsThis( (Integer) null );
+        } else {
+            setMaxAgeSecsThis( (int) l.longValue() );
+        }
+    }
+
+    public void setMaxAgeSecsThis( Integer l ) {
+        Component c = this.getComponents().get( "maxAge" );
+        NumberInput n;
+        if( c == null ) {
+            n = new NumberInput( this, "maxAge" );
+            this.getComponents().add( n );
+        } else {
+            n = (NumberInput) c;
+        }
+        if( l == null ) {
+            n.setValue( null );
+        } else {
+            n.setValue( l.intValue() );
+        }
+    }
+
+    private Long getMaxAgeSecs( Component c ) {
+        if( c instanceof NumberInput ) {
+            NumberInput n = (NumberInput) c;
+            Integer ii = n.getValue();
+            if( ii == null ) return null;
+            return (long) ii.intValue();
+        } else {
+            return null;
+        }
+
+    }
+
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {
         log.trace( "getMaxAgeSeconds" );
         Component c = this.getComponent( "maxAge" );
         if( c != null ) {
-            if( c instanceof NumberInput ) {
-                log.trace( "using component for maxage" );
-                NumberInput n = (NumberInput) c;
-                Integer ii = n.getValue();
-                if( ii == null ) return null;
-                return (long) ii.intValue();
-            } else {
-                throw new RuntimeException( "unsupported component type for maxAge. Is a: " + c.getClass() + " must be a " + NumberInput.class );
-            }
+            return getMaxAgeSecs( c );
         } else {
             if( this.getTemplate() == null ) {
                 log.trace( "no template, use large default max-age" );
@@ -543,7 +576,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String render( RenderContext child ) {
-        _(ClydeEventDispatcher.class).beforeRender( this, child );
+        _( ClydeEventDispatcher.class ).beforeRender( this, child );
         ITemplate t = getTemplate();
         if( t == null ) {
 //            log.debug( "render: null template for: " + this.getName());
@@ -606,7 +639,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     public Element toXml( Addressable container, Element el ) {
-        log.warn("toXml");
+        log.warn( "toXml" );
         Element e2 = new Element( "component" );
         el.addContent( e2 );
         populateXml( e2 );
@@ -630,7 +663,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public void populateXml( Element e2 ) {
-        log.trace("populateXml");
+        log.trace( "populateXml" );
         e2.setAttribute( "class", this.getClass().getName() );
         getValues().toXml( this, e2 );
         getComponents().toXml( this, e2 );

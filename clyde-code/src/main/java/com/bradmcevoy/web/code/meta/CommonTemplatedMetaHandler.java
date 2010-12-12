@@ -21,6 +21,7 @@ import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
+import com.bradmcevoy.web.component.ThumbsComponent;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +33,8 @@ import org.jdom.Element;
  * @author brad
  */
 public class CommonTemplatedMetaHandler {
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommonTemplatedMetaHandler.class );
 
     private Map<Class, ComponentHandler> mapOfComponentHandlersByClass;
     private Map<String, ComponentHandler> mapOfComponentHandlersByAlias;
@@ -77,9 +80,10 @@ public class CommonTemplatedMetaHandler {
     public void populateXml( Element el, CommonTemplated res, boolean includeContentVals ) {
         populateValues( res, el, includeContentVals );
         populateComponents( res, el );
-        InitUtils.setString( el, "template", res.getTemplateName() );
-
-        InitUtils.setString( el, "contentType", res.getContentType() );
+        InitUtils.set( el, "template", res.getTemplateName() );
+        InitUtils.set( el, "contentType", res.getContentType() );
+        InitUtils.set( el, "maxAge", res.getMaxAgeSecsThis() );
+        
     }
 
     private void populateComponents( CommonTemplated res, Element el ) {
@@ -108,12 +112,16 @@ public class CommonTemplatedMetaHandler {
     private boolean isIgnoredComponent( Component c ) {
         return ( c instanceof TemplateSelect )
             || ( c instanceof NameInput )
+            || ( c instanceof ThumbsComponent )
+            || c.getName().equals( "maxAge" )
             || c.getName().equals( "class" );
     }
 
     private boolean isIgnoredComponent( String name ) {
         return name.equals( "template" )
             || name.equals( "name" )
+            || name.equals( "maxAge" )
+            || name.equals( "thumbSpecs" )
             || name.equals( "class" );
     }
 
@@ -157,13 +165,16 @@ public class CommonTemplatedMetaHandler {
     }
 
     public void updateFromXml( CommonTemplated res, Element el, boolean includeContentVals ) {
+        log.trace("updateFromXml2");
         updateValues( res, el, includeContentVals );
         updateComponents( res, el );
         // TODO: handle values for non body+title
 
-        res.setTemplateName( InitUtils.getValue( el, "template" ) );
+        String templateName = InitUtils.getValue( el, "template" );
+        log.trace("templateName: " + templateName);
+        res.setTemplateName( templateName );
         res.setContentType( InitUtils.getValue( el, "contentType" ) );
-
+        res.setMaxAgeSecsThis( InitUtils.getInteger( el, "maxAge" ) ); 
     }
 
     private void updateValues( CommonTemplated res, Element el, boolean includeContentVals ) {
@@ -176,7 +187,7 @@ public class CommonTemplatedMetaHandler {
             }
         }
 
-        for( Element eAtt : JDomUtils.childrenOf( el, "attributes" ) ) {
+        for( Element eAtt : JDomUtils.childrenOf( el, "attributes", CodeMeta.NS ) ) {
             ValueHandler h = mapOfValueAliases.get( eAtt.getName() );
             ComponentValue cv = h.fromXml( res, eAtt );
             res.getValues().add( cv );
@@ -193,7 +204,7 @@ public class CommonTemplatedMetaHandler {
             }
         }
 
-        for( Element eAtt : JDomUtils.childrenOf( el, "components" ) ) {
+        for( Element eAtt : JDomUtils.childrenOf( el, "components", CodeMeta.NS ) ) {
             ComponentHandler h = mapOfComponentHandlersByAlias.get( eAtt.getName() );
             if( h == null ) {
                 throw new RuntimeException( "Couldnt find component handler for element of type: " + eAtt.getName() );

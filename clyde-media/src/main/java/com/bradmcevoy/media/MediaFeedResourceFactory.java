@@ -4,7 +4,6 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
 
 /**
  *

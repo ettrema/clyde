@@ -15,6 +15,7 @@ import org.jdom.Element;
  */
 public class PageMetaHandler implements MetaHandler<Page> {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PageMetaHandler.class );
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
     public PageMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
@@ -30,7 +31,7 @@ public class PageMetaHandler implements MetaHandler<Page> {
     }
 
     public Iterable<String> getAliases() {
-        return Arrays.asList( "folder" );
+        return Arrays.asList( "page" );
     }
 
     public Element toXml( Page page ) {
@@ -39,20 +40,19 @@ public class PageMetaHandler implements MetaHandler<Page> {
         return elRoot;
     }
 
-    public Page createFromXml(CollectionResource parent, Element d, String name ) {
-        Page page = new Page((Folder) parent,name);
+    public Page createFromXml( CollectionResource parent, Element d, String name ) {
+        Page page = new Page( (Folder) parent, name );
         updateFromXml( page, d );
         return page;
     }
 
     public void updateFromXml( Page r, Element d ) {
+        log.trace( "updateFromXml" );
         baseResourceMetaHandler.updateFromXml( r, d, false );
+        r.save();
     }
-
-
 
     public void populateXml( Element elRoot, Page page ) {
         baseResourceMetaHandler.populateXml( elRoot, page );
     }
-
 }

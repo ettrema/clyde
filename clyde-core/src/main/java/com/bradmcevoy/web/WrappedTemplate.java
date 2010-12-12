@@ -250,4 +250,10 @@ public class WrappedTemplate implements ITemplate {
     public String getContentType( String accepts ) {
         return physicalTemplate.getContentType( accepts );
     }
+
+    public boolean canCreateFolder() {
+        return physicalTemplate.canCreateFolder();
+    }
+
+
 }

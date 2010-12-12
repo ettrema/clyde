@@ -6,6 +6,7 @@ import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.ComponentDefMap;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Template;
+import com.bradmcevoy.web.Thumb;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.code.meta.comp.ComponentDefHandler;
@@ -15,9 +16,11 @@ import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
 import com.bradmcevoy.web.code.meta.comp.TextDefHandler;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.InitUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -31,6 +34,7 @@ import org.jdom.Element;
  */
 public class TemplateMetaHandler implements MetaHandler<Template> {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TemplateMetaHandler.class );
     private final PageMetaHandler pageMetaHandler;
     private final Map<Class, String> mapOfAliasesByClass;
     private final Map<String, Class> mapOfClassesByAlias;
@@ -45,6 +49,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             mapOfClassesByAlias.put( entry.getValue(), entry.getKey() );
         }
         mapOfHandlers = new LinkedHashMap<Class, ComponentDefHandler>();
+        mapOfHandlersByAlias = new HashMap<String, ComponentDefHandler>();
         TextDefHandler textDefHandler = new TextDefHandler();
         HtmlDefHandler htmlDefHandler = new HtmlDefHandler( textDefHandler );
         DateDefHandler dateDefHandler = new DateDefHandler( textDefHandler );
@@ -57,6 +62,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
     private void add( ComponentDefHandler h ) {
         mapOfHandlers.put( h.getDefClass(), h );
+        mapOfHandlersByAlias.put( h.getAlias(), h );
     }
 
     public Class getInstanceType() {
@@ -103,6 +109,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
         initComponentDefs( el, template );
 
+        populateThumbSpecs( el, template );
+
         pageMetaHandler.populateXml( el, template );
     }
 
@@ -123,27 +131,65 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         }
     }
 
-    public void updateFromXml( Template r, Element d ) {
-        String instanceType = InitUtils.getValue( d, "instanceType" );
-        Class c = mapOfClassesByAlias.get( instanceType );
-        r.setClassToCreate( c.getCanonicalName() );
+    public void updateFromXml( Template template, Element el ) {
+        String instanceType = InitUtils.getValue( el, "instanceType" );
+        if( !StringUtils.isEmpty( instanceType ) ) {
+            Class c = mapOfClassesByAlias.get( instanceType );
+            if( c != null ) {
+                instanceType = c.getCanonicalName();
+            }
+        }
+        template.setClassToCreate( instanceType );
 
-        pageMetaHandler.populateXml( d, r );
+        pageMetaHandler.updateFromXml( template, el );
 
-        updateDefsFromXml( r, d );
+        updateDefsFromXml( template, el );
 
-        r.save();
+        updateThumbSpecsFromXml( template, el );
+
+        template.save();
     }
 
     private void updateDefsFromXml( Template res, Element el ) {
-        for( Element eAtt : JDomUtils.childrenOf( el, "fields" ) ) {
+        log.trace( "updateDefsFromXml: " + el.getName() );
+        for( Element eAtt : JDomUtils.childrenOf( el, "fields", CodeMeta.NS ) ) {
             ComponentDefHandler h = mapOfHandlersByAlias.get( eAtt.getName() );
             if( h == null ) {
                 throw new RuntimeException( "Couldnt find component handler for element of type: " + eAtt.getName() );
             }
             ComponentDef def = h.fromXml( res, eAtt );
+            log.trace( "add def: " + def.getName() );
             res.getComponentDefs().add( def );
         }
 
+    }
+
+    private void populateThumbSpecs( Element elRoot, Template template ) {
+        List<Thumb> specs = Thumb.getThumbSpecs( template );
+        if( specs != null && !specs.isEmpty() ) {
+            Element elThumbs = new Element( "thumbs", CodeMeta.NS );
+            elRoot.addContent( elThumbs );
+            for( Thumb spec : specs ) {
+                Element elThumb = new Element( "thumb", CodeMeta.NS );
+                elThumb.setAttribute( "id", spec.getSuffix() );
+                elThumb.setAttribute( "h", spec.getHeight() + "" );
+                elThumb.setAttribute( "w", spec.getWidth() + "" );
+                elThumbs.addContent( elThumb );
+            }
+
+        }
+
+    }
+
+    private void updateThumbSpecsFromXml( Template template, Element el ) {
+        List<Thumb> thumbs = new ArrayList<Thumb>();
+        for( Element elThumb : JDomUtils.childrenOf( el, "thumbs", CodeMeta.NS ) ) {
+            String suffix = elThumb.getAttributeValue( "id" );
+            int height = InitUtils.getInt( elThumb, "h" );
+            int width = InitUtils.getInt( elThumb, "w" );
+            Thumb spec = new Thumb( suffix, width, height );
+            thumbs.add( spec );
+        }
+        Thumb.setThumbSpecs( template, thumbs ); 
     }
 }

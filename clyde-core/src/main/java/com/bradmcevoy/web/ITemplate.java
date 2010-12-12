@@ -50,5 +50,12 @@ public interface ITemplate extends Templatable{
      */
     boolean represents( String type );
 
+    /**
+     * Tells if this template can create instances of folders (aka collections)
+     *
+     * @return
+     */
+    boolean canCreateFolder();
+
 
 }

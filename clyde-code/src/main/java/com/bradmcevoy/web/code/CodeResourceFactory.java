@@ -9,6 +9,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.code.content.BinaryContentTypeHandler;
 import com.bradmcevoy.web.code.content.PageContentTypeHandler;
 import com.bradmcevoy.web.code.content.TemplateContentTypeHandler;
+import com.bradmcevoy.web.code.content.TextFileContentHandler;
 import com.bradmcevoy.web.code.meta.BaseResourceMetaHandler;
 import com.bradmcevoy.web.code.meta.BinaryFileMetaHandler;
 import com.bradmcevoy.web.code.meta.CommonTemplatedMetaHandler;
@@ -43,7 +44,8 @@ public final class CodeResourceFactory implements ResourceFactory {
         this.wrapped = wrapped;
         PageContentTypeHandler pageContentTypeHandler = new PageContentTypeHandler();
         TemplateContentTypeHandler templateContentTypeHandler = new TemplateContentTypeHandler( pageContentTypeHandler );
-        setContentTypeHandlers( Arrays.asList( templateContentTypeHandler, pageContentTypeHandler, new BinaryContentTypeHandler() ) );
+        TextFileContentHandler textFileContentHandler = new TextFileContentHandler();
+        setContentTypeHandlers( Arrays.asList( templateContentTypeHandler, pageContentTypeHandler, textFileContentHandler, new BinaryContentTypeHandler() ) );
         initMetaHandlers();
         this.metaParser = new MetaParser( this );
     }

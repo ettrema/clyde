@@ -55,5 +55,6 @@ public class BinaryFileMetaHandler implements MetaHandler<BinaryFile> {
 
     public void updateFromXml( BinaryFile r, Element d ) {
         baseResourceMetaHandler.updateFromXml( r, d );
+        r.save();
     }
 }

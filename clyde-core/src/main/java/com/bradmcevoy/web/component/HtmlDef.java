@@ -55,9 +55,9 @@ public class HtmlDef extends TextDef {
     
     public String getToolbarSetName() {
         if( toolbarSet == null || toolbarSet.getValue() == null || toolbarSet.getValue().length() == 0 ) {
-            return "'Basic'";
+            return "Basic";
         } else {
-            return "'" + toolbarSet.getValue() + "'";
+            return toolbarSet.getValue();
         }
     }
 
@@ -65,6 +65,7 @@ public class HtmlDef extends TextDef {
         if( toolbarSet == null ) {
             toolbarSet = new Text(this,"toolbarSet");
         }
+        toolbarSet.setValue( s );
     }
     
     @Override

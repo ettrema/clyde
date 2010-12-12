@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE c:meta SYSTEM "template.dtd">
+
+<!DOCTYPE c:meta SYSTEM "core.dtd">
+
 <c:meta xmlns:c="http://clyde.ettrema.com/ns/core">
-	<c:template template="normal">
+	<c:template instanceType="com.bradmcevoy.web.calendar.CalendarEvent" template="normal">
 		<c:components>
-            <c:text name="" requestScope="true"/>
+			<c:text name="description">A photo album</c:text>
+			<c:subpage name="index.html" template="normal">
+				<c:attributes>
+					<c:value name="title">$targetPage.foundParent.title</c:value>
+
+					<c:value name="body">
+                        photo album!!
+					</c:value>
+				</c:attributes>
+			</c:subpage>
 		</c:components>
 	</c:template>
 </c:meta>
+
 

@@ -60,5 +60,6 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         group.setSecureRead( InitUtils.getBoolean( el, "secure" ) );
         group.setPassword( InitUtils.getValue( el, "emailPassword" ) );
         group.setEmailDiscardSubjects( InitUtils.getValue( el, "emailDiscardSubject" ) );
+        group.save();
     }
 }

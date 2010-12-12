@@ -20,25 +20,54 @@
 -->
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template)*>
+<!ELEMENT c:meta (c:template|c:folder)*>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
   >
 
 <!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:folder EMPTY>
+<!ATTLIST c:folder
+    template CDATA #IMPLIED
+    versioningEnabled (true|false) #IMPLIED
+    secureRead (true|false) #IMPLIED
+    template CDATA #IMPLIED
+    allowedTemplates CDATA #IMPLIED
+  >
+
+
+<!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:template (c:components)*>
 <!ATTLIST c:template
     template CDATA #IMPLIED
+    instanceType CDATA #IMPLIED
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
 <!ATTLIST c:text
     required CDATA #IMPLIED
     requestScope (true|false) #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:subpage (c:attributes)*>
+<!ATTLIST c:subpage
+    template CDATA #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:attributes (c:value)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:value (#PCDATA)>
+<!ATTLIST c:value
     name CDATA #IMPLIED
   >
 

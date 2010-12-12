@@ -250,7 +250,7 @@ public class User extends Folder implements IUser {
 
     }
 
-    boolean checkPassword( String password ) {
+    public boolean checkPassword( String password ) {
         String actualPassword = null;
         if( this.password != null ) {
             actualPassword = this.password.getValue();
@@ -282,7 +282,7 @@ public class User extends Folder implements IUser {
         return false;
     }
 
-    boolean checkPassword( DigestResponse digestRequest ) {
+    public boolean checkPassword( DigestResponse digestRequest ) {
         String actualPassword = null;
         if( this.password != null ) {
             actualPassword = this.password.getValue();

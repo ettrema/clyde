@@ -2,6 +2,7 @@ package com.bradmcevoy.web.code.meta;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.code.CodeMeta;
@@ -25,7 +26,7 @@ public class UserMetaHandler implements MetaHandler<User> {
     public Class getInstanceType() {
         return User.class;
     }
-    
+
     public boolean supports( Resource r ) {
         return r instanceof User;
     }
@@ -40,12 +41,11 @@ public class UserMetaHandler implements MetaHandler<User> {
         return elRoot;
     }
 
-    public User createFromXml(CollectionResource parent, Element d, String name ) {
-        User page = new User((Folder) parent,name);
-        updateFromXml(page, d );
+    public User createFromXml( CollectionResource parent, Element d, String name ) {
+        User page = new User( (Folder) parent, name );
+        updateFromXml( page, d );
         return page;
     }
-
 
     private void populateXml( Element el, User page ) {
         InitUtils.setBoolean( el, "emailDisabled", page.isEmailDisabled() );
@@ -57,7 +57,10 @@ public class UserMetaHandler implements MetaHandler<User> {
         folderMetaHandler.populateXml( el, page );
     }
 
-    public void updateFromXml( User r, Element d ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    public void updateFromXml( User user, Element el ) {
+        user.setEmailDisabled( InitUtils.getBoolean( el, "emailDisabled" ) );
+        String newEmail = JDomUtils.valueOf( el, "email", CodeMeta.NS );
+        user.setExternalEmailText( newEmail );
+        user.save();
     }
 }

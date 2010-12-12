@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 
@@ -23,10 +24,8 @@ public class Template extends Page implements ITemplate {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Template.class );
     private static final long serialVersionUID = 1L;
-
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
-
     private String afterCreateScript;
 
     public Template( Folder parent, String name ) {
@@ -50,7 +49,7 @@ public class Template extends Page implements ITemplate {
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         componentDefs.fromXml( this, el );
-        Element elScript = el.getChild("afterCreateScript");
+        Element elScript = el.getChild( "afterCreateScript" );
         if( elScript != null ) {
             afterCreateScript = elScript.getText();
         }
@@ -61,19 +60,16 @@ public class Template extends Page implements ITemplate {
         super.populateXml( e2 );
         componentDefs.toXml( this, e2 );
         if( afterCreateScript != null ) {
-            Element elScript = new Element("afterCreateScript");
-            elScript.setText(afterCreateScript);
-            e2.addContent(elScript);
+            Element elScript = new Element( "afterCreateScript" );
+            elScript.setText( afterCreateScript );
+            e2.addContent( elScript );
         }
     }
 
-
     @Override
-    public Element toXml(Addressable container, Element el) {
-        return super.toXml(container, el);
+    public Element toXml( Addressable container, Element el ) {
+        return super.toXml( container, el );
     }
-
-
 
     @Override
     public boolean is( String type ) {
@@ -96,7 +92,6 @@ public class Template extends Page implements ITemplate {
         }
 
     }
-
 
     @Override
     public Component getAnyComponent( String childName ) {
@@ -144,10 +139,10 @@ public class Template extends Page implements ITemplate {
         } else {
             newRes = newInstanceFromTemplate( location, name );
             if( newRes == null ) {
-                log.debug("  creating a page because nothing else specified");
+                log.debug( "  creating a page because nothing else specified" );
                 newRes = new Page( location, name );
             } else {
-                log.debug("  created a: " + newRes.getClass());
+                log.debug( "  created a: " + newRes.getClass() );
             }
         }
         IUser creator = _( CurrentUserService.class ).getOnBehalfOf();
@@ -160,7 +155,7 @@ public class Template extends Page implements ITemplate {
             ComponentValue cv = def.createComponentValue( newRes );
             newRes.getValues().add( cv );
         }
-        execAfterScript(newRes);
+        execAfterScript( newRes );
         return newRes;
     }
 
@@ -177,10 +172,10 @@ public class Template extends Page implements ITemplate {
 
         for( ComponentDef def : componentDefs.values() ) {
             ComponentValue cv = def.createComponentValue( newRes );
-            log.debug( "createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName());
+            log.debug( "createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName() );
             newRes.getValues().add( cv );
         }
-        execAfterScript(newRes);
+        execAfterScript( newRes );
         return newRes;
     }
 
@@ -201,9 +196,18 @@ public class Template extends Page implements ITemplate {
         if( sClass == null ) {
             return null;
         } else {
-            log.debug( "creating a '" + sClass + "' called: " + name  );
+            log.debug( "creating a '" + sClass + "' called: " + name );
             Class clazz = ReflectionUtils.findClass( sClass );
             return (BaseResource) ReflectionUtils.create( clazz, location, name );
+        }
+    }
+
+    public boolean canCreateFolder() {
+        String s = getClassToCreate();
+        if( StringUtils.isEmpty( s ) ) {
+            return false;
+        } else {
+            return Folder.class.getCanonicalName().equals( s );
         }
     }
 
@@ -221,10 +225,10 @@ public class Template extends Page implements ITemplate {
         }
     }
 
-    public void setClassToCreate(String s) {
+    public void setClassToCreate( String s ) {
         Text c = (Text) this.getComponent( "class" );
         if( c == null ) {
-            c = new Text( this, "class");
+            c = new Text( this, "class" );
             this.getComponents().add( c );
         }
         c.setValue( s );
@@ -240,48 +244,47 @@ public class Template extends Page implements ITemplate {
         return componentDefs;
     }
 
-    private void execAfterScript(BaseResource newlyCreated) {
-        if( afterCreateScript == null) return;
-        log.debug("execAfterScript");
+    private void execAfterScript( BaseResource newlyCreated ) {
+        if( afterCreateScript == null ) return;
+        log.debug( "execAfterScript" );
         Map map = new HashMap();
-        map.put("created", newlyCreated);
-        map.put("command", this);
+        map.put( "created", newlyCreated );
+        map.put( "command", this );
         Templatable ct = (Templatable) this.getContainer();
-        exec(ct, map, afterCreateScript);
-        log.debug("done execAfterScript");
+        exec( ct, map, afterCreateScript );
+        log.debug( "done execAfterScript" );
     }
 
-    private void exec(Templatable ct, Map map, String expr) {
+    private void exec( Templatable ct, Map map, String expr ) {
         try {
             BaseResource targetContainer = CommonTemplated.getTargetContainer();
-            map.put( "targetPage", targetContainer);
-            map.put( "formatter", Formatter.getInstance());
-            org.mvel.MVEL.eval(expr, ct, map);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception evaluating expression: " + expr + " in page: " + ct.getName(), e);
+            map.put( "targetPage", targetContainer );
+            map.put( "formatter", Formatter.getInstance() );
+            org.mvel.MVEL.eval( expr, ct, map );
+        } catch( Exception e ) {
+            throw new RuntimeException( "Exception evaluating expression: " + expr + " in page: " + ct.getName(), e );
         }
     }
 
-
-    public TextDef addTextDef(String name) {
+    public TextDef addTextDef( String name ) {
         TextDef d = new TextDef( this, name );
         this.componentDefs.add( d );
         return d;
     }
 
-    public NumberDef addNumberDef(String name) {
+    public NumberDef addNumberDef( String name ) {
         NumberDef d = new NumberDef( this, name );
         this.componentDefs.add( d );
         return d;
     }
 
-    public HtmlDef addHtmlDef(String name) {
+    public HtmlDef addHtmlDef( String name ) {
         HtmlDef d = new HtmlDef( this, name );
         this.componentDefs.add( d );
         return d;
     }
 
-    public EmailDef addEmailDef(String name) {
+    public EmailDef addEmailDef( String name ) {
         EmailDef d = new EmailDef( this, name );
         this.componentDefs.add( d );
         return d;
@@ -290,6 +293,4 @@ public class Template extends Page implements ITemplate {
     public String getAfterCreateScript() {
         return afterCreateScript;
     }
-
-    
 }
