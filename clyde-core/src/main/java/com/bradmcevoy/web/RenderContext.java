@@ -48,11 +48,11 @@ public class RenderContext implements Map<String, Component> {
     public static Templatable find( Templatable from, Path p ) {
         Templatable ct;
         if( p == null ) {
-            throw new NullPointerException( "path is null");
+            throw new NullPointerException( "path is null" );
         }
         if( !p.isRelative() ) {
             if( from == null ) {
-                throw new NullPointerException( "from is null");
+                throw new NullPointerException( "from is null" );
             }
             ct = findPageWithRelativePath( p, from.getWeb() );
         } else {
@@ -195,7 +195,7 @@ public class RenderContext implements Map<String, Component> {
     public String doBody() {
         if( child == null ) {
             if( log.isDebugEnabled() ) {
-                log.debug( "dobody: no child context so cant delegate, returning empty");
+                log.debug( "dobody: no child context so cant delegate, returning empty" );
             }
             return "";
         }
@@ -244,7 +244,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     private String invoke( String paramName, boolean editable, boolean markers ) {
-//        log.debug("invoke: " + paramName + " on " + this.page.getName());
+        log.debug( "invoke: " + paramName + " on " + this.page.getName() );
         try {
             RenderContext childRc = this.child == null ? this : this.child;
             Path p = Path.path( paramName );
@@ -254,30 +254,43 @@ public class RenderContext implements Map<String, Component> {
                 log.debug( "component not found: " + p + " in: " + page.getHref() );
                 return "";
             }
-//            log.debug("found component: " + c.getClass() + " - " + c.getName() + " from path: " + p);
+            log.debug( "found component: " + c.getClass() + " - " + c.getName() + " from path: " + p );
             String s;
             if( c instanceof ComponentDef ) {
                 ComponentDef def = (ComponentDef) c;
-                Templatable targetPage = this.getTargetPage();
-                ComponentValue cv = getComponentValue( paramName, targetPage );
-                if( cv == null && editable && targetPage instanceof BaseResource ) {
-                    cv = def.createComponentValue( (BaseResource) targetPage );
-                    targetPage.getValues().add( cv );
+                //Templatable targetPage = this.getTargetPage();
+                //ComponentValue cv = getComponentValue( paramName, targetPage );
+
+                Templatable nextPage = null;
+                if( this.child != null ) {
+                    nextPage = this.child.page;                        
+                }
+
+                // TODO: this should probably look for the CV in child pages too
+                // but maybe it should back to the template too???s
+
+                ComponentValue cv = getComponentValue( paramName, this.child.page );
+                if( cv == null && editable && nextPage instanceof BaseResource ) {
+                    cv = def.createComponentValue( (BaseResource) nextPage );
+                    nextPage.getValues().add( cv );
                 }
                 if( cv == null ) {
                     log.debug( "Didnt find: " + paramName );
                     return "";
                 } else {
-//                    log.debug("rendering cv:" + getEditMode() + " - " + editable);
+                    log.debug( "rendering cv:" + getEditMode() + " - " + editable );
                     if( editable ) {
                         s = cv.renderEdit( childRc );
                     } else {
                         s = cv.render( childRc );
                     }
+                    if( log.isTraceEnabled() ) {
+                        log.trace( " - result:" + s );
+                    }
                     if( s == null ) {
                         s = "";
                     }
-                    //log.debug( "!editmod " + !getEditMode() + " markers:" + markers);
+                    log.debug( "!editmod " + !getEditMode() + " markers:" + markers );
                     if( !getEditMode() && markers ) {
                         return wrapWithIdentifier( s, def.getName() );
                     } else {
@@ -285,7 +298,7 @@ public class RenderContext implements Map<String, Component> {
                     }
                 }
             } else {
-//                log.debug("not a componentdef: " + c.getClass());
+                log.debug( "not a componentdef: " + c.getClass() );
                 if( editable ) {
                     s = c.renderEdit( childRc );
                 } else {
@@ -332,15 +345,21 @@ public class RenderContext implements Map<String, Component> {
 
     public ComponentValue getComponentValue( String name, Templatable page ) {
         if( page == null ) {
+            log.trace( "no cv found, return null" );
             return null;
         }
         ComponentValue cv = page.getValues().get( name );
         if( cv != null ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "got existing CV from page:" + page.getName() + " val:" + cv.getValue() );
+            }
             if( cv.getContainer() == null ) {
+                log.trace( "no container, so init" );
                 cv.init( page );
             }
             return cv;
         }
+        log.trace( "no cv found, so look for CV from template" );
         return getComponentValue( name, page.getTemplate() );
     }
 
@@ -600,4 +619,3 @@ public class RenderContext implements Map<String, Component> {
 //        }
 //    }
 }
-

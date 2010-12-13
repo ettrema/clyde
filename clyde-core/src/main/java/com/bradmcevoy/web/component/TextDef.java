@@ -235,10 +235,15 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             return "";
         }
         String template = c.getValue().toString();
+        if(log.isTraceEnabled()) {
+            log.trace( "template: " + template);
+        }
         if( !disAllowTemplating ) {
+            log.trace("merge template");
             VelocityContext vc = velocityContext( rc, c );
             return _render( template, vc );
         } else {
+            log.trace("templating disallowed");
             return template;
         }
         //return eval(template, rc);

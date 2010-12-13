@@ -1,4 +1,3 @@
-
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.web.component.Command;
@@ -11,7 +10,7 @@ class ComponentComparator implements Comparator<Component> {
     }
 
     @Override
-    public int compare(Component o1, Component o2) {
+    public int compare( Component o1, Component o2 ) {
         if( o1 instanceof Command ) {
             if( o2 instanceof Command ) {
                 Command c1 = (Command) o1;
@@ -29,8 +28,19 @@ class ComponentComparator implements Comparator<Component> {
         } else if( o2 instanceof DeleteCommand ) {
             return -1;
         } else {
-            return o1.getName().compareTo(o2.getName());
+            if( o1.getName() == null ) {
+                if( o2.getName() == null ) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            } else {
+                if( o2.getName() == null ) {
+                    return 1;
+                } else {
+                    return o1.getName().compareTo( o2.getName() );
+                }
+            }
         }
     }
-
 }

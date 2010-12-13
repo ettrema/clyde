@@ -283,6 +283,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         if( this.parent == null ) {
             this.parent = rc.page;
         }
+        if(log.isTraceEnabled()) {
+            log.trace("render CV: " + name + " ::: " + this.getValue());
+        }
         return def.render( this, rc );
     }
 

@@ -432,14 +432,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return children;
     }
 
+    public List<Templatable> children( String template ) {
+        return getChildren( template );
+    }
+
     public List<? extends Resource> getPagesRecursive() {
         List<? extends Resource> list = new BaseResourceList();
         appendChildrenRecursive( list, 0 );
         return list;
-    }
-
-    public List<Templatable> children( String template ) {
-        return getChildren( template );
     }
 
     private void appendChildrenRecursive( List list, int depth ) {

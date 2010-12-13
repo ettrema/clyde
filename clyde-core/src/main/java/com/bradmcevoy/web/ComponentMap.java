@@ -5,6 +5,7 @@ import com.bradmcevoy.web.component.Addressable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 public class ComponentMap extends LinkedHashMap<String, Component> {
@@ -16,6 +17,12 @@ public class ComponentMap extends LinkedHashMap<String, Component> {
     }
 
     public void add( Component c ) {
+        if( c == null ) {
+            throw new IllegalArgumentException( "Component is null");
+        }
+        if( StringUtils.isEmpty( c.getName())) {
+            throw new IllegalArgumentException( "Component name is null for: " + c.getClass().getCanonicalName());
+        }
         put( c.getName(), c );
     }
 
