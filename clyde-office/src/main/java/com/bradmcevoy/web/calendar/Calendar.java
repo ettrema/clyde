@@ -6,7 +6,7 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.IUser;
 import com.ettrema.http.AccessControlledResource;
-import com.ettrema.http.CalendarResource;
+import com.ettrema.http.CalendarResource; 
 import com.ettrema.http.acl.Principal;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;
@@ -46,7 +46,7 @@ public class Calendar extends Folder implements CalendarResource, AccessControll
 
     public IUser getOwner() {
         List<Relationship> list = this.getNameNode().findFromRelations("principalOwner");
-        if( list == null || list.size() == 0 ) {
+        if( list == null || list.isEmpty() ) {
             return null;
         } else {
             Relationship rel = list.get(0);
