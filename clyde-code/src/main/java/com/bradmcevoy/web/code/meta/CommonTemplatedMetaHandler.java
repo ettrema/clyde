@@ -35,7 +35,6 @@ import org.jdom.Element;
 public class CommonTemplatedMetaHandler {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommonTemplatedMetaHandler.class );
-
     private Map<Class, ComponentHandler> mapOfComponentHandlersByClass;
     private Map<String, ComponentHandler> mapOfComponentHandlersByAlias;
     private Map<Class, ValueHandler> mapOfValueHandlers;
@@ -83,7 +82,7 @@ public class CommonTemplatedMetaHandler {
         InitUtils.set( el, "template", res.getTemplateName() );
         InitUtils.set( el, "contentType", res.getContentType() );
         InitUtils.set( el, "maxAge", res.getMaxAgeSecsThis() );
-        
+
     }
 
     private void populateComponents( CommonTemplated res, Element el ) {
@@ -165,16 +164,16 @@ public class CommonTemplatedMetaHandler {
     }
 
     public void updateFromXml( CommonTemplated res, Element el, boolean includeContentVals ) {
-        log.trace("updateFromXml2");
+        log.trace( "updateFromXml2" );
         updateValues( res, el, includeContentVals );
         updateComponents( res, el );
         // TODO: handle values for non body+title
 
         String templateName = InitUtils.getValue( el, "template" );
-        log.trace("templateName: " + templateName);
+        log.trace( "templateName: " + templateName );
         res.setTemplateName( templateName );
         res.setContentType( InitUtils.getValue( el, "contentType" ) );
-        res.setMaxAgeSecsThis( InitUtils.getInteger( el, "maxAge" ) ); 
+        res.setMaxAgeSecsThis( InitUtils.getInteger( el, "maxAge" ) );
     }
 
     private void updateValues( CommonTemplated res, Element el, boolean includeContentVals ) {
@@ -199,8 +198,12 @@ public class CommonTemplatedMetaHandler {
         Iterator<Entry<String, Component>> it = res.getComponents().entrySet().iterator();
         while( it.hasNext() ) {
             Entry<String, Component> entry = it.next();
-            if( !isIgnoredComponent( entry.getKey() ) ) {
-                it.remove();
+            if( entry.getKey() == null ) {
+                log.warn( "***************************** NUll name for component: " + entry.getValue() );
+            } else {
+                if( !isIgnoredComponent( entry.getKey() ) ) {
+                    it.remove();
+                }
             }
         }
 

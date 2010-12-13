@@ -5,7 +5,6 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.GroupSelect;
 import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.component.Text;
 import org.jdom.Element;
 
 /**
@@ -41,6 +40,7 @@ public class GroupSelectHandler implements ComponentHandler {
     }
 
     public void populateXml( Element elThis, GroupSelect t ) {
+        InitUtils.set(elThis, "name", t.getName());
         InitUtils.set(elThis, "group", t.getGroupName());
 
     }
