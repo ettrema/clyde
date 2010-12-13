@@ -27,5 +27,4 @@ public class NotifyTest extends AbstractConsoleCommand {
             return result( "Sent");
         }
     }
-
 }
