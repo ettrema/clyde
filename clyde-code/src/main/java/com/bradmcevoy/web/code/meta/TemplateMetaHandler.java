@@ -90,11 +90,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     }
 
     private void populateXml( Element el, Template template ) {
-        if( template.getAfterCreateScript() != null ) {
-            Element elScript = new Element( "afterCreateScript", CodeMeta.NS );
-            elScript.setText( template.getAfterCreateScript() );
-            el.addContent( elScript );
-        }
+        JDomUtils.setChild(el, "afterCreateScript", template.getAfterCreateScript(),CodeMeta.NS);
+        JDomUtils.setChild(el, "afterSaveScript", template.getAfterSaveScript(),CodeMeta.NS);
         String cn = template.getClassToCreate();
         if( !StringUtils.isEmpty( cn ) ) {
             try {
@@ -139,6 +136,10 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
                 instanceType = c.getCanonicalName();
             }
         }
+
+        template.setAfterCreateScript( JDomUtils.valueOf( el, "afterCreateScript", CodeMeta.NS ) );
+        template.setAfterSaveScript( JDomUtils.valueOf( el, "afterSaveScript", CodeMeta.NS ) );
+
         template.setClassToCreate( instanceType );
 
         pageMetaHandler.updateFromXml( template, el );
@@ -190,6 +191,6 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             Thumb spec = new Thumb( suffix, width, height );
             thumbs.add( spec );
         }
-        Thumb.setThumbSpecs( template, thumbs ); 
+        Thumb.setThumbSpecs( template, thumbs );
     }
 }

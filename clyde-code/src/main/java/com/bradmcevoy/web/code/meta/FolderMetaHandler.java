@@ -2,16 +2,12 @@ package com.bradmcevoy.web.code.meta;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.TemplateSpecs;
-import com.bradmcevoy.web.Thumb;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.component.InitUtils;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -66,6 +62,11 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
     }
 
     public void updateFromXml( Folder folder, Element d ) {
+        _updateFromXml( folder, d );
+        folder.save();
+    }
+
+    public void _updateFromXml( Folder folder, Element d ) {
         folder.setSecureRead( InitUtils.getBoolean( d, "secureRead"));
         folder.setVersioningEnabled( InitUtils.getBoolean( d, "versioningEnabled"));
         String sAllowedTemplates = d.getAttributeValue( "allowedTemplates" );
@@ -73,6 +74,6 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
         folder.setTemplateSpecs( templateSpecs );
           
         baseResourceMetaHandler.updateFromXml( folder, d, false);
-        folder.save();
+        
     }
 }
