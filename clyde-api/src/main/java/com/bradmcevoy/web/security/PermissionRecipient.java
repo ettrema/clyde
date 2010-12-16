@@ -1,6 +1,5 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.web.IUser;
 import com.ettrema.vfs.RelationalNameNode;
 import java.util.UUID;
 
@@ -95,10 +94,11 @@ public interface PermissionRecipient extends Subject {
     public RelationalNameNode getNameNode();
 
     /**
-     * The actual user this object refers to. This object might be a user, or
-     * it might be some thing which delegates to a user
-     *
+     * Returns true if this permission containing object applies to the 
+     * given user. 
+     * 
+     * @param user
      * @return
      */
-    public IUser getUser();
+    public boolean appliesTo(Subject user);
 }

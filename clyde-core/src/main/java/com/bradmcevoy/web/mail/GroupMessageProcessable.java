@@ -23,9 +23,9 @@ public class GroupMessageProcessable implements Processable, Serializable {
     final UUID msgNameNodeId;
     final MailboxAddress groupAddress;
     final MailboxAddress from;
-    final Map<MailboxAddress,Object> mapOfMembers;
+    final Map<MailboxAddress,UUID> mapOfMembers;
 
-    public GroupMessageProcessable(UUID msgNameNodeId, MailboxAddress groupAddress, MailboxAddress from, Map<MailboxAddress,Object> mapOfMembers) {
+    public GroupMessageProcessable(UUID msgNameNodeId, MailboxAddress groupAddress, MailboxAddress from, Map<MailboxAddress,UUID> mapOfMembers) {
         if( msgNameNodeId == null ) throw new IllegalArgumentException("name node id is null");
         if( groupAddress == null ) throw new  IllegalArgumentException("groupAddress is null");
         if( from == null ) throw new  IllegalArgumentException("from is null");

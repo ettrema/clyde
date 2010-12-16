@@ -16,8 +16,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -46,12 +44,21 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     Map<String, String> headers;
     String disposition;
 
+    private boolean hasBeenSaved;
 
 
     public ClydeStandardMessage(Folder parentFolder, String newName) {
         super(parentFolder, newName);
         this.setTemplateName("email");
     }
+
+    @Override
+    public void save() {
+        hasBeenSaved = true;
+        super.save();
+    }
+
+
 
     public void deleteMessage() {
         try {
@@ -264,6 +271,11 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     @Override
     public void addAttachment(String name, String ct, String contentId, InputStream in) {
         log.debug("adding attachment: name:" + name + " ct:" + ct);
+        if( isNew() ) {
+            if( !hasBeenSaved ) {  // TODO: this should be moved to baseresource
+                save();
+            }
+        }
         EmailAttachment att = new EmailAttachment(this, ct, name, contentId);
         att.save();
         att.setContent(in);

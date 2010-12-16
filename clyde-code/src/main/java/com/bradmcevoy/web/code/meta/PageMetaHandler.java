@@ -6,7 +6,6 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Page;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
@@ -16,6 +15,9 @@ import org.jdom.Element;
 public class PageMetaHandler implements MetaHandler<Page> {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PageMetaHandler.class );
+
+    public static final String ALIAS = "page";
+
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
     public PageMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
@@ -30,12 +32,13 @@ public class PageMetaHandler implements MetaHandler<Page> {
         return r instanceof Page;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "page" );
+    public String getAlias() {
+        return ALIAS;
     }
 
+
     public Element toXml( Page page ) {
-        Element elRoot = new Element( "page", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, page );
         return elRoot;
     }

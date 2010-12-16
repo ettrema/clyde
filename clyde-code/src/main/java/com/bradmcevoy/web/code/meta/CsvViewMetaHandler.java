@@ -7,7 +7,6 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.component.InitUtils;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
@@ -15,6 +14,8 @@ import org.jdom.Element;
  * @author brad
  */
 public class CsvViewMetaHandler implements MetaHandler<CsvView> {
+
+    public static final String ALIAS = "csv";
 
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
@@ -32,12 +33,12 @@ public class CsvViewMetaHandler implements MetaHandler<CsvView> {
         return r instanceof CsvView;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "csv" );
+    public String getAlias() {
+        return ALIAS;
     }
 
     public Element toXml( CsvView r ) {
-        Element elRoot = new Element( "csv", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }

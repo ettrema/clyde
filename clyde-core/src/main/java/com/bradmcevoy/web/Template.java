@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -27,6 +29,7 @@ public class Template extends Page implements ITemplate {
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
     private String afterCreateScript;
+    private String afterSaveScript;
 
     public Template( Folder parent, String name ) {
         super( parent, name );
@@ -47,16 +50,25 @@ public class Template extends Page implements ITemplate {
 
     @Override
     public void loadFromXml( Element el ) {
+        log.trace( "loadFromXml" );
         super.loadFromXml( el );
         componentDefs.fromXml( this, el );
         Element elScript = el.getChild( "afterCreateScript" );
         if( elScript != null ) {
             afterCreateScript = elScript.getText();
         }
+        elScript = el.getChild( "afterSaveScript" );
+        log.trace( "loadFromXml: " + el.getName() + elScript );
+        if( elScript != null ) {
+            afterSaveScript = elScript.getText();
+            log.trace( "loadFromXml: afterSaveScript: " + afterSaveScript );
+        }
+
     }
 
     @Override
     public void populateXml( Element e2 ) {
+        log.trace( "populateXml" );
         super.populateXml( e2 );
         componentDefs.toXml( this, e2 );
         if( afterCreateScript != null ) {
@@ -64,6 +76,13 @@ public class Template extends Page implements ITemplate {
             elScript.setText( afterCreateScript );
             e2.addContent( elScript );
         }
+        if( afterSaveScript != null ) {
+            Element elScript = new Element( "afterSaveScript" );
+            elScript.setText( afterSaveScript );
+            e2.addContent( elScript );
+            log.trace( "populateXml: afterSaveScript: " + afterSaveScript );
+        }
+
     }
 
     @Override
@@ -255,15 +274,36 @@ public class Template extends Page implements ITemplate {
         log.debug( "done execAfterScript" );
     }
 
-    private void exec( Templatable ct, Map map, String expr ) {
+    public void onAfterSave( BaseResource aThis ) {
+        if( afterSaveScript != null ) {
+            log.trace( "onAfterSave: run script" );
+            Map map = new HashMap();
+            exec( aThis, map, afterSaveScript );
+        }
+    }
+
+    private void execMvel( Templatable ct, Map map, String expr ) {
         try {
             BaseResource targetContainer = CommonTemplated.getTargetContainer();
+            IUser user = _( CurrentUserService.class ).getOnBehalfOf();
             map.put( "targetPage", targetContainer );
+            map.put( "user", user );
             map.put( "formatter", Formatter.getInstance() );
             org.mvel.MVEL.eval( expr, ct, map );
         } catch( Exception e ) {
             throw new RuntimeException( "Exception evaluating expression: " + expr + " in page: " + ct.getName(), e );
         }
+    }
+
+    private void exec( Templatable aThis, Map map, String script ) {
+        Binding binding = new Binding();
+        IUser user = _( CurrentUserService.class ).getOnBehalfOf();
+        binding.setVariable( "targetPage", aThis );
+        binding.setVariable( "user", user );
+        binding.setVariable( "formatter", Formatter.getInstance() );
+        GroovyShell shell = new GroovyShell( binding );
+
+        shell.evaluate( script );
     }
 
     public TextDef addTextDef( String name ) {
@@ -292,5 +332,17 @@ public class Template extends Page implements ITemplate {
 
     public String getAfterCreateScript() {
         return afterCreateScript;
+    }
+
+    public void setAfterCreateScript( String afterCreateScript ) {
+        this.afterCreateScript = afterCreateScript;
+    }
+
+    public String getAfterSaveScript() {
+        return afterSaveScript;
+    }
+
+    public void setAfterSaveScript( String afterSaveScript ) {
+        this.afterSaveScript = afterSaveScript;
     }
 }

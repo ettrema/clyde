@@ -55,4 +55,12 @@ public class JDomUtils {
             return e.getText();
         }
     }
+
+    public static void setChild( Element el, String childName, String val, Namespace ns ) {
+        if( val != null ) {
+            Element elScript = new Element( childName, ns );
+            elScript.setText( val );
+            el.addContent( elScript );
+        }
+    }
 }

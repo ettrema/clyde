@@ -83,7 +83,7 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
     @Override
     public String render(RenderContext rc) {
         Path path = CommonComponent.getPath(this, rc);
-        return "<input type='submit' id='" + path + "' name='" + path + "' value='" + name + "' />";
+        return "<button type='submit' id='" + path + "' name='" + path + "' value='" + name + "' >" + name + "</button>";
     }
 
     @Override

@@ -126,19 +126,26 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
                 if( nonClydeAccess == null ) {
                     Role role = defaultRequiredRole( resource, perm );
                     Auth auth = request.getAuthorization();
-                    log.trace( "auth: " + auth);
+                    log.trace( "auth: " + auth );
                     nonClydeAccess = permissionChecker.hasRole( role, resource, request.getAuthorization() );
                     if( log.isTraceEnabled() ) {
                         log.trace( "does user have access to non-clyde properties with default role: " + role + " = " + nonClydeAccess );
                     }
                 }
                 if( !nonClydeAccess ) {
-                    log.trace( "non allowed access to non-clyde field");
+                    log.trace( "non allowed access to non-clyde field" );
                     if( results == null ) {
                         results = new HashSet<CheckResult>();
                     }
                     results.add( new CheckResult( name, Status.SC_UNAUTHORIZED, "Not authorised to edit field: " + name.getLocalPart(), resource ) );
                 }
+            }
+        }
+        if( log.isTraceEnabled() ) {
+            if( results == null ) {
+                log.trace( "no field errors" );
+            } else {
+                log.trace( "field errors: " + results.size() );
             }
         }
         return results;
@@ -150,20 +157,29 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
     private boolean checkField( QName name, Request request, PropertyPermission propertyPermission, Resource resource ) {
         Role role = getRequiredRole( name, resource, propertyPermission );
+        if( log.isTraceEnabled() ) {
+            log.trace( "requires role: " + role + "  for field: " + name );
+        }
         return permissionChecker.hasRole( role, resource, request.getAuthorization() );
     }
 
     private Role getRequiredRole( QName name, Resource resource, PropertyPermission propertyPermission ) {
-
-        BeanProperty anno = getAnnotation( resource );
-        if( anno == null ) {
-            return defaultRequiredRole( resource, propertyPermission );
+        if( log.isTraceEnabled() ) {
+            log.trace( "getRequiredRole: " + name );
         }
 
         PropertyDescriptor pd = getPropertyDescriptor( resource, name.getLocalPart() );
         if( pd == null || pd.getReadMethod() == null ) {
+            log.trace("property not found, so use default role");
             return defaultRequiredRole( resource, propertyPermission );
         } else {
+            BeanProperty anno = getAnnotation( resource, pd.getReadMethod() );
+            if( anno == null ) {
+                log.trace( "no annotation" );
+                return defaultRequiredRole( resource, propertyPermission );
+            }
+            log.trace("got annotation");
+
             if( propertyPermission == PropertyPermission.READ ) {
                 return anno.readRole();
             } else {
@@ -172,13 +188,16 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
         }
     }
 
-    private BeanProperty getAnnotation( Resource r ) {
-        return r.getClass().getAnnotation( BeanProperty.class );
+    private BeanProperty getAnnotation( Resource r, java.lang.reflect.Method m ) {
+        return m.getAnnotation( BeanProperty.class );
     }
 
     private PropertyDescriptor getPropertyDescriptor( Resource r, String name ) {
         try {
             PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor( r, name );
+            if( log.isTraceEnabled()) {
+                log.trace("getPropertyDescriptor: " + name + " on " + r.getClass() + " -> " + pd);
+            }
             return pd;
         } catch( IllegalAccessException ex ) {
             throw new RuntimeException( ex );

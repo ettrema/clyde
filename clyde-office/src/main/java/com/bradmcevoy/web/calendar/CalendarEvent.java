@@ -1,6 +1,5 @@
 package com.bradmcevoy.web.calendar;
 
-import com.bradmcevoy.http.DateUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
@@ -164,7 +163,7 @@ public class CalendarEvent extends Folder implements ICalResource {
     }
 
     public String getEnd() {
-        return DateUtils.formatDate( getEndDate() );
+        return CalendarUtils.formatDate( getEndDate() );
     }
 
     public void setEndDate( Date d ) {

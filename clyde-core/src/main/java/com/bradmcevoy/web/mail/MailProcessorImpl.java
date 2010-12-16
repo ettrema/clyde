@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.mail.Address;
 import javax.mail.Message.RecipientType;
@@ -62,7 +63,7 @@ public class MailProcessorImpl implements MailProcessor {
         } else {
             MailboxAddress from = msg.getFrom();
             if( from == null ) throw new RuntimeException("from is null");
-            Map<MailboxAddress, Object> mapOfMembers = getMapOfMembers(members);
+            Map<MailboxAddress, UUID> mapOfMembers = getMapOfMembers(members);
             GroupMessageProcessable gms = new GroupMessageProcessable(msg.getNameNodeId(), groupAddress, from, mapOfMembers);
             asynchProcessor.enqueue(gms);
         }
@@ -146,14 +147,14 @@ public class MailProcessorImpl implements MailProcessor {
         }
     }
 
-    Map<MailboxAddress, Object> getMapOfMembers(List<User> members) {
-        Map<MailboxAddress, Object> map = new HashMap<MailboxAddress, Object>();
+    Map<MailboxAddress, UUID> getMapOfMembers(List<User> members) {
+        Map<MailboxAddress, UUID> map = new HashMap<MailboxAddress, UUID>();
         for( User u : members) {
             String email = u.getExternalEmailText();
             if( email != null ) {
                 try {
                     MailboxAddress toAdd = MailboxAddress.parse(email);
-                    map.put(toAdd, u);
+                    map.put(toAdd, u.getNameNodeId());
                 } catch (IllegalArgumentException e) {
                     log.debug("Couldnt parse email address: " + email + "   : " + e.getMessage());
                 }

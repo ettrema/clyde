@@ -22,7 +22,6 @@ import org.jdom.JDOMException;
 public class TemplateContentTypeHandler implements ContentTypeHandler {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TemplateContentTypeHandler.class );
-
     private final PageContentTypeHandler pageContentTypeHandler;
 
     public TemplateContentTypeHandler( PageContentTypeHandler pageContentTypeHandler ) {
@@ -56,8 +55,10 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
 
     public void replaceContent( InputStream in, Long contentLength, GetableResource wrapped ) {
         Template template = (Template) wrapped;
-        
-        log.trace("replaceContent: parent template: " + template.getTemplateName() );
+
+        if( log.isTraceEnabled() ) {
+            log.trace( "replaceContent: parent template: " + template.getTemplateName() );
+        }
 
         if( "root".equals( template.getTemplateName() ) ) {
             // parse the doc, and use the entire root element (inclusive) as content
@@ -72,9 +73,6 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
             String content = InitUtils.getValue( doc.getRootElement() );
             CodeUtils.saveValue( template, "body", content );
             template.save();
-            
-            System.out.println( "body::: " + template.getValues().get("body").getValue());
-
         } else {
             pageContentTypeHandler.replaceContent( in, contentLength, wrapped );
         }

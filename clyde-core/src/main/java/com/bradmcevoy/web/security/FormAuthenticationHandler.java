@@ -29,11 +29,32 @@ public class FormAuthenticationHandler implements AuthenticationHandler {
         return b;
     }
 
+    /**
+     * The authentication result is written to a request attribute called "loginResult".
+     *
+     * Its value is "true" if login succeeded and "false" if not. Note that a
+     * successful login does not ensure that that authorisation will succeed.
+     *
+     * If rendering a login page based on authentication and authorisation you should also look at the
+     * "authReason" attribute set by the LoginResponseHandler which gives the
+     * reason for an authorisation failure
+     *
+     * @param resource
+     * @param request
+     * @return
+     */
     public Object authenticate( Resource resource, Request request ) {
         String userName = request.getParams().get( userNameParam );
         String pwd = request.getParams().get( passwordParam );
         log.trace( "attempt to login with: " + userName );
-        return resource.authenticate( userName, pwd );
+        Object o = resource.authenticate( userName, pwd );
+        // set a request attribute that can be used when rendering
+        if( o == null ) {
+            request.getAttributes().put( "loginResult", Boolean.FALSE);
+        } else {
+            request.getAttributes().put( "loginResult", Boolean.TRUE);
+        }
+        return o;
     }
 
     public String getChallenge( Resource resource, Request request ) {

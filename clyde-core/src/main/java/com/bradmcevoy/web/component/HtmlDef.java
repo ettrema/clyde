@@ -74,7 +74,7 @@ public class HtmlDef extends TextDef {
         return
                 "<textarea name='${path}' id='${path}' cols='${def.cols}' rows='${def.rows}'  wrap='OFF'>${value}</textarea>\n" +
                 "<script type='text/javascript'>\n" +
-                "create( '${path}',${def.width},${def.height},${def.toolbarSetName});\n" +
+                "create( '${path}',${def.width},${def.height},'${def.toolbarSetName}');\n" +
                 "</script>\n";
     }
     

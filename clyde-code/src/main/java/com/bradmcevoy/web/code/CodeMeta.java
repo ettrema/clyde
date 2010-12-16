@@ -1,17 +1,22 @@
 package com.bradmcevoy.web.code;
 
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.ReplaceableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.web.code.content.CodeUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
 import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -27,12 +32,14 @@ import org.jdom.output.MyXmlOutputter;
 public class CodeMeta extends AbstractCodeResource<Resource> implements GetableResource, ReplaceableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeMeta.class );
-    private final MetaHandler metaHandler;
     public static final Namespace NS = Namespace.getNamespace( "c", "http://clyde.ettrema.com/ns/core" );
+    private final MetaHandler metaHandler;
+    private final CollectionResource parent;
 
-    public CodeMeta( CodeResourceFactory rf, MetaHandler metaHandler, String name, Resource wrapped ) {
+    public CodeMeta( CodeResourceFactory rf, MetaHandler metaHandler, String name, Resource wrapped, CollectionResource parent ) {
         super( rf, name, wrapped );
         this.metaHandler = metaHandler;
+        this.parent = parent;
     }
 
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
@@ -65,10 +72,86 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
         try {
             Document doc = rf.getMetaParser().parse( in );
             Element elItem = rf.getMetaParser().getItemElement( doc );
-            metaHandler.updateFromXml( wrapped, elItem );
+            MetaHandler actualMetaHandler = rf.getMetaHandler( elItem );
+            if( actualMetaHandler != metaHandler ) {
+                log.trace( "type has changed from: " + metaHandler.getClass() + " -> " + actualMetaHandler.getClass() );
+                String name = wrapped.getName();
+                BufferingOutputStream bufferedContent = bufferContent();
+                delete();
+                wrapped = actualMetaHandler.createFromXml( parent, elItem, name );
+                if( bufferedContent.getSize() > 0 ) {
+                    log.trace("restoring buffered content of size: " + bufferedContent.getSize());
+                    restoreBufferedContent( bufferedContent );
+                } else{
+                    log.trace("buffered content is empty, will not restore");
+                }
+            } else {
+                metaHandler.updateFromXml( wrapped, elItem );
+            }
+
             CodeUtils.commit();
         } catch( JDOMException ex ) {
             throw new RuntimeException( ex );
+        }
+    }
+
+    private BufferingOutputStream bufferContent() {
+        if( wrapped instanceof GetableResource ) {
+            BufferingOutputStream out = new BufferingOutputStream( 50000 );
+            CodeContentPage contentPage = new CodeContentPage( rf, wrapped.getName(), (GetableResource) this.wrapped );
+            generateContent( contentPage, out );
+            IOUtils.closeQuietly( out );
+            return out;
+        } else {
+            return null;
+        }
+    }
+
+
+    private void generateContent( CodeContentPage contentPage, BufferingOutputStream out ) {
+        out = new BufferingOutputStream( 50000 );
+        try {
+            contentPage.sendContent( out, null, null, null );
+            out.flush();
+        } catch( IOException ex ) {
+            throw new RuntimeException( ex );
+        } catch( NotAuthorizedException ex ) {
+            throw new RuntimeException( ex );
+        } catch( BadRequestException ex ) {
+            throw new RuntimeException( ex );
+        } finally {
+            IOUtils.closeQuietly( out );
+        }
+    }
+
+    private void delete() {
+        if( wrapped instanceof DeletableResource ) {
+            try {
+                ( (DeletableResource) wrapped ).delete();
+            } catch( NotAuthorizedException ex ) {
+                throw new RuntimeException( ex );
+            } catch( ConflictException ex ) {
+                throw new RuntimeException( ex );
+            } catch( BadRequestException ex ) {
+                throw new RuntimeException( ex );
+            }
+        } else {
+            throw new RuntimeException( "Need to replace current resource, but its not deletable: " + wrapped.getClass() );
+        }
+    }
+
+    private void restoreBufferedContent( BufferingOutputStream buffered ) {
+        if( buffered == null ) {
+            return;
+        }
+        InputStream in = null;
+        try {
+            in = buffered.getInputStream();
+            CodeContentPage contentPage = new CodeContentPage( rf, wrapped.getName(), (GetableResource) this.wrapped );
+            contentPage.replaceContent( in, buffered.getSize() );
+
+        } finally {
+            IOUtils.closeQuietly( in );
         }
     }
 }

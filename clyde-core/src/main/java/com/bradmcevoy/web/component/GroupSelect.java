@@ -6,6 +6,7 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.User;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 /**
@@ -48,7 +49,12 @@ public final class GroupSelect implements WrappableComponent, Component {
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "component" );
         el.addContent( e2 );
-        e2.setAttribute( "name", name );
+        String cName = name;
+        if( StringUtils.isEmpty( name )) {
+            log.warn("empty name for: " + groupName);
+            cName = "null_name";
+        }
+        e2.setAttribute( "name", cName );
         InitUtils.set( e2, "group", groupName );
         e2.setAttribute( "class", this.getClass().getName() );
         return e2;
@@ -104,6 +110,9 @@ public final class GroupSelect implements WrappableComponent, Component {
             }
 
             User user = (User) container;
+            if( user.isNew()) {
+                user.save();
+            }
             if( val ) {
                 user.addToGroup( groupName );
             } else {

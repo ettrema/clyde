@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.groups;
 
 import com.bradmcevoy.web.IUser;
+import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.web.security.SystemUserGroup;
 
 /**
@@ -13,8 +14,11 @@ public class AuthenticatedUserGroup implements SystemUserGroup {
         return "Authenticated";
     }
 
-    public boolean isInGroup( IUser user ) {
-        return user != null;
+    public boolean isInGroup( Subject user ) {
+        if( user instanceof IUser ) {
+            return user != null;
+        } else {
+            return false;
+        }
     }
-
 }

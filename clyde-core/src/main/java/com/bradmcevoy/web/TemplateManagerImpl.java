@@ -25,7 +25,8 @@ public class TemplateManagerImpl implements TemplateManager{
             Template template = null;
             BaseResource res = templates.childRes( templateName );  // note: do not call .child(..) here since that will check for components, and possibly result in infinite loop
             if( res != null && !( res instanceof Template ) ) {
-                throw new RuntimeException( "not a Template: " + res.getPath() + " is a: " + res.getClass() );
+                log.warn( "not a Template: " + res.getPath() + " is a: " + res.getClass() + " ---------" );
+                return null;
             }
             template = (Template) res;
             if( template == null ) {

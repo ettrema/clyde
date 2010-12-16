@@ -15,6 +15,8 @@ import org.jdom.Element;
  * @author brad
  */
 public class GroupMetaHandler implements MetaHandler<Group> {
+    
+    public static final String ALIAS = "group";
 
     private final FolderMetaHandler folderMetaHandler;
 
@@ -30,12 +32,13 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         return r instanceof Group;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "group" );
+    public String getAlias() {
+        return ALIAS;
     }
 
+
     public Element toXml( Group r ) {
-        Element elRoot = new Element( "group", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }

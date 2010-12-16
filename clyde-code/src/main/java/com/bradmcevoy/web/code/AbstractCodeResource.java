@@ -20,7 +20,7 @@ import static com.ettrema.context.RequestContext._;
 public class AbstractCodeResource<T extends Resource> implements Resource, DigestResource, PropFindableResource {
     protected final CodeResourceFactory rf;
     private final String name;
-    protected final T wrapped;
+    protected T wrapped;
 
     public AbstractCodeResource(CodeResourceFactory rf, String name, T wrapped ) {
         this.rf = rf;

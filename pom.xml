@@ -10,7 +10,7 @@
 		<connection>scm:svn:svn://www.ettrema.com/clyde/trunk</connection>
 	</scm>
     <properties>
-        <milton.version>1.5.6-SNAPSHOT</milton.version>
+        <milton.version>1.5.7-SNAPSHOT</milton.version>
         <berry.version>1.2-SNAPSHOT</berry.version>
         <endrick.version>1.4-SNAPSHOT</endrick.version>
     </properties>

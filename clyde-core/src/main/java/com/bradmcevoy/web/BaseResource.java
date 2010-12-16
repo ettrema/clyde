@@ -287,7 +287,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 log.debug( "physically delete because host is disabled" );
                 deletePhysically();
 
-            } else {                
+            } else {
                 if( isTrash() ) {
                     _( EventManager.class ).fireEvent( new PhysicalDeleteEvent( this ) );
                     deletePhysically();
@@ -641,6 +641,13 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         if( didChange ) {
             this.save(); // careful, watch for recursion
         }
+        log.trace("afterSave: " + this.getTemplateName());
+        ITemplate template = this.getTemplate();
+        if( template != null ) {
+            template.onAfterSave( this );
+        } else {
+            log.debug("no template, so can't run afterSave");
+        }
     }
 
     public Folder getTrashFolder() {
@@ -824,6 +831,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void setExternalEmailTextV2( String emailCategory, String email ) {
 //        log.debug( "setExternalEmailTextV2: " + emailCategory + " email:" + email);
 
+        if( this.isNew() ) {
+            this.save();
+        }
+
         NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory );
         if( nEmailContainer == null ) {
             nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode() );
@@ -942,6 +953,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
         public String getGroupName() {
             return systemUserGroupName;
+        }
+
+        public boolean equalTo( RoleAndGroup rag ) {
+            return rag.getGroupName().equals( systemUserGroupName) && rag.getRole().equals( role );
         }
     }
 }

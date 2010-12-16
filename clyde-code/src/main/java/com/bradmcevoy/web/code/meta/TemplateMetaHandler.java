@@ -35,6 +35,7 @@ import org.jdom.Element;
 public class TemplateMetaHandler implements MetaHandler<Template> {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TemplateMetaHandler.class );
+    public static final String ALIAS = "template";
     private final PageMetaHandler pageMetaHandler;
     private final Map<Class, String> mapOfAliasesByClass;
     private final Map<String, Class> mapOfClassesByAlias;
@@ -73,12 +74,13 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         return r instanceof Template;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "template" );
+    public String getAlias() {
+        return ALIAS;
     }
 
+
     public Element toXml( Template r ) {
-        Element elRoot = new Element( "template", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }

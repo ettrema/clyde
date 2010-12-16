@@ -79,7 +79,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
      * @return - the number of results processed
      */
     public int search( UUID hostId, String folderPath, int page, ResultCollector collector ) {
-        log.trace( "search: " + hostId );
+        if( log.isTraceEnabled() ) {
+            log.trace( "search: hostId:" + hostId + " path: " + folderPath );
+        }
         int limit = pageSize;
         int offset = page * pageSize;
         return mediaLogDao.search( hostId, folderPath, limit, offset, collector );
@@ -109,25 +111,25 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void onThumbGenerated( FlashFile file ) {
-        addFlash( file.getHost().getNameNodeId(), file);
+        addFlash( file.getHost().getNameNodeId(), file );
     }
 
-    public void addFlash(UUID hostId, FlashFile file ) {
+    public void addFlash( UUID hostId, FlashFile file ) {
         log.trace( "onThumbGenerated: flashFile" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         String contentPath = file.getUrl();
         if( thumbPath != null && contentPath != null ) {
-            mediaLogDao.createOrUpdate(hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
+            mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
         } else {
             log.debug( "no thumb, or not right type" );
         }
     }
 
     public void onThumbGenerated( VideoFile file ) {
-        addVideo( file.getHost().getNameNodeId(), file);
+        addVideo( file.getHost().getNameNodeId(), file );
     }
 
-    public void addVideo(UUID hostId, VideoFile file ) {
+    public void addVideo( UUID hostId, VideoFile file ) {
         log.trace( "onThumbGenerated: video" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         if( thumbPath == null ) {
@@ -138,10 +140,10 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         }
         String contentPath = file.getStreamingVideoUrl();
         if( contentPath == null ) {
-            if(log.isTraceEnabled()) {
-                log.trace( "no content path for: " + file.getUrl());
+            if( log.isTraceEnabled() ) {
+                log.trace( "no content path for: " + file.getUrl() );
             }
-            return ;
+            return;
         }
 
         mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
@@ -151,7 +153,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         addImage( file.getHost().getNameNodeId(), file );
     }
 
-    public void addImage(UUID hostId, ImageFile file) {
+    public void addImage( UUID hostId, ImageFile file ) {
         InputStream in = null;
         try {
             in = file.getInputStream();
@@ -176,7 +178,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             String thumbPath = getThumbUrl( thumbSuffix, file );
             String previewPath = getThumbUrl( previewSuffix, file );
             if( thumbPath != null && previewPath != null ) {
-                mediaLogDao.createOrUpdate(hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
+                mediaLogDao.createOrUpdate( hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
             } else {
                 log.trace( "no thumb, or not right type" );
             }

@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.security.Subject;
+import com.bradmcevoy.http.Request;
 import com.bradmcevoy.property.BeanPropertyAccess;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
@@ -21,6 +24,7 @@ import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.groups.RelationalGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
+import com.bradmcevoy.web.security.CookieAuthenticationHandler;
 import com.bradmcevoy.web.security.UserGroup;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -367,15 +371,6 @@ public class User extends Folder implements IUser {
         return s;
     }
 
-    /**
-     * Required for PermissionRecipient. Just returns this.
-     * 
-     * @return - this
-     */
-    @Override
-    public User getUser() {
-        return this;
-    }
 
     public String getSubjectName() {
         return getName();
@@ -446,5 +441,28 @@ public class User extends Folder implements IUser {
         }
         accessKeys.add( newId.toString() );
         return newId.toString();
+    }
+
+    /**
+     * Makes this the currently logged in user by setting the CookieAuthenticationHandler
+     * cookies.
+     *
+     * Requires CookieAuthenticationHandler to be in the catalog
+     *
+     */
+    public void login() {
+        log.trace("do login");
+        Request req = _( CurrentRequestService.class ).request();
+        _(CookieAuthenticationHandler.class).setLoginCookies( this, req);
+    }
+
+    public boolean appliesTo( Subject user ) {
+        if( user instanceof User ) {
+            User u = (User) user;
+            return u.getNameNodeId().equals( this.getNameNodeId());
+        } else {
+            return false;
+        }
+
     }
 }

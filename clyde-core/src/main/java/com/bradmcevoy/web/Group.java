@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
@@ -10,6 +11,7 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.groups.ClydeGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
 import com.bradmcevoy.web.security.CustomUserGroup;
+import com.bradmcevoy.web.security.PermissionRecipient;
 import com.ettrema.mail.MailboxAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +23,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
-public class Group extends Folder implements Mailbox, CustomUserGroup {
+public class Group extends Folder implements Mailbox, CustomUserGroup, PermissionRecipient {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Group.class );
     private static final long serialVersionUID = 1L;
@@ -170,8 +172,12 @@ public class Group extends Folder implements Mailbox, CustomUserGroup {
         return getName();
     }
 
-    public boolean isInGroup( IUser user ) {
-        return _( ClydeGroupHelper.class ).isInGroup( user, this );
+    public boolean isInGroup( Subject subject ) {
+        if( subject instanceof IUser ) {
+            return _( ClydeGroupHelper.class ).isInGroup( (IUser)subject, this );
+        } else {
+            return false;
+        }
     }
 
     public List<User> getMembers() {
@@ -201,13 +207,17 @@ public class Group extends Folder implements Mailbox, CustomUserGroup {
     public void setEmailDiscardSubjects( String emailDiscardSubjects ) {
         this.emailDiscardSubjects = emailDiscardSubjects;
     }
-    
 
     public void setPassword( String value ) {
         this.password = value;
     }
 
-    
-
-    
+    public boolean appliesTo( Subject user ) {
+        for( User member : this.getMembers() ) {
+            if( member.appliesTo( user ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

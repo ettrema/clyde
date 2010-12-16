@@ -2,7 +2,6 @@ package com.bradmcevoy.web.security;
 
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResource.RoleAndGroup;
-import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
@@ -64,9 +63,13 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         if( role == null ) {
             throw new IllegalArgumentException( "role is null" );
         }
+        if( this.allows( subject, role ) ) {
+            log.trace( "already has permission" );
+            return;
+        }
         if( subject instanceof PermissionRecipient ) {
             PermissionRecipient res = (PermissionRecipient) subject;
-            log.trace("make relation: " + role);
+            log.trace( "make relation: " + role );
             this.nameNode.makeRelation( res.getNameNode(), role.toString() );
         } else if( subject instanceof SystemUserGroup ) {
             RoleAndGroup rag = new RoleAndGroup( role, subject.getSubjectName() );
@@ -283,7 +286,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @param role - the access being requested
      * @return - true if the user should be permitted the requested access
      */
-    public boolean allows( User user, Role requestedRole ) {
+    public boolean allows( Subject user, Role requestedRole ) {
         if( log.isTraceEnabled() ) {
             log.trace( "allows: " + requestedRole );
         }
@@ -294,8 +297,7 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
                 if( to != null ) {
                     PermissionRecipient grantee = (PermissionRecipient) to.getData();
                     if( grantee != null ) {
-                        IUser grantedUser = grantee.getUser();
-                        if( grantedUser != null && grantedUser.getNameNodeId().equals( user.getNameNodeId() ) ) {
+                        if( grantee.appliesTo( user ) ) {
                             log.trace( "found granted user" );
                             return true;
                         }
@@ -321,8 +323,16 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
 
     private void addGroup( RoleAndGroup rag ) {
         log.trace( "addGroup: " + rag.getGroupName() );
-        granted().getGroupPermissions().add( rag );
-        granted().save();
+        BaseResource granted = granted();
+        List<RoleAndGroup> perms = granted.getGroupPermissions();
+        for( RoleAndGroup current : perms ) {
+            if( current.equalTo( rag ) ) {
+                log.trace( "already has role/group" );
+                return;
+            }
+        }
+        perms.add( rag );
+        granted.save();
     }
 
     private BaseResource granted() {

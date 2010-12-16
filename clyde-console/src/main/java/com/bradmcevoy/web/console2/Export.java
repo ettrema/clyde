@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.console2;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.DateUtils;
-import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.XmlWriter;
@@ -16,26 +16,16 @@ import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.XmlPersistableResource;
 import com.bradmcevoy.web.recent.RecentResource;
 import com.ettrema.console.Result;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.HeadMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -47,6 +37,7 @@ import org.jdom.Element;
 public class Export extends AbstractConsoleCommand {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Export.class );
+    private com.ettrema.httpclient.Host remoteHost;
 
     public Export( List<String> args, String host, String currentDir, ResourceFactory resourceFactory ) {
         super( args, host, currentDir, resourceFactory );
@@ -72,26 +63,24 @@ public class Export extends AbstractConsoleCommand {
     private Result doImport( Arguments arguments ) throws Exception {
         log.debug( "doImport" );
         Folder folder = this.currentResource();
-        HttpClient client = new HttpClient();
-        client.getParams().setAuthenticationPreemptive( true );
-        Credentials defaultcreds = new UsernamePasswordCredentials( arguments.destUser, arguments.destPassword );
-        client.getState().setCredentials( new AuthScope( null, -1, null ), defaultcreds );
+        remoteHost = new com.ettrema.httpclient.Host( arguments.destHost, 80, arguments.destUser, arguments.destPassword, null );
 
-        importFolder( folder, client, arguments, arguments.destPath );
+        Path destPath = Path.path( arguments.destPath );
+        importFolder( folder, arguments, destPath );
 
         return result( "ok: " + arguments.getReport() );
     }
 
-    private void importFolder( Folder folder, HttpClient client, Arguments arguments, String destPath ) throws Exception {
+    private void importFolder( Folder folder, Arguments arguments, Path destPath ) throws Exception {
         log.debug( "importFolder: " + folder.getHref() );
         for( Resource r : folder.getChildren() ) {
             if( r instanceof Templatable ) {
                 Templatable ct = (Templatable) r;
                 if( isImportable( ct, arguments ) ) {
-                    doImport( (XmlPersistableResource) ct, client, destPath, arguments );
+                    doImport( (XmlPersistableResource) ct, destPath, arguments );
                     if( arguments.recursive ) {
                         if( ct instanceof Folder && !( ct instanceof Host ) ) {
-                            importFolder( (Folder) ct, client, arguments, destPath + "/" + ct.getName() );
+                            importFolder( (Folder) ct, arguments, destPath.child( ct.getName() ) );
                         }
                     }
                 } else {
@@ -101,40 +90,41 @@ public class Export extends AbstractConsoleCommand {
         }
     }
 
-    private void doImport( XmlPersistableResource res, HttpClient client, String path, Arguments arguments ) throws Exception {
+    private void doImport( XmlPersistableResource res, Path path, Arguments arguments ) throws Exception {
         log.debug( "doImport: " + res.getHref() + " - path:" + path );
         Date localDate = res.getModifiedDate();
-        RemoteResource remote = new RemoteResource( arguments.destHost, path, res, client );
-        Date destDate = remote.doHead();
+        RemoteResource remote = new RemoteResource( path, res );
+        Date destDate = remote.getModifiedDate();
 
-        if( destDate == null || localDate.after( destDate ) ) {            
+        if( destDate == null || localDate.after( destDate ) ) {
             if( arguments.dryRun ) {
                 arguments.uploaded( res, destDate );
                 return;
             } else {
-                if( remote.doPut() ) {
+                try {
+                    remote.doPut();
                     arguments.uploaded( res, destDate );
-                } else {
-                    log.warn("Failed to put: " + remote.sourceUri);
-                    arguments.skipped( res, destDate );
+                } catch( Exception e ) {
+                    log.warn( "Failed to put: " + remote.getRemotePath(), e );
+                    arguments.skipped( res, destDate, "Upload failed - " + e.getMessage() );
                 }
             }
         } else {
-            arguments.skipped( res, destDate );
-            log.debug( "not uploading: " + res.getHref() );
+            arguments.skipped( res, destDate, "Remote file is newer" );
+            log.debug( "not uploading: " + res.getHref() + " because of modified dates: local: " + localDate + " remote:" + destDate );
         }
     }
 
     private boolean isImportable( Templatable ct, Arguments arguments ) {
         if( ct instanceof XmlPersistableResource ) {
-            if( ct instanceof RecentResource) {
+            if( ct instanceof RecentResource ) {
                 return false;
             }
             if( ct instanceof BaseResource ) {
                 BaseResource bres = (BaseResource) ct;
                 if( bres.isTrash() ) return false;
             }
-            if( ct instanceof User) {
+            if( ct instanceof User ) {
                 if( arguments.noUser ) {
                     return false;
                 }
@@ -161,8 +151,8 @@ public class Export extends AbstractConsoleCommand {
                 res.toXml( doc.getRootElement(), null );
                 XmlUtils2 utilXml = new XmlUtils2();
                 utilXml.saveXMLDocument( out, doc );
-            } catch(Throwable e) {
-                throw new RuntimeException( "Exception generating xml for resource: " + res.getHref(),e);
+            } catch( Throwable e ) {
+                throw new RuntimeException( "Exception generating xml for resource: " + res.getHref(), e );
             }
         }
     }
@@ -258,6 +248,7 @@ public class Export extends AbstractConsoleCommand {
                     elRow.begin( "td" ).writeText( s.localRes.getHref() ).close();
                     elRow.begin( "td" ).writeText( formatDate( s.localRes.getModifiedDate() ) ).close();
                     elRow.begin( "td" ).writeText( formatDate( s.remoteMod ) ).close();
+                    elRow.begin( "td" ).writeText( s.comment ).close();
                     elRow.close();
                 }
             }
@@ -271,18 +262,18 @@ public class Export extends AbstractConsoleCommand {
         private String formatDate( Date dt ) {
             if( dt == null ) {
                 return "";
-            }else {
+            } else {
                 return DateUtils.formatDate( dt );
             }
         }
 
         private void uploaded( XmlPersistableResource r, Date remoteMod ) {
-            FileExportStatus s = new FileExportStatus( r, remoteMod, true );
+            FileExportStatus s = new FileExportStatus( r, remoteMod, true, "" );
             statuses.add( s );
         }
 
-        private void skipped( XmlPersistableResource r, Date remoteMod ) {
-            FileExportStatus s = new FileExportStatus( r, remoteMod, false );
+        private void skipped( XmlPersistableResource r, Date remoteMod, String reason ) {
+            FileExportStatus s = new FileExportStatus( r, remoteMod, false, reason );
             statuses.add( s );
         }
     }
@@ -292,117 +283,78 @@ public class Export extends AbstractConsoleCommand {
         final XmlPersistableResource localRes;
         final Date remoteMod;
         final boolean uploaded;
+        final String comment;
 
-        public FileExportStatus( XmlPersistableResource r, Date remoteMod, boolean uploaded ) {
+        public FileExportStatus( XmlPersistableResource r, Date remoteMod, boolean uploaded, String comment ) {
             this.localRes = r;
             this.remoteMod = remoteMod;
             this.uploaded = uploaded;
+            this.comment = comment;
         }
     }
 
     public class RemoteResource {
 
-        String destHost;
-        String destFolder;
+        Path destFolder;
         XmlPersistableResource res;
-        HttpClient client;
-        String uri;
-        String sourceUri;
 
-        public RemoteResource( String destHost, String destFolder, XmlPersistableResource res, HttpClient client ) {
-            this.destHost = destHost;
+        public RemoteResource( Path destFolder, XmlPersistableResource res ) {
             this.destFolder = destFolder;
             this.res = res;
-            this.client = client;
-            uri = "http://" + destHost;
-            uri = uri + destFolder;
-//            log.debug( "uri2: " + uri );
-            if( !uri.endsWith( "/" ) ) uri += "/";
-            uri = uri + res.getName();
-            uri = uri.replace( " ", "%20" ); // very limited support for special chars!
-            sourceUri = uri + ".source";
-
         }
 
         /**
          *
          * @return - modified date
          */
-        Date doHead() throws Exception {
-            log.debug( "doHead: " + uri );
-            String sModDate = "";
-            try {
-                HeadMethod headMethod = new HeadMethod( uri );
-                headMethod.setFollowRedirects( false );
-                int result = client.executeMethod( headMethod );
-                if( result == 404 ) return null;
-
-                if( result == 302 ) { // if redirect, then the folder exists, so get its source
-                    headMethod = new HeadMethod( sourceUri );
-                    result = client.executeMethod( headMethod );
-                }
-
-                checkError( result );
-                Header headerModDate = headMethod.getResponseHeader( "Last-Modified" );
-                if( headerModDate == null ) {
-                    log.debug( "no last-mod header" );
-                    return null;
-                }
-                sModDate = headerModDate.getValue();
-                log.debug( "mod date: " + sModDate );
-                log.debug( "result: " + result );
-                return DateUtils.parseDate( sModDate );
-            } catch( DateParseException ex ) {
-                throw new RuntimeException( "sourceUri:" + sourceUri + " bad date: " + sModDate );
-            } catch( HttpException ex ) {
-                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
-            } catch( IOException ex ) {
-                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
+        Date getModifiedDate() throws Exception {
+            log.debug( "doHead: " + destFolder );
+            com.ettrema.httpclient.Resource r = remoteHost.find( destFolder + "/" + res.getName() );
+            if( r == null ) {
+                log.trace( "not found: " + getRemotePath() );
+                return null;
             }
+            return r.getModifiedDate();
         }
 
-        boolean doPut() throws RuntimeException {
-            log.warn( "put: " + this.sourceUri );
+        void doPut() throws Exception {
+            log.warn( "put: " + this.getRemotePath() );
+            com.ettrema.httpclient.Folder parent = remoteHost.getOrCreateFolder( destFolder, true );
             try {
-                PutMethod putMethod;
-                RequestEntity entity;
-                int result;
-
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ContentSender cs = new ContentSender();
                 cs.send( out, res );
 
-                putMethod = new PutMethod( sourceUri );
-                entity = new ByteArrayRequestEntity( out.toByteArray() );
-                putMethod.setRequestEntity( entity );
-                result = client.executeMethod( putMethod );
-                checkError( result );
+                InputStream in = new ByteArrayInputStream( out.toByteArray() );
+                parent.upload( res.getName() + ".source", in, (long) out.size() );
+
                 if( res instanceof BinaryFile ) {
                     BinaryFile bf = (BinaryFile) res;
-                    putMethod = new PutMethod( uri );
-                    entity = new InputStreamRequestEntity( bf.getInputStream() );
-                    putMethod.setRequestEntity( entity );
-                    result = client.executeMethod( putMethod );
-                    checkError( result );
+                    InputStream inContent = null;
+                    try {
+                        inContent = bf.getInputStream();
+                        parent.upload( res.getName(), inContent, bf.getContentLength() );
+                    } finally {
+                        IOUtils.closeQuietly( in );
+                    }
                 } else if( res instanceof TextFile ) {
                     TextFile tf = (TextFile) res;
-                    putMethod = new PutMethod( uri );
-                    entity = new StringRequestEntity( tf.getContent(), tf.getContentType( null ), "UTF-8" );
-                    putMethod.setRequestEntity( entity );
-                    result = client.executeMethod( putMethod );
-                    checkError( result );
+                    InputStream inContent = null;
+                    try {
+                        inContent = new ByteArrayInputStream( tf.getContent().getBytes( "UTF-8" ) );
+                        parent.upload( res.getName(), inContent, tf.getContentLength() );
+                    } finally {
+                        IOUtils.closeQuietly( in );
+                    }
                 }
-                log.debug( "done put: " + this.uri );
+                log.debug( "done put: " + this.getRemotePath() );
             } catch( Exception ex ) {
-                throw new RuntimeException( "sourceUri:" + sourceUri, ex );
+                throw new Exception( "sourceUri:" + res.getHref(), ex );
             }
-            return false;
         }
 
-        private void checkError( int result ) throws Exception {
-            if( result < 200 || result > 299 ) {
-                throw new Exception( "Remote error: " + result );
-            }
+        private Path getRemotePath() {
+            return destFolder.child( res.getName() );
         }
     }
 }

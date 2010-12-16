@@ -13,13 +13,18 @@ public class CalendarUtils {
 
     public static String formatDate( Date date ) {
         log.debug("formatDate: " + date);
+        if( date == null ) {
+            return "";
+        }
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.setTime( date );
         return formatDate( cal );
     }
 
     public static String formatDate( java.util.Calendar cal ) {
-
+        if( cal == null ) {
+            return "";
+        }
         int offsetHours = cal.getTimeZone().getOffset( cal.getTimeInMillis())/(1000*60*60);
         int rawHour = cal.get( Calendar.HOUR_OF_DAY );
         int hour = rawHour + offsetHours;

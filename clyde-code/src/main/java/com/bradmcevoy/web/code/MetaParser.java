@@ -19,8 +19,7 @@ import org.xml.sax.EntityResolver;
  */
 public class MetaParser {
 
-    private static List<String> knownSystemIds = Arrays.asList( "core.dtd","xhtml-lat1.ent","xhtml-special.ent","xhtml-symbol.ent","xhtml1-strict.dtd");
-
+    private static List<String> knownSystemIds = Arrays.asList( "core.dtd", "xhtml-lat1.ent", "xhtml-special.ent", "xhtml-symbol.ent", "xhtml1-strict.dtd" );
     private final CodeResourceFactory rf;
     private final EntityResolver entityResolver;
 
@@ -36,11 +35,9 @@ public class MetaParser {
             String itemAlias = elItem.getName();
             MetaHandler handler = null;
             for( MetaHandler<?> h : rf.getMetaHandlers() ) {
-                for( String alias : h.getAliases() ) {
-                    if( alias.equals( itemAlias ) ) {
-                        handler = h;
-                        break;
-                    }
+                if( h.getAlias().equals( itemAlias ) ) {
+                    handler = h;
+                    break;
                 }
             }
             if( handler == null ) {

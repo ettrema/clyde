@@ -70,5 +70,25 @@ public class RequestParams {
         return method;
     }
 
-    
+    public String getAuthReason() {
+        String s = (String) request.getAttributes().get("authReason");
+        return s;
+    }
+
+    public Boolean isLoginResult() {
+        Boolean b = (Boolean) request.getAttributes().get("loginResult");
+        return b;
+    }
+
+    public boolean isDidLogin() {
+        return isLoginResult() != null;
+    }
+
+    public boolean isLoginRequired() {
+        return "required".equals( getAuthReason());
+    }
+
+    public boolean isNotPermitted() {
+        return "notPermitted".equals(getAuthReason());
+    }
 }

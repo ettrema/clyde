@@ -1,11 +1,17 @@
 package com.bradmcevoy.web.code.meta;
 
+import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.security.Subject;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResource.RoleAndGroup;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.groups.GroupService;
+import com.bradmcevoy.web.security.Permission;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Permissions;
 import com.bradmcevoy.web.security.UserGroup;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -27,18 +33,41 @@ public class BaseResourceMetaHandler {
     }
 
     public void populateXml( Element e2, BaseResource res ) {
-        log.warn( "populateXml" );
+        log.trace( "populateXml" );
         InitUtils.setString( e2, "redirect", res.getRedirect() );
+        Element elPerms = new Element( "permissions", CodeMeta.NS );
+        e2.addContent( elPerms );
         List<RoleAndGroup> groupPermissions = res.getGroupPermissions();
         if( groupPermissions != null && !groupPermissions.isEmpty() ) {
-            Element elGroups = new Element( "groups", CodeMeta.NS );
-            e2.addContent( elGroups );
             log.trace( "add groups" );
             for( RoleAndGroup rag : res.getGroupPermissions() ) {
                 Element elRag = new Element( "group", CodeMeta.NS );
-                elGroups.addContent( elRag );
+                elPerms.addContent( elRag );
                 elRag.setAttribute( "group", rag.getGroupName() );
                 elRag.setAttribute( "role", rag.getRole().name() );
+            }
+        }
+        Permissions perms = res.permissions();
+        if( perms != null ) {
+            for( Permission perm : perms ) {
+                Element elRag;
+                Subject grantee = perm.getGrantee();
+                if( grantee instanceof User ) {
+                    elRag = new Element( "user", CodeMeta.NS );
+                    User granteeUser = (User) grantee;
+                    elRag.setAttribute( "path", granteeUser.getUrl() );
+                } else if( grantee instanceof UserGroup ) {
+                    UserGroup granteeGroup = (UserGroup) grantee;
+                    elRag = new Element( "group", CodeMeta.NS );
+                    elRag.setAttribute( "name", granteeGroup.getSubjectName() );
+                } else {
+                    log.debug( "unsupported permission recipient type: " + grantee.getClass() );
+                    elRag = null;
+                }
+                if( elRag != null ) {
+                    elPerms.addContent( elRag );
+                    elRag.setAttribute( "role", perm.getRole().toString() );
+                }
             }
         }
 
@@ -76,48 +105,58 @@ public class BaseResourceMetaHandler {
         commonTemplatedMetaHandler.populateXml( e2, res, false ); // do not include content fields (title,body) because they will be in the content file
     }
 
-
     void updateFromXml( BaseResource res, Element el ) {
-        updateFromXml( res, el, false);
+        updateFromXml( res, el, false );
     }
 
     void updateFromXml( BaseResource res, Element el, boolean includeContentVals ) {
-        
-        log.trace("updateFromXml2");
+
+        log.trace( "updateFromXml2" );
 
         commonTemplatedMetaHandler.updateFromXml( res, el, includeContentVals );
-        
+
         res.setRedirect( InitUtils.getValue( el, "redirect" ) );
 
 
-        Element elGroups = el.getChild( "groups" );
-        if( elGroups != null ) {
-            log.warn( "processing groups" );
-            GroupService groupService = _( GroupService.class );
-            for( Object oGroup : elGroups.getChildren() ) {
-                Element elGroup = (Element) oGroup;
-                String groupName = elGroup.getAttributeValue( "group" );
-                UserGroup group = groupService.getGroup( res, groupName );
-                if( group != null ) {
-                    String roleName = elGroup.getAttributeValue( "role" );
-                    if( !StringUtils.isEmpty( roleName ) ) {
-                        roleName = roleName.trim();
-                        try {
-                            Role role = Role.valueOf( roleName );
-                            res.permissions( true ).grant( role, group );
-                        } catch( Exception e ) {
-                            log.error( "unknown role: " + roleName, e );
-                        }
+        List<Element> permElements = JDomUtils.childrenOf( el, "permissions", CodeMeta.NS );
+        log.trace( "processing permissions: " + permElements.size() );
+        GroupService groupService = _( GroupService.class );
+        for( Element elPerm : permElements ) {
+            String roleName = elPerm.getAttributeValue( "role" );
+            Role role;
+            if( !StringUtils.isEmpty( roleName ) ) {
+                roleName = roleName.trim();
+                try {
+                    role = Role.valueOf( roleName );
+                } catch( Exception e ) {
+                    log.error( "unknown role: " + roleName, e );
+                    throw new RuntimeException( "Unknown role: " + roleName);
+                }
+                String type = elPerm.getName();
+                if( type.equals( "group" ) ) {
+                    String groupName = elPerm.getAttributeValue( "group" );
+                    UserGroup group = groupService.getGroup( res, groupName );
+                    if( group != null ) {
+                        res.permissions( true ).grant( role, group );
                     } else {
-                        log.warn( "empty role name" );
+                        throw new RuntimeException( "Group not found: " + groupName);
+                    }
+                } else if( type.equals( "user" ) ) {
+                    String userPath = elPerm.getAttributeValue( "path" );
+                    Resource r = res.getHost().find( userPath );
+                    if( r == null ) {
+                        throw new RuntimeException( "User path not found: " + userPath + " in host: " + res.getHost().getName() );
+                    } else if( r instanceof User ) {
+                        User u = (User) r;
+                        res.permissions( true ).grant( role, u );
                     }
                 } else {
-                    log.warn( "group not found: " + groupName );
+                    throw new RuntimeException( "Unknown permission type: " + type);
                 }
+            } else {
+                throw new RuntimeException( "empty role name" );
             }
-        } else {
-            log.warn( "no groups element" );
-        }
 
+        }
     }
 }

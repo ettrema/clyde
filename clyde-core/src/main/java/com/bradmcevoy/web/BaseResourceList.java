@@ -323,4 +323,18 @@ public class BaseResourceList extends ArrayList<Templatable> {
         }
         return groups;
     }
+
+    /**
+     * Return a new list with a size no greater then the given argument
+     *
+     * @param maxSize - the maximum number of elements in the new list
+     * @return
+     */
+    public BaseResourceList truncate( int maxSize ) {
+        BaseResourceList list = new BaseResourceList();
+        for( int i = 0; i < maxSize && i < size(); i++ ) {
+            list.add( get( i ) );
+        }
+        return list;
+    }
 }

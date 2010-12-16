@@ -7,6 +7,7 @@ import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
+import com.bradmcevoy.web.component.DeleteCommand;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.context.RequestContext;
@@ -263,7 +264,7 @@ public class RenderContext implements Map<String, Component> {
 
                 Templatable nextPage = null;
                 if( this.child != null ) {
-                    nextPage = this.child.page;                        
+                    nextPage = this.child.page;
                 }
 
                 // TODO: this should probably look for the CV in child pages too
@@ -390,10 +391,32 @@ public class RenderContext implements Map<String, Component> {
         for( Component c : list ) {
             if( c instanceof Command ) {
                 Command cmd = (Command) c;
-                sb.append( cmd.render( child ) );
+                if( cmd instanceof DeleteCommand ) {
+                    if( !isNew( child ) ) {
+                        sb.append( cmd.render( child ) );
+                    }
+                } else {
+                    sb.append( cmd.render( child ) );
+                }
+
             }
         }
         return sb.toString();
+    }
+
+    private boolean isNew( RenderContext child ) {
+        Templatable target = child.getTargetPage();
+        if( target == null ) {
+            return true;
+        } else {
+            if( target instanceof BaseResource) {
+                BaseResource res = (BaseResource) target;
+                boolean b = res.isNew();
+                return b;
+            } else {
+                return false;
+            }
+        }
     }
 
     public boolean isEmpty( Object o ) {
@@ -587,6 +610,8 @@ public class RenderContext implements Map<String, Component> {
             return ct.getParentFolder();
         }
     }
+
+
 //    public String include(String path) {
 //        log.debug( "include: " + path);
 //        Path p = Path.path( path );

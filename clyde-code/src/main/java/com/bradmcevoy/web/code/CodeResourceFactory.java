@@ -18,6 +18,7 @@ import com.bradmcevoy.web.code.meta.FolderMetaHandler;
 import com.bradmcevoy.web.code.meta.GroupMetaHandler;
 import com.bradmcevoy.web.code.meta.PageMetaHandler;
 import com.bradmcevoy.web.code.meta.TemplateMetaHandler;
+import com.bradmcevoy.web.code.meta.TextFileMetaHandler;
 import com.bradmcevoy.web.code.meta.UserMetaHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jdom.Element;
 
 /**
  *
@@ -52,16 +54,20 @@ public final class CodeResourceFactory implements ResourceFactory {
 
     public Resource getResource( String host, String path ) {
         Resource r = find( host, path );
-        if( r == null ) {
-            log.trace( "not found: " + path );
-        } else {
-            log.trace( "found: " + r.getClass() + " at: " + path );
+        if( log.isTraceEnabled() ) {
+            if( r == null ) {
+                log.trace( "not found: " + path );
+            } else {
+                log.trace( "found: " + r.getClass() + " at: " + path );
+            }
         }
         return r;
     }
 
     private Resource find( String host, String path ) {
-        log.warn( "getResource: " + path );
+        if( log.isTraceEnabled() ) {
+            log.trace( "getResource: " + path );
+        }
         Path p = Path.path( path );
         String first = p.getFirst();
         if( root.equals( first ) ) {
@@ -72,13 +78,19 @@ public final class CodeResourceFactory implements ResourceFactory {
                 if( r == null ) {
                     return null;
                 } else {
-                    return wrapMeta( r );
+                    Resource parent = wrapped.getResource( host, p.getParent().toString() );
+                    if( parent == null ) {
+                        throw new RuntimeException( "Found resource, but could not find its parent at: " + p.getParent() );
+                    } else if( !( parent instanceof CollectionResource ) ) {
+                        throw new RuntimeException( "Found resource, but its parent is not of type CollectionResource. Is a: " + parent.getClass() + " - at path: " + p.getParent() );
+                    }
+                    return wrapMeta( r, (CollectionResource) parent );
                 }
 
             } else {
                 Resource r = wrapped.getResource( host, p.toString() );
                 if( r == null ) {
-                    log.warn( "not found: " + p );
+                    log.trace( "not found" );
                     return null;
                 } else {
                     if( r instanceof CollectionResource ) {
@@ -88,14 +100,14 @@ public final class CodeResourceFactory implements ResourceFactory {
                             log.trace( "return content" );
                             return wrapContent( (GetableResource) r );
                         } else {
-                            log.warn( "Unsupported typoe: " + r.getClass() );
+                            log.warn( "Unsupported type: " + r.getClass() );
                             return null;
                         }
                     }
                 }
             }
         } else {
-            log.warn( "not code path" );
+            log.trace( "not code path" );
             return null;
         }
     }
@@ -106,7 +118,7 @@ public final class CodeResourceFactory implements ResourceFactory {
             if( f.isSystemFolder() ) {
                 return true;
             } else {
-                return f.getName().equals( "Trash");
+                return f.getName().equals( "Trash" );
             }
         } else {
             return false;
@@ -137,15 +149,15 @@ public final class CodeResourceFactory implements ResourceFactory {
         return nm;
     }
 
-    Resource wrapMeta( Resource r ) {
-        if(isIgnoredResource( r )) {
+    Resource wrapMeta( Resource r, CollectionResource parent ) {
+        if( isIgnoredResource( r ) ) {
             return null;
         }
         MetaHandler mh = getMetaHandler( r );
         if( mh == null ) {
             return null;
         }
-        return new CodeMeta( this, mh, r.getName() + metaSuffix, r );
+        return new CodeMeta( this, mh, r.getName() + metaSuffix, r, parent );
     }
 
     Resource wrapContent( GetableResource r ) {
@@ -153,7 +165,7 @@ public final class CodeResourceFactory implements ResourceFactory {
     }
 
     Resource wrapCollection( CollectionResource col ) {
-        if( isIgnoredResource( col )) {
+        if( isIgnoredResource( col ) ) {
             return null;
         }
         return new CodeFolder( this, col.getName(), col );
@@ -203,21 +215,34 @@ public final class CodeResourceFactory implements ResourceFactory {
         PageMetaHandler pageMetaHandler = new PageMetaHandler( baseResourceMetaHandler );
         UserMetaHandler userMetaHandler = new UserMetaHandler( folderMetaHandler );
         CsvViewMetaHandler csvViewMetaHandler = new CsvViewMetaHandler( baseResourceMetaHandler );
+        TextFileMetaHandler textFileMetaHandler = new TextFileMetaHandler( baseResourceMetaHandler );
 
-        Map<Class,String> mapOfAliases = new HashMap<Class, String>();
-        for(MetaHandler<?> h : Arrays.asList( userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler)) {
-            for(String alias : h.getAliases()) {
-                mapOfAliases.put( h.getInstanceType(), alias);
-            }
+        Map<Class, String> mapOfAliases = new HashMap<Class, String>();
+        for( MetaHandler<?> h : Arrays.asList( userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler, textFileMetaHandler ) ) {
+            mapOfAliases.put( h.getInstanceType(), h.getAlias() );
         }
 
-        TemplateMetaHandler templateMetaHandler = new TemplateMetaHandler( pageMetaHandler, mapOfAliases);
+        TemplateMetaHandler templateMetaHandler = new TemplateMetaHandler( pageMetaHandler, mapOfAliases );
 
         this.metaHandlers = new ArrayList<MetaHandler>();
-        Collections.addAll( metaHandlers, templateMetaHandler, userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler );
+        Collections.addAll( metaHandlers, textFileMetaHandler, templateMetaHandler, userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler );
     }
 
     public MetaParser getMetaParser() {
         return metaParser;
+    }
+
+    public MetaHandler getMetaHandler( Element elItem ) {
+        String itemElementName = elItem.getName();
+        for( MetaHandler h : metaHandlers ) {
+            if( supports( h, itemElementName ) ) {
+                return h;
+            }
+        }
+        return null;
+    }
+
+    private boolean supports( MetaHandler<? extends Resource> h, String itemElementName ) {
+        return h.getAlias().equals( itemElementName );
     }
 }

@@ -13,11 +13,11 @@ public interface MetaHandler<T extends Resource> {
     boolean supports(Resource r);
 
     /**
-     * Xml root element names which this handler can produce and parse
+     * Xml root element name which this handler can produce and parse
      * 
      * @return
      */
-    Iterable<String> getAliases();
+    String getAlias();
 
     Class getInstanceType();
 

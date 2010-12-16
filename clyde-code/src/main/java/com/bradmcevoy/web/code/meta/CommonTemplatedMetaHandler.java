@@ -198,12 +198,8 @@ public class CommonTemplatedMetaHandler {
         Iterator<Entry<String, Component>> it = res.getComponents().entrySet().iterator();
         while( it.hasNext() ) {
             Entry<String, Component> entry = it.next();
-            if( entry.getKey() == null ) {
-                log.warn( "***************************** NUll name for component: " + entry.getValue() );
-            } else {
-                if( !isIgnoredComponent( entry.getKey() ) ) {
-                    it.remove();
-                }
+            if( !isIgnoredComponent( entry.getKey() ) ) {
+                it.remove();
             }
         }
 

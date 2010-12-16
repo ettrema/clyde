@@ -57,5 +57,12 @@ public interface ITemplate extends Templatable{
      */
     boolean canCreateFolder();
 
+    /**
+     * Called by the resource immediately after it has been saved
+     *
+     * @param aThis
+     */
+    void onAfterSave( BaseResource aThis );
+
 
 }

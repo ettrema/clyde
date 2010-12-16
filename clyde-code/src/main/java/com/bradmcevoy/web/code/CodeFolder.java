@@ -33,7 +33,7 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
             String realName = rf.getPageName( childName );
             Resource realChild = wrapped.child( realName );
             log.trace( "..meta" );
-            return rf.wrapMeta( realChild );
+            return rf.wrapMeta( realChild, this.wrapped );
         } else {
             Resource child = wrapped.child( childName );
             if( child == null ) {
@@ -52,7 +52,7 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
     public List<? extends Resource> getChildren() {
         List<Resource> list = new ArrayList<Resource>();
         for( Resource child : wrapped.getChildren() ) {
-            Resource meta = rf.wrapMeta( child );
+            Resource meta = rf.wrapMeta( child, this.wrapped );
             if( meta != null ) {
                 list.add( meta );
             }

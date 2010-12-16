@@ -19,11 +19,25 @@
     </c:meta>
 -->
 
+
+
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder)*>
+<!ELEMENT c:meta (c:template|c:folder|c:group)*>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
   >
+
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:group EMPTY>
+<!ATTLIST c:group
+    emailDiscardSubject CDATA #IMPLIED
+    emailPassword CDATA #IMPLIED
+    emailDisabled (true|false) #IMPLIED
+    secure (true|false) #IMPLIED
+    template CDATA #IMPLIED
+  >
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:folder EMPTY>

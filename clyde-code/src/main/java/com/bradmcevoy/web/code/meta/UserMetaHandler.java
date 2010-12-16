@@ -8,7 +8,6 @@ import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.component.InitUtils;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
@@ -16,6 +15,8 @@ import org.jdom.Element;
  * @author brad
  */
 public class UserMetaHandler implements MetaHandler<User> {
+
+    public static final String ALIAS = "user";
 
     private final FolderMetaHandler folderMetaHandler;
 
@@ -31,12 +32,13 @@ public class UserMetaHandler implements MetaHandler<User> {
         return r instanceof User;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "user" );
+    public String getAlias() {
+        return ALIAS;
     }
 
+
     public Element toXml( User r ) {
-        Element elRoot = new Element( "page", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }

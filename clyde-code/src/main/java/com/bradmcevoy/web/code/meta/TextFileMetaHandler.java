@@ -4,31 +4,31 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.TextFile;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
  *
  * @author brad
  */
-public class BinaryFileMetaHandler implements MetaHandler<BinaryFile> {
+public class TextFileMetaHandler implements MetaHandler<BinaryFile> {
 
-    public static final String ALIAS = "binary";
+    public static final String ALIAS = "textfile";
 
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
-    public BinaryFileMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
+    public TextFileMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
         this.baseResourceMetaHandler = baseResourceMetaHandler;
     }
 
     public Class getInstanceType() {
-        return BinaryFile.class;
+        return TextFile.class;
     }
 
     public boolean supports( Resource r ) {
-        return r instanceof BinaryFile;
+        return r instanceof TextFile;
     }
 
     public String getAlias() {

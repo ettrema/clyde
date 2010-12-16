@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BaseResource;
@@ -7,6 +8,8 @@ import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
+
+import static  com.ettrema.context.RequestContext._;
 
 /**
  * Implementation of PermissionChecker which works for Clyde resources
@@ -44,19 +47,15 @@ public class ClydePermissionChecker implements PermissionChecker {
         }
         if( r instanceof BaseResource ) {
             BaseResource res = (BaseResource) r;
-            User user = null;
-            if( auth != null ) {
-                if( auth.getTag() instanceof User ) {
-                    user = (User) auth.getTag();
-                }
-            } else {
-                log.trace( "auth is null, no user");
-            }
-            if( user == null ) {
+            IUser iuser = _(CurrentUserService.class).getSecurityContextUser();
+            if( iuser == null ) {
                 log.trace( "no current user so deny access");
                 return false;
+            } else if( !(iuser instanceof User) ){
+                log.trace("incompatible user type");
+                return false;
             }
-            return hasRoleRes( user, res, role );
+            return hasRoleRes( (User)iuser, res, role );
         } else if( r instanceof Templatable ) {
             Templatable templatable = (Templatable) r;
             boolean b = hasRole( role, templatable.getParent(), auth );
@@ -89,4 +88,6 @@ public class ClydePermissionChecker implements PermissionChecker {
             return hasRoleRes( user, res.getParent(), role );
         }
     }
+
+
 }

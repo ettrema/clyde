@@ -16,6 +16,8 @@ import org.jdom.Element;
  */
 public class FolderMetaHandler implements MetaHandler<Folder> {
 
+    public static final String ALIAS = "folder";
+
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
     public FolderMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
@@ -31,12 +33,13 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
         return r instanceof Folder;
     }
 
-    public Iterable<String> getAliases() {
-        return Arrays.asList( "folder" );
+    public String getAlias() {
+        return ALIAS;
     }
 
+
     public Element toXml( Folder r ) {
-        Element elRoot = new Element( "folder", CodeMeta.NS );
+        Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }

@@ -86,22 +86,7 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
             Object tag = hnd.authenticate( resource, request );
             if( tag != null ) {
                 if( tag instanceof User ) {
-                    User user = (User) tag;
-                    String authId = generateAuthId(request);
-                    request.getAttributes().put( requestParamName, authId );
-                    authIdMap.put( authId, user.getNameNodeId() );
-                    String userUrl = user.getHref();
-                    Response response = HttpManager.response();
-                    setCookieValue( response, authId, userUrl );
-                    if( eventHandlers != null ) {
-                        log.debug( "process handlers");
-                        for( CookieAuthEventHandler h : eventHandlers ) {
-                            log.debug("process event handler: " + h.getClass());
-                            h.afterAuthentication( request, response, tag );
-                        }
-                    } else {
-                        log.trace("no event handlers");
-                    }
+                    setLoginCookies( (User) tag,request);
                 } else {
                     log.warn( "auth.tag is not a user, is: " + tag );
                 }
@@ -142,7 +127,24 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
                 }
             }
         }
+    }
 
+    public void setLoginCookies( User user, Request request ) {
+        String authId = generateAuthId( request );
+        request.getAttributes().put( requestParamName, authId );
+        authIdMap.put( authId, user.getNameNodeId() );
+        String userUrl = user.getHref();
+        Response response = HttpManager.response();
+        setCookieValue( response, authId, userUrl );
+        if( eventHandlers != null ) {
+            log.debug( "process handlers" );
+            for( CookieAuthEventHandler h : eventHandlers ) {
+                log.debug( "process event handler: " + h.getClass() );
+                h.afterAuthentication( request, response, user );
+            }
+        } else {
+            log.trace( "no event handlers" );
+        }
     }
 
     public String getChallenge( Resource resource, Request request ) {
