@@ -10,6 +10,7 @@ import com.bradmcevoy.web.code.meta.comp.CommandHandler;
 import com.bradmcevoy.web.code.meta.comp.DateValueHandler;
 import com.bradmcevoy.web.code.meta.comp.DefaultValueHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailValHandler;
+import com.bradmcevoy.web.code.meta.comp.ForgottenPasswordComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupSelectHandler;
 import com.bradmcevoy.web.code.meta.comp.NumberInputHandler;
@@ -50,6 +51,8 @@ public class CommonTemplatedMetaHandler {
         TemplateInputHandler templateInputHandler = new TemplateInputHandler( textHandler );
         NumberInputHandler numberInputHandler = new NumberInputHandler( abstractInputHandler );
         GroupSelectHandler groupSelectHandler = new GroupSelectHandler();
+        ForgottenPasswordComponentHandler forgottenPasswordComponentHandler = new ForgottenPasswordComponentHandler();
+        add( forgottenPasswordComponentHandler );
         add( groupSelectHandler );
         add( numberInputHandler );
         add( templateInputHandler );

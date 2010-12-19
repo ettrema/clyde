@@ -48,10 +48,14 @@
 <!ELEMENT c:email (#PCDATA)>
 <!ATTLIST c:email
     name CDATA #IMPLIED
+    required (true|false) #IMPLIED
+    requestScope (true|false) #IMPLIED
+    cols CDATA #IMPLIED
+    description CDATA #IMPLIED
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:value (#PCDATA)>
+<!ELEMENT c:value ANY>
 <!ATTLIST c:value
     name CDATA #IMPLIED
   >
@@ -69,13 +73,30 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:folder EMPTY>
+<!ELEMENT c:folder (c:permissions)*>
 <!ATTLIST c:folder
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
     secureRead (true|false) #IMPLIED
     template CDATA #IMPLIED
     allowedTemplates CDATA #IMPLIED
+  >
+
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:permissions (c:groupPerm|c:userPerm)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:groupPerm EMPTY>
+<!ATTLIST c:groupPerm
+    role CDATA #IMPLIED
+    group CDATA #IMPLIED
+  >
+
+<!ELEMENT c:userPerm EMPTY>
+<!ATTLIST c:userPerm
+    role CDATA #IMPLIED
+    path CDATA #IMPLIED
   >
 
 
@@ -87,11 +108,11 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text)*>
+<!ELEMENT c:fields (c:html|c:text|c:email)*>
 
   
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
@@ -103,6 +124,16 @@
     disAllowTemplating CDATA #IMPLIED
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
+    description CDATA #IMPLIED
+
+  >
+
+<!ELEMENT c:eval (#PCDATA)>
+<!ATTLIST c:eval
+    name CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    rows CDATA #IMPLIED
+    description CDATA #IMPLIED
 
   >
 

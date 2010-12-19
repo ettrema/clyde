@@ -35,13 +35,16 @@ public class BaseResourceMetaHandler {
     public void populateXml( Element e2, BaseResource res ) {
         log.trace( "populateXml" );
         InitUtils.setString( e2, "redirect", res.getRedirect() );
-        Element elPerms = new Element( "permissions", CodeMeta.NS );
-        e2.addContent( elPerms );
+        Element elPerms = null;
         List<RoleAndGroup> groupPermissions = res.getGroupPermissions();
         if( groupPermissions != null && !groupPermissions.isEmpty() ) {
             log.trace( "add groups" );
             for( RoleAndGroup rag : res.getGroupPermissions() ) {
-                Element elRag = new Element( "group", CodeMeta.NS );
+                Element elRag = new Element( "groupPerm", CodeMeta.NS );
+                if( elPerms == null ) {
+                    elPerms = new Element( "permissions", CodeMeta.NS );
+                    e2.addContent( elPerms );
+                }
                 elPerms.addContent( elRag );
                 elRag.setAttribute( "group", rag.getGroupName() );
                 elRag.setAttribute( "role", rag.getRole().name() );
@@ -50,15 +53,20 @@ public class BaseResourceMetaHandler {
         Permissions perms = res.permissions();
         if( perms != null ) {
             for( Permission perm : perms ) {
+                if( elPerms == null ) {
+                    elPerms = new Element( "permissions", CodeMeta.NS );
+                    e2.addContent( elPerms );
+                }
+
                 Element elRag;
                 Subject grantee = perm.getGrantee();
                 if( grantee instanceof User ) {
-                    elRag = new Element( "user", CodeMeta.NS );
+                    elRag = new Element( "userPerm", CodeMeta.NS );
                     User granteeUser = (User) grantee;
                     elRag.setAttribute( "path", granteeUser.getUrl() );
                 } else if( grantee instanceof UserGroup ) {
                     UserGroup granteeGroup = (UserGroup) grantee;
-                    elRag = new Element( "group", CodeMeta.NS );
+                    elRag = new Element( "groupPerm", CodeMeta.NS );
                     elRag.setAttribute( "name", granteeGroup.getSubjectName() );
                 } else {
                     log.debug( "unsupported permission recipient type: " + grantee.getClass() );
@@ -133,15 +141,18 @@ public class BaseResourceMetaHandler {
                     throw new RuntimeException( "Unknown role: " + roleName);
                 }
                 String type = elPerm.getName();
-                if( type.equals( "group" ) ) {
+                if( type.equals( "groupPerm" ) ) {
                     String groupName = elPerm.getAttributeValue( "group" );
+                    if( StringUtils.isEmpty( groupName) ) {
+                        throw new RuntimeException( "Group attribute is empty");
+                    }
                     UserGroup group = groupService.getGroup( res, groupName );
                     if( group != null ) {
                         res.permissions( true ).grant( role, group );
                     } else {
                         throw new RuntimeException( "Group not found: " + groupName);
                     }
-                } else if( type.equals( "user" ) ) {
+                } else if( type.equals( "userPerm" ) ) {
                     String userPath = elPerm.getAttributeValue( "path" );
                     Resource r = res.getHost().find( userPath );
                     if( r == null ) {
