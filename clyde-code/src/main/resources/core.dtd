@@ -22,9 +22,38 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder|c:group)*>
+<!ELEMENT c:meta (c:template|c:folder|c:group|c:page)>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
+  >
+
+ <!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:page (c:attributes)*>
+<!ATTLIST c:page
+    contentType CDATA #IMPLIED
+    template CDATA #IMPLIED
+  >
+
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:attributes (c:email|c:value|c:date)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:date (#PCDATA)>
+<!ATTLIST c:date
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:email (#PCDATA)>
+<!ATTLIST c:email
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:value (#PCDATA)>
+<!ATTLIST c:value
+    name CDATA #IMPLIED
   >
 
 
@@ -51,41 +80,51 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:components)*>
+<!ELEMENT c:template (c:attributes?,c:fields?,c:components?)>
 <!ATTLIST c:template
     template CDATA #IMPLIED
-    instanceType CDATA #IMPLIED
+    instanceType (folder|page|group|user|event|binaryFile) #IMPLIED
   >
 
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:fields (c:html|c:text)*>
+
+  
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:components (c:text|c:html|c:subpage)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
 <!ATTLIST c:text
-    required CDATA #IMPLIED
+    required (true|false) #IMPLIED
     requestScope (true|false) #IMPLIED
     name CDATA #IMPLIED
+    choices CDATA #IMPLIED
+    disAllowTemplating CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    rows CDATA #IMPLIED
+
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:subpage (c:attributes)*>
+<!ELEMENT c:subpage (c:attributes?)>
 <!ATTLIST c:subpage
     template CDATA #IMPLIED
     name CDATA #IMPLIED
   >
 
 
-<!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:attributes (c:value)*>
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:value (#PCDATA)>
-<!ATTLIST c:value
+<!ELEMENT c:html EMPTY>
+<!ATTLIST c:html
+    toolbar CDATA #IMPLIED
+    disAllowTemplating CDATA #IMPLIED
+    required CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    rows CDATA #IMPLIED
     name CDATA #IMPLIED
   >
-
-  <!ELEMENT c:html ANY>
 
 
   <!--

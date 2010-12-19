@@ -39,10 +39,17 @@ public class EmailAuthenticator implements ClydeAuthenticator {
             MailboxAddress email = parse( userName );
             if( email != null ) {
                 User user = findUser( email, (CommonTemplated) resource );
-                if( user.checkPassword( password ) ) {
-                    return user;
-                } else {
+                if( user == null ) {
+                    log.trace("user not found");
                     return null;
+                } else {
+                    if( user.checkPassword( password ) ) {
+                        log.trace("authentication ok");
+                        return user;
+                    } else {
+                        log.trace("user found, but passwords don't match");
+                        return null;
+                    }
                 }
             }
         }
@@ -81,7 +88,7 @@ public class EmailAuthenticator implements ClydeAuthenticator {
     private User findUser( MailboxAddress add, CommonTemplated r ) {
         List<User> foundUsers = findMatchingUsers( add );
         for( User user : foundUsers ) {
-            if( isMatchingDomain(user, r.getHost())) {
+            if( isMatchingDomain( user, r.getHost() ) ) {
                 return user;
             }
         }
@@ -113,10 +120,9 @@ public class EmailAuthenticator implements ClydeAuthenticator {
         if( h == null ) {
             return false;
         }
-        if( user.getHost().getNameNodeId().equals( h.getNameNodeId() )) {
+        if( user.getHost().getNameNodeId().equals( h.getNameNodeId() ) ) {
             return true;
         }
-        return isMatchingDomain( user, h.getParentHost());
+        return isMatchingDomain( user, h.getParentHost() );
     }
-
 }

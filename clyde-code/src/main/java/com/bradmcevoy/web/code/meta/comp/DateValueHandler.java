@@ -18,14 +18,13 @@ public class DateValueHandler implements ValueHandler {
         this.defaultValueHandler = defaultValueHandler;
     }
 
-
     public Class getComponentValueClass() {
         return DateVal.class;
     }
 
     public Element toXml( ComponentValue cv, CommonTemplated container ) {
-        Element el = new Element(getAlias(), CodeMeta.NS);
-        populateXml(el, (DateVal) cv, container);
+        Element el = new Element( getAlias(), CodeMeta.NS );
+        populateXml( el, (DateVal) cv, container );
         return el;
     }
 
@@ -38,10 +37,9 @@ public class DateValueHandler implements ValueHandler {
     }
 
     public ComponentValue fromXml( CommonTemplated res, Element eAtt ) {
-        String name = eAtt.getAttributeValue( "name");
-        DateVal val = new DateVal( name, res);
-        defaultValueHandler.fromXml(eAtt, res, val );
+        String name = eAtt.getAttributeValue( "name" );
+        DateVal val = new DateVal( name, res );
+        defaultValueHandler.fromXml( eAtt, res, val );
         return val;
     }
-
 }

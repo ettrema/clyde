@@ -45,7 +45,7 @@ public class NewResourceFactory extends CommonResourceFactory {
                 try {
                     return new RedirectToNewPage( path.getParent(), f.getRealm() );
                 } catch( IllegalArgumentException e ) {
-                    log.warn("illegal argument", e);
+                    log.warn( "illegal argument", e );
                     return new NewResourceErrorPage( url, pRes.getName(), f, e.getMessage() );
                 }
             }
@@ -57,12 +57,16 @@ public class NewResourceFactory extends CommonResourceFactory {
                 log.debug( "folder not found, not returning New page" );
                 return null;
             } else {
-                Folder f = (Folder) r;
-                try {
-                    return new NewPage( f, pRes.getName() );
-                } catch( IllegalArgumentException e ) {
-                    log.warn("illegal argument", e);
-                    return new NewResourceErrorPage( url, pRes.getName(), f, e.getMessage() );
+                if( r instanceof Folder ) {
+                    Folder f = (Folder) r;
+                    try {
+                        return new NewPage( f, pRes.getName() );
+                    } catch( IllegalArgumentException e ) {
+                        log.warn( "illegal argument", e );
+                        return new NewResourceErrorPage( url, pRes.getName(), f, e.getMessage() );
+                    }
+                } else {
+                    return new NewResourceErrorPage( url, pRes.getName(), r, "Parent resource is not a folder" );
                 }
             }
         } else {
@@ -72,7 +76,7 @@ public class NewResourceFactory extends CommonResourceFactory {
 
     public class NewResourceErrorPage extends ErrorPage {
 
-        public NewResourceErrorPage( String href, String name, Folder f, String msg ) {
+        public NewResourceErrorPage( String href, String name, Resource f, String msg ) {
             super( href, name, f, msg );
         }
 
@@ -85,14 +89,17 @@ public class NewResourceFactory extends CommonResourceFactory {
             w.print( "</b><br/>" );
             w.print( "<h3>Contents of this folder:</h3> " );
             w.print( "<ul>" );
-            for( Resource res : folder.getChildren() ) {
-                w.print( "<li>" );
-                if( res instanceof CommonTemplated ) {
-                    w.print( link( (CommonTemplated) res ) );
-                } else {
-                    w.print( res.getName() );
+            if( parent instanceof Folder ) {
+                Folder folder = (Folder) this.parent;
+                for( Resource res : folder.getChildren() ) {
+                    w.print( "<li>" );
+                    if( res instanceof CommonTemplated ) {
+                        w.print( link( (CommonTemplated) res ) );
+                    } else {
+                        w.print( res.getName() );
+                    }
+                    w.print( "</li>" );
                 }
-                w.print( "</li>" );
             }
             w.print( "</ul>" );
             w.flush();
@@ -101,7 +108,7 @@ public class NewResourceFactory extends CommonResourceFactory {
     }
 
     public static String link( CommonTemplated res ) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append( "<a href='" ).append( res.getHref() ).append( "'>" ).append( res.getName() ).append( "</a>" );
         return sb.toString();
     }

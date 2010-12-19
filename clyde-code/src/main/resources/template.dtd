@@ -26,33 +26,64 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:components)*>
+<!ELEMENT c:template (c:attributes|c:components|c:fields)*>
 <!ATTLIST c:template
     template CDATA #IMPLIED
     instanceType CDATA #IMPLIED
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:subpage)*>
+<!ELEMENT c:attributes (c:email|c:value|c:date)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:date (#PCDATA)>
+<!ATTLIST c:date
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:email (#PCDATA)>
+<!ATTLIST c:email
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:value (#PCDATA)>
+<!ATTLIST c:value
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:fields (c:html|c:text)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
 <!ATTLIST c:text
+    choices CDATA #IMPLIED
+    disAllowTemplating CDATA #IMPLIED
+    required CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    rows CDATA #IMPLIED
     name CDATA #IMPLIED
   >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:html EMPTY>
+<!ATTLIST c:html
+    toolbar CDATA #IMPLIED
+    disAllowTemplating CDATA #IMPLIED
+    required CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    rows CDATA #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:components (c:text|c:subpage)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:subpage (c:attributes)*>
 <!ATTLIST c:subpage
     template CDATA #IMPLIED
-    name CDATA #IMPLIED
-  >
-
-<!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:attributes (c:value)*>
-
-<!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:value (#PCDATA)>
-<!ATTLIST c:value
     name CDATA #IMPLIED
   >

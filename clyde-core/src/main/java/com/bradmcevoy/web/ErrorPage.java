@@ -8,6 +8,7 @@ import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,17 +19,17 @@ public class ErrorPage implements GetableResource, PostableResource, DigestResou
 
     final String href;
     final String name;
-    final Folder folder;
+    final Resource parent;
     final String errorMessage;
 
     public ErrorPage(String href, String name, Folder folder) {
         this(href, name, folder, null);
     }
 
-    public ErrorPage(String href, String name, Folder folder, String errorMessage) {
+    public ErrorPage(String href, String name, Resource parent, String errorMessage) {
         this.href = href;
         this.name = name;
-        this.folder = folder;
+        this.parent = parent;
         this.errorMessage = errorMessage;
     }
 
@@ -70,7 +71,7 @@ public class ErrorPage implements GetableResource, PostableResource, DigestResou
 
     @Override
     public String getRealm() {
-        return folder.getRealm();
+        return parent.getRealm();
     }
 
     @Override

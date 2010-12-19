@@ -58,6 +58,24 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 //        }
     }
 
+    public BaseResource getEditee(Map<String, String> parameters) {
+        if( editee != null ) {
+            return editee;
+        }
+        ITemplate template = getTemplate( parameters );
+        if( template == null ) {
+            log.error( "didnt locate template" );
+            return null;
+        }
+        String nameToUse = newName;
+        if( newName.equals( AUTO_NAME ) ) {
+            nameToUse = findAutoName( parameters );
+        }
+        editee = template.createPageFromTemplate( folder, nameToUse );
+        return editee;
+    }
+    
+
     @Override
     public String getUniqueId() {
         return null;
@@ -241,16 +259,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     @Override
     public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws BadRequestException, NotAuthorizedException, ConflictException {
         log.debug( "processForm" );
-        ITemplate template = getTemplate( parameters );
-        if( template == null ) {
-            log.error( "didnt locate template" );
-            return null;
-        }
-        String nameToUse = newName;
-        if( newName.equals( AUTO_NAME ) ) {
-            nameToUse = findAutoName( parameters );
-        }
-        editee = template.createPageFromTemplate( folder, nameToUse );
+        getEditee( parameters );
         if( editee instanceof EditableResource ) {
 
             EditableResource er = (EditableResource) editee;

@@ -16,8 +16,8 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.ExistingResourceFactory;
 import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.NewPage;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
@@ -32,9 +32,13 @@ import net.sf.json.JSON;
 import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.CycleDetectionStrategy;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Supports invoking components via ajax, with response as JSON data
+ *
+ * Eg post to /users/_autoname.new/.ajax to create a new user via an ajax
+ * call, with any validation errors returned as ajax
  *
  * @author brad
  */
@@ -43,9 +47,9 @@ public class AjaxResourceFactory implements ResourceFactory {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( AjaxResourceFactory.class );
     private static final String NAME = ".ajax";
     private static final String ENDS_WITH = "/" + NAME;
-    private final ExistingResourceFactory wrapped;
+    private final ResourceFactory wrapped;
 
-    public AjaxResourceFactory( ExistingResourceFactory wrapped ) {
+    public AjaxResourceFactory( ResourceFactory wrapped ) {
         this.wrapped = wrapped;
     }
 
@@ -56,13 +60,21 @@ public class AjaxResourceFactory implements ResourceFactory {
                 return null;
             }
             Path pRes = p.getParent();
+            log.trace( "is ajax request. resource path: " + pRes );
             Resource res = wrapped.getResource( host, pRes.toString() );
             if( res == null ) {
+                log.trace( "no parent resource found" );
                 return null;
             } else if( res instanceof CommonTemplated ) {
+                log.trace( "found a resource" );
                 CommonTemplated ct = (CommonTemplated) res;
-                return new AjaxPostResource( ct );
+                return new AjaxPostResource( new ExistingResourceAccessor( ct ) );
+            } else if( res instanceof NewPage ) {
+                log.trace( "found a new page resource" );
+                NewPage np = (NewPage) res;
+                return new AjaxPostResource( new NewPageResourceAccessor( np ) );
             } else {
+                log.warn( "unsupported resource type: " + res.getClass() );
                 return null;
             }
         } else {
@@ -70,12 +82,93 @@ public class AjaxResourceFactory implements ResourceFactory {
         }
     }
 
-    public class AjaxPostResource implements PostableResource, DigestResource {
+    private interface ResourceAccessor {
+
+        CommonTemplated get( Map<String, String> parameters );
+
+        Object authenticate( String user, String password );
+
+        Object authenticate( DigestResponse digestRequest );
+
+        boolean isDigestAllowed();
+
+        boolean authorise( Request request, Method method, Auth auth );
+
+        String getRealm();
+    }
+
+    private class ExistingResourceAccessor implements ResourceAccessor {
 
         private final CommonTemplated res;
 
-        public AjaxPostResource( CommonTemplated res ) {
+        public ExistingResourceAccessor( CommonTemplated res ) {
             this.res = res;
+        }
+
+        public CommonTemplated get( Map<String, String> parameters ) {
+            return res;
+        }
+
+        public Object authenticate( String user, String password ) {
+            return res.authenticate( user, password );
+        }
+
+        public boolean authorise( Request request, Method method, Auth auth ) {
+            return res.authorise( request, method, auth );
+        }
+
+        public String getRealm() {
+            return res.getRealm();
+        }
+
+        public Object authenticate( DigestResponse digestRequest ) {
+            return res.authenticate( digestRequest );
+        }
+
+        public boolean isDigestAllowed() {
+            return res.isDigestAllowed();
+        }
+    }
+
+    private class NewPageResourceAccessor implements ResourceAccessor {
+
+        private final NewPage newPage;
+
+        public NewPageResourceAccessor( NewPage newPage ) {
+            this.newPage = newPage;
+        }
+
+        public CommonTemplated get( Map<String, String> parameters ) {
+            return newPage.getEditee( parameters );
+        }
+
+        public Object authenticate( String user, String password ) {
+            return newPage.authenticate( user, password );
+        }
+
+        public boolean authorise( Request request, Method method, Auth auth ) {
+            return newPage.authorise( request, method, auth );
+        }
+
+        public String getRealm() {
+            return newPage.getRealm();
+        }
+
+        public Object authenticate( DigestResponse digestRequest ) {
+            return newPage.authenticate( digestRequest );
+        }
+
+        public boolean isDigestAllowed() {
+            return newPage.isDigestAllowed();
+        }
+    }
+
+    public class AjaxPostResource implements PostableResource, DigestResource {
+
+        private final ResourceAccessor accessor;
+
+        private AjaxPostResource( ResourceAccessor accessor ) {
+            this.accessor = accessor;
         }
 
         public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws BadRequestException, NotAuthorizedException, ConflictException {
@@ -83,24 +176,10 @@ public class AjaxResourceFactory implements ResourceFactory {
             preProcess( null, parameters, files );
             String s = process( null, parameters, files );
             return s;
-
-//            String command = parameters.get("command");
-//            if( command == null ) {
-//                log.trace("processForm: no command");
-//                return null;
-//            }
-//            Component c = res.getComponent( command );
-//            if( c == null ) {
-//                log.trace("processForm: component not found: " + command);
-//                return null;
-//            }
-//            RenderContext rc = new RenderContext( res.getTemplate(), res, null, true);
-//
-//            c.onPreProcess( rc, parameters, files );
-//
         }
 
         public void preProcess( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) {
+            CommonTemplated res = accessor.get( parameters );
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext( lTemplate, res, rcChild, false );
             if( lTemplate != null ) {
@@ -124,6 +203,7 @@ public class AjaxResourceFactory implements ResourceFactory {
 
         public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
             log.info( "process form" );
+            CommonTemplated res = accessor.get( parameters );
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext( lTemplate, res, rcChild, false );
 
@@ -142,10 +222,14 @@ public class AjaxResourceFactory implements ResourceFactory {
 
         public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
             Map<String, String> errors = new HashMap<String, String>();
+            CommonTemplated res = accessor.get( params );
             for( ComponentValue cv : res.getValues().values() ) {
                 String v = cv.getValidationMessage();
-                errors.put( cv.getName(), v );
+                if( !StringUtils.isEmpty( v ) ) {
+                    errors.put( cv.getName(), v );
+                }
             }
+            errors.put("result", errors.size() > 0 ? "err" : "ok");
             JsonConfig cfg = new JsonConfig();
             cfg.setIgnoreTransientFields( true );
             cfg.setCycleDetectionStrategy( CycleDetectionStrategy.LENIENT );
@@ -177,15 +261,15 @@ public class AjaxResourceFactory implements ResourceFactory {
         }
 
         public Object authenticate( String user, String password ) {
-            return res.authenticate( user, password );
+            return accessor.authenticate( user, password );
         }
 
         public boolean authorise( Request request, Method method, Auth auth ) {
-            return res.authorise( request, method, auth );
+            return accessor.authorise( request, method, auth );
         }
 
         public String getRealm() {
-            return res.getRealm();
+            return accessor.getRealm();
         }
 
         public Date getModifiedDate() {
@@ -197,11 +281,11 @@ public class AjaxResourceFactory implements ResourceFactory {
         }
 
         public Object authenticate( DigestResponse digestRequest ) {
-            return res.authenticate( digestRequest );
+            return accessor.authenticate( digestRequest );
         }
 
         public boolean isDigestAllowed() {
-            return res.isDigestAllowed();
+            return accessor.isDigestAllowed();
         }
     }
 }

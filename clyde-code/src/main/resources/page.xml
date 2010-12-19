@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<page template="home" contentType="text/html" />
-
+<!DOCTYPE c:meta SYSTEM "core.dtd">
+<c:meta xmlns:c="http://clyde.ettrema.com/ns/core">
+    <c:page template="normal" contentType="text/html">
+        <c:attributes>
+            <c:date name="aDate">aaa</c:date>
+            <c:email name="aEmail">aaa</c:email>
+            <c:value name="aDefault">aaa</c:value>
+        </c:attributes>
+    </c:page>
+</c:meta>
