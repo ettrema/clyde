@@ -305,14 +305,17 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
                 }
             }
         }
-        for( RoleAndGroup rag : granted().getGroupPermissions() ) {
-            if( rag.getRole() == requestedRole ) {
-                UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
-                if( group != null ) {
-                    log.trace( "found group with role" );
-                    if( group.isInGroup( user ) ) {
-                        log.trace( "user is in group" );
-                        return true;
+        BaseResource res = granted();
+        if( res != null ) {
+            for( RoleAndGroup rag : res.getGroupPermissions() ) {
+                if( rag.getRole() == requestedRole ) {
+                    UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
+                    if( group != null ) {
+                        log.trace( "found group with role" );
+                        if( group.isInGroup( user ) ) {
+                            log.trace( "user is in group" );
+                            return true;
+                        }
                     }
                 }
             }
@@ -337,7 +340,11 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
 
     private BaseResource granted() {
         if( _granted == null ) {
-            _granted = (BaseResource) nameNode.getParent().getData();
+            if( nameNode == null || nameNode.getParent() == null ) {
+                log.trace( "no namenode" );
+            } else {
+                _granted = (BaseResource) nameNode.getParent().getData();
+            }
         }
         return _granted;
     }

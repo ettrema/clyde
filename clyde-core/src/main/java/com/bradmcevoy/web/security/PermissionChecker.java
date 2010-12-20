@@ -17,7 +17,8 @@ public interface PermissionChecker {
      * on the requested resource
      *
      * @param role
-     * @param templatable
+     * @param resource
+     * @param auth
      * @return
      */
     public boolean hasRole( Role role, Resource r, Auth auth );

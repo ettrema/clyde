@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.property.BeanPropertyAccess;
@@ -349,8 +351,13 @@ public class User extends Folder implements IUser {
     public boolean isInGroup( String groupName ) {
         UserGroup group = _( GroupService.class ).getGroup( this, groupName );
         if( group != null ) {
-            return group.isInGroup( this );
+            boolean b = group.isInGroup( this );
+            if( log.isTraceEnabled() ) {
+                log.trace( "isInGroup: " + groupName + " = " + b );
+            }
+            return b;
         } else {
+            log.warn( "group not found: " + groupName );
             return false;
         }
     }
@@ -371,7 +378,6 @@ public class User extends Folder implements IUser {
         return s;
     }
 
-
     public String getSubjectName() {
         return getName();
     }
@@ -390,12 +396,12 @@ public class User extends Folder implements IUser {
 
     public void removeFromGroup( String groupName ) {
         if( groupName == null || groupName.length() == 0 ) {
-            throw new IllegalArgumentException( "Group name is empty or null");
+            throw new IllegalArgumentException( "Group name is empty or null" );
         }
         RelationalGroupHelper groupService = _( RelationalGroupHelper.class );
         UserGroup userGroup = groupService.getGroup( this, groupName );
         if( userGroup == null ) {
-            throw new NullPointerException( "Group not found: " + groupName);
+            throw new NullPointerException( "Group not found: " + groupName );
         } else if( userGroup instanceof Group ) {
             if( userGroup != null ) {
                 if( userGroup.isInGroup( this ) ) {
@@ -451,18 +457,31 @@ public class User extends Folder implements IUser {
      *
      */
     public void login() {
-        log.trace("do login");
+        log.trace( "do login" );
         Request req = _( CurrentRequestService.class ).request();
-        _(CookieAuthenticationHandler.class).setLoginCookies( this, req);
+        _( CookieAuthenticationHandler.class ).setLoginCookies( this, req );
     }
 
     public boolean appliesTo( Subject user ) {
         if( user instanceof User ) {
             User u = (User) user;
-            return u.getNameNodeId().equals( this.getNameNodeId());
+            return u.getNameNodeId().equals( this.getNameNodeId() );
         } else {
             return false;
         }
+    }
 
+    public boolean isSysAdmin() {
+        return _( PermissionChecker.class ).hasRole( Role.SYSADMIN, this, null );
+    }
+
+    /**
+     * Can this user author the given resource
+     * 
+     * @param r
+     * @return
+     */
+    public boolean canAuthor(Resource r) {
+        return _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, null );
     }
 }

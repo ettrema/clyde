@@ -38,6 +38,12 @@ public class ForgottenPasswordComponent implements Component {
     private String bodyTemplate;    
     private String thankyouPage;
 
+    public ForgottenPasswordComponent( Addressable container, String name ) {
+        this.container = container;
+        this.name = name;
+    }
+
+
     public ForgottenPasswordComponent( Addressable container, Element el ) {
         this.container = container;
         fromXml( el );
@@ -147,6 +153,7 @@ public class ForgottenPasswordComponent implements Component {
         rc.addAttribute( name + "_email", email );
     }
 
+    
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "component" );
         el.addContent( e2 );
@@ -154,7 +161,7 @@ public class ForgottenPasswordComponent implements Component {
         return e2;
     }
 
-    public void fromXml( Element el ) {
+    public final void fromXml( Element el ) {
         name = el.getAttributeValue( "name" );
         fromAdd = el.getAttributeValue( "from" );
         replyTo = el.getAttributeValue( "replyTo" );
@@ -164,10 +171,13 @@ public class ForgottenPasswordComponent implements Component {
     }
 
 
-    private void populateXml( Element e2 ) {
+    public void populateXml( Element e2 ) {
         e2.setAttribute( "class", getClass().getName() );
-        e2.setAttribute( "name", name );
+        populateXml_NoClass( e2 );
+    }
 
+    public void populateXml_NoClass( Element e2 ) {
+        e2.setAttribute( "name", name );
         InitUtils.setString( e2, "from", fromAdd );
         InitUtils.setString( e2, "replyTo", replyTo );
         InitUtils.setString( e2, "thankyouPage", thankyouPage );
@@ -202,5 +212,45 @@ public class ForgottenPasswordComponent implements Component {
 
     public String getValidationError() {
         return (String) RequestParams.current().getAttributes().get( name + "_error" );
+    }
+
+    public String getFromAdd() {
+        return fromAdd;
+    }
+
+    public void setFromAdd( String fromAdd ) {
+        this.fromAdd = fromAdd;
+    }
+
+    public String getReplyTo() {
+        return replyTo;
+    }
+
+    public void setReplyTo( String replyTo ) {
+        this.replyTo = replyTo;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject( String subject ) {
+        this.subject = subject;
+    }
+
+    public String getBodyTemplate() {
+        return bodyTemplate;
+    }
+
+    public void setBodyTemplate( String bodyTemplate ) {
+        this.bodyTemplate = bodyTemplate;
+    }
+
+    public String getThankyouPage() {
+        return thankyouPage;
+    }
+
+    public void setThankyouPage( String thankyouPage ) {
+        this.thankyouPage = thankyouPage;
     }
 }
