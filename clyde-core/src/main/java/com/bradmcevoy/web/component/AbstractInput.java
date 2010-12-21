@@ -132,7 +132,7 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
     public String renderEdit(RenderContext rc) {
         String template = editTemplate();
         if( validationMessage != null ) {
-            template = template + "<font color='red'>${input.validationMessage}</font>";
+            template = template + "<span class='validationMessage'>${input.validationMessage}</span>";
         }        
         VelocityContext vc = velocityContext(rc, value);
         vc.put("formattedValue", this.getFormattedValue());

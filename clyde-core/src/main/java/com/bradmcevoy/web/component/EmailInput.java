@@ -2,8 +2,6 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.web.RenderContext;
 import com.ettrema.mail.MailboxAddress;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import org.jdom.Element;
 
 public class EmailInput extends Text {

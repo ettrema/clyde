@@ -118,6 +118,13 @@ public class EmailCommand extends Command {
         return replyToTemplate.render(rc);
     }
 
+    public TemplateInput getReplyToTemplate() {
+        return replyToTemplate;
+    }
+
+    
+    
+
     @Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         String s = parameters.get(this.getName());

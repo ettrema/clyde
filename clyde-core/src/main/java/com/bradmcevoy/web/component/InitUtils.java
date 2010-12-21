@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.xml.XmlHelper;
@@ -14,7 +15,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Element;
-import org.jdom.Namespace;
 
 public class InitUtils {
 
@@ -187,7 +187,7 @@ public class InitUtils {
     }
 
     public static String getValueOf( Element el, String name ) {
-        Element elChild = el.getChild( name );
+        Element elChild = JDomUtils.getChild( el, name );
         if( elChild == null ) {
             return null;
         } else {

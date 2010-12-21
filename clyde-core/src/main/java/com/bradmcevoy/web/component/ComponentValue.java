@@ -99,7 +99,13 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     @Override
     public boolean validate( RenderContext rc ) {
-        return getDef( rc ).validate( this, rc );
+        ComponentDef def = getDef( rc );
+        if( def == null ) {
+            log.warn("No component definition for value: " + this.getName());
+            return true;
+        } else {
+            return def.validate( this, rc );
+        }
     }
 
     @Override
@@ -264,7 +270,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
      * @param page
      * @return
      */
-    public ComponentDef getDef( Templatable page ) {
+    public final ComponentDef getDef( Templatable page ) {
         ITemplate templatePage = page.getTemplate();
         if( templatePage == null ) {
             return null;

@@ -63,4 +63,21 @@ public class JDomUtils {
             el.addContent( elScript );
         }
     }
+
+    /**
+     * Returns the first child of any namespace with the given local name
+     * @param el
+     * @param name
+     */
+    public static Element getChild(Element el, String name) {
+        for( Object o : el.getChildren() ) {
+            if( o instanceof Element ) {
+                Element elChild = (Element) o;
+                if( elChild.getName().equals( name )) {
+                    return elChild;
+                }
+            }
+        }
+        return null;
+    }
 }

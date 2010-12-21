@@ -80,7 +80,7 @@ public class Text extends AbstractInput<String> {
     @Override
     protected String editTemplate() {
         String template;
-        if( rows == null ) {
+        if( rows == null || rows <= 1 ) {
             if( this.name.equals( "password" ) ) { // nasty little hack, but alternative is data migration
                 template = "<input type='password' name='${path}' value='${formattedValue}' size='${input.cols}' />";
             } else {

@@ -57,6 +57,7 @@ public class AjaxResourceFactory implements ResourceFactory {
         if( path.endsWith( ENDS_WITH ) ) {
             Path p = Path.path( path );
             if( p.getParent() == null ) {
+                log.trace("not ajax request, because path parent is null");
                 return null;
             }
             Path pRes = p.getParent();
@@ -78,6 +79,9 @@ public class AjaxResourceFactory implements ResourceFactory {
                 return null;
             }
         } else {
+            if( log.isTraceEnabled() ) {
+                log.trace( "getResource: not an ajax request: " + path );
+            }
             return null;
         }
     }
@@ -229,7 +233,7 @@ public class AjaxResourceFactory implements ResourceFactory {
                     errors.put( cv.getName(), v );
                 }
             }
-            errors.put("result", errors.size() > 0 ? "err" : "ok");
+            errors.put( "result", errors.size() > 0 ? "err" : "ok" );
             JsonConfig cfg = new JsonConfig();
             cfg.setIgnoreTransientFields( true );
             cfg.setCycleDetectionStrategy( CycleDetectionStrategy.LENIENT );
