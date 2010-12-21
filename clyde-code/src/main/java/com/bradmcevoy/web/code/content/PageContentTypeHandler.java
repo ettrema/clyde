@@ -2,6 +2,7 @@ package com.bradmcevoy.web.code.content;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.Page;
 import com.bradmcevoy.web.code.ContentTypeHandler;
@@ -63,16 +64,24 @@ public class PageContentTypeHandler implements ContentTypeHandler {
             XmlUtils2 xmlUtils2 = new XmlUtils2();
             Document doc = xmlUtils2.getJDomDocument( in );
             Element elRoot = doc.getRootElement();
-            Element elHead = elRoot.getChild( "head" );
+            if( !elRoot.getName().equals( "html" ) ) {
+                throw new RuntimeException( "Document is not an html doc" );
+            }
+            Element elHead = JDomUtils.getChild( elRoot, "head" );
             if( elHead != null ) {
                 title = InitUtils.getValueOf( elHead, "title" );
             } else {
+                log.trace( "no head element found" );
                 title = null;
+                if( log.isTraceEnabled() ) {
+                    String xml = xmlUtils2.getXml( doc );
+                    log.trace( "processing: " + xml );
+                }
             }
 
             String body = InitUtils.getValueOf( elRoot, "body" );
-            log.trace("title: " + title);
-            log.trace("body: " + body);
+            log.trace( "title: " + title );
+            log.trace( "body: " + body );
             CodeUtils.saveValue( page, "body", body );
             CodeUtils.saveValue( page, "title", title );
             page.save();

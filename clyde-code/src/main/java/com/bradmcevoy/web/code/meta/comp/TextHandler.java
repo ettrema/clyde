@@ -46,8 +46,8 @@ public class TextHandler implements ComponentHandler{
     public void fromXml( Text text, Element el ) {
         text.setRows( InitUtils.getInt( el, "rows" ) );
         text.setCols( InitUtils.getInt( el, "cols" ) );
-        text.minLength = InitUtils.getInt( el, "minLength" );
-        text.maxLength = InitUtils.getInt( el, "maxLength" );
+        text.minLength = InitUtils.getInteger( el, "minLength" );
+        text.maxLength = InitUtils.getInteger( el, "maxLength" );
     }
 
     public void populateXml( Element elThis, Text t ) {

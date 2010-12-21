@@ -49,7 +49,7 @@ public class AbstractCodeResource<T extends Resource> implements Resource, Diges
     }
 
     public Date getModifiedDate() {
-        return null;
+        return wrapped.getModifiedDate();
     }
 
     public String checkRedirect( Request request ) {
