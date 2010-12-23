@@ -135,7 +135,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         } else if( selectFrom instanceof Folder ) {
             BaseResource page = (BaseResource) c.getContainer();
             BaseResource dest = page.getRelation( relationName );
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append( "<select name='" ).append( name ).append( "'>" );
             Folder fSelectFrom = (Folder) selectFrom;
             log.debug( "selectFrom: " + fSelectFrom.getHref() + " - " + selectTemplate );
@@ -223,4 +223,47 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     public void changedValue( ComponentValue cv ) {
         // big whoop
     }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired( boolean required ) {
+        this.required = required;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription( String description ) {
+        this.description = description;
+    }
+
+    public String getRelationName() {
+        return relationName;
+    }
+
+    public void setRelationName( String relationName ) {
+        this.relationName = relationName;
+    }
+
+    public String getSelectFromFolder() {
+        return selectFromFolder;
+    }
+
+    public void setSelectFromFolder( String selectFromFolder ) {
+        this.selectFromFolder = selectFromFolder;
+    }
+
+    public String getSelectTemplate() {
+        return selectTemplate;
+    }
+
+    public void setSelectTemplate( String selectTemplate ) {
+        this.selectTemplate = selectTemplate;
+    }
+
+    
+
 }

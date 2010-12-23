@@ -830,11 +830,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      */
     public void setExternalEmailTextV2( String emailCategory, String email ) {
 //        log.debug( "setExternalEmailTextV2: " + emailCategory + " email:" + email);
-
-        if( this.isNew() ) {
-            this.save();
-        }
-
         NameNode nEmailContainer = this.nameNode.child( "_email_" + emailCategory );
         if( nEmailContainer == null ) {
             nEmailContainer = nameNode.add( "_email_" + emailCategory, new EmptyDataNode() );

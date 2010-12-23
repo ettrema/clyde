@@ -72,6 +72,11 @@ public interface PermissionRecipient extends Subject {
         AUTHENTICATED,
 
         /**
+         * Special role which is automatically granted to the creator of a resource
+         */
+        CREATOR,
+
+        /**
          * Special role which represents any user whether logged in or not
          */
         ANONYMOUS;

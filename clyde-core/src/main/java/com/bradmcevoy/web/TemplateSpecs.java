@@ -24,15 +24,45 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
      * @return
      */
     public static TemplateSpecs getSpecsToUse( Folder thisFolder ) {
-        TemplateSpecs specs = thisFolder.templateSpecs;
+        log.trace( "getSpecsToUse" );
+        TemplateSpecs specs = getFromResourceOrTemplate( thisFolder );
         if( thisFolder instanceof Host ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "return template specs from: " + thisFolder.getName() );
+            }
             return specs;
         } else {
             if( specs == null || specs.isEmpty() ) {
                 return getSpecsToUse( thisFolder.getParent() );
             } else {
+                if( log.isTraceEnabled() ) {
+                    log.trace( "return template specs from: " + thisFolder.getName() );
+                }
                 return specs;
             }
+        }
+    }
+
+    /**
+     * Locate template specs defined directly on the resource or on a component from its parent
+     *
+     * @param folder
+     * @return
+     */
+    private static TemplateSpecs getFromResourceOrTemplate( Folder folder ) {
+        if( folder.templateSpecs == null || folder.templateSpecs.isEmpty() ) {
+            log.trace( "getFromResourceOrTemplate: no templateSpecs direct on folder" );
+            Component c = folder.getComponent( "allowedTemplates", false );
+            if( c != null ) {
+                log.trace( " - got component" );
+                String val = c.toString();
+                return TemplateSpecs.parse( val );
+            } else {
+                return null;
+            }
+        } else {
+            log.trace( "found templateSpecs direct on resource" );
+            return folder.templateSpecs;
         }
     }
 
@@ -130,22 +160,34 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
      * @return - null, if not allowed or there is no particlar spec. Otherwise the spec which allows the template
      */
     public AllowTemplateSpec findAllowedSpec( Folder thisFolder, ITemplate template ) {
-        TemplateSpecs specsToUse = getSpecsToUse( thisFolder );
-        if( specsToUse == null || specsToUse.isEmpty() ) {
-            return null;
-        } else {
-            for( TemplateSpec spec : specsToUse ) {
-                Boolean allow = spec.allow( template );
-                if( allow != null ) {
-                    if( allow ) {
-                        return (AllowTemplateSpec) spec;
-                    } else {
-                        return null;
-                    }
+        for( TemplateSpec spec : this ) {
+            Boolean allow = spec.allow( template );
+            if( allow != null ) {
+                if( allow ) {
+                    return (AllowTemplateSpec) spec;
+                } else {
+                    return null;
                 }
             }
-            return null;
         }
+        return null;
+
+//        TemplateSpecs specsToUse = getSpecsToUse( thisFolder );
+//        if( specsToUse == null || specsToUse.isEmpty() ) {
+//            return null;
+//        } else {
+//            for( TemplateSpec spec : specsToUse ) {
+//                Boolean allow = spec.allow( template );
+//                if( allow != null ) {
+//                    if( allow ) {
+//                        return (AllowTemplateSpec) spec;
+//                    } else {
+//                        return null;
+//                    }
+//                }
+//            }
+//            return null;
+//        }
 
     }
 
@@ -166,7 +208,6 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
             return specsToUse.findAllowed( list );
         }
     }
-
 
     public List<Template> findAllowedDirect( Folder thisFolder ) {
         List<Template> list = findApplicable( thisFolder );
@@ -202,6 +243,11 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
             }
         }
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return format();
     }
 
     public static abstract class TemplateSpec implements Serializable {

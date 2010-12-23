@@ -1,22 +1,16 @@
 package com.bradmcevoy.web;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.csv.CsvService;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
 
@@ -63,200 +57,16 @@ public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
-        PrintWriter pw = new PrintWriter( out );
-        CSVWriter writer = new CSVWriter( pw );
-        Folder source;
-        if( sourceFolder == null ) {
-            source = this.getParent();
-        } else {
-            Templatable ct = this.getParent().find( sourceFolder );
-            if( ct == null ) {
-                throw new RuntimeException( "Couldnt find sourceFolder: " + this.sourceFolder );
-            }
-            if( ct instanceof Folder ) {
-                source = (Folder) ct;
-            } else {
-                throw new RuntimeException( "sourceFolder does not refer to a folder. Is a: " + ct.getClass() );
-            }
-        }
-        for( Resource res : source.getChildren() ) {
-            if( res instanceof CommonTemplated && ( res != this ) ) {
-                CommonTemplated tres = (CommonTemplated) res;
-                if( isType == null || isType.length() == 0 || tres.is( isType ) ) {
-                    output( tres, writer );
-                }
-            }
-        }
-        pw.flush();
-        pw.close();
-    }
-
-    private void output( CommonTemplated tres, CSVWriter writer ) throws IOException {
-        List<String> vals = new ArrayList<String>();
-        ITemplate template = tres.getTemplate();
-        if( template == null ) {
-            log.warn( "Couldnt find template for page: " + tres.getPath() );
-            return;
-        }
-
-        vals.add( tres.getName() );
-        vals.add( template.getName() );
-        for( ComponentDef def : template.getComponentDefs().values() ) {
-            String s = getTextualValue( def, tres );
-            if( s == null ) {
-                vals.add( "" );
-            } else {
-                vals.add( s );
-            }
-        }
-        String[] arr = new String[vals.size()];
-        vals.toArray( arr );
-        writer.writeNext( arr );
-    }
-
-    private String getTextualValue( ComponentDef def, CommonTemplated tres ) {
-        ComponentValue val = tres.getValues().get( def.getName() );
-        if( val == null ) return null;
-        Object o = val.getValue();
-        if( o == null ) return null;
-        String s = def.formatValue( o );
-        if( s == null ) return null;
-        return s;
+        _( CsvService.class ).generate( out, isType, sourceFolder, this.getParent() );
     }
 
     public void replaceContent( InputStream in, Long length ) {
         try {
-            InputStreamReader r = new InputStreamReader( in );
-            CSVReader reader = new CSVReader( r );
-            List<BaseResource> processed = new ArrayList<BaseResource>();
-            String[] line;
-            while( ( line = reader.readNext() ) != null ) {
-                if( line.length > 0 ) {
-                    List<String> lineList = new ArrayList<String>();
-                    for( String s : line ) {
-                        lineList.add( s );
-                    }
-                    BaseResource res = doProcess( lineList );
-                    processed.add( res );
-                }
-            }
-            List<? extends Resource> existing;
-            if( this.isType != null && this.isType.length() > 0 ) {
-                existing = this.getParent().getChildren( this.isType );
-            } else {
-                existing = this.getParent().getChildren();
-            }
-            for( BaseResource res : processed ) {
-                existing.remove( res );
-            }
-            existing.remove( this );
-            List<? extends Resource> toDelete = existing;
-            for( Resource resToDelete : toDelete ) {
-                log.debug( "..will delete: " + resToDelete.getName() );
-                log.warn( "deleting disabled" );
-            }
+            _( CsvService.class ).replaceContent( in, length, isType, sourceFolder, this.getParent() );
             this.commit();
         } catch( Exception ex ) {
             this.rollback();
             throw new RuntimeException( ex );
-        }
-    }
-
-    /**
-     * Use the given tokenised line of values to locate, create and/or update
-     * a resource
-     * 
-     * @param line
-     */
-    private BaseResource doProcess( List<String> line ) {
-        String name = line.get( 0 );
-        String templateName;
-        if( line.size() > 1 ) {
-            templateName = line.get( 1 );
-            line.remove( 0 );
-        } else {
-            templateName = "";
-        }
-        line.remove( 0 );
-        return doProcess( name, templateName, line );
-    }
-
-    public Folder getSourceFolder() {
-        if( sourceFolder == null ) {
-            return this.getParent();
-        }
-        return (Folder) this.getParent().find( sourceFolder );
-    }
-
-    private BaseResource doProcess( String name, String templateName, List<String> line ) {
-        Folder fSource = getSourceFolder();
-        BaseResource tres = (BaseResource) fSource.child( name );
-        // todo: implement changing template
-        if( tres == null ) {
-//            log.debug("..creating a: " + templateName + " called " + name);
-            ITemplate newTemplate = this.getWeb().getTemplate( templateName );
-            if( newTemplate == null ) {
-                throw new RuntimeException( "No template called: " + templateName + " could be found" );
-            } else {
-                tres = newTemplate.createPageFromTemplate( fSource, name );
-            }
-            tres.save();
-        }
-        doUpdate( tres, line );
-        return tres;
-    }
-
-    /**
-     * For each component definition, grab a value from the line and update it
-     * 
-     * @param tres
-     * @param line
-     */
-    private Templatable doUpdate( Templatable tres, List<String> line ) {
-//        log.debug("..doUpdate: " + tres.getName());
-        int pos = 0;
-        ITemplate template = tres.getTemplate();
-        boolean isChanged = false;
-        for( ComponentDef def : template.getComponentDefs().values() ) {
-            ComponentValue val = tres.getValues().get( def.getName() );
-            if( val == null ) {
-                val = def.createComponentValue( tres );
-                tres.getValues().add( val );
-            }
-            Object oldVal = val.getValue();
-            if( pos < line.size() ) {
-                String sNewVal = line.get( pos++ );
-                Object newVal = def.parseValue( val, tres, sNewVal );
-                if( !equal( oldVal, newVal ) ) {
-//                    log.debug( "setting val: " + def.getName() + " to " + newVal);
-                    val.setValue( newVal );
-                    def.changedValue( val );
-                    isChanged = true;
-                } else {
-//                    log.debug("..NOT setting val: " + def.getName() + " to " + newVal);
-                }
-            } else {
-                log.debug( "no value for: " + def.getName() );
-            }
-        }
-        if( isChanged ) {
-            log.debug( "..saving: " + tres.getName() );
-            if( tres instanceof BaseResource ) {
-                ( (BaseResource) tres ).save();
-            }
-        }
-        return tres;
-    }
-
-    private boolean equal( Object oldVal, Object newVal ) {
-        if( oldVal == null ) {
-            return ( newVal == null );
-        } else {
-            if( newVal == null ) {
-                return false;
-            } else {
-                return oldVal.equals( newVal );
-            }
         }
     }
 

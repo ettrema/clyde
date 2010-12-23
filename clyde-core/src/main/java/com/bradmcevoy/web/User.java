@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.Subject;
@@ -471,6 +472,18 @@ public class User extends Folder implements IUser {
         }
     }
 
+    /**
+     * Checks to see if the given user is the same as this user
+     * 
+     * Is an alias for appliesTo
+     *
+     * @param iuser
+     * @return
+     */
+    public boolean is( IUser iuser ) {
+        return appliesTo( iuser );
+    }
+
     public boolean isSysAdmin() {
         return _( PermissionChecker.class ).hasRole( Role.SYSADMIN, this, null );
     }
@@ -481,7 +494,28 @@ public class User extends Folder implements IUser {
      * @param r
      * @return
      */
-    public boolean canAuthor(Resource r) {
-        return _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, null );
+    public boolean canAuthor( Resource r ) {
+        log.warn("canAuthor --------------------------" );
+        Auth auth = null;
+        Request req = _(CurrentRequestService.class).request();
+        if( req != null ) {
+            auth = req.getAuthorization();
+        }
+        boolean b = _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, auth );
+        log.warn("canAuthor: " + b);
+        return b;
+    }
+
+
+
+    public boolean hasRole(String role, Resource res)  {
+        Role r = null;
+        try {
+            r = Role.valueOf( role );
+        } catch( Exception e ) {
+            log.error("invalid role: " + role,e);
+            return false;
+        }
+        return _(PermissionChecker.class).hasRole( r, res, null);
     }
 }

@@ -21,9 +21,7 @@ import java.util.List;
 public class SysAdminPermissionChecker implements PermissionChecker {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SysAdminPermissionChecker.class );
-
     private final PermissionChecker wrapped;
-
     private final List<String> sysAdmins;
 
     public SysAdminPermissionChecker( PermissionChecker wrapped, List<String> sysAdmins ) {
@@ -31,27 +29,35 @@ public class SysAdminPermissionChecker implements PermissionChecker {
         this.sysAdmins = sysAdmins;
     }
 
-
     @Override
     public boolean hasRole( Role role, Resource r, Auth auth ) {
         User user = null;
         if( auth != null ) {
-            if( auth.getTag() instanceof User){
+            if( auth.getTag() instanceof User ) {
                 user = (User) auth.getTag();
             }
         }
 
-        if(isSysAdmin(user)) {
+        if( isSysAdmin( user ) ) {
+            log.trace( "hasRole: is sys admin" );
             return true;
         } else {
+            log.trace( "hasRole: not sys admin so delegate" );
             return wrapped.hasRole( role, r, auth );
         }
     }
 
     private boolean isSysAdmin( User user ) {
-        if( user == null ) return false;
+        if( user == null ) {
+            log.trace("isSysAdmin: no current user, so not sysadmin");
+            return false;
+        }
 
         String s = user.getName() + "@" + user.getHost().getName();
-        return sysAdmins.contains( s );
+        boolean b = sysAdmins.contains( s );
+        if( log.isTraceEnabled()) {
+            log.trace("isSysAdmin: " + s + " = " + b);
+        }
+        return b;
     }
 }

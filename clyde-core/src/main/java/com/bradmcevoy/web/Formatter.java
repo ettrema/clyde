@@ -48,6 +48,9 @@ public class Formatter {
                     throw new RuntimeException( "Non-numeric data: " + s );
                 }
             }
+        } else if( o instanceof ComponentValue ) {
+            ComponentValue cv = (ComponentValue) o;
+            return toDecimal( cv.getValue(), places );
         } else {
             throw new RuntimeException( "Unsupported value type, should be numeric: " + o.getClass() );
         }
@@ -76,15 +79,22 @@ public class Formatter {
         } else if( o instanceof Float ) {
             Float f = (Float) o;
             return f.doubleValue();
+        } else if( o instanceof ComponentValue ) {
+            ComponentValue cv = (ComponentValue) o;
+            return toDouble( cv.getValue() );
         } else {
             throw new RuntimeException( "Unsupported value type, should be numeric: " + o.getClass() );
         }
     }
 
     public Long toLong( Object oLimit ) {
+        return toLong( oLimit, false);
+    }
+
+    public Long toLong( Object oLimit, boolean withNulls ) {
         Long limit;
         if( oLimit == null ) {
-            limit = 0l;
+            limit = withNulls ? null : 0l;
         } else if( oLimit instanceof Long ) {
             limit = (Long) oLimit;
         } else if( oLimit instanceof Integer ) {
@@ -93,6 +103,9 @@ public class Formatter {
         } else if( oLimit instanceof String ) {
             String s = (String) oLimit;
             limit = Long.parseLong( s );
+        } else if( oLimit instanceof ComponentValue ) {
+            ComponentValue cv = (ComponentValue) oLimit;
+            limit = toLong( cv.getValue() );
         } else {
             throw new RuntimeException( "unsupported class: " + oLimit.getClass() );
         }
@@ -126,7 +139,6 @@ public class Formatter {
         return cal.get( Calendar.DAY_OF_MONTH ) + 1;
     }
 
-
     public String formatDate( Object o ) {
         if( o == null ) {
             return "";
@@ -135,6 +147,8 @@ public class Formatter {
         } else if( o instanceof ComponentValue ) {
             DateVal dv = (DateVal) o;
             return formatDate( dv.getValue() );
+        } else if( o instanceof String  ) {
+            return (String) o;
         } else {
             throw new RuntimeException( "Unsupported type: " + o.getClass() );
         }
@@ -143,5 +157,50 @@ public class Formatter {
     public org.joda.time.DateTime getDateTime( Object o ) {
         if( o == null ) return null;
         return new DateTime( o );
+    }
+
+    /**
+     * Format as a percentage, including a percentage symbol and where blank/null
+     * values result in a blank output
+     *
+     * @param num - the numerator
+     * @param div - the divisor
+     * @return
+     */
+    public String toPercent( Object num, Object div ) {
+        return toPercent( num, div, true, true );
+    }
+
+    /**
+     *
+     * @param num
+     * @param div
+     * @param appendSymbol - if true the percentage symbol is appended if a non-blank value
+     * @param withBlanks - if true, blank numerators or divisors result in a blank value. Otherwise return zero.
+     * @return
+     */
+    public String toPercent( Object num, Object div, boolean appendSymbol, boolean withBlanks ) {
+        Long lNum = toLong( num, true );
+        Long lDiv = toLong( div, true );
+        if( lDiv == null || lDiv == 0 || lNum == null ) {
+            if( withBlanks ) {
+                return "";
+            } else {
+                return "0" + ( appendSymbol ? "%" : "" );
+            }
+        } else {
+            long perc = lNum * 100 / lDiv;
+            return perc + ( appendSymbol ? "%" : "" );
+        }
+    }
+
+    public String format( Object o ) {
+        if( o == null ) {
+            return "";
+        } else if( o instanceof Date ) {
+            return formatDate( o );
+        } else {
+            return o.toString();
+        }
     }
 }

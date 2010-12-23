@@ -4,6 +4,7 @@ import com.bradmcevoy.http.AbstractWrappingResponseHandler;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.Response;
@@ -41,7 +42,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
     @Override
     public void respondUnauthorised( Resource resource, Response response, Request request ) {
         String ctHeader = request.getContentTypeHeader();
-        if( isPage( resource, ctHeader ) && !excluded( request ) ) {
+        if( isPage( resource, ctHeader ) && !excluded( request ) && isGetOrPost( request ) ) {
             Resource rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
             if( rLogin == null || !( rLogin instanceof GetableResource ) ) {
                 log.trace( "Couldnt find login resource: " + request.getHostHeader() + "/" + loginPage );
@@ -57,9 +58,9 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
                     Auth auth = request.getAuthorization();
                     if( auth != null && auth.getTag() != null ) {
                         // no authentication was attempted,
-                        request.getAttributes().put("authReason","notPermitted");
+                        request.getAttributes().put( "authReason", "notPermitted" );
                     } else {
-                        request.getAttributes().put("authReason","required");
+                        request.getAttributes().put( "authReason", "required" );
                     }
                     gr.sendContent( response.getOutputStream(), null, null, "text/html" );
                 } catch( IOException ex ) {
@@ -124,17 +125,19 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
         this.excludePaths = excludePaths;
     }
 
-
-
     private boolean excluded( Request request ) {
-        if( CollectionUtils.isEmpty( excludePaths )) {
+        if( CollectionUtils.isEmpty( excludePaths ) ) {
             return false;
         }
-        for(String s : excludePaths) {
+        for( String s : excludePaths ) {
             if( request.getAbsolutePath().startsWith( s ) ) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isGetOrPost( Request request ) {
+        return request.getMethod().equals( Method.GET ) || request.getMethod().equals( Method.POST );
     }
 }

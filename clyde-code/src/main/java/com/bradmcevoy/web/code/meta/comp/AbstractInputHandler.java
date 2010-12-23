@@ -10,6 +10,12 @@ import org.jdom.Element;
  */
 public class AbstractInputHandler {
 
+    public void fromXml( Element el, AbstractInput t ) {
+        String sVal = InitUtils.getValue( el );
+        Object o = t.parseValue( sVal );
+        t.setValue( o );
+    }
+
     public void populateXml( Element e2, AbstractInput t ) {
         e2.setAttribute( "name", t.getName() );
         if( t.isRequestScope() ) {

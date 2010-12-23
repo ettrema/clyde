@@ -1,7 +1,5 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.Request.Method;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -34,7 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;

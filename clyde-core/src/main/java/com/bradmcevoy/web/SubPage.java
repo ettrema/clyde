@@ -5,12 +5,16 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.PostableResource;
+import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -45,6 +49,12 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         this.parentPage = (CommonTemplated) container;
         loadFromXml(el);
     }
+
+    public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+        requestedPage.generateContent( out );
+    }
+
+
 
     /**
      * if secure is set requires a logged in user

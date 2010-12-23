@@ -110,9 +110,9 @@ public final class GroupSelect implements WrappableComponent, Component {
             }
 
             User user = (User) container;
-            if( user.isNew()) {
-                user.save();
-            }
+//            if( user.isNew()) {
+//                user.save();
+//            }
             if( val ) {
                 user.addToGroup( groupName );
             } else {

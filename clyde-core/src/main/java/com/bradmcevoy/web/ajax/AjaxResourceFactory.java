@@ -57,7 +57,7 @@ public class AjaxResourceFactory implements ResourceFactory {
         if( path.endsWith( ENDS_WITH ) ) {
             Path p = Path.path( path );
             if( p.getParent() == null ) {
-                log.trace("not ajax request, because path parent is null");
+                log.trace( "not ajax request, because path parent is null" );
                 return null;
             }
             Path pRes = p.getParent();
@@ -175,6 +175,18 @@ public class AjaxResourceFactory implements ResourceFactory {
             this.accessor = accessor;
         }
 
+        /**
+         * Note that we can't just delegate to the underlying page because we
+         * need access to the component values, so we can get their validation
+         * messages
+         * 
+         * @param parameters
+         * @param files
+         * @return
+         * @throws BadRequestException
+         * @throws NotAuthorizedException
+         * @throws ConflictException
+         */
         public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws BadRequestException, NotAuthorizedException, ConflictException {
             log.trace( "processForm" );
             preProcess( null, parameters, files );
@@ -212,12 +224,18 @@ public class AjaxResourceFactory implements ResourceFactory {
             RenderContext rc = new RenderContext( lTemplate, res, rcChild, false );
 
             for( String paramName : parameters.keySet() ) {
+                log.info( "process form: " + paramName );
                 Path path = Path.path( paramName );
                 Component c = rc.findComponent( path );
                 if( c != null ) {
-                    c.onProcess( rc, parameters, files );
-                    // ignore redirects
-                    break;
+                    log.info( "process component: " + c.getClass() );
+                    String redirect = c.onProcess( rc, parameters, files );
+                    if( redirect != null ) {
+                        // ignore redirects, but redirects cause processing to stop
+                        break;
+                    }
+                } else {
+                    log.info( "not found" );
                 }
             }
 

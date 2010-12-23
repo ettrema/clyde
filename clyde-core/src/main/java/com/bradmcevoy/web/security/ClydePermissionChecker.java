@@ -9,7 +9,7 @@ import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 
-import static  com.ettrema.context.RequestContext._;
+import static com.ettrema.context.RequestContext._;
 
 /**
  * Implementation of PermissionChecker which works for Clyde resources
@@ -44,18 +44,44 @@ public class ClydePermissionChecker implements PermissionChecker {
         }
         if( role.equals( Role.AUTHENTICATED ) ) {
             return auth != null && auth.getTag() != null;
-        }
-        if( r instanceof BaseResource ) {
-            BaseResource res = (BaseResource) r;
-            IUser iuser = _(CurrentUserService.class).getSecurityContextUser();
+        } else if( role.equals( Role.CREATOR ) ) {
+            IUser iuser = _( CurrentUserService.class ).getSecurityContextUser();
             if( iuser == null ) {
-                log.trace( "no current user so deny access");
+                log.trace( "no current user so cannot be creator" );
                 return false;
-            } else if( !(iuser instanceof User) ){
-                log.trace("incompatible user type");
+            } else if( !( iuser instanceof User ) ) {
+                log.trace( "incompatible user type for CREATOR role" );
+                return false;
+            } else if( !( r instanceof BaseResource ) ) {
+                log.trace( "resource is not compatible for CREATOR role" );
+                return false;
+            } else {
+                BaseResource res = (BaseResource) r;
+                User creator = res.getCreator();
+                if( creator == null ) {
+                    log.trace( "resource has no creator" );
+                    return false;
+                } else {
+                    if( !creator.is( iuser ) ) {
+                        log.trace( "current user is not creator" );
+                        return false;
+                    } else {
+                        log.trace( "current user is creator" );
+                        return true;
+                    }
+                }
+            }
+        } else if( r instanceof BaseResource ) {
+            BaseResource res = (BaseResource) r;
+            IUser iuser = _( CurrentUserService.class ).getSecurityContextUser();
+            if( iuser == null ) {
+                log.trace( "no current user so deny access" );
+                return false;
+            } else if( !( iuser instanceof User ) ) {
+                log.trace( "incompatible user type" );
                 return false;
             }
-            return hasRoleRes( (User)iuser, res, role );
+            return hasRoleRes( (User) iuser, res, role );
         } else if( r instanceof Templatable ) {
             Templatable templatable = (Templatable) r;
             boolean b = hasRole( role, templatable.getParent(), auth );
@@ -71,7 +97,7 @@ public class ClydePermissionChecker implements PermissionChecker {
 
     private boolean hasRoleRes( User user, BaseResource res, Role role ) {
         if( res == null ) {
-            log.trace("resource is null");
+            log.trace( "resource is null" );
             return false;
         }
 
@@ -82,12 +108,10 @@ public class ClydePermissionChecker implements PermissionChecker {
             }
         }
         if( res instanceof Host ) {
-            log.trace("reached host, no permissions found");
+            log.trace( "reached host, no permissions found" );
             return false;
         } else {
             return hasRoleRes( user, res.getParent(), role );
         }
     }
-
-
 }

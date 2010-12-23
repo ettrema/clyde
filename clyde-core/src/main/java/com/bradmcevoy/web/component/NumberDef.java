@@ -48,10 +48,20 @@ public class NumberDef extends TextDef {
             return bd.toPlainString();
         } else if( v instanceof String ) {
             String s = (String) v;
-            Double dd = Double.parseDouble( s );
-            return formatValue( dd );
+            if( s.trim().length() > 0 ) {
+                Double dd = null;
+                try {
+                    dd = Double.parseDouble( s.trim() );
+                    return formatValue( dd );
+                } catch( NumberFormatException numberFormatException ) {
+                    log.warn( "number formate error: " + s, numberFormatException);
+                    return "ERR";
+                }                
+            } else {
+                return "";
+            }
         } else {
-            log.debug("unknown type: " + v.getClass());
+            log.debug( "unknown type: " + v.getClass() );
             return v.toString();
         }
     }

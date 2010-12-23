@@ -72,14 +72,20 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
             boolean isEdit = isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} );
             Templatable t = (Templatable) resource;
             if( isEdit ) {
-                return authoringPermissionService.getEditRole( t );
+                Role r = authoringPermissionService.getEditRole( t );
+                if( log.isTraceEnabled() ) {
+                    log.trace( "findRole: templatable: required edit role: " + r );
+                }
+                return r;
             } else {
                 if( isMethod( method, new Method[]{Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST} ) ) {
+                    log.trace("is templatable, but not edit so default to viewer role");
                     return Role.VIEWER;
                 }
                 throw new RuntimeException( "Unhandled method in permissionsauthoriser: " + method );
             }
         } else {
+            log.trace("findRole: resource is not templatable so use default roles");
             Method m = method;
 
             if( isMethod( method, new Method[]{Method.PROPPATCH, Method.COPY, Method.DELETE, Method.MOVE, Method.LOCK, Method.PUT, Method.UNLOCK, Method.MKCOL} ) )
@@ -170,7 +176,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
         PropertyDescriptor pd = getPropertyDescriptor( resource, name.getLocalPart() );
         if( pd == null || pd.getReadMethod() == null ) {
-            log.trace("property not found, so use default role");
+            log.trace( "property not found, so use default role" );
             return defaultRequiredRole( resource, propertyPermission );
         } else {
             BeanProperty anno = getAnnotation( resource, pd.getReadMethod() );
@@ -178,7 +184,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
                 log.trace( "no annotation" );
                 return defaultRequiredRole( resource, propertyPermission );
             }
-            log.trace("got annotation");
+            log.trace( "got annotation" );
 
             if( propertyPermission == PropertyPermission.READ ) {
                 return anno.readRole();
@@ -195,8 +201,8 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
     private PropertyDescriptor getPropertyDescriptor( Resource r, String name ) {
         try {
             PropertyDescriptor pd = PropertyUtils.getPropertyDescriptor( r, name );
-            if( log.isTraceEnabled()) {
-                log.trace("getPropertyDescriptor: " + name + " on " + r.getClass() + " -> " + pd);
+            if( log.isTraceEnabled() ) {
+                log.trace( "getPropertyDescriptor: " + name + " on " + r.getClass() + " -> " + pd );
             }
             return pd;
         } catch( IllegalAccessException ex ) {

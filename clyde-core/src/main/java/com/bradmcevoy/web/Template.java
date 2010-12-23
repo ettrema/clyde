@@ -277,21 +277,11 @@ public class Template extends Page implements ITemplate {
     public void onAfterSave( BaseResource aThis ) {
         if( afterSaveScript != null ) {
             log.trace( "onAfterSave: run script" );
+            if( log.isTraceEnabled() ) {
+                Thread.dumpStack();
+            }
             Map map = new HashMap();
             exec( aThis, map, afterSaveScript );
-        }
-    }
-
-    private void execMvel( Templatable ct, Map map, String expr ) {
-        try {
-            BaseResource targetContainer = CommonTemplated.getTargetContainer();
-            IUser user = _( CurrentUserService.class ).getOnBehalfOf();
-            map.put( "targetPage", targetContainer );
-            map.put( "user", user );
-            map.put( "formatter", Formatter.getInstance() );
-            org.mvel.MVEL.eval( expr, ct, map );
-        } catch( Exception e ) {
-            throw new RuntimeException( "Exception evaluating expression: " + expr + " in page: " + ct.getName(), e );
         }
     }
 

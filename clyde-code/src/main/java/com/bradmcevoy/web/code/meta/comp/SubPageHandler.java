@@ -47,8 +47,12 @@ public class SubPageHandler implements ComponentHandler {
     public Component fromXml( CommonTemplated res, Element el ) {
         String name = el.getAttributeValue( "name" );
         SubPage sp = new SubPage( res, name );
-        sp.setSecure( InitUtils.getBoolean( el, "secure" ) );
-        commonTemplatedMetaHandler.updateFromXml(sp, el, true );
+        updateFromXml(sp, el);
         return sp;
+    }
+
+    public void updateFromXml( SubPage sp, Element el ) {
+        sp.setSecure( InitUtils.getBoolean( el, "secure" ) );
+        commonTemplatedMetaHandler.updateFromXml( sp, el, true );
     }
 }

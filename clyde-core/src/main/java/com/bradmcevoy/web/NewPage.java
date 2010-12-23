@@ -218,6 +218,9 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         ITemplate t = getTemplate( request.getParams() );
         Role creatingRole = _( AuthoringPermissionService.class ).getCreateRole( folder, t );
         boolean b = _( PermissionChecker.class ).hasRole( creatingRole, folder, auth );
+        if( !b ) {
+            log.info("Permission denied. User does not have role: " + creatingRole + " on: " + folder.getHref());
+        }
         return b;
     }
 

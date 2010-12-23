@@ -5,14 +5,18 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.PostableResource;
+import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -222,6 +226,30 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
             c.onPreProcess(rc,parameters,files);
         }
     }
+
+    @Override
+    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+        subPage.sendContent( this, out, range, params, contentType );
+    }
+
+    /**
+     * Allows chaining of calls from wrapped sub pages
+     *
+     * @param requestedPage
+     * @param out
+     * @param range
+     * @param params
+     * @param contentType
+     * @throws IOException
+     * @throws NotAuthorizedException
+     * @throws BadRequestException
+     */
+    public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+        subPage.sendContent( this, out, range, params, contentType );
+    }
+
+
+
     
     /** Commands should be invoked, if user clicked
      */

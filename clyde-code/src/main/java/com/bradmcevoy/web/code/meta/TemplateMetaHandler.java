@@ -14,6 +14,7 @@ import com.bradmcevoy.web.code.meta.comp.ComponentDefHandler;
 import com.bradmcevoy.web.code.meta.comp.DateDefHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailDefHandler;
 import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
+import com.bradmcevoy.web.code.meta.comp.RelationSelectDefHandler;
 import com.bradmcevoy.web.code.meta.comp.TextDefHandler;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.InitUtils;
@@ -56,6 +57,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         DateDefHandler dateDefHandler = new DateDefHandler( textDefHandler );
         EmailDefHandler emailDefHandler = new EmailDefHandler( textDefHandler );
         BooleanDefHandler booleanDefHandler = new BooleanDefHandler( textDefHandler );
+        RelationSelectDefHandler relationSelectDefHandler = new RelationSelectDefHandler();
+
+        add( relationSelectDefHandler );
         add( booleanDefHandler );
         add( emailDefHandler );
         add( dateDefHandler );

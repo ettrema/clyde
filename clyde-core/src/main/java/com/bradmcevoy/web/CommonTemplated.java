@@ -46,6 +46,7 @@ import static com.ettrema.context.RequestContext._;
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
+    public static final String MAXAGE_COMP_NAME = "maxAge";
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommonTemplated.class );
     private static final long serialVersionUID = 1L;
     private static ThreadLocal<CommonTemplated> tlTargetPage = new ThreadLocal<CommonTemplated>();
@@ -451,7 +452,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     public Long getMaxAgeSecsThis() {
-        Component c = this.getComponent( "maxAge" );
+        Component c = this.getComponent( MAXAGE_COMP_NAME );
         if( c == null ) return null;
         return getMaxAgeSecs( c );
     }
@@ -465,18 +466,22 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public void setMaxAgeSecsThis( Integer l ) {
-        Component c = this.getComponents().get( "maxAge" );
-        NumberInput n;
-        if( c == null ) {
-            n = new NumberInput( this, "maxAge" );
-            this.getComponents().add( n );
-        } else {
-            n = (NumberInput) c;
-        }
         if( l == null ) {
-            n.setValue( null );
+            this.getComponents().remove( MAXAGE_COMP_NAME );
         } else {
-            n.setValue( l.intValue() );
+            Component c = this.getComponents().get( MAXAGE_COMP_NAME );
+            NumberInput n;
+            if( c == null ) {
+                n = new NumberInput( this, MAXAGE_COMP_NAME );
+                this.getComponents().add( n );
+            } else {
+                n = (NumberInput) c;
+            }
+            if( l == null ) {
+                n.setValue( null );
+            } else {
+                n.setValue( l.intValue() );
+            }
         }
     }
 
@@ -484,9 +489,15 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( c instanceof NumberInput ) {
             NumberInput n = (NumberInput) c;
             Integer ii = n.getValue();
+            if( log.isTraceEnabled() ) {
+                log.trace( "using maxAge component from: " + c.getContainer().getPath() + " = " + ii );
+            }
             if( ii == null ) return null;
             return (long) ii.intValue();
         } else {
+            if( log.isTraceEnabled() ) {
+                log.trace( "maxAge component is not compatible type: " + c.getClass() + " from: " + c.getContainer().getPath() );
+            }
             return null;
         }
 
@@ -494,18 +505,24 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Long getMaxAgeSeconds( Auth auth ) {
-        log.trace( "getMaxAgeSeconds" );
         Component c = this.getComponent( "maxAge" );
         if( c != null ) {
-            return getMaxAgeSecs( c );
-        } else {
-            if( this.getTemplate() == null ) {
-                log.trace( "no template, use large default max-age" );
-                return 315360000l;
+            Long l = getMaxAgeSecs( c );
+            if( l != null ) {
+                if( log.isTraceEnabled() ) {
+                    log.trace( "found a maxAge component with value: " + l );
+                }
+                return l;
             } else {
-                log.trace( "get default max age" );
-                return getDefaultMaxAge( auth );
+                log.trace( "maxAge component has null value so ignore it and use default" );
             }
+        }
+        if( this.getTemplate() == null ) {
+            log.trace( "no template, use large default max-age" );
+            return 315360000l;
+        } else {
+            log.trace( "get default max age" );
+            return getDefaultMaxAge( auth );
         }
     }
 
@@ -526,7 +543,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( web != null ) {
             String templateName = getTemplateName();
             if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
-                log.debug( "empty template name");
+                log.debug( "empty template name" );
                 return null;
             }
             TemplateManager tm = requestContext().get( TemplateManager.class );
@@ -604,6 +621,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+        generateContent( out );
+    }
+
+    public void generateContent( OutputStream out ) throws IOException {
         if( log.isTraceEnabled() ) {
             log.trace( "sendContent: " + this.getHref() );
         }

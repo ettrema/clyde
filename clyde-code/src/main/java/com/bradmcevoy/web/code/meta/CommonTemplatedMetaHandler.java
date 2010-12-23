@@ -7,6 +7,7 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.meta.comp.AbstractInputHandler;
 import com.bradmcevoy.web.code.meta.comp.CommandHandler;
+import com.bradmcevoy.web.code.meta.comp.CsvSubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.DateValueHandler;
 import com.bradmcevoy.web.code.meta.comp.DefaultValueHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailCommandHandler;
@@ -56,6 +57,8 @@ public class CommonTemplatedMetaHandler {
         ForgottenPasswordComponentHandler forgottenPasswordComponentHandler = new ForgottenPasswordComponentHandler();
         EmailInputHandler emailInputHandler = new EmailInputHandler( textHandler );
         EmailCommandHandler emailCommandHandler = new EmailCommandHandler( commandHandler );
+        SubPageHandler subPageHandler = new SubPageHandler( this );
+        CsvSubPageHandler csvSubPageHandler = new CsvSubPageHandler( subPageHandler );
         add( emailCommandHandler );
         add( emailInputHandler );
         add( forgottenPasswordComponentHandler );
@@ -64,7 +67,8 @@ public class CommonTemplatedMetaHandler {
         add( templateInputHandler );
         add( groupEmailCommandHandler );
         add( textHandler );
-        add( new SubPageHandler( this ) );
+        add( csvSubPageHandler );
+        add( subPageHandler );
 
         mapOfValueHandlers = new LinkedHashMap<Class, ValueHandler>();
         mapOfValueAliases = new LinkedHashMap<String, ValueHandler>();
@@ -164,6 +168,9 @@ public class CommonTemplatedMetaHandler {
             return false;
         } else {
             // these fields are output in the content for html pages
+            if( name == null ) {
+                return false;
+            }
             return name.equals( "body" ) || name.equals( "title" );
         }
     }
