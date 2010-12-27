@@ -24,6 +24,12 @@ public class Page extends File implements Replaceable {
     }
 
     @Override
+    public String getDefaultContentType() {
+        return "text/html";
+    }
+
+   
+    @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         return new Page( parent, newName );
     }

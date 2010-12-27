@@ -23,6 +23,8 @@ public interface ISubPage extends Templatable{
     Resource getChildResource( String childName );
 
     String getContentType( String accepts );
+    
+    String getDefaultContentType();
 
     /**
      * This is called by the wrapped sub page.

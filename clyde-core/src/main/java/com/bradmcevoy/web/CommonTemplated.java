@@ -104,6 +104,15 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public abstract CommonTemplated getParent();
 
+    /**
+     * Called only when the persisted content type is null, this should be
+     * what we expect the content type of a resource type to be, possibly
+     * considering its file extension
+     *
+     * @return
+     */
+    public abstract String getDefaultContentType();
+
     public CommonTemplated() {
         valueMap = new ComponentValueMap();
         componentMap = new ComponentMap();
@@ -433,7 +442,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             ct = contentType;
         } else {
             //ct = null;
-            ct = "text/html"; // default to html page
+            ct = getDefaultContentType();
+        }
+        if( log.isTraceEnabled() ) {
+            log.trace( "getContentType: " + accepts + " -> " + ct );
         }
         return ct;
     }

@@ -31,6 +31,13 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
+    public String getDefaultContentType() {
+        return null;
+    }
+
+
+
+    @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         throw new UnsupportedOperationException( "Not supported yet." );
     }

@@ -34,6 +34,13 @@ public class CombiningTextFile extends File {
     }
 
     @Override
+    public String getDefaultContentType() {
+        // since binary files can represent many different content types
+        // we try to infer from the file name
+        return ContentTypeUtil.getContentTypeString( getName() );
+    }
+
+    @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         return new CombiningTextFile( this.getContentType( null ), parent, newName );
     }

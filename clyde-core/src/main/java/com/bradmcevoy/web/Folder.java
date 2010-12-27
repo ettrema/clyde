@@ -92,6 +92,13 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     @Override
+    public String getDefaultContentType() {
+        return null;
+    }
+
+
+
+    @Override
     protected BaseResource copyInstance( Folder parent, String newName ) {
         Folder fNew = (Folder) super.copyInstance( parent, newName );
         fNew.secureRead = this.secureRead;

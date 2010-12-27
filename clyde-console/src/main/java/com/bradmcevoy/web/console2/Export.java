@@ -177,17 +177,21 @@ public class Export extends AbstractConsoleCommand {
                 if( s.startsWith( "-" ) ) {
                     processOption( s );
                     it.remove();
+                } else if( s.trim().length() == 0) {
+                    it.remove();
                 }
             }
             if( list.size() < 3 ) {
                 throw new Exception( "not enough arguments" );
             }
             String dest = list.get( 0 );
+            log.trace("dest: " + dest);
             URI uriDest = new URI( dest );
             destHost = uriDest.getHost();
             destPath = uriDest.getPath();
             destUser = list.get( 1 );
             destPassword = list.get( 2 );
+            log.trace("host: " + destHost + " destPath: " + destPassword + " user: " + destUser);
         }
 
         private void processOption( String s ) {

@@ -50,6 +50,11 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         loadFromXml(el);
     }
 
+    @Override
+    public String getDefaultContentType() {
+        return "text/html";
+    }
+    
     public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         requestedPage.generateContent( out );
     }

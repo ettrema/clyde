@@ -31,6 +31,13 @@ public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
     }
 
     @Override
+    public String getDefaultContentType() {
+        return "text/csv";
+    }
+
+
+
+    @Override
     protected String getHelpDescription() {
         return "Dynamically generates a CSV representaton of resources of a given type in a specified folder";
     }

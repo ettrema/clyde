@@ -21,6 +21,13 @@ public class FlashFile extends BinaryFile {
     }
 
     @Override
+    public String getDefaultContentType() {
+        return "application/x-flash-video";
+    }
+
+
+
+    @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         return new FlashFile( parent, newName );
     }

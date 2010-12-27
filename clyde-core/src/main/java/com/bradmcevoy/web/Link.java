@@ -23,6 +23,12 @@ public class Link extends BaseResource{
     }
 
     @Override
+    public String getDefaultContentType() {
+        BaseResource linked = getDest();
+        return linked.getDefaultContentType();
+    }
+
+    @Override
     public void onDeleted( NameNode nameNode ) {
         
     }

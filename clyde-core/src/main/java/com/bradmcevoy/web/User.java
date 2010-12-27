@@ -404,15 +404,17 @@ public class User extends Folder implements IUser {
         if( userGroup == null ) {
             throw new NullPointerException( "Group not found: " + groupName );
         } else if( userGroup instanceof Group ) {
-            if( userGroup != null ) {
-                if( userGroup.isInGroup( this ) ) {
-                    groupService.removeFromGroup( this, (Group) userGroup );
-                }
-            }
+            removeFromGroup((Group) userGroup);
         } else {
             throw new RuntimeException( "Cant remove group type: " + userGroup.getClass() );
         }
+    }
 
+    public void removeFromGroup( Group group ) {
+        RelationalGroupHelper groupService = _( RelationalGroupHelper.class );
+        if( group.isInGroup( this ) ) {
+            groupService.removeFromGroup( this, group );
+        }
     }
 
     public List<WallItem> getWall() {
@@ -495,27 +497,25 @@ public class User extends Folder implements IUser {
      * @return
      */
     public boolean canAuthor( Resource r ) {
-        log.warn("canAuthor --------------------------" );
+        log.warn( "canAuthor --------------------------" );
         Auth auth = null;
-        Request req = _(CurrentRequestService.class).request();
+        Request req = _( CurrentRequestService.class ).request();
         if( req != null ) {
             auth = req.getAuthorization();
         }
         boolean b = _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, auth );
-        log.warn("canAuthor: " + b);
+        log.warn( "canAuthor: " + b );
         return b;
     }
 
-
-
-    public boolean hasRole(String role, Resource res)  {
+    public boolean hasRole( String role, Resource res ) {
         Role r = null;
         try {
             r = Role.valueOf( role );
         } catch( Exception e ) {
-            log.error("invalid role: " + role,e);
+            log.error( "invalid role: " + role, e );
             return false;
         }
-        return _(PermissionChecker.class).hasRole( r, res, null);
+        return _( PermissionChecker.class ).hasRole( r, res, null );
     }
 }

@@ -41,6 +41,13 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         super( "application", parentFolder, newName );
     }
 
+    @Override
+    public String getDefaultContentType() {
+        // since binary files can represent many different content types
+        // we try to infer from the file name
+        return ContentTypeUtil.getContentTypeString( getName() );
+    }
+
     public boolean isFirstVersionDone() {
         return firstVersionDone;
     }
@@ -322,7 +329,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         if( res != null && res instanceof BinaryFile ) {
             return (BinaryFile) res;
         } else {
-            log.info("no thumb with name: " + thumbName + " in folder: " + f.getName() );
+            log.info( "no thumb with name: " + thumbName + " in folder: " + f.getName() );
             return null;
         }
     }

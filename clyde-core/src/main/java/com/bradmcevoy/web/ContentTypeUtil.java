@@ -1,6 +1,7 @@
 
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.common.ContentTypeUtils;
 import com.bradmcevoy.common.Path;
 import eu.medsea.mimeutil.MimeType;
 import eu.medsea.mimeutil.MimeUtil;
@@ -11,6 +12,11 @@ import java.util.HashSet;
 
 public class ContentTypeUtil {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ContentTypeUtil.class );
+
+    public static String getContentTypeString(String fileName) {
+        return ContentTypeUtils.findContentTypes( fileName );
+    }
 
     public static Iterable<Path> getContentTypeList(String fileName) {
         Collection mimeTypes = MimeUtil.getMimeTypes( fileName );

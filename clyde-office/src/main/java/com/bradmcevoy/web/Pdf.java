@@ -4,7 +4,6 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.stats.CountingOutputStream;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayInputStream;
@@ -16,8 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
-import org.jdom.Document;
-import org.jdom.JDOMException;
 import org.xhtmlrenderer.util.XRRuntimeException;
 import org.xml.sax.SAXException;
 
@@ -35,6 +32,12 @@ public class Pdf extends BinaryFile{
         Path path = Path.path(sPath);
         loadUrl(path);
     }
+
+    @Override
+    public String getDefaultContentType() {
+        return "application/pdf";
+    }
+
 
     
     public void loadUrl( final Path path ) {

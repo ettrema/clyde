@@ -59,6 +59,13 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
 
     @Override
+    public String getDefaultContentType() {
+        return subPage.getDefaultContentType();
+    }
+
+
+
+    @Override
     public Object authenticate( DigestResponse digestRequest ) {
         ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
         Object o = authenticator.authenticate( actualParent, digestRequest );

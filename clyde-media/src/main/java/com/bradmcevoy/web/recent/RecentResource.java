@@ -52,6 +52,14 @@ public class RecentResource extends File {
     }
 
     @Override
+    public String getDefaultContentType() {
+        return null;
+    }
+
+
+
+
+    @Override
     public void _delete() throws ConflictException, BadRequestException, NotAuthorizedException {
         deletePhysically();
     }
