@@ -215,10 +215,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if( lTemplate != null ) {
             lTemplate.preProcess( rc, parameters, files );
             for( ComponentDef def : lTemplate.getComponentDefs().values() ) {
-                if( !this.getValues().containsKey( def.getName() ) ) {
-                    ComponentValue cv = def.createComponentValue( this );
+                ComponentValue cv = this.getValues().get( def.getName() );
+                if( cv == null ) {
+                    cv = def.createComponentValue( this );
                     getValues().add( cv );
                 }
+                def.onPreProcess( cv, rc, parameters, files );
             }
         }
 

@@ -14,6 +14,7 @@ import com.bradmcevoy.web.code.meta.comp.ComponentDefHandler;
 import com.bradmcevoy.web.code.meta.comp.DateDefHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailDefHandler;
 import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
+import com.bradmcevoy.web.code.meta.comp.MultipleChoiceQaDefHandler;
 import com.bradmcevoy.web.code.meta.comp.RelationSelectDefHandler;
 import com.bradmcevoy.web.code.meta.comp.TextDefHandler;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -58,7 +59,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         EmailDefHandler emailDefHandler = new EmailDefHandler( textDefHandler );
         BooleanDefHandler booleanDefHandler = new BooleanDefHandler( textDefHandler );
         RelationSelectDefHandler relationSelectDefHandler = new RelationSelectDefHandler();
+        MultipleChoiceQaDefHandler multipleChoiceQaDefHandler = new MultipleChoiceQaDefHandler();
 
+        add( multipleChoiceQaDefHandler );
         add( relationSelectDefHandler );
         add( booleanDefHandler );
         add( emailDefHandler );
@@ -84,7 +87,6 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         return ALIAS;
     }
 
-
     public Element toXml( Template r ) {
         Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
@@ -98,8 +100,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     }
 
     private void populateXml( Element el, Template template ) {
-        JDomUtils.setChild(el, "afterCreateScript", template.getAfterCreateScript(),CodeMeta.NS);
-        JDomUtils.setChild(el, "afterSaveScript", template.getAfterSaveScript(),CodeMeta.NS);
+        JDomUtils.setChild( el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS );
+        JDomUtils.setChild( el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS );
         String cn = template.getClassToCreate();
         if( !StringUtils.isEmpty( cn ) ) {
             try {
