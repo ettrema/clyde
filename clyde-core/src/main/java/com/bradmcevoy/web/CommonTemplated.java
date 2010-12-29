@@ -237,7 +237,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.info( "process form" );
+        log.info( "process" );
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
         String redirectTo = null;

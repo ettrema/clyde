@@ -1,5 +1,6 @@
 package com.bradmcevoy.utils;
 
+import com.bradmcevoy.xml.XmlHelper;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;
@@ -48,21 +49,44 @@ public class JDomUtils {
      * @return
      */
     public static String valueOf( Element el, String name, Namespace NS ) {
-        Element e = el.getChild( name, NS );
-        if( e == null ) {
+        Element elChild = el.getChild( name, NS );
+        if( elChild == null ) {
             return null;
         } else {
-            return e.getText();
+            return getInnerXml( elChild );
         }
     }
 
-    public static void setChild( Element el, String childName, String val, Namespace ns ) {
+    public static String getInnerXml( Element el ) {
+        String v = XmlHelper.getAllText( el );
+        if( v == null ) return null;
+        return v.trim();
+    }
+
+    public static void setInnerXml(Element el, String xml) {
+        XmlHelper helper = new XmlHelper();
+        List content = helper.getContent( xml );
+        el.setContent( content );
+    }
+
+    public static void setChildText( Element el, String childName, String val, Namespace ns ) {
         if( val != null ) {
             Element elScript = new Element( childName, ns );
             elScript.setText( val );
             el.addContent( elScript );
         }
     }
+
+    public static void setChildXml( Element el, String childName, String val, Namespace ns ) {
+        if( val != null ) {
+            Element elChild = new Element( childName, ns );
+            el.addContent( elChild );
+            setInnerXml( elChild, val );
+        } else {
+            System.out.println( "no val: " + childName );
+        }
+    }
+
 
     /**
      * Returns the first child of any namespace with the given local name

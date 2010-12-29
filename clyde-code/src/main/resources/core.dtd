@@ -28,7 +28,7 @@
   >
 
  <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:page (c:attributes)*>
+<!ELEMENT c:page (c:attributes?|c:components?)*>
 <!ATTLIST c:page
     contentType CDATA #IMPLIED
     template CDATA #IMPLIED
@@ -110,9 +110,9 @@
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:fields (c:html|c:text|c:email)*>
 
-  
+
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
@@ -127,6 +127,16 @@
     description CDATA #IMPLIED
 
   >
+
+<!ELEMENT c:forgottenPassword (#PCDATA|c:subject|c:body)*>
+<!ATTLIST c:forgottenPassword
+    name CDATA #IMPLIED
+    replyTo CDATA #IMPLIED
+    thankyouPage CDATA #IMPLIED
+    useToken CDATA #IMPLIED
+  >
+  
+
 
 <!ELEMENT c:eval (#PCDATA)>
 <!ATTLIST c:eval

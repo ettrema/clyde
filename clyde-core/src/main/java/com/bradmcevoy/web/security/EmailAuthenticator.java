@@ -85,10 +85,19 @@ public class EmailAuthenticator implements ClydeAuthenticator {
         }
     }
 
-    private User findUser( MailboxAddress add, CommonTemplated r ) {
+    /**
+     * Given a starting (ie current) resource and an email address, attempt to
+     * locate a matching user. The user account must be defined on the same domain
+     * as the given resource
+     *
+     * @param add
+     * @param currentResource
+     * @return
+     */
+    public User findUser( MailboxAddress add, CommonTemplated currentResource ) {
         List<User> foundUsers = findMatchingUsers( add );
         for( User user : foundUsers ) {
-            if( isMatchingDomain( user, r.getHost() ) ) {
+            if( isMatchingDomain( user, currentResource.getHost() ) ) {
                 return user;
             }
         }

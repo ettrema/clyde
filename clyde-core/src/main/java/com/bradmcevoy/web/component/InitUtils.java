@@ -207,8 +207,7 @@ public class InitUtils {
         if( att != null ) {
             v = att.getValue();
         } else {
-            XmlHelper xmlHelper = new XmlHelper();
-            v = xmlHelper.getAllText( el );
+            v = XmlHelper.getAllText( el );
         }
         if( v == null ) return null;
         return v.trim();
@@ -316,9 +315,8 @@ public class InitUtils {
      * @return
      */
     public static String getElementValue( Element elParent, String name ) {
-        XmlHelper helper = new XmlHelper();
         Element el = elParent.getChild( name );
         if( el == null ) return null;
-        return helper.getAllText( el );
+        return XmlHelper.getAllText( el );
     }
 }

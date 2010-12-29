@@ -32,20 +32,24 @@ public class ForgottenPasswordComponentHandler implements ComponentHandler {
 
     public Component fromXml( CommonTemplated res, Element el ) {
         String name = el.getAttributeValue( "name" );
-        if(StringUtils.isEmpty( name )) {
-            throw new RuntimeException( "Empty component name");
+        if( StringUtils.isEmpty( name ) ) {
+            throw new RuntimeException( "Empty component name" );
         }
         ForgottenPasswordComponent text = new ForgottenPasswordComponent( res, name );
         fromXml( text, el );
         return text;
     }
 
-    public void fromXml( ForgottenPasswordComponent text, Element el ) {
-        text.setFromAdd( el.getAttributeValue( "from" ) );
-        text.setReplyTo( el.getAttributeValue( "replyTo" ) );
-        text.setThankyouPage( el.getAttributeValue( "thankyouPage" ) );
-        text.setSubject( JDomUtils.valueOf( el, "subject", CodeMeta.NS) );
-        text.setBodyTemplate( JDomUtils.valueOf( el, "body", CodeMeta.NS) );
+    public void fromXml( ForgottenPasswordComponent fpc, Element el ) {
+        fpc.setFromAdd( el.getAttributeValue( "from" ) );
+        fpc.setReplyTo( el.getAttributeValue( "replyTo" ) );
+        fpc.setThankyouPage( el.getAttributeValue( "thankyouPage" ) );
+        fpc.setSubject( JDomUtils.valueOf( el, "subject", CodeMeta.NS ) );
+        String body = JDomUtils.valueOf( el, "text", CodeMeta.NS );
+        fpc.setBodyTemplate( body );
+        String html =JDomUtils.valueOf( el, "html", CodeMeta.NS );
+        fpc.setBodyTemplateHtml( html );
+        fpc.setUseToken( InitUtils.getBoolean( el, "useToken" ) );
     }
 
     public void populateXml( Element elThis, ForgottenPasswordComponent t ) {
@@ -53,8 +57,10 @@ public class ForgottenPasswordComponentHandler implements ComponentHandler {
         InitUtils.set( elThis, "from", t.getFromAdd() );
         InitUtils.set( elThis, "replyTo", t.getReplyTo() );
         InitUtils.set( elThis, "thankyouPage", t.getThankyouPage() );
-        JDomUtils.setChild( elThis, "subject", t.getSubject(), CodeMeta.NS);
-        JDomUtils.setChild( elThis, "body", t.getBodyTemplate(), CodeMeta.NS);
+        InitUtils.set( elThis, "useToken", t.isUseToken() );
+        JDomUtils.setChildText( elThis, "subject", t.getSubject(), CodeMeta.NS );
+        JDomUtils.setChildText( elThis, "text", t.getBodyTemplate(), CodeMeta.NS );
+        JDomUtils.setChildXml( elThis, "html", t.getBodyTemplateHtml(), CodeMeta.NS );
 
     }
 }

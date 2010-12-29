@@ -2,27 +2,23 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.EmailAddress;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.User;
-import com.ettrema.context.RequestContext;
-import com.ettrema.mail.MailboxAddress;
-import com.ettrema.mail.StandardMessageImpl;
-import com.ettrema.mail.send.MailSender;
-import com.ettrema.vfs.DataNode;
-import com.ettrema.vfs.NameNode;
-import com.ettrema.vfs.VfsSession;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import com.bradmcevoy.web.security.ForgottenPasswordHelper;
 import java.util.Map;
 import org.jdom.Element;
-import org.mvel.TemplateInterpreter;
+import org.jdom.Namespace;
+
 
 /**
+ * This component supports 2 styles of password recovery: a) sending the password
+ * in clear text in an email and b) sending the user a link to a page which
+ * allows them to reset their password
+ *
+ * Note that a) is simpler and might be suited to low security sites, but b)
+ * is generally a better solution.
  *
  * @author brad
  */
@@ -30,19 +26,21 @@ public class ForgottenPasswordComponent implements Component {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ForgottenPasswordComponent.class );
     private static final long serialVersionUID = 1L;
+    public static final String ATT_NAME_PARSEDEMAIL = "parsedEmail";
     private String name;
     private Addressable container;
     private String fromAdd;
     private String replyTo;
     private String subject;
-    private String bodyTemplate;    
+    private String bodyTemplate;
+    private String bodyTemplateHtml;
     private String thankyouPage;
+    private boolean useToken;
 
     public ForgottenPasswordComponent( Addressable container, String name ) {
         this.container = container;
         this.name = name;
     }
-
 
     public ForgottenPasswordComponent( Addressable container, Element el ) {
         this.container = container;
@@ -58,44 +56,8 @@ public class ForgottenPasswordComponent implements Component {
     }
 
     public boolean validate( RenderContext rc ) {
-        String email = RequestParams.current().getParameters().get( "email" );
-        try {
-            // Parsing validates the email
-            MailboxAddress add = MailboxAddress.parse( email );
-            RequestParams.current().attributes.put( "parsedEmail", add );
-            VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
-            List<NameNode> list = vfs.find( EmailAddress.class, email );
-            if( list == null || list.isEmpty() ) {
-                log.debug( "no nodes found" );
-                setValidationError( "That email address wasn't found." );
-                return false;
-            } else {
-                List<User> foundUsers = new ArrayList<User>();
-                for( NameNode node : list ) {
-                    NameNode nUser = node.getParent().getParent(); // the first parent is just a holder
-                    DataNode dnUser = nUser.getData();
-                    if( dnUser != null && dnUser instanceof User ) {
-                        User user = (User) dnUser;
-                        foundUsers.add( user );
-                    } else {
-                        log.warn( "parent is not a user: " + dnUser.getClass() );
-                    }
-                }
-                if( foundUsers.size() > 0 ) {
-                    log.debug( "is valid" );
-                    rc.addAttribute( name + "_found", foundUsers );
-                    return true;
-                } else {
-                    setValidationError( "No user accounts were found matching that address." );
-                    log.debug( "no users found" );
-                    return false;
-                }
-            }
-        } catch( IllegalArgumentException e ) {
-            log.debug( "invalid email address: error: " + email );
-            setValidationError( "Invalid email address. Please check the format, it should be like ben@somewhere.com" );
-            return false;
-        }
+        // Note: not used by this component
+        return true;
     }
 
     public String render( RenderContext rc ) {
@@ -112,39 +74,8 @@ public class ForgottenPasswordComponent implements Component {
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "onProcess" );
-        if( subject == null )
-            throw new NullPointerException( "subject is null" );
-        if( fromAdd == null )
-            throw new NullPointerException( "from Address is null" );
-
-        if( !validate( rc ) ) {
-            log.debug( "not valid" );
-            return null;
-        }
-        MailSender sender = RequestContext.getCurrent().get( MailSender.class );
-        List<User> list = (List<User>) rc.getAttribute( name + "_found" );
-        MailboxAddress to = (MailboxAddress) RequestParams.current().attributes.get( "parsedEmail" );
-        for( User user : list ) {
-            String password = user.getPassword( 847202 );
-            String text = evalTemplate( user, password );
-            if( text == null ) {
-                throw new NullPointerException( "Template evaluated to null" );
-            }
-            String rt = ( replyTo == null ) ? fromAdd : replyTo;
-            StandardMessageImpl sm = new StandardMessageImpl();
-            sm.setFrom( MailboxAddress.parse( fromAdd ) );
-            sm.setReplyTo( MailboxAddress.parse( rt ) );
-            sm.setTo( Arrays.asList( to ) );
-            sm.setSubject( subject );
-            sm.setText( text );
-            sender.sendMail( sm );
-        }
-        RequestParams.current().getAttributes().put( name + "_confirmed", Boolean.TRUE );
-        if( thankyouPage != null && thankyouPage.length() > 0 ) {
-            return thankyouPage;
-        } else {
-            return null;
-        }
+        ForgottenPasswordHelper helper = new ForgottenPasswordHelper();
+        return helper.onProcess( this, rc, parameters, files ); 
     }
 
     public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
@@ -153,7 +84,6 @@ public class ForgottenPasswordComponent implements Component {
         rc.addAttribute( name + "_email", email );
     }
 
-    
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "component" );
         el.addContent( e2 );
@@ -167,9 +97,9 @@ public class ForgottenPasswordComponent implements Component {
         replyTo = el.getAttributeValue( "replyTo" );
         thankyouPage = el.getAttributeValue( "thankyouPage" );
         subject = el.getChildText( "subject" );
-        bodyTemplate = el.getChildText( "body" );        
+        bodyTemplate = el.getChildText( "body" );
+        bodyTemplateHtml = JDomUtils.valueOf( el, name, Namespace.NO_NAMESPACE );
     }
-
 
     public void populateXml( Element e2 ) {
         e2.setAttribute( "class", getClass().getName() );
@@ -190,21 +120,11 @@ public class ForgottenPasswordComponent implements Component {
         e2.addContent( elBody );
         elBody.setText( bodyTemplate );
 
-    }
+        InitUtils.setElementString( e2, "html", bodyTemplateHtml);
 
-    private String evalTemplate( User user, String password ) {
-        try {
-            Map map = new HashMap();
-            map.put( "user", user );
-            map.put( "password", password );
-            String s = TemplateInterpreter.evalToString( bodyTemplate, map );
-            return s;
-        } catch( Throwable e ) {
-            log.error( "Exception rendering template: " + bodyTemplate, e );
-            return "ERR";
-        }
 
     }
+
 
     public void setValidationError( String s ) {
         RequestParams.current().getAttributes().put( name + "_error", s );
@@ -253,4 +173,29 @@ public class ForgottenPasswordComponent implements Component {
     public void setThankyouPage( String thankyouPage ) {
         this.thankyouPage = thankyouPage;
     }
+
+    /**
+     * When true, users will be required to reset their password, rather then have
+     * it emailed to them
+     * @return
+     */
+    public boolean isUseToken() {
+        return useToken;
+    }
+
+    public void setUseToken( boolean useToken ) {
+        this.useToken = useToken;
+    }
+
+    public String getBodyTemplateHtml() {
+        return bodyTemplateHtml;
+    }
+
+    public void setBodyTemplateHtml( String bodyTemplateHtml ) {
+        this.bodyTemplateHtml = bodyTemplateHtml;
+    }
+
+    
+
+    
 }

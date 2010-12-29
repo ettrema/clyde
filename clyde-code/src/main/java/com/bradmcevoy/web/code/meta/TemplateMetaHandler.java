@@ -100,8 +100,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     }
 
     private void populateXml( Element el, Template template ) {
-        JDomUtils.setChild( el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS );
-        JDomUtils.setChild( el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS );
+        JDomUtils.setChildText( el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS );
+        JDomUtils.setChildText( el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS );
         String cn = template.getClassToCreate();
         if( !StringUtils.isEmpty( cn ) ) {
             try {
