@@ -17,6 +17,7 @@ import com.bradmcevoy.web.code.meta.comp.ForgottenPasswordComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupSelectHandler;
 import com.bradmcevoy.web.code.meta.comp.NumberInputHandler;
+import com.bradmcevoy.web.code.meta.comp.ReCaptchaComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.SubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.TemplateInputHandler;
 import com.bradmcevoy.web.code.meta.comp.TextHandler;
@@ -59,6 +60,8 @@ public class CommonTemplatedMetaHandler {
         EmailCommandHandler emailCommandHandler = new EmailCommandHandler( commandHandler );
         SubPageHandler subPageHandler = new SubPageHandler( this );
         CsvSubPageHandler csvSubPageHandler = new CsvSubPageHandler( subPageHandler );
+        ReCaptchaComponentHandler reCaptchaComponentHandler = new ReCaptchaComponentHandler();
+        add(reCaptchaComponentHandler);
         add( emailCommandHandler );
         add( emailInputHandler );
         add( forgottenPasswordComponentHandler );

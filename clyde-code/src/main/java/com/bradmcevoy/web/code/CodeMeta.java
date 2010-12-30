@@ -60,7 +60,7 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
     }
 
     public String getContentType( String accepts ) {
-        return "text/xml";
+        return "application/xml";
     }
 
     public Long getContentLength() {

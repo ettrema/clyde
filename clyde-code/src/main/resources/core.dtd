@@ -41,13 +41,13 @@
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:date (#PCDATA)>
 <!ATTLIST c:date
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
   >
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:email (#PCDATA)>
 <!ATTLIST c:email
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
     required (true|false) #IMPLIED
     requestScope (true|false) #IMPLIED
     cols CDATA #IMPLIED
@@ -57,7 +57,7 @@
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:value ANY>
 <!ATTLIST c:value
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
   >
 
 
@@ -89,14 +89,14 @@
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:groupPerm EMPTY>
 <!ATTLIST c:groupPerm
-    role CDATA #IMPLIED
-    group CDATA #IMPLIED
+    role CDATA #REQUIRED
+    group CDATA #REQUIRED
   >
 
 <!ELEMENT c:userPerm EMPTY>
 <!ATTLIST c:userPerm
-    role CDATA #IMPLIED
-    path CDATA #IMPLIED
+    role CDATA #REQUIRED
+    path CDATA #REQUIRED
   >
 
 
@@ -112,20 +112,27 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
 <!ATTLIST c:text
     required (true|false) #IMPLIED
     requestScope (true|false) #IMPLIED
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
     choices CDATA #IMPLIED
     disAllowTemplating CDATA #IMPLIED
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
     description CDATA #IMPLIED
 
+  >
+
+<!ELEMENT c:recaptcha (#PCDATA)*>
+<!ATTLIST c:recaptcha
+    name CDATA #REQUIRED
+    privateKey CDATA #REQUIRED
+    publicKey CDATA #REQUIRED
   >
 
 <!ELEMENT c:forgottenPassword (#PCDATA|c:subject|c:body)*>
@@ -140,7 +147,7 @@
 
 <!ELEMENT c:eval (#PCDATA)>
 <!ATTLIST c:eval
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
     description CDATA #IMPLIED
@@ -151,7 +158,7 @@
 <!ELEMENT c:subpage (c:attributes?)>
 <!ATTLIST c:subpage
     template CDATA #IMPLIED
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
   >
 
 
@@ -164,7 +171,7 @@
     required CDATA #IMPLIED
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
   >
 
 
