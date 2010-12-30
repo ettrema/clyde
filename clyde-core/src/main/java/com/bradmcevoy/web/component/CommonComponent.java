@@ -5,6 +5,7 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RenderMap;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.velocity.VelocityInterpreter;
@@ -30,6 +31,7 @@ public abstract class CommonComponent implements Component, Serializable {
     public static VelocityContext velocityContext( RenderContext rc, Object value, Path path, IUser user ) {
         VelocityContext vc = new VelocityContext();
         vc.put( "rc", rc );
+        vc.put( "include", new RenderMap(rc) );
         vc.put( "path", path );
         if( value == null ) {
             value = "";
@@ -85,5 +87,15 @@ public abstract class CommonComponent implements Component, Serializable {
             log.error( "Exception rendering template: " + template, e );
             return "ERR";
         }
+    }
+    
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
     }
 }

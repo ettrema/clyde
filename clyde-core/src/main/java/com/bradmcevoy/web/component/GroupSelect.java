@@ -4,6 +4,7 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.User;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -50,8 +51,8 @@ public final class GroupSelect implements WrappableComponent, Component {
         Element e2 = new Element( "component" );
         el.addContent( e2 );
         String cName = name;
-        if( StringUtils.isEmpty( name )) {
-            log.warn("empty name for: " + groupName);
+        if( StringUtils.isEmpty( name ) ) {
+            log.warn( "empty name for: " + groupName );
             cName = "null_name";
         }
         e2.setAttribute( "name", cName );
@@ -125,7 +126,7 @@ public final class GroupSelect implements WrappableComponent, Component {
 
     }
 
-    public String onProcess( Addressable container, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {        
+    public String onProcess( Addressable container, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
         return null;
 
     }
@@ -143,9 +144,9 @@ public final class GroupSelect implements WrappableComponent, Component {
 
     public boolean validate( Addressable container, RenderContext rc ) {
         String attName = "validation" + getPath( rc );
-        String validationMessage = (String) rc.getAttribute( attName);
+        String validationMessage = (String) rc.getAttribute( attName );
         if( validationMessage != null ) {
-            log.warn("validation error: " + validationMessage);
+            log.warn( "validation error: " + validationMessage );
             return false;
         } else {
             return true;
@@ -162,7 +163,7 @@ public final class GroupSelect implements WrappableComponent, Component {
     }
 
     public boolean validate( RenderContext rc ) {
-        return validate(rc.page, rc);
+        return validate( rc.page, rc );
     }
 
     public void setGroupName( String groupName ) {
@@ -173,5 +174,13 @@ public final class GroupSelect implements WrappableComponent, Component {
         return groupName;
     }
 
-    
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
+    }
 }

@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.ettrema.event.ClydeEventDispatcher;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -23,20 +24,13 @@ import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.TemplateSelect;
-import com.bradmcevoy.web.component.WrappableComponent;
-import com.bradmcevoy.web.component.WrappedComponent;
 import com.bradmcevoy.web.error.HtmlExceptionFormatter;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -66,36 +60,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     public static BaseResource getTargetContainer() {
         return tlTargetContainer.get();
-    }
-
-    public static Collection<Component> allComponents( Templatable res ) {
-        Map<String, Component> map = new HashMap<String, Component>();
-        ITemplate parentTemplate = res.getTemplate();
-        if( parentTemplate != null ) {
-            addInheritedComponents( parentTemplate, map );
-        }
-        for( ComponentValue cv : res.getValues().values() ) {
-            map.put( cv.getName(), cv );
-        }
-        for( Component c : res.getComponents().values() ) {
-            map.put( c.getName(), c );
-        }
-        Set set = new HashSet( map.values() );
-        List<Component> list = new ArrayList<Component>();
-        list.addAll( set );
-        Collections.sort( list, new ComponentComparator() );
-        return list;
-    }
-
-    static void addInheritedComponents( Templatable res, Map<String, Component> map ) {
-        if( res == null ) {
-            return;
-        }
-        ITemplate p = res.getTemplate();
-        addInheritedComponents( p, map );
-        for( Component c : res.getComponents().values() ) {
-            map.put( c.getName(), c );
-        }
     }
 
     @Override
@@ -137,24 +101,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return find( p );
     }
 
-//    public BaseResourceList list(String sPath) {
-//        Path p = Path.path(sPath);
-//        return list(p);
-//    }
-//
-//    public BaseResourceList list(Path path) {
-//        BaseResourceList list = new BaseResourceList();
-//        _list(this, list,path,0);
-//        return list;
-//    }
-//
-//    private void _list(CommonTemplated from, BaseResourceList list, Path path, int index) {
-//        String part = path.getParts()[index];
-//        if( part.equals( "*")) {
-//
-//        }
-//        from.find( part );
-//    }
     public String getTitle() {
         ComponentValue cv = this.getValues().get( "title" );
         if( cv != null ) {
@@ -254,11 +200,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 }
             }
         }
-
-//        for( Component c : allComponents() ) {
-//            redirectTo = c.onProcess(rc,parameters,files);
-//            if( redirectTo != null ) return redirectTo;
-//        }
         return null;
     }
 
@@ -324,7 +265,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Collection<Component> allComponents() {
-        return allComponents( this );
+        return ComponentUtils.allComponents( this );
     }
 
     @Override
@@ -813,36 +754,18 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return getComponent( paramName, false );
     }
 
+    /**
+     * Recursively retrieves the component from this resource or any ancestor
+     * template
+     *
+     * @param paramName
+     * @param includeValues
+     * @return
+     */
     @Override
     public Component getComponent( String paramName, boolean includeValues ) {
-//        log.debug( "getComponent: " + paramName + " - " + this.getName());
-        Component c;
-        if( includeValues ) {
-            c = getValues().get( paramName );
-            if( c != null ) {
-                return c;
-            }
-        }
-        c = getComponents().get( paramName );
-        if( c != null ) {
-            return c;
-        }
-
-        ITemplate t = getTemplate();
-        if( t == null ) {
-            return null;
-        }
-
-        c = t.getComponent( paramName, includeValues );
-        if( c != null ) {
-            if( c instanceof WrappableComponent ) {
-                return new WrappedComponent( this, (WrappableComponent) c );
-            } else {
-                return c;
-            }
-        } else {
-            return null;
-        }
+        log.debug( "getComponent: " + paramName + " - " + this.getName() );
+        return ComponentUtils.getComponent( this, paramName, includeValues );
     }
 
     public BaseResourceList getParents() {
@@ -936,6 +859,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
         @Override
         public Component get( Object key ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "get: " + key );
+            }
             String sKey = key.toString();
 //            return getAnyComponentRecursive(sKey);
             Component c = getComponent( sKey, true );

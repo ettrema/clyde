@@ -18,7 +18,7 @@ import org.jdom.Element;
  */
 public class ReCaptchaComponent implements Component, Serializable, ValidatingComponent {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CaptchaComponent.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ReCaptchaComponent.class );
     private static final long serialVersionUID = 1L;
     private String name;
     private Addressable container;
@@ -46,9 +46,12 @@ public class ReCaptchaComponent implements Component, Serializable, ValidatingCo
     }
 
     public boolean validate( RenderContext rc ) {
-        log.debug( "validate" );
         ReCaptchaHelper helper = new ReCaptchaHelper( this, rc, HttpManager.request().getParams() );
-        return helper.validate();
+        boolean b = helper.validate();
+        if( log.isTraceEnabled() ) {
+            log.debug( "validate: " + b );
+        }
+        return b;
     }
 
     public void setValidationMessage( String s ) {

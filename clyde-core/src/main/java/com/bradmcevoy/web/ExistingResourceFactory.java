@@ -69,8 +69,8 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         if( childSpec.equals( "." ) ) {
             return parent;
         } else if( childSpec.equals( ".." ) ) {
-            if( parent instanceof CommonTemplated ) {
-                CommonTemplated ct = (CommonTemplated) parent;
+            if( parent instanceof Templatable ) {
+                Templatable ct = (Templatable) parent;
                 return ct.getParent();
             } else {
                 log.warn( "Can't find parent of non CommonTemplated resource" );

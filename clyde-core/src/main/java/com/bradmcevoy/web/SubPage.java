@@ -127,6 +127,16 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return true;
     }
 
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
+    }
+
     @Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         ITemplate lTemplate = getTemplate();

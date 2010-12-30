@@ -14,19 +14,32 @@ import org.apache.commons.lang.StringUtils;
 public class ReCaptchaService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ReCaptchaService.class );
-    private String paramChallenge = "challenge";
-    private String paramResponse = "response";
+    private String paramChallenge = "recaptcha_challenge_field";
+    private String paramResponse = "recaptcha_response_field";
     private String recaptchaUrl = "http://www.google.com/recaptcha/api/verify";
 
     public boolean isValid( String privateKey, Map<String, String> parameters, Request request ) throws IOException {
         String challenge = parameters.get( paramChallenge );
         String response = parameters.get( paramResponse );
+        if( StringUtils.isEmpty( challenge ) ) {
+            log.warn( "challenge is emtpy" );
+            return false;
+        }
+        if( StringUtils.isEmpty( response ) ) {
+            log.trace( "response is emtpty" );
+            return false;
+        }
         HttpClient httpClient = new HttpClient();
         PostMethod post = new PostMethod( recaptchaUrl );
         post.addParameter( "privatekey", privateKey );
         post.addParameter( "remoteip", request.getRemoteAddr() );
         post.addParameter( "challenge", challenge );
         post.addParameter( "response", response );
+        if( log.isTraceEnabled() ) {
+            log.trace( "remoteIP: " + request.getRemoteAddr() );
+            log.trace( "challenge: " + challenge );
+            log.trace( "response: " + response );
+        }
         int respCode = httpClient.executeMethod( post );
         if( respCode >= 200 && respCode < 300 ) {
             if( log.isTraceEnabled() ) {
@@ -38,6 +51,7 @@ public class ReCaptchaService {
             } else {
                 body = body.trim();
                 if( body.startsWith( "true" ) ) {
+                    log.trace( "validated ok" );
                     return true;
                 } else {
                     String[] arr = body.split( "\n" );
@@ -79,6 +93,4 @@ public class ReCaptchaService {
     public void setRecaptchaUrl( String recaptchaUrl ) {
         this.recaptchaUrl = recaptchaUrl;
     }
-
-
 }

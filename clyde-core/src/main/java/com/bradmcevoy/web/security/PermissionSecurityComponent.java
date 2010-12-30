@@ -5,6 +5,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.component.Addressable;
 import com.ettrema.context.RequestContext;
 import java.io.Serializable;
@@ -92,5 +93,15 @@ public class PermissionSecurityComponent implements Component, Serializable {
         e2.setAttribute( "name", name );
         e2.setAttribute( "class", this.getClass().getName() );
         return e2;
+    }
+
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
     }
 }

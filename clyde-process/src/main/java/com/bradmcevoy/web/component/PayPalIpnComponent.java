@@ -17,6 +17,7 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
 import com.ettrema.context.RequestContext;
 import java.math.BigDecimal;
@@ -196,5 +197,15 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
 
     public Path getPath() {
         return container.getPath().child( name );
+    }
+
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
     }
 }

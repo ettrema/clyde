@@ -25,6 +25,17 @@ public interface Component extends Serializable {
      * @return - true if this component is in a valid state
      */
     public boolean validate(RenderContext rc);
+
+    /**
+     * Retrieve the validation message set from the call to validate in this
+     * request.
+     *
+     * Note that this generally must not internally use a member variable, but
+     * should store the value in a request attribute
+     *
+     * @return
+     */
+    public String getValidationMessage();
     
     /** Generate HTML for this component. That is this component, not any
      *  particular instance of it

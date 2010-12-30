@@ -65,10 +65,10 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
 
     @Override
     public boolean validate( RenderContext rc ) {
-        validationMessage = null;
+        setValidationMessage(null);
         if( required ) {
             if( getValue() == null ) {
-                validationMessage = "Required field";
+                setValidationMessage( "Required field" );
                 log.debug( " validation failed on required field: " + this.getName() );
                 return false;
             } else {
@@ -78,6 +78,8 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
             return true;
         }
     }
+
+
 
     @Override
     public Addressable getContainer() {
@@ -187,14 +189,6 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
         T o = getValue();
         if( o == null ) return "";
         return o.toString();
-    }
-
-    public String getValidationMessage() {
-        return validationMessage;
-    }
-
-    public void setValidationMessage( String validationMessage ) {
-        this.validationMessage = validationMessage;
     }
 
     public void setRequestScope( boolean requestScope ) {

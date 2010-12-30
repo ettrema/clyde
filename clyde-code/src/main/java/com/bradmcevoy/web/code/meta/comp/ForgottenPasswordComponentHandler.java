@@ -44,7 +44,11 @@ public class ForgottenPasswordComponentHandler implements ComponentHandler {
         fpc.setFromAdd( el.getAttributeValue( "from" ) );
         fpc.setReplyTo( el.getAttributeValue( "replyTo" ) );
         fpc.setThankyouPage( el.getAttributeValue( "thankyouPage" ) );
+        fpc.setRecaptchaComponent( InitUtils.getValue( el, "recaptcha") );
+        System.out.println( "captcha" + fpc.getRecaptchaComponent());
+
         fpc.setSubject( JDomUtils.valueOf( el, "subject", CodeMeta.NS ) );
+
         String body = JDomUtils.valueOf( el, "text", CodeMeta.NS );
         fpc.setBodyTemplate( body );
         String html =JDomUtils.valueOf( el, "html", CodeMeta.NS );
@@ -53,11 +57,13 @@ public class ForgottenPasswordComponentHandler implements ComponentHandler {
     }
 
     public void populateXml( Element elThis, ForgottenPasswordComponent t ) {
+        System.out.println( "recpatch: " + t.getRecaptchaComponent() );
         InitUtils.set( elThis, "name", t.getName() );
         InitUtils.set( elThis, "from", t.getFromAdd() );
         InitUtils.set( elThis, "replyTo", t.getReplyTo() );
         InitUtils.set( elThis, "thankyouPage", t.getThankyouPage() );
         InitUtils.set( elThis, "useToken", t.isUseToken() );
+        InitUtils.set( elThis, "recaptcha", t.getRecaptchaComponent() );
         JDomUtils.setChildText( elThis, "subject", t.getSubject(), CodeMeta.NS );
         JDomUtils.setChildText( elThis, "text", t.getBodyTemplate(), CodeMeta.NS );
         JDomUtils.setChildXml( elThis, "html", t.getBodyTemplateHtml(), CodeMeta.NS );

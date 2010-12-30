@@ -5,6 +5,7 @@ import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.Template;
 import com.bradmcevoy.web.component.Addressable;
@@ -384,5 +385,15 @@ public class MultipleChoiceQaDef implements ComponentDef {
         public void setAnswers( List<String> answers ) {
             this.answers = answers;
         }
+    }
+
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
     }
 }

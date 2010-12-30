@@ -20,6 +20,7 @@ import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.NewPage;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -224,18 +225,15 @@ public class AjaxResourceFactory implements ResourceFactory {
             RenderContext rc = new RenderContext( lTemplate, res, rcChild, false );
 
             for( String paramName : parameters.keySet() ) {
-                log.info( "process form: " + paramName );
                 Path path = Path.path( paramName );
                 Component c = rc.findComponent( path );
                 if( c != null ) {
-                    log.info( "process component: " + c.getClass() );
                     String redirect = c.onProcess( rc, parameters, files );
                     if( redirect != null ) {
                         // ignore redirects, but redirects cause processing to stop
                         break;
                     }
                 } else {
-                    log.info( "not found" );
                 }
             }
 
@@ -245,10 +243,11 @@ public class AjaxResourceFactory implements ResourceFactory {
         public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
             Map<String, String> errors = new HashMap<String, String>();
             CommonTemplated res = accessor.get( params );
-            for( ComponentValue cv : res.getValues().values() ) {
-                String v = cv.getValidationMessage();
+
+            for( Component c : ComponentUtils.getAllComponents( res ) ) {
+                String v = c.getValidationMessage();
                 if( !StringUtils.isEmpty( v ) ) {
-                    errors.put( cv.getName(), v );
+                    errors.put( c.getName(), v );
                 }
             }
             errors.put( "result", errors.size() > 0 ? "err" : "ok" );

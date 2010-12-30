@@ -9,6 +9,7 @@ import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.RequestParams;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -135,5 +136,13 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
         e2.setAttribute("name",name);
     }
     
-    
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
+    }
 }

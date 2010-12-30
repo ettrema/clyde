@@ -105,8 +105,13 @@ public class SaveCommand extends Command {
                         pages.add( res );
                     }
                     if( !c.validate( rc ) ) {
+                        log.trace("not valid: " + c.getName());
                         valid = false;
+                    } else {
+                        log.trace("is valid: " + c.getName());
                     }
+                } else {
+                    log.trace("do not validate command: " + c.getName());
                 }
             } else {
                 log.debug( "Failed to find component: " + path );

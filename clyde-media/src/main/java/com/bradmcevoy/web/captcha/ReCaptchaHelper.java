@@ -28,7 +28,11 @@ public class ReCaptchaHelper {
         boolean valid;
         try {
             valid = _( ReCaptchaService.class ).isValid( comp.getPrivateKey(), parameters, HttpManager.request() );
-            if( !valid ) {
+            if( valid ) {                
+                log.trace("service says valid");
+                comp.setValidationMessage( null );
+            } else {
+                log.trace("service says NOT valid");
                 comp.setValidationMessage( "The captcha value given was incorrect, please retry it" );
             }
         } catch( IOException ex ) {

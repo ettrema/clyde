@@ -107,7 +107,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             throw new IllegalArgumentException( "Names cannot contain forward slashes: " + newName );
         }
         isNew = true;
-        this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
+        if( parentFolder != null ) {
+            this.nameNode = (RelationalNameNode) parentFolder.onChildCreated( newName, this );
+        } else {
+            log.warn( "no parent folder provided" );
+        }
         setContentType( contentType );
         initName();
 
@@ -562,9 +566,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     @Override
     public String getName() {
         if( nameNode == null ) {
-            throw new NullPointerException( "Namenode has not been set, init has not been called" );
+            log.warn( "Namenode has not been set, init has not been called" );
+            return null;
+        } else {
+            return nameNode.getName();
         }
-        return nameNode.getName();
     }
 
     @Override
@@ -641,12 +647,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         if( didChange ) {
             this.save(); // careful, watch for recursion
         }
-        log.trace("afterSave: " + this.getTemplateName());
+        log.trace( "afterSave: " + this.getTemplateName() );
         ITemplate template = this.getTemplate();
         if( template != null ) {
             template.onAfterSave( this );
         } else {
-            log.debug("no template, so can't run afterSave");
+            log.debug( "no template, so can't run afterSave" );
         }
     }
 
@@ -951,7 +957,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
 
         public boolean equalTo( RoleAndGroup rag ) {
-            return rag.getGroupName().equals( systemUserGroupName) && rag.getRole().equals( role );
+            return rag.getGroupName().equals( systemUserGroupName ) && rag.getRole().equals( role );
         }
     }
 }

@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.DeleteCommand;
 import com.bradmcevoy.web.security.PermissionChecker;
@@ -66,12 +67,20 @@ public class RenderContext implements Map<String, Component> {
     final public RenderContext child;
     final public boolean editMode;
     final Map<String, Object> attributes = new HashMap<String, Object>();
+    private RenderMap renderMap;
 
     public RenderContext( ITemplate template, Templatable page, RenderContext child, boolean editMode ) {
         this.template = template;
         this.page = page;
         this.child = child;
         this.editMode = editMode;
+    }
+
+    public Map<String,Object> getRender() {
+        if( renderMap == null ) {
+            renderMap = new RenderMap(this);
+        }
+        return renderMap;
     }
 
     public boolean hasRole( String s ) {
@@ -250,7 +259,7 @@ public class RenderContext implements Map<String, Component> {
             RenderContext childRc = this.child == null ? this : this.child;
             Path p = Path.path( paramName );
             // First, look for a component in this page
-            Component c = findComponent( p, this.page );
+            Component c = ComponentUtils.findComponent( p, page );
             if( c == null ) {
                 log.debug( "component not found: " + p + " in: " + page.getHref() );
                 return "";
@@ -387,7 +396,7 @@ public class RenderContext implements Map<String, Component> {
     public String getToolBar() {
         StringBuilder sb = new StringBuilder();
         Templatable targetPage = getTargetPage();
-        Collection<Component> list = CommonTemplated.allComponents( targetPage );
+        Collection<Component> list = ComponentUtils.allComponents( targetPage );
         for( Component c : list ) {
             if( c instanceof Command ) {
                 Command cmd = (Command) c;
@@ -445,20 +454,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public Component findComponent( Path path ) {
-        return findComponent( path, page );
-    }
-
-    public static Component findComponent( Path path, Templatable page ) {
-//        log.debug("findComponent: " + path + " from: " + page.getName());
-
-        Component c = null;
-        if( !path.isRelative() ) {
-            c = findComponentWithRelativePath( path, page.getWeb() );
-        } else {
-            c = findComponentWithRelativePath( path, page );
-        }
-        return c;
-
+        return ComponentUtils.findComponent( path, page );
     }
 
     @Override
@@ -531,15 +527,16 @@ public class RenderContext implements Map<String, Component> {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
-    public static Component findComponentWithRelativePath( Path path, Templatable startFrom ) {
-        return findComponentWithRelativePath( startFrom, path.getParts(), 0 );
+
+    private static Component findComponentWithRelativePath_old( Path path, Templatable startFrom ) {
+        return findComponentWithRelativePath_old( startFrom, path.getParts(), 0 );
     }
 
-    private static Component findComponentWithRelativePath( Object parent, String[] arr, int i ) {
+    private static Component findComponentWithRelativePath_old( Object parent, String[] arr, int i ) {
         if( arr.length == 0 ) {
             return null;
         }
-        //log.debug( "findComponentWithRelativePath: " + arr.length + " " + i);
+        //log.debug( "findComponent: " + arr.length + " " + i);
         String childName = arr[i];
         Object child = null;
         if( parent instanceof Resource ) {
@@ -561,7 +558,7 @@ public class RenderContext implements Map<String, Component> {
             return null;
         } else {
             if( i < arr.length - 1 ) {
-                return findComponentWithRelativePath( child, arr, i + 1 );
+                return findComponentWithRelativePath_old( child, arr, i + 1 );
             } else {
                 if( child instanceof Component ) {
                     return (Component) child;
@@ -610,37 +607,4 @@ public class RenderContext implements Map<String, Component> {
             return ct.getParentFolder();
         }
     }
-
-
-//    public String include(String path) {
-//        log.debug( "include: " + path);
-//        Path p = Path.path( path );
-//        Component c = findComponent( p, page );
-//        ComponentDef cdef;
-//        if( c == null ) {
-//            log.warn( "component not found: " + path + " from: " + page.getHref());
-//            return "";
-//        } else if( c instanceof ComponentValue) {
-//            ComponentValue cv = (ComponentValue) c;
-//            CommonTemplated ct = (CommonTemplated) cv.getContainer();
-//            Template t = ct.getTemplate();
-//            if( t != null ) {
-//                cdef = ct.getTemplate().getComponentDef( cv.getName());
-//                if( cdef != null ) {
-//                    log.debug( "rendering from def");
-//                    log.debug( "cv:  " + cv.getValue());
-//                    log.debug( "cv parent: " + ct.getHref());
-//                    RenderContext rcInclude = new RenderContext( t, ct, null, false);
-//                    String s = cdef.render( cv, rcInclude );
-//                    return s;
-//                } else {
-//                    return  "component def not found. name: " + cv.getName() + " in template: "  +t.getName();
-//                }
-//            } else {
-//                return  "template not found: " + ct.getTemplateName();
-//            }
-//        } else {
-//            return "path did not return a componentvalue. returned a: " + c.getClass();
-//        }
-//    }
 }

@@ -29,4 +29,6 @@ public interface WrappableComponent {
     
     public String getFormattedValue(Addressable container);
 
+    public String getValidationMessage();
+
 }

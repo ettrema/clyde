@@ -13,6 +13,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import java.io.IOException;
@@ -278,7 +279,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public Collection<Component> allComponents() {
-        return allComponents(this);
+        return ComponentUtils.allComponents(this);
     }
     
     private BaseResource physicalParent(Templatable parentPage) {
@@ -296,8 +297,5 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     @Override
     public boolean isSecure() {
         return subPage.isSecure();
-    }
-
-
-    
+    }   
 }

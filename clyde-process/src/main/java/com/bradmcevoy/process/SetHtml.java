@@ -4,8 +4,8 @@ package com.bradmcevoy.process;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.Text;
@@ -35,7 +35,7 @@ public class SetHtml implements ActionHandler, Serializable{
     @Override
     public void process(ProcessContext processContext) {
         BaseResource res = (BaseResource) processContext.getAttribute("res");
-        Component c = RenderContext.findComponent(Path.path(path), res);
+        Component c = ComponentUtils.findComponent(Path.path(path), res);
         if( c == null ) {
             throw new IllegalArgumentException("Couldnt find component: " + path + " from resource: " + res.getHref());
         }
@@ -55,8 +55,7 @@ public class SetHtml implements ActionHandler, Serializable{
         if( resToSave instanceof BaseResource ) {
             BaseResource r = (BaseResource) resToSave;
             r.save();
-        }
-        
+        }        
     }
 
 }

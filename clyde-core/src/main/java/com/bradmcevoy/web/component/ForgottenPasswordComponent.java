@@ -8,9 +8,9 @@ import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.security.ForgottenPasswordHelper;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jdom.Namespace;
-
 
 /**
  * This component supports 2 styles of password recovery: a) sending the password
@@ -36,6 +36,7 @@ public class ForgottenPasswordComponent implements Component {
     private String bodyTemplateHtml;
     private String thankyouPage;
     private boolean useToken;
+    private String recaptchaComponent;
 
     public ForgottenPasswordComponent( Addressable container, String name ) {
         this.container = container;
@@ -74,8 +75,19 @@ public class ForgottenPasswordComponent implements Component {
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "onProcess" );
+        if( StringUtils.isNotBlank( recaptchaComponent ) ) {
+            log.trace( "requires captcha" );
+            Component c = rc.page.getComponent( recaptchaComponent, false );
+            if( c == null ) {
+                throw new RuntimeException( "Recaptcha component not found: " + recaptchaComponent );
+            }
+            if( !c.validate( rc ) ) {
+                log.trace( "recaptcha validation failed" );
+                return null;
+            }
+        }
         ForgottenPasswordHelper helper = new ForgottenPasswordHelper();
-        return helper.onProcess( this, rc, parameters, files ); 
+        return helper.onProcess( this, rc, parameters, files );
     }
 
     public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
@@ -120,11 +132,10 @@ public class ForgottenPasswordComponent implements Component {
         e2.addContent( elBody );
         elBody.setText( bodyTemplate );
 
-        InitUtils.setElementString( e2, "html", bodyTemplateHtml);
+        InitUtils.setElementString( e2, "html", bodyTemplateHtml );
 
 
     }
-
 
     public void setValidationError( String s ) {
         RequestParams.current().getAttributes().put( name + "_error", s );
@@ -195,7 +206,21 @@ public class ForgottenPasswordComponent implements Component {
         this.bodyTemplateHtml = bodyTemplateHtml;
     }
 
-    
+    public String getRecaptchaComponent() {
+        return recaptchaComponent;
+    }
 
-    
+    public void setRecaptchaComponent( String recaptchaComponent ) {
+        this.recaptchaComponent = recaptchaComponent;
+    }
+
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
+    }
 }

@@ -116,5 +116,9 @@ public class WrappedComponent implements Component, WrappableComponent, ValueHol
     @Override
     public String getFormattedValue(Addressable container) {
         return wrapped.getFormattedValue(container);
-    }    
+    }
+
+    public final String getValidationMessage() {
+        return wrapped.getValidationMessage();
+    }
 }

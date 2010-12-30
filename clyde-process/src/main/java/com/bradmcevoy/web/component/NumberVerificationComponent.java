@@ -121,4 +121,14 @@ public class NumberVerificationComponent extends VfsCommon implements Component,
     public Path getPath() {
         return container.getPath().child( name );
     }
+
+    public final void setValidationMessage( String s ) {
+        RequestParams params = RequestParams.current();
+        params.attributes.put( this.getName() + "_validation", s );
+    }
+
+    public final String getValidationMessage() {
+        RequestParams params = RequestParams.current();
+        return (String) params.attributes.get( this.getName() + "_validation" );
+    }
 }

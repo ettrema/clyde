@@ -4,7 +4,7 @@ import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.DeleteCommand;
 import java.util.Comparator;
 
-class ComponentComparator implements Comparator<Component> {
+public class ComponentComparator implements Comparator<Component> {
 
     public ComponentComparator() {
     }
