@@ -17,12 +17,12 @@ import com.bradmcevoy.web.code.meta.CsvViewMetaHandler;
 import com.bradmcevoy.web.code.meta.FolderMetaHandler;
 import com.bradmcevoy.web.code.meta.GroupMetaHandler;
 import com.bradmcevoy.web.code.meta.PageMetaHandler;
+import com.bradmcevoy.web.code.meta.PdfMetaHandler;
 import com.bradmcevoy.web.code.meta.TemplateMetaHandler;
 import com.bradmcevoy.web.code.meta.TextFileMetaHandler;
 import com.bradmcevoy.web.code.meta.UserMetaHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -207,25 +207,28 @@ public final class CodeResourceFactory implements ResourceFactory {
     }
 
     private void initMetaHandlers() {
+        Map<Class, String> mapOfAliases = new HashMap<Class, String>();
+        this.metaHandlers = new ArrayList<MetaHandler>();
+
         CommonTemplatedMetaHandler commonTemplatedMetaHandler = new CommonTemplatedMetaHandler();
         BaseResourceMetaHandler baseResourceMetaHandler = new BaseResourceMetaHandler( commonTemplatedMetaHandler );
-        BinaryFileMetaHandler binaryFileMetaHandler = new BinaryFileMetaHandler( baseResourceMetaHandler );
-        FolderMetaHandler folderMetaHandler = new FolderMetaHandler( baseResourceMetaHandler );
-        GroupMetaHandler groupMetaHandler = new GroupMetaHandler( folderMetaHandler );
-        PageMetaHandler pageMetaHandler = new PageMetaHandler( baseResourceMetaHandler );
-        UserMetaHandler userMetaHandler = new UserMetaHandler( folderMetaHandler );
-        CsvViewMetaHandler csvViewMetaHandler = new CsvViewMetaHandler( baseResourceMetaHandler );
-        TextFileMetaHandler textFileMetaHandler = new TextFileMetaHandler( baseResourceMetaHandler );
+        BinaryFileMetaHandler binaryFileMetaHandler = add( new BinaryFileMetaHandler( baseResourceMetaHandler ), mapOfAliases );
+        FolderMetaHandler folderMetaHandler = add( new FolderMetaHandler( baseResourceMetaHandler ), mapOfAliases );
+        PageMetaHandler pageMetaHandler = add( new PageMetaHandler( baseResourceMetaHandler ), mapOfAliases );
+        add( new GroupMetaHandler( folderMetaHandler ), mapOfAliases );
+        add( new UserMetaHandler( folderMetaHandler ), mapOfAliases );
+        add( new CsvViewMetaHandler( baseResourceMetaHandler ), mapOfAliases );
+        add( new TextFileMetaHandler( baseResourceMetaHandler ), mapOfAliases );
+        add( new PdfMetaHandler( binaryFileMetaHandler ), mapOfAliases );
 
-        Map<Class, String> mapOfAliases = new HashMap<Class, String>();
-        for( MetaHandler<?> h : Arrays.asList( userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler, textFileMetaHandler ) ) {
-            mapOfAliases.put( h.getInstanceType(), h.getAlias() );
-        }
+        // Must be last because uses mapOfAlias
+        add( new TemplateMetaHandler( pageMetaHandler, mapOfAliases ), mapOfAliases );
+    }
 
-        TemplateMetaHandler templateMetaHandler = new TemplateMetaHandler( pageMetaHandler, mapOfAliases );
-
-        this.metaHandlers = new ArrayList<MetaHandler>();
-        Collections.addAll( metaHandlers, textFileMetaHandler, templateMetaHandler, userMetaHandler, groupMetaHandler, folderMetaHandler, pageMetaHandler, binaryFileMetaHandler, csvViewMetaHandler );
+    private <T extends MetaHandler> T add( T h, Map<Class, String> mapOfAliases ) {
+        mapOfAliases.put( h.getInstanceType(), h.getAlias() );
+        this.metaHandlers.add( h );
+        return h;
     }
 
     public MetaParser getMetaParser() {

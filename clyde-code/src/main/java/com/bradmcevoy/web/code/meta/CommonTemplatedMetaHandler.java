@@ -61,7 +61,7 @@ public class CommonTemplatedMetaHandler {
         SubPageHandler subPageHandler = new SubPageHandler( this );
         CsvSubPageHandler csvSubPageHandler = new CsvSubPageHandler( subPageHandler );
         ReCaptchaComponentHandler reCaptchaComponentHandler = new ReCaptchaComponentHandler();
-        add(reCaptchaComponentHandler);
+        add( reCaptchaComponentHandler );
         add( emailCommandHandler );
         add( emailInputHandler );
         add( forgottenPasswordComponentHandler );
@@ -207,6 +207,9 @@ public class CommonTemplatedMetaHandler {
 
         for( Element eAtt : JDomUtils.childrenOf( el, "attributes", CodeMeta.NS ) ) {
             ValueHandler h = mapOfValueAliases.get( eAtt.getName() );
+            if( h == null ) {
+                throw new IllegalArgumentException( "No handler for: " + eAtt.getName() );
+            }
             ComponentValue cv = h.fromXml( res, eAtt );
             res.getValues().add( cv );
         }

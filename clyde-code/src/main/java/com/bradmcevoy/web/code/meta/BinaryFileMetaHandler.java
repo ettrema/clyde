@@ -6,7 +6,6 @@ import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
@@ -47,7 +46,7 @@ public class BinaryFileMetaHandler implements MetaHandler<BinaryFile> {
         return f;
     }
 
-    private void populateXml( Element el, BinaryFile page ) {
+    public void populateXml( Element el, BinaryFile page ) {
 //        InitUtils.set( el, "contentLength", page.getContentLength());
 //        el.setAttribute( "crc", page.getCrc() + "" );
 //        el.setAttribute( "firstVersionDone", page.isFirstVersionDone() + "" );

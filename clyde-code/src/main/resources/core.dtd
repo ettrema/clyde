@@ -28,7 +28,7 @@
   >
 
  <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:page (c:attributes?|c:components?)*>
+<!ELEMENT c:page (c:attributes?,c:components?,c:afterSaveScript?)*>
 <!ATTLIST c:page
     contentType CDATA #IMPLIED
     template CDATA #IMPLIED
@@ -73,7 +73,7 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:folder (c:permissions)*>
+<!ELEMENT c:folder (c:attributes?,c:components?,c:afterSaveScript?,c:permissions?)*>
 <!ATTLIST c:folder
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
@@ -101,7 +101,7 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:attributes?,c:fields?,c:components?)>
+<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:afterSaveScript?)>
 <!ATTLIST c:template
     template CDATA #IMPLIED
     instanceType (folder|page|group|user|event|binaryFile) #IMPLIED
