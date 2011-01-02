@@ -75,17 +75,6 @@ public class ForgottenPasswordComponent implements Component {
 
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "onProcess" );
-        if( StringUtils.isNotBlank( recaptchaComponent ) ) {
-            log.trace( "requires captcha" );
-            Component c = rc.page.getComponent( recaptchaComponent, false );
-            if( c == null ) {
-                throw new RuntimeException( "Recaptcha component not found: " + recaptchaComponent );
-            }
-            if( !c.validate( rc ) ) {
-                log.trace( "recaptcha validation failed" );
-                return null;
-            }
-        }
         ForgottenPasswordHelper helper = new ForgottenPasswordHelper();
         return helper.onProcess( this, rc, parameters, files );
     }

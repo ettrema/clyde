@@ -22,7 +22,17 @@ public class JDomUtils {
     }
 
     public static List<org.jdom.Element> childrenOf( org.jdom.Element e2, String name ) {
-        return childrenOf( e2, name, Namespace.NO_NAMESPACE );
+        Element elNext = e2.getChild( name );
+        List<org.jdom.Element> els = new ArrayList<org.jdom.Element>();
+        if( elNext != null ) {
+            List list = elNext.getChildren();
+            for( Object o : list ) {
+                if( o instanceof Element ) {
+                    els.add( (org.jdom.Element) o );
+                }
+            }
+        }
+        return els;
     }
 
     public static List<org.jdom.Element> childrenOf( org.jdom.Element e2, String name, Namespace ns ) {
@@ -57,6 +67,15 @@ public class JDomUtils {
         }
     }
 
+    public static String getInnerXmlOf( Element parent, String elementName ) {
+        Element el = getChild( parent, elementName );
+        if( el == null ) {
+            return null;
+        } else {
+            return getInnerXml( el );
+        }
+    }
+
     public static String getInnerXml( Element el ) {
         String v = XmlHelper.getAllText( el );
         if( v == null ) return null;
@@ -67,6 +86,15 @@ public class JDomUtils {
         XmlHelper helper = new XmlHelper();
         List content = helper.getContent( xml );
         el.setContent( content );
+    }
+
+    /**
+     * Returns the entire element as formatted XML, including the given element itself
+     * @param el
+     * @return
+     */
+    public static String getXml(Element el) {
+        return XmlHelper.toString( el );
     }
 
     public static void setChildText( Element el, String childName, String val, Namespace ns ) {

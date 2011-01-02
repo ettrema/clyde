@@ -144,7 +144,7 @@ public class RelationSelectInput extends CommonComponent implements Addressable 
 
     @Override
     public Path getPath() {
-        return RenderContext.findPath((Component)this);
+        return ComponentUtils.findPath((Component)this);
     }
 
 }

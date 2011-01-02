@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.component.ForgottenPasswordComponent;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
@@ -109,6 +110,19 @@ public class ForgottenPasswordHelper {
     private boolean validateEmailRequest( ForgottenPasswordComponent comp, RenderContext rc, Map<String, String> parameters ) {
         findUser( comp, parameters );
         if( foundUser != null ) {
+            if( StringUtils.isNotBlank( comp.getRecaptchaComponent() ) ) {
+                log.trace( "requires captcha" );
+                Component c = rc.page.getComponent( comp.getRecaptchaComponent(), false );
+                if( c == null ) {
+                    throw new RuntimeException( "Recaptcha component not found: " + comp.getRecaptchaComponent() );
+                }
+                if( !c.validate( rc ) ) {
+                    log.trace( "recaptcha validation failed" );
+                    return false;
+                }
+            }
+
+
             rc.addAttribute( comp.getName() + "_found", foundUser );
             return true;
         } else {
@@ -156,7 +170,7 @@ public class ForgottenPasswordHelper {
             return false;
         }
         this.password = parameters.get( PARAM_PASSWORD );
-        
+
         String passwordErr = _( PasswordValidationService.class ).checkValidity( foundUser, password );
         if( passwordErr != null ) {
             comp.setValidationError( passwordErr );

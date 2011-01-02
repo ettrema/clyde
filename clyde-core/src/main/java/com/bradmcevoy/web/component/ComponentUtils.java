@@ -6,6 +6,7 @@ import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.ComponentContainer;
 import com.bradmcevoy.web.ExistingResourceFactory;
+import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
@@ -20,6 +21,60 @@ import java.util.Map;
 import java.util.Set;
 
 public class ComponentUtils {
+
+    public static Path findPath( Component c ) {
+        Path p = findPath( c.getContainer() );
+        return p.child( c.getName() );
+    }
+
+
+    /**
+     * Build a path object for the given container. Implemented here because
+     * it must be symmetrical with findComponent(Path)
+     *
+     * @param container
+     * @return - a path from the host to the container
+     */
+    public static Path findPath( Addressable container ) {
+        Addressable parent = container.getContainer();
+        Path parentPath;
+        if( parent != null && !( parent instanceof Host ) ) {
+            parentPath = findPath( parent );
+        } else {
+            parentPath = Path.root();
+        }
+        return parentPath.child( container.getName() );
+    }
+
+
+    public static Templatable find( Templatable from, Path p ) {
+        Templatable ct;
+        if( p == null ) {
+            throw new NullPointerException( "path is null" );
+        }
+        if( !p.isRelative() ) {
+            if( from == null ) {
+                throw new NullPointerException( "from is null" );
+            }
+            ct = findPageWithRelativePath( p, from.getWeb() );
+        } else {
+            ct = findPageWithRelativePath( p, from );
+        }
+        return ct;
+    }
+
+
+    public static Templatable findPageWithRelativePath( Path path, Templatable page ) {
+        if( path == null ) {
+            return page;
+        }
+        Resource r = ExistingResourceFactory.findChild( page, path );
+        if( r instanceof Templatable ) {
+            return (Templatable) r;
+        }
+        return null;
+    }
+
 
     public static boolean validateComponents( Object target, RenderContext rc ) {
         Map<String, Field> fields = InitUtils.componentFields( target );

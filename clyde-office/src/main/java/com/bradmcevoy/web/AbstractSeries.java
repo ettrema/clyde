@@ -2,6 +2,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import java.util.List;
@@ -50,7 +51,7 @@ public abstract class AbstractSeries implements DataSeries{
     
 
     private Folder findFolder() {
-        Templatable ct = RenderContext.find(container, folderPath);
+        Templatable ct = ComponentUtils.find(container, folderPath);
         if( ct == null ) return null;
         if( ct instanceof Folder ) {
             return (Folder) ct;

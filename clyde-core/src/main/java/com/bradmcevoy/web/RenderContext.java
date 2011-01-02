@@ -2,8 +2,6 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentUtils;
@@ -19,68 +17,64 @@ import java.util.Map;
 import java.util.Set;
 import org.joda.time.DateTime;
 
+/**
+ * What is a RenderContext?
+ * When a page is rendered it first calls its template
+ * to render it. The template generates the layout and inserts the page's content
+ * into that layout.
+ *
+ * This means that a template *delegates* to the page it is rendering. However,
+ * a template doesnt normally have a reference to the page, because it is the page
+ * which has a reference to the template.
+ *
+ * To get around this problem we have a RenderContext (or RC). A RC is just a
+ * reference to a page or template, and another RC - called the child - and an edit mode. When
+ * rendering a template and an "invoke" instruction is encountered, the RC will
+ * find an appropriate component definition, and then use that to render the
+ * corresponding component value from the child RC. This is because it is definitions
+ * which know how to render values, not the value itself.
+ *
+ * Edit Mode
+ * Components can be rendered in view mode or edit mode. Typically, a page is put
+ * into edit mode by accessing it on some special URL pattern and this causes all
+ * components to display in edit mode, allowing the content to be edited.
+ *
+ * However, there is a subtle issue about the relationship between RC's, pages and
+ * the edit mode. Assume we are rendering page A which has a template B. There
+ * will be an RC for each, but only the RC for page A will have its edit mode set.
+ * Thats because we don't want to edit the layout in template B, we want to edit
+ * the content in page A.
+ *
+ * But, as discussed above, it is the component definition which renders values,
+ * not the value itself. So it is the RC for template B which must make the decision
+ * to render in edit mode or view mode, even though the edit mode flag is set to true
+ * on the child RC.
+ *
+ * However, values don't always have to come from the immediate child, they
+ * can come from subsequent children, and in this case the edit mode to be applied
+ * is that on the RC which contains the value.
+ *
+ * So rule 1:
+ * Edit mode to render with for a component definition is the edit mode of the
+ * RC which holds the value.
+ *
+ * @author brad
+ */
 public class RenderContext implements Map<String, Component> {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RenderContext.class );
     private static final ReplaceableHtmlParser PARSER = new ReplaceableHtmlParserImpl();
-
-    /**
-     * Build a path object for the given container. Implemented here because
-     * it must be symmetrical with findComponent(Path)
-     * 
-     * @param container
-     * @return - a path from the host to the container
-     */
-    public static Path findPath( Addressable container ) {
-        Addressable parent = container.getContainer();
-        Path parentPath;
-        if( parent != null && !( parent instanceof Host ) ) {
-            parentPath = findPath( parent );
-        } else {
-            parentPath = Path.root();
-        }
-        return parentPath.child( container.getName() );
-    }
-
-    public static Path findPath( Component c ) {
-        Path p = findPath( c.getContainer() );
-        return p.child( c.getName() );
-    }
-
-    public static Templatable find( Templatable from, Path p ) {
-        Templatable ct;
-        if( p == null ) {
-            throw new NullPointerException( "path is null" );
-        }
-        if( !p.isRelative() ) {
-            if( from == null ) {
-                throw new NullPointerException( "from is null" );
-            }
-            ct = findPageWithRelativePath( p, from.getWeb() );
-        } else {
-            ct = findPageWithRelativePath( p, from );
-        }
-        return ct;
-    }
     final public ITemplate template;
     final public Templatable page;
     final public RenderContext child;
-    final public boolean editMode;
+    final public boolean pageEditMode;
     final Map<String, Object> attributes = new HashMap<String, Object>();
-    private RenderMap renderMap;
 
     public RenderContext( ITemplate template, Templatable page, RenderContext child, boolean editMode ) {
         this.template = template;
         this.page = page;
         this.child = child;
-        this.editMode = editMode;
-    }
-
-    public Map<String,Object> getRender() {
-        if( renderMap == null ) {
-            renderMap = new RenderMap(this);
-        }
-        return renderMap;
+        this.pageEditMode = editMode;
     }
 
     public boolean hasRole( String s ) {
@@ -171,7 +165,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public boolean getEditMode() {
-        return editMode;
+        return pageEditMode;
     }
 
     public Templatable getMe() {
@@ -225,7 +219,7 @@ public class RenderContext implements Map<String, Component> {
             cvBody.init( childPage );
             childPage.getValues().add( cvBody );
         }
-        if( rcChild.editMode ) {
+        if( rcChild.pageEditMode ) {
             //log.debug( "edit");
             return cvBody.renderEdit( rcChild );
         } else {
@@ -249,78 +243,145 @@ public class RenderContext implements Map<String, Component> {
         }
     }
 
-    public String invoke( String paramName, boolean editable ) {
+    public String invoke( String paramName ) {
+        return invoke( paramName, null, true );
+    }
+
+    public String invoke( String paramName, Boolean editable ) {
         return invoke( paramName, editable, editable );
     }
 
-    private String invoke( String paramName, boolean editable, boolean markers ) {
+    private String invoke( String paramName, Boolean componentEdit, Boolean markers ) {
         log.debug( "invoke: " + paramName + " on " + this.page.getName() );
         try {
-            RenderContext childRc = this.child == null ? this : this.child;
             Path p = Path.path( paramName );
             // First, look for a component in this page
             Component c = ComponentUtils.findComponent( p, page );
             if( c == null ) {
                 log.debug( "component not found: " + p + " in: " + page.getHref() );
                 return "";
-            }
-            log.debug( "found component: " + c.getClass() + " - " + c.getName() + " from path: " + p );
-            String s;
-            if( c instanceof ComponentDef ) {
-                ComponentDef def = (ComponentDef) c;
-                //Templatable targetPage = this.getTargetPage();
-                //ComponentValue cv = getComponentValue( paramName, targetPage );
-
-                Templatable nextPage = null;
-                if( this.child != null ) {
-                    nextPage = this.child.page;
-                }
-
-                // TODO: this should probably look for the CV in child pages too
-                // but maybe it should back to the template too???s
-
-                ComponentValue cv = getComponentValue( paramName, this.child.page );
-                if( cv == null && editable && nextPage instanceof BaseResource ) {
-                    cv = def.createComponentValue( (BaseResource) nextPage );
-                    nextPage.getValues().add( cv );
-                }
-                if( cv == null ) {
-                    log.debug( "Didnt find: " + paramName );
-                    return "";
-                } else {
-                    log.debug( "rendering cv:" + getEditMode() + " - " + editable );
-                    if( editable ) {
-                        s = cv.renderEdit( childRc );
-                    } else {
-                        s = cv.render( childRc );
-                    }
-                    if( log.isTraceEnabled() ) {
-                        log.trace( " - result:" + s );
-                    }
-                    if( s == null ) {
-                        s = "";
-                    }
-                    log.debug( "!editmod " + !getEditMode() + " markers:" + markers );
-                    if( !getEditMode() && markers ) {
-                        return wrapWithIdentifier( s, def.getName() );
-                    } else {
-                        return s;
-                    }
-                }
             } else {
-                log.debug( "not a componentdef: " + c.getClass() );
-                if( editable ) {
-                    s = c.renderEdit( childRc );
+                log.debug( "found component: " + c.getClass() + " - " + c.getName() + " from path: " + p );
+                String s;
+                if( c instanceof ComponentDef ) {
+                    log.trace("found componentdef");
+                    ComponentDef def = (ComponentDef) c;
+                    return renderDef( componentEdit, def, markers );
                 } else {
-                    s = c.render( childRc );
+                    log.debug( "not a componentdef: " + c.getClass() );
+                    RenderContext childRc = this.child == null ? this : this.child;
+                    if( editMode( componentEdit ) ) {
+                        s = c.renderEdit( childRc );
+                    } else {
+                        s = c.render( childRc );
+                    }
+                    if( s == null ) s = "";
+                    return s;
                 }
             }
-            if( s == null ) s = "";
-            return s;
         } catch( Exception e ) {
             log.error( "exception invoking: " + paramName, e );
             return "ERR: " + paramName + " : " + e.getMessage();
         }
+    }
+
+    /**
+     *         All sorts of crazy going on with editable and component value location
+    So we want user to define the user fields, but we then want pharmacist and pa
+    to inherit those definitions, and we want values on the pages
+    So when we call rc.invoke('firstName') that won't find a value on pharmacist
+    but it should look for one on the page. It should then be displayed as editable
+     *
+     * @param editable
+     * @param def
+     * @param markers
+     * @return
+     */
+    private String renderDef( Boolean editable, ComponentDef def, Boolean markers ) {
+        RenderContext childRc = this.child == null ? this : this.child;
+        Templatable nextPage = null;
+        if( this.child != null ) {
+            nextPage = this.child.page;
+        }
+        ComponentValue cv;
+        if( this.child != null ) {
+            cv = getComponentValue( def.getName(), this.child.page );
+        } else {
+            cv = null;
+        }
+        if( cv == null && editMode( editable ) && nextPage instanceof BaseResource ) {
+            cv = def.createComponentValue( (BaseResource) nextPage );
+            nextPage.getValues().add( cv );
+        }
+        if( cv == null ) {
+            log.trace( "look for child value" );
+            if( this.child != null ) {
+                return this.child.renderDef( editable, def, markers );
+            } else {
+                log.trace( "no value found" );
+                return "";
+            }
+        } else {
+            log.debug( "rendering cv:" + pageEditMode + " - " + editable );
+            String s;
+            if( editMode( editable ) ) {
+                s = cv.renderEdit( childRc );
+            } else {
+                s = cv.render( childRc );
+            }
+            if( log.isTraceEnabled() ) {
+                log.trace( " - result:" + s );
+            }
+            if( s == null ) {
+                s = "";
+            }
+            log.debug( "!editmod " + !pageEditMode + " markers:" + markers );
+            if( !pageEditMode && markers != null && markers ) {
+                return wrapWithIdentifier( s, def.getName() );
+            } else {
+                return s;
+            }
+        }
+    }
+
+    /**
+     * If a not-null value has been given for the component, then that defines
+     * the edit mode of the rendering of the component.
+     *
+     * But if none is given then fallback on the page edit mode
+     * 
+     * @param componentEditable
+     * @return
+     */
+    private boolean editMode(Boolean componentEditable) {
+        log.trace("editMode: " + this.page.getName() + "  page: " + pageEditMode + " component: " + componentEditable);
+
+        if( componentEditable != null ) {
+            return componentEditable;
+        } else {
+            if( this.child == null ) {
+                return false;
+            } else {
+                return this.child.pageEditMode;
+                //return this.pageEditMode;
+            }
+        }
+    }
+
+    public ComponentValue getComponentValue( String name, Templatable page ) {
+        if( page == null ) {
+            log.trace( "no cv found, return null" );
+            return null;
+        }
+        ComponentValue cv = page.getValues().get( name );
+        if( cv != null ) {
+            if( cv.getContainer() == null ) {
+                log.trace( "no container, so init" );
+                cv.init( page );
+            }
+            return cv;
+        }
+        return cv;
     }
 
     public String invoke( Templatable page, String paramName ) {
@@ -328,12 +389,9 @@ public class RenderContext implements Map<String, Component> {
         return rc.invoke( paramName );
     }
 
-    public String invoke( String paramName ) {
-        return invoke( paramName, ( child != null && child.editMode ), true );
-    }
 
     public String invokeForEdit( String paramName ) {
-        if( child != null && child.editMode ) {
+        if( child != null && child.pageEditMode ) {
             return invoke( paramName, true );
         } else {
             return "";
@@ -351,26 +409,6 @@ public class RenderContext implements Map<String, Component> {
 
     public String invoke( Component c ) {
         return c.render( child );
-    }
-
-    public ComponentValue getComponentValue( String name, Templatable page ) {
-        if( page == null ) {
-            log.trace( "no cv found, return null" );
-            return null;
-        }
-        ComponentValue cv = page.getValues().get( name );
-        if( cv != null ) {
-            if( log.isTraceEnabled() ) {
-                log.trace( "got existing CV from page:" + page.getName() + " val:" + cv.getValue() );
-            }
-            if( cv.getContainer() == null ) {
-                log.trace( "no container, so init" );
-                cv.init( page );
-            }
-            return cv;
-        }
-        log.trace( "no cv found, so look for CV from template" );
-        return getComponentValue( name, page.getTemplate() );
     }
 
     public String invokeEdit( String paramName ) {
@@ -418,7 +456,7 @@ public class RenderContext implements Map<String, Component> {
         if( target == null ) {
             return true;
         } else {
-            if( target instanceof BaseResource) {
+            if( target instanceof BaseResource ) {
                 BaseResource res = (BaseResource) target;
                 boolean b = res.isNew();
                 return b;
@@ -450,7 +488,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public Templatable find( String path ) {
-        return RenderContext.find( page, Path.path( path ) );
+        return ComponentUtils.find( page, Path.path( path ) );
     }
 
     public Component findComponent( Path path ) {
@@ -525,60 +563,6 @@ public class RenderContext implements Map<String, Component> {
     @Override
     public Set<Entry<String, Component>> entrySet() {
         throw new UnsupportedOperationException( "Not supported yet." );
-    }
-
-
-    private static Component findComponentWithRelativePath_old( Path path, Templatable startFrom ) {
-        return findComponentWithRelativePath_old( startFrom, path.getParts(), 0 );
-    }
-
-    private static Component findComponentWithRelativePath_old( Object parent, String[] arr, int i ) {
-        if( arr.length == 0 ) {
-            return null;
-        }
-        //log.debug( "findComponent: " + arr.length + " " + i);
-        String childName = arr[i];
-        Object child = null;
-        if( parent instanceof Resource ) {
-            Resource r = (Resource) parent;
-            //log.debug( "find child: " + childName);
-            child = ExistingResourceFactory.findChild( r, childName );
-        }
-        if( child == null ) {
-            if( parent instanceof ComponentContainer ) {
-                ComponentContainer cc = (ComponentContainer) parent;
-                //log.debug( "find any component: " + childName);
-                child = cc.getAnyComponent( childName );
-            } else {
-                //log.debug( "not a ComponentContainer: " + parent.getClass());
-            }
-        }
-        if( child == null ) {
-            //log.debug( "no child");
-            return null;
-        } else {
-            if( i < arr.length - 1 ) {
-                return findComponentWithRelativePath_old( child, arr, i + 1 );
-            } else {
-                if( child instanceof Component ) {
-                    return (Component) child;
-                } else {
-                    log.warn( "Found something, not a component thoug: " + child );
-                    return null;
-                }
-            }
-        }
-    }
-
-    public static Templatable findPageWithRelativePath( Path path, Templatable page ) {
-        if( path == null ) {
-            return page;
-        }
-        Resource r = ExistingResourceFactory.findChild( page, path );
-        if( r instanceof Templatable ) {
-            return (Templatable) r;
-        }
-        return null;
     }
 
     String wrapWithIdentifier( String s, String name ) {

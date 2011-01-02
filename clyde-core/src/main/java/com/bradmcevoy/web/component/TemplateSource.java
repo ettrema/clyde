@@ -62,6 +62,6 @@ public class TemplateSource {
 
     
     public boolean isEditMode() {
-        return rc.editMode;
+        return rc.pageEditMode;
     }
 }

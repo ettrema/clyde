@@ -144,6 +144,12 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             Class c = mapOfClassesByAlias.get( instanceType );
             if( c != null ) {
                 instanceType = c.getCanonicalName();
+            } else {
+                log.warn("--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:");
+                for( String alias : mapOfAliasesByClass.values()) {
+                    log.warn("  alias: " + alias );
+                }
+
             }
         }
 

@@ -168,7 +168,7 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
 
     @Override
     public Path getPath() {
-        return RenderContext.findPath( (Component) this );
+        return ComponentUtils.findPath( (Component) this );
     }
 
     public T getValue() {

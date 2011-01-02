@@ -93,7 +93,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public Templatable find( Path path ) {
-        return RenderContext.find( this, path );
+        return ComponentUtils.find( this, path );
     }
 
     public Templatable find( String sPath ) {

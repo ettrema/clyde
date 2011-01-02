@@ -2,6 +2,7 @@ package com.bradmcevoy.web.code.content;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.Template;
 import com.bradmcevoy.web.code.ContentTypeHandler;
@@ -70,7 +71,8 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
             } catch( JDOMException ex ) {
                 throw new RuntimeException( ex );
             }
-            String content = InitUtils.getValue( doc.getRootElement() );
+            String content = JDomUtils.getXml( doc.getRootElement() );
+
             CodeUtils.saveValue( template, "body", content );
             template.save();
         } else {

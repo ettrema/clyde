@@ -13,6 +13,9 @@ import java.lang.annotation.Target;
  * This allows them to have their properties read from and written to
  * by PROPFIND and PROPPATCH.
  *
+ * Note that to implement validation rules with feedback to the user you
+ * can throw a PropertySetException from within your setters.
+ *
  * @author brad
  */
 @Target(ElementType.METHOD)

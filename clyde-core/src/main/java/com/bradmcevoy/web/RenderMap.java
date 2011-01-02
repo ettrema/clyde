@@ -18,11 +18,24 @@ import java.util.Set;
  */
 public class RenderMap implements Map<String, Object> {
 
-    RenderContext rc;
+    private final RenderContext rc;
+    private final Boolean componentEdit;
 
-    public RenderMap( RenderContext rc ) {
+    public RenderMap( RenderContext rc, Boolean componentEdit ) {
         this.rc = rc;
+        this.componentEdit = componentEdit;
     }
+
+    @Override
+    public Object get( Object key ) {
+        return rc.invoke( key.toString(), componentEdit );
+    }    
+
+
+    ///////////////////////////////////////////////////////////////////////
+    ///////////           UNSUPPORTED METHODS                   ///////////
+    ///////////////////////////////////////////////////////////////////////
+
 
     @Override
     public int size() {
@@ -42,11 +55,6 @@ public class RenderMap implements Map<String, Object> {
     @Override
     public boolean containsValue( Object value ) {
         throw new UnsupportedOperationException( "Not supported yet." );
-    }
-
-    @Override
-    public Object get( Object key ) {
-        return rc.invoke( key.toString() );
     }
 
     @Override

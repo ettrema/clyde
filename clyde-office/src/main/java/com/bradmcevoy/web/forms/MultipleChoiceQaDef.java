@@ -3,7 +3,6 @@ package com.bradmcevoy.web.forms;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
@@ -19,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
-import org.jdom.Document;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 
 /**
  *
@@ -239,38 +238,16 @@ public class MultipleChoiceQaDef implements ComponentDef {
 
     public Object parseValue( ComponentValue cv, Templatable ct, String s ) {
         log.trace( "parseValue" );
-        return cv.getValue();
+        try {
+            return QaXmlUtils.parse( s );
+        } catch( JDOMException ex ) {
+            log.error("error parsing QA", ex);
+            return cv.getValue();
+        }
     }
 
     public String formatValue( Object oVal ) {
-        log.trace( "formatValue" );
-        List<Item> items = null;
-        if( oVal instanceof List ) {
-            items = (List<Item>) oVal;
-        } else if( oVal == null ) {
-            log.trace( "no items" );
-            return "";
-        } else {
-            log.trace( "not compatible value:" + oVal.getClass() );
-            return "";
-        }
-
-        Element e2 = new Element( "multiplechoiceqa" );
-        Document doc = new Document( e2 );
-        log.trace( "items: " + items.size() );
-        for( Item i : items ) {
-            Element elQ = new Element( "question" );
-            e2.addContent( elQ );
-            elQ.setText( i.getQuestion() );
-            elQ.setAttribute( "correct", i.getCorrectNum() + "" );
-            for( String s : i.getAnswers() ) {
-                Element elA = new Element( "answer" );
-                elA.setText( s );
-                elQ.addContent( elA );
-            }
-        }
-        return new XmlUtils2().getXml( doc.getRootElement() );
-
+        return QaXmlUtils.formatAsXml( oVal );
     }
 
     public void changedValue( ComponentValue cv ) {

@@ -1,11 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE c:meta SYSTEM "core.dtd">
-<c:meta xmlns:c="http://clyde.ettrema.com/ns/core">
-    <c:page template="normal" contentType="text/html">
-        <c:attributes>
-            <c:date name="aDate">aaa</c:date>
-            <c:email name="aEmail">aaa</c:email>
-            <c:value name="aDefault">aaa</c:value>
-        </c:attributes>
-    </c:page>
-</c:meta>
+
+<html>
+    <head xmlns="http://www.w3.org/1999/xhtml">
+        <title>Module Certificate</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="Robots" content="index,follow" />
+        <meta name="keywords" content="" />
+        <link rel="stylesheet" type="text/css" href="/templates/style.css" media="screen" />
+        <link type="text/css" href="/templates/basic.css" rel="stylesheet" />
+  <!-- IE 6 "fixes" -->
+  <!--[if lt IE 7]>
+        <link type='text/css' href='/templates/basic_ie.css' rel='stylesheet' media='screen' />
+        <![endif]-->
+
+        <script type="text/javascript" src="/templates/js/jquery.js" xml:space="preserve">//</script>
+        <script type="text/javascript" src="/templates/js/jquery.cookie.js" xml:space="preserve">//</script>
+        <script type="text/javascript" src="/templates/js/utils.js" xml:space="preserve">//</script>
+    </head>
+
+    <body xmlns="http://www.w3.org/1999/xhtml" id="normal">
+        <div class="header">
+            <div class="banner">
+
+                <h1>
+                    <a href="/index.html" shape="rect">PainPod</a>
+                </h1>
+                <p>Collaborate. Educate.</p>
+            </div>
+        </div>
+        <div class="inner">Module Certificate</div>
+
+        <div class="footer">
+            <div class="nav">
+                <ul>
+                    <li>
+                        <a href="/content/contact.html" shape="rect">Contact us</a>
+                    </li>
+                    <li>
+                        <a href="/content/privacy.html" shape="rect">Privacy Policy</a>
+
+                    </li>
+                    <li>
+                        <a href="/content/legal.html" shape="rect">Legal</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>

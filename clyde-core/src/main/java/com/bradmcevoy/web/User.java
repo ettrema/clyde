@@ -5,6 +5,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Response.Status;
 import com.bradmcevoy.property.BeanPropertyAccess;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.property.PropertySource.PropertySetException;
 import com.bradmcevoy.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.ComponentValue;
@@ -28,6 +30,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.groups.RelationalGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
 import com.bradmcevoy.web.security.CookieAuthenticationHandler;
+import com.bradmcevoy.web.security.PasswordValidationService;
 import com.bradmcevoy.web.security.UserGroup;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -254,6 +257,27 @@ public class User extends Folder implements IUser {
         } else {
             throw new RuntimeException( "Illegal secret number" );
         }
+    }
+
+    /**
+     * Always returns a blank. Just used to make password a bean property, but
+     * only the setter is useful
+     *
+     * @return
+     */
+    public String getPassword() {
+        return "";
+    }
+
+    public void setPassword( String password ) {
+        String validationErr = _( PasswordValidationService.class ).checkValidity( this, password );
+        if( validationErr == null ) {
+            log.trace("setPassword: validation ok");
+            setPassword( password, 847202 );
+        } else {
+            log.info("setPassword: validation failed: " + validationErr);
+            throw new PropertySetException( Status.SC_BAD_REQUEST, validationErr );
+        }
 
     }
 
@@ -404,7 +428,7 @@ public class User extends Folder implements IUser {
         if( userGroup == null ) {
             throw new NullPointerException( "Group not found: " + groupName );
         } else if( userGroup instanceof Group ) {
-            removeFromGroup((Group) userGroup);
+            removeFromGroup( (Group) userGroup );
         } else {
             throw new RuntimeException( "Cant remove group type: " + userGroup.getClass() );
         }
