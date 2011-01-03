@@ -1,12 +1,16 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.web.User;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
+import com.bradmcevoy.web.security.PasswordValidationService;
 import java.util.Map;
 import org.apache.velocity.VelocityContext;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * 
@@ -14,18 +18,17 @@ import org.jdom.Element;
  *
  * @author brad
  */
-public class PasswordDef  extends CommonComponent implements ComponentDef, Addressable {
+public class PasswordDef extends CommonComponent implements ComponentDef, Addressable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TextDef.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PasswordDef.class );
     private static final long serialVersionUID = 1L;
     protected Addressable container;
     private String name;
 
     public PasswordDef( Addressable container, String name ) {
         this.container = container;
-        this.name = name ;
+        this.name = name;
     }
-
 
     public PasswordDef( Addressable container, Element el ) {
         this.container = container;
@@ -57,16 +60,22 @@ public class PasswordDef  extends CommonComponent implements ComponentDef, Addre
             c.setValidationMessage( "A value is required" );
             return false;
         }
-
-
-        return true;
+        User user = (User) c.getContainer();
+        String err = _( PasswordValidationService.class ).checkValidity( user, s );
+        if( err == null ) {
+            log.trace( "password is ok" );
+            return true;
+        } else {
+            log.info( "password invalid: " + err );
+            c.setValidationMessage( err );
+            return false;
+        }
     }
 
     @Override
     public boolean validate( RenderContext rc ) {
         return true;
     }
-
 
     @Override
     public Element toXml( Addressable container, Element el ) {
@@ -82,7 +91,6 @@ public class PasswordDef  extends CommonComponent implements ComponentDef, Addre
         return container.getPath().child( name );
     }
 
-
     /**
      *
      * @param newPage
@@ -96,8 +104,6 @@ public class PasswordDef  extends CommonComponent implements ComponentDef, Addre
         cv.setValue( "" );
         return cv;
     }
-
-
 
     protected String editChildTemplate() {
         String template = "";
@@ -185,9 +191,5 @@ public class PasswordDef  extends CommonComponent implements ComponentDef, Addre
     }
 
     public void changedValue( ComponentValue cv ) {
-
     }
-
-
-
 }

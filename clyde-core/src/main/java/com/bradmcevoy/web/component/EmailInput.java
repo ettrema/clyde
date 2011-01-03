@@ -6,41 +6,40 @@ import org.jdom.Element;
 
 public class EmailInput extends Text {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailInput.class);
-    
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( EmailInput.class );
     private static final long serialVersionUID = 1L;
-    
-    public EmailInput(Addressable container, String name) {
-        super(container, name);
+
+    public EmailInput( Addressable container, String name ) {
+        super( container, name );
     }
 
-    public EmailInput(Addressable container, Element el) {
-        super(container, el);
+    public EmailInput( Addressable container, Element el ) {
+        super( container, el );
     }
 
     @Override
-    public boolean validate(RenderContext rc) {
-        log.debug( "validate: " + getValue());
+    public boolean validate( RenderContext rc ) {
+        log.debug( "validate: " + getValue() );
         try {
-            boolean b = super.validate(rc);
-            if (!b) {
+            boolean b = super.validate( rc );
+            if( !b ) {
                 return b;
             }
             String s = getValue();
-            log.debug( "validating: " + s);
-            if (s != null) {
+            log.debug( "validating: " + s );
+            if( s != null ) {
                 s = s.trim();
-                if (s.length() > 0) {
+                if( s.length() > 0 ) {
                     MailboxAddress add = MailboxAddress.parse( s );
-                    log.debug( "address ok: " + add);
+                    log.debug( "address ok: " + add );
                 }
             } else {
-                log.debug("value is null");
+                log.debug( "value is null" );
             }
             return true;
-        } catch (IllegalArgumentException ex) {
-            log.debug("invalid address");
-            this.validationMessage = "Not a valid email address";
+        } catch( IllegalArgumentException ex ) {
+            log.debug( "invalid address" );
+            setValidationMessage( "Not a valid email address" );
             return false;
         }
     }

@@ -61,6 +61,9 @@ public class EmailDef extends TextDef{
 
         try {
             MailboxAddress.parse( s );
+
+            /// TODO: look for any existing accounts with the same email address
+
             return true;
         } catch( IllegalArgumentException illegalArgumentException ) {
             c.setValidationMessage( "Not a valid email address");

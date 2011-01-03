@@ -1,8 +1,12 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.web.User;
 import com.bradmcevoy.utils.IntegerUtils;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.security.PasswordValidationService;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class Text extends AbstractInput<String> {
 
@@ -12,7 +16,6 @@ public class Text extends AbstractInput<String> {
     public Integer cols;
     public Integer minLength;
     public Integer maxLength;
-
 
     public Text( Addressable container, String name ) {
         super( container, name );
@@ -38,20 +41,32 @@ public class Text extends AbstractInput<String> {
         String s = getValue();
         if( s == null || s.trim().length() == 0 ) {
             if( required ) {
-                validationMessage = "Required field";
+                setValidationMessage( "Required field" );
                 return false;
             }
         } else {
             int l = s.trim().length();
             if( maxLength != null ) {
                 if( l > maxLength ) {
-                    validationMessage = "Is too long. Maximum length is " + maxLength;
+                    setValidationMessage( "Is too long. Maximum length is " + maxLength );
                     return false;
                 }
             }
             if( minLength != null && l < minLength ) {
-                validationMessage = "Is too short. Minimum length is " + minLength;
+                setValidationMessage( "Is too short. Minimum length is " + minLength );
                 return false;
+            }
+        }
+
+        // Yeah, this is pretty crap...
+        if( this.name.equals( "password" ) ) {
+            if( this.container instanceof User ) {
+                User user = (User) this.container;
+                String err = _( PasswordValidationService.class ).checkValidity( user, s );
+                if( err != null ) {
+                    setValidationMessage( err );
+                    return false;
+                }
             }
         }
 
@@ -70,10 +85,10 @@ public class Text extends AbstractInput<String> {
     @Override
     public Element toXml( Addressable container, Element el ) {
         Element elThis = super.toXml( container, el );
-        InitUtils.set(elThis, "rows", rows);
-        InitUtils.set(elThis, "cols", cols);
-        InitUtils.set(elThis, "minLength", minLength);
-        InitUtils.set(elThis, "maxLength", maxLength);
+        InitUtils.set( elThis, "rows", rows );
+        InitUtils.set( elThis, "cols", cols );
+        InitUtils.set( elThis, "minLength", minLength );
+        InitUtils.set( elThis, "maxLength", maxLength );
         return elThis;
     }
 
@@ -120,6 +135,4 @@ public class Text extends AbstractInput<String> {
     public Integer getMinLength() {
         return minLength;
     }
-
-    
 }

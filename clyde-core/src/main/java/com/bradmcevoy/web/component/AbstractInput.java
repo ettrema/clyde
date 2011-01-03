@@ -15,8 +15,7 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
     private static final long serialVersionUID = 1L;
     protected Addressable container;
     protected String name;
-    private T value;
-    protected String validationMessage;
+    private T value;    
     protected boolean requestScope;
     protected boolean required;
     protected String type = "text";  // text, hidden, etc
@@ -131,7 +130,7 @@ public abstract class AbstractInput<T> extends CommonComponent implements Compon
     @Override
     public String renderEdit( RenderContext rc ) {
         String template = editTemplate();
-        if( validationMessage != null ) {
+        if( getValidationMessage() != null ) {
             template = template + "<span class='validationMessage'>${input.validationMessage}</span>";
         }
         VelocityContext vc = velocityContext( rc, value );

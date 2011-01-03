@@ -52,7 +52,7 @@ public class ForgottenPasswordHelper {
         MailSender sender = RequestContext.getCurrent().get( MailSender.class );
         MailboxAddress to = parsedEmail;
         token = _( PasswordRecoveryService.class ).createToken( foundUser );
-        String currentPassword = foundUser.getPassword( 847202 );
+        String currentPassword = _(PasswordStorageService.class).getPasswordValue( foundUser );
         String text = evalTemplate( (CommonTemplated) comp.getContainer(), comp.getBodyTemplate(), foundUser, token, currentPassword, parsedEmail.toPlainAddress() );
         String html = evalTemplate( (CommonTemplated) comp.getContainer(), comp.getBodyTemplateHtml(), foundUser, token, currentPassword, parsedEmail.toPlainAddress() );
         String rt = ( comp.getReplyTo() == null ) ? comp.getFromAdd() : comp.getReplyTo();
@@ -196,7 +196,7 @@ public class ForgottenPasswordHelper {
             return null;
         }
         log.trace( "all ok, update password" );
-        foundUser.setPassword( password, 847202 );
+        foundUser.setPassword( password );
         foundUser.save();
         log.trace( "saved, now commit" );
         _( VfsSession.class ).commit();

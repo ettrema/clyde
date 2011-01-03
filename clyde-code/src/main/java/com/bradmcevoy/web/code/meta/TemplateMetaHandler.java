@@ -15,6 +15,7 @@ import com.bradmcevoy.web.code.meta.comp.DateDefHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailDefHandler;
 import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
 import com.bradmcevoy.web.code.meta.comp.MultipleChoiceQaDefHandler;
+import com.bradmcevoy.web.code.meta.comp.PasswordDefHandler;
 import com.bradmcevoy.web.code.meta.comp.RelationSelectDefHandler;
 import com.bradmcevoy.web.code.meta.comp.TextDefHandler;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -60,7 +61,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         BooleanDefHandler booleanDefHandler = new BooleanDefHandler( textDefHandler );
         RelationSelectDefHandler relationSelectDefHandler = new RelationSelectDefHandler();
         MultipleChoiceQaDefHandler multipleChoiceQaDefHandler = new MultipleChoiceQaDefHandler();
+        PasswordDefHandler passwordDefHandler = new PasswordDefHandler();
 
+        add( passwordDefHandler );
         add( multipleChoiceQaDefHandler );
         add( relationSelectDefHandler );
         add( booleanDefHandler );
@@ -145,9 +148,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             if( c != null ) {
                 instanceType = c.getCanonicalName();
             } else {
-                log.warn("--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:");
-                for( String alias : mapOfAliasesByClass.values()) {
-                    log.warn("  alias: " + alias );
+                log.warn( "--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:" );
+                for( String alias : mapOfAliasesByClass.values() ) {
+                    log.warn( "  alias: " + alias );
                 }
 
             }

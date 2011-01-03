@@ -1,11 +1,11 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.Subject;
 import com.bradmcevoy.http.Request;
-import com.bradmcevoy.http.Response.Status;
 import com.bradmcevoy.property.BeanPropertyAccess;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -17,10 +17,8 @@ import java.util.List;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.property.PropertySource.PropertySetException;
 import com.bradmcevoy.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.ComponentValue;
@@ -30,10 +28,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.groups.RelationalGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
 import com.bradmcevoy.web.security.CookieAuthenticationHandler;
-import com.bradmcevoy.web.security.PasswordValidationService;
 import com.bradmcevoy.web.security.UserGroup;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -47,6 +42,7 @@ public class User extends Folder implements IUser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
     private static final long serialVersionUID = 1L;
+    
     public Text password;
     private boolean emailDisabled;
     private List<String> accessKeys;
@@ -57,9 +53,6 @@ public class User extends Folder implements IUser {
 
     public User( Folder parentFolder, String name, String password ) {
         super( parentFolder, name );
-        this.password = new Text( this, "password" );
-        this.password.setValue( password );
-        this.componentMap.add( this.password );
     }
 
     @Override
@@ -108,46 +101,42 @@ public class User extends Folder implements IUser {
         this.emailDisabled = emailDisabled;
     }
 
-    /**
-     * returns true if this user is defined in an organisation which defines the given
-     * web
-     * 
-     * @param web
-     * @return
-     */
-//    public boolean owns( Web web ) {
-//        Web webThisUser = this.getWeb();
-//        String thisWeb = webThisUser.getPath().toString();
-//        String thatWeb = web.getPath().toString();
-//        return thatWeb.contains( thisWeb ) && thatWeb.length() > thisWeb.length();
-//    }
+
     @Override
     public boolean authenticate( String password ) {
-        if( this.password == null ) {
-            return false;
-        }
-        String s = this.password.getValue();
-        if( s == null ) {
-            return password == null;
-        } else {
-            return s.equals( password );
-        }
+        return _(PasswordStorageService.class).checkPassword( this, password );
     }
 
     @Override
     public boolean authenticateMD5( byte[] passwordHash ) {
-        try {
-            if( this.password == null ) {
-                return false;
-            }
-            String s = this.password.getValue();
-            MessageDigest digest = java.security.MessageDigest.getInstance( "MD5" );
-            byte[] actual = digest.digest( s.getBytes() );
-            return java.util.Arrays.equals( actual, passwordHash );
-        } catch( NoSuchAlgorithmException ex ) {
-            throw new RuntimeException( ex );
-        }
+        return _(PasswordStorageService.class).checkPasswordMD5( this, passwordHash );
     }
+
+
+    /**
+     * Always returns a blank. Just used to make password a bean property, but
+     * only the setter is useful
+     *
+     * @return
+     */
+    public String getPassword() {
+        return "";
+    }
+
+    public void setPassword( String newPassword ) {
+        _(PasswordStorageService.class).setPasswordValue( this, newPassword );
+    }
+
+    public boolean checkPassword( String password ) {
+        return _(PasswordStorageService.class).checkPassword( this, password );
+    }
+
+    public boolean checkPassword( DigestResponse digestRequest ) {
+        return _(PasswordStorageService.class).checkPassword( this, digestRequest );
+    }
+
+
+    
 
     /**
      * 
@@ -229,107 +218,6 @@ public class User extends Folder implements IUser {
         }
     }
 
-    /**
-     * Pants way of stopping people from reading each others passwords...
-     *
-     * @param secretNumber - i'm not telling
-     * @return
-     */
-    public String getPassword( int secretNumber ) {
-        if( secretNumber == 847202 ) {
-            if( this.password == null ) {
-                return null;
-            } else {
-                return this.password.getValue();
-            }
-        } else {
-            throw new RuntimeException( "Illegal secret number" );
-        }
-    }
-
-    public void setPassword( String newPassword, int secretNumber ) {
-        if( secretNumber == 847202 ) {
-            if( this.password == null ) {
-                this.password = new Text( this, "password" );
-                this.componentMap.add( this.password );
-            }
-            this.password.setValue( newPassword );
-        } else {
-            throw new RuntimeException( "Illegal secret number" );
-        }
-    }
-
-    /**
-     * Always returns a blank. Just used to make password a bean property, but
-     * only the setter is useful
-     *
-     * @return
-     */
-    public String getPassword() {
-        return "";
-    }
-
-    public void setPassword( String password ) {
-        String validationErr = _( PasswordValidationService.class ).checkValidity( this, password );
-        if( validationErr == null ) {
-            log.trace("setPassword: validation ok");
-            setPassword( password, 847202 );
-        } else {
-            log.info("setPassword: validation failed: " + validationErr);
-            throw new PropertySetException( Status.SC_BAD_REQUEST, validationErr );
-        }
-
-    }
-
-    public boolean checkPassword( String password ) {
-        String actualPassword = null;
-        if( this.password != null ) {
-            actualPassword = this.password.getValue();
-        }
-        if( actualPassword == null ) {
-            boolean b = password == null || password.length() == 0;
-            if( !b ) {
-                log.info( "actual password is blank, but provided password is not" );
-            } else {
-                return b;
-            }
-        } else {
-            boolean b = actualPassword.equals( password );
-            if( !b ) {
-                log.info( "passwords don't match" );
-            } else {
-                return b;
-            }
-        }
-        // No match found, so check for accessKey
-        if( accessKeys != null ) {
-            for( String s : accessKeys ) {
-                if( s.equals( password ) ) {
-                    log.trace( "found matching accesskey" );
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkPassword( DigestResponse digestRequest ) {
-        String actualPassword = null;
-        if( this.password != null ) {
-            actualPassword = this.password.getValue();
-        }
-        if( actualPassword == null ) {
-            actualPassword = "";
-        }
-
-        DigestGenerator digestGenerator = new DigestGenerator();
-        String serverDigest = digestGenerator.generateDigest( digestRequest, actualPassword );
-        boolean b = serverDigest.equals( digestRequest.getResponseDigest() );
-        if( !b ) {
-            log.warn( "digest checkPassword failed: " + this.getPath() + "/" + actualPassword );
-        }
-        return b;
-    }
 
     /**
      * 
@@ -521,14 +409,12 @@ public class User extends Folder implements IUser {
      * @return
      */
     public boolean canAuthor( Resource r ) {
-        log.warn( "canAuthor --------------------------" );
         Auth auth = null;
         Request req = _( CurrentRequestService.class ).request();
         if( req != null ) {
             auth = req.getAuthorization();
         }
         boolean b = _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, auth );
-        log.warn( "canAuthor: " + b );
         return b;
     }
 

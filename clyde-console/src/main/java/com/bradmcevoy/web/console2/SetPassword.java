@@ -33,19 +33,18 @@ public class SetPassword extends AbstractConsoleCommand {
         }
 
         Request req = _( CurrentRequestService.class ).request();
-        if( req == null ) throw new RuntimeException( "No current request");
+        if( req == null ) throw new RuntimeException( "No current request" );
         Auth auth = req.getAuthorization();
-        boolean isSourceAuthor = _(PermissionChecker.class).hasRole( Role.AUTHOR, user, auth);
+        boolean isSourceAuthor = _( PermissionChecker.class ).hasRole( Role.AUTHOR, user, auth );
         if( !isSourceAuthor ) {
-            return result( "You do not have the AUTHOR role on the source");
+            return result( "You do not have the AUTHOR role on the source" );
         }
-        user.setPassword(newPassword, 847202);
+        user.setPassword( newPassword );
         user.save();
         commit();
 
-        return result("updated: " + user.getLink());
+        return result( "updated: " + user.getLink() );
 
 
     }
 }
-

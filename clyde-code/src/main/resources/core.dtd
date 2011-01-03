@@ -108,7 +108,7 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text|c:email)*>
+<!ELEMENT c:fields (c:html|c:text|c:email|c:password)*>
 
 
 <!--- Put your DTDDoc comment here. -->
@@ -125,7 +125,11 @@
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
     description CDATA #IMPLIED
+  >
 
+<!ELEMENT c:password (#PCDATA)>
+<!ATTLIST c:password
+    name CDATA #REQUIRED
   >
 
 <!ELEMENT c:recaptcha (#PCDATA)*>
