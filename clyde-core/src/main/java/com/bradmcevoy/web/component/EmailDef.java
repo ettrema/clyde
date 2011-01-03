@@ -1,42 +1,47 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
+import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.security.EmailAuthenticator;
 import com.ettrema.mail.MailboxAddress;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
  * @author brad
  */
-public class EmailDef extends TextDef{
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailDef.class);
+public class EmailDef extends TextDef {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( EmailDef.class );
     private static final long serialVersionUID = 1L;
 
-    public EmailDef(Addressable container,String name) {
-        super(container,name);
+    public EmailDef( Addressable container, String name ) {
+        super( container, name );
     }
 
-    public EmailDef(Addressable container, Element el) {
-        super(container,el);
+    public EmailDef( Addressable container, Element el ) {
+        super( container, el );
     }
 
     @Override
-    public String render(ComponentValue c,RenderContext rc) {
+    public String render( ComponentValue c, RenderContext rc ) {
         BaseResource res = (BaseResource) c.getContainer();
-        return res.getExternalEmailTextV2( "default");
+        return res.getExternalEmailTextV2( "default" );
 //        return formatValue(c.getValue());
     }
 
     @Override
-    public String parseValue(ComponentValue cv, Templatable ct,String s) {
+    public String parseValue( ComponentValue cv, Templatable ct, String s ) {
         return s;
     }
 
     @Override
-    public String formatValue(Object v) {
+    public String formatValue( Object v ) {
         if( v == null ) {
             return "";
         } else {
@@ -45,8 +50,8 @@ public class EmailDef extends TextDef{
     }
 
     @Override
-    public ComponentValue createComponentValue(Templatable newPage) {       
-        EmailVal cv = new EmailVal(name.getValue(), newPage);
+    public ComponentValue createComponentValue( Templatable newPage ) {
+        EmailVal cv = new EmailVal( name.getValue(), newPage );
         return cv;
     }
 
@@ -60,17 +65,21 @@ public class EmailDef extends TextDef{
         if( s.length() == 0 ) return true;
 
         try {
-            MailboxAddress.parse( s );
-
-            /// TODO: look for any existing accounts with the same email address
-
-            return true;
+            MailboxAddress add = MailboxAddress.parse( s );
+            User currentUser = (User) c.getContainer();
+            User foundUser = _( EmailAuthenticator.class ).findUser( add, currentUser );
+            if( foundUser == null ) {
+                return true;
+            } else {
+                boolean isSameUser = foundUser.is( currentUser );
+                if( !isSameUser){
+                    c.setValidationMessage( "That email address is already associated with a user account. Please use the lost password function or enter a new address");
+                }
+                return isSameUser;
+            }
         } catch( IllegalArgumentException illegalArgumentException ) {
-            c.setValidationMessage( "Not a valid email address");
+            c.setValidationMessage( "Not a valid email address" );
             return false;
         }
     }
-
-
-
 }
