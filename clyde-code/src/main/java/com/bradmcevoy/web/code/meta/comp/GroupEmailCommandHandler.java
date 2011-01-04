@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.code.meta.comp;
 
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.code.CodeMeta;
@@ -51,13 +52,16 @@ public class GroupEmailCommandHandler implements ComponentHandler {
     public Component fromXml( CommonTemplated res, Element el ) {
         String name = el.getAttributeValue( "name" );
         GroupEmailCommand g = new GroupEmailCommand( res, name );
-        g.setBodyTextTemplate( InitUtils.getValueOf( el, "c:text" ) );
-        g.setBodyHtmlTemplate( InitUtils.getValueOf( el, "c:html" ) );
-        g.setFromComp( InitUtils.getValue( el, "fromComp"));
-        g.setToGroupExpr( InitUtils.getValue( el, "toGroupExpr"));
-        g.setSubjectComp( InitUtils.getValue( el, "subjectComp"));
-        g.setReplyToComp( InitUtils.getValue( el, "replyToComp"));
-        g.setConfirmationUrl( InitUtils.getValue( el, "confirmationUrl"));
+        //String text = InitUtils.getValueOf( el, "c:text" );
+        String text = JDomUtils.getInnerXmlOf( el, "text", CodeMeta.NS );
+        g.setBodyTextTemplate( text );
+        String html = JDomUtils.getInnerXmlOf( el, "html", CodeMeta.NS );
+        g.setBodyHtmlTemplate( html );
+        g.setFromComp( InitUtils.getValue( el, "fromComp" ) );
+        g.setToGroupExpr( InitUtils.getValue( el, "toGroupExpr" ) );
+        g.setSubjectComp( InitUtils.getValue( el, "subjectComp" ) );
+        g.setReplyToComp( InitUtils.getValue( el, "replyToComp" ) );
+        g.setConfirmationUrl( InitUtils.getValue( el, "confirmationUrl" ) );
         return g;
     }
 
@@ -69,7 +73,7 @@ public class GroupEmailCommandHandler implements ComponentHandler {
         el.addContent( child );
     }
 
-    private void setText(Element el, String text) {
+    private void setText( Element el, String text ) {
         Element child = new Element( "text", DefaultValueHandler.NS_HTML_DEFAULT );
         child.setText( text );
         el.addContent( child );

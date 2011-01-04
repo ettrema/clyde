@@ -1,8 +1,10 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.security.PasswordValidationService;
@@ -22,6 +24,7 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PasswordDef.class );
     private static final long serialVersionUID = 1L;
+    private static final String HIDDEN_PASSWORD = "********";
     protected Addressable container;
     private String name;
 
@@ -105,9 +108,13 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
         return cv;
     }
 
-    protected String editChildTemplate() {
+    protected String editChildTemplate( Map<String, String> parameters ) {
+        String displayValue = HIDDEN_PASSWORD;
+        if( parameters != null && parameters.containsKey( getName() ) ) {
+            displayValue = parameters.get( getName() );
+        }
         String template = "";
-        template = "<input type='password' name='${path}' value='$!request.parameters.get($cv.name)' />";
+        template = "<input type='password' name='${path}' value=\"" + displayValue + "\" />";
         template = template + "#if($cv.validationMessage)";
         template = template + "<div class='validationError'>${cv.validationMessage}</div>";
         template = template + "#end";
@@ -137,7 +144,12 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
     @Override
     public String renderEdit( ComponentValue c, RenderContext rc ) {
         //log.debug("renderEdit: " + c.getName() + " - " + c.getValidationMessage());
-        String t = editChildTemplate();
+        Map<String, String> params = null;
+        Request request = HttpManager.request();
+        if( request != null ) {
+            params = request.getParams();
+        }
+        String t = editChildTemplate( params );
         VelocityContext vc = velocityContext( rc, c );
         return _render( t, vc );
     }
@@ -159,7 +171,13 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
 
     @Override
     public Object parseValue( ComponentValue cv, Templatable ct, String s ) {
-        return s;
+        if( HIDDEN_PASSWORD.equals( s ) ) {
+            log.trace( "password value is unchanged" );
+            return cv.getValue();
+        } else {
+            log.trace( "password has changed" );
+            return s;
+        }
     }
 
     @Override

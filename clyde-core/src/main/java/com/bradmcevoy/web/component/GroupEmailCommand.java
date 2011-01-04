@@ -226,6 +226,9 @@ public class GroupEmailCommand extends Command {
     }
 
     private String getBody( RenderContext rc, IUser user, String template ) {
+        if( template == null ) {
+            return null;
+        }
         Path path = CommonComponent.getPath( this, rc );
         VelocityContext vc = CommonComponent.velocityContext( rc, name, path, user );
         try {

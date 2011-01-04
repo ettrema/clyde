@@ -32,6 +32,7 @@
 <!ATTLIST c:page
     contentType CDATA #IMPLIED
     template CDATA #IMPLIED
+    maxAge CDATA #IMPLIED
   >
 
 
@@ -69,6 +70,7 @@
     emailDisabled (true|false) #IMPLIED
     secure (true|false) #IMPLIED
     template CDATA #IMPLIED
+    maxAge CDATA #IMPLIED
   >
 
 
@@ -101,9 +103,10 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:afterSaveScript?)>
+<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:afterSaveScript?,c:permissions?)>
 <!ATTLIST c:template
     template CDATA #IMPLIED
+    maxAge CDATA #IMPLIED
     instanceType (folder|page|group|user|event|binaryFile|pdf) #IMPLIED
   >
 

@@ -473,7 +473,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         }
         if( this.getTemplate() == null ) {
-            log.trace( "no template, use large default max-age" );
+            log.trace( "no template so probably not a templated rsource so use large default max-age" );
             return 315360000l;
         } else {
             log.trace( "get default max age" );

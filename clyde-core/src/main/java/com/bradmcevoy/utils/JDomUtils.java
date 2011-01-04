@@ -76,6 +76,15 @@ public class JDomUtils {
         }
     }
 
+    public static String getInnerXmlOf( Element parent, String elementName, Namespace NS ) {
+        Element el = parent.getChild( elementName, NS );
+        if( el == null ) {
+            return null;
+        } else {
+            return getInnerXml( el );
+        }
+    }
+
     public static String getInnerXml( Element el ) {
         String v = XmlHelper.getAllText( el );
         if( v == null ) return null;
