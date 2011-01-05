@@ -221,13 +221,13 @@ public final class CodeResourceFactory implements ResourceFactory {
         add( new TextFileMetaHandler( baseResourceMetaHandler ), mapOfAliases );
         add( new PdfMetaHandler( binaryFileMetaHandler ), mapOfAliases );
 
-        // Must be last because uses mapOfAlias
+        // Must be constructed last because uses mapOfAlias, but must be ahead of page because of supports
         add( new TemplateMetaHandler( pageMetaHandler, mapOfAliases ), mapOfAliases );
     }
 
     private <T extends MetaHandler> T add( T h, Map<Class, String> mapOfAliases ) {
         mapOfAliases.put( h.getInstanceType(), h.getAlias() );
-        this.metaHandlers.add( h );
+        this.metaHandlers.add( 0, h );
         return h;
     }
 

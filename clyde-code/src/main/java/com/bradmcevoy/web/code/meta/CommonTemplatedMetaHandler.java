@@ -197,10 +197,12 @@ public class CommonTemplatedMetaHandler {
 
     private void updateValues( CommonTemplated res, Element el, boolean includeContentVals ) {
         // Remove all cv's except title and body
+        log.trace( "updateValues: current values: " + res.getValues().size() );
         Iterator<Entry<String, ComponentValue>> it = res.getValues().entrySet().iterator();
         while( it.hasNext() ) {
             Entry<String, ComponentValue> entry = it.next();
             if( !isIgnoredVal( entry.getKey(), includeContentVals ) ) {
+                log.trace( "remove: " + entry.getKey() );
                 it.remove();
             }
         }

@@ -36,8 +36,22 @@ public class ImageService {
     }
 
     public ImageService( File cache ) {
-        ImageIO.setUseCache( true );
-        ImageIO.setCacheDirectory( cache );
+        if( !cache.exists()) {
+            if( cache.mkdirs() ) {
+                log.warn("Created image cache directory: " + cache.getAbsolutePath());
+            } else {
+                log.error("Cache dir doesnt exist and couldnt create it: " + cache.getAbsolutePath());
+                ImageIO.setUseCache( false );
+                return;
+            }
+        }
+        if( cache.isDirectory() ) {
+            ImageIO.setUseCache( true );
+            ImageIO.setCacheDirectory( cache );
+        } else {
+            log.error( "Cache directory doesnt exist or is not a directory: " + cache.getAbsolutePath() );
+            ImageIO.setUseCache( false );
+        }
     }
 
     public BufferedImage rotateLeft( BufferedImage image ) {
@@ -166,7 +180,7 @@ public class ImageService {
      * @return a scaled version of the original {@code BufferedImage}
      */
     public BufferedImage getScaledInstance( BufferedImage img, int targetWidth, int targetHeight ) {
-        log.trace("using getScaledInstance");
+        log.trace( "using getScaledInstance" );
         int type = ( img.getTransparency() == Transparency.OPAQUE ) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage ret = img;
         int w, h;
@@ -208,6 +222,7 @@ public class ImageService {
 
         return ret;
     }
+
     /**
      * Return scaled image.
      * Pre-conditions: (source != null) && (xscale > 0) && (yscale > 0)
@@ -316,20 +331,19 @@ public class ImageService {
         }
     }
 
-    
-    public void write(BufferedImage input, OutputStream out) throws IOException {
-        Iterator iter = ImageIO.getImageWritersByFormatName("JPG");
-        if (iter.hasNext()) {
+    public void write( BufferedImage input, OutputStream out ) throws IOException {
+        Iterator iter = ImageIO.getImageWritersByFormatName( "JPG" );
+        if( iter.hasNext() ) {
             ImageWriter writer = (ImageWriter) iter.next();
             ImageWriteParam iwp = writer.getDefaultWriteParam();
-            iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            iwp.setCompressionQuality(0.85f);
+            iwp.setCompressionMode( ImageWriteParam.MODE_EXPLICIT );
+            iwp.setCompressionQuality( 0.85f );
             //iwp.setCompressionQuality(0.95f);
             ImageOutputStream output = ImageIO.createImageOutputStream( out );
-            writer.setOutput(output);
-            IIOImage image = new IIOImage(input, null, null);
-            writer.write(null, image, iwp);
-            return ;
+            writer.setOutput( output );
+            IIOImage image = new IIOImage( input, null, null );
+            writer.write( null, image, iwp );
+            return;
         }
     }
 
@@ -385,8 +399,6 @@ public class ImageService {
 //        }
 //        return image;
     }
-
-
 
     public class ExifData {
 

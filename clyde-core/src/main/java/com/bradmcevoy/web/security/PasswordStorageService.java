@@ -30,7 +30,6 @@ import java.util.List;
 public class PasswordStorageService {
 
     public static final String PASSWORD_NAME = "password";
-
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PasswordStorageService.class );
     private final PasswordValidationService passwordValidationService;
 
@@ -100,8 +99,8 @@ public class PasswordStorageService {
                 return oVal.toString();
             }
         } else {
-            if( user.password != null ) {
-                return user.password.getValue();
+            if( user.passwordComponent() != null ) {
+                return user.passwordComponent().getValue();
             } else {
                 return "";
             }
@@ -122,11 +121,11 @@ public class PasswordStorageService {
                 }
                 cv.setValue( newPassword );
             } else {
-                if( user.password == null ) {
-                    user.password = new Text( user, PasswordStorageService.PASSWORD_NAME );
-                    user.getComponents().add( user.password );
+                if( user.passwordComponent() == null ) {
+                    user.setPasswordComponent( new Text( user, PasswordStorageService.PASSWORD_NAME ) );
+                    user.getComponents().add( user.passwordComponent() );
                 }
-                user.password.setValue( newPassword );
+                user.passwordComponent().setValue( newPassword );
             }
         } else {
             log.info( "setPassword: validation failed: " + validationErr );

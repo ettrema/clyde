@@ -297,7 +297,8 @@ public class Host extends Web implements BucketOwner {
                 throw new RuntimeException( "Got a resource which is not a user. Template: " + template );
             }
         }
-        user.password.setValue( pwd );
+        //user.password.setValue( pwd );
+        user.setPassword( pwd );
         if( group != null ) {
             user.addToGroup( group );
         }

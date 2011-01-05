@@ -43,7 +43,7 @@ public class User extends Folder implements IUser {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
     private static final long serialVersionUID = 1L;
     
-    public Text password;
+    private Text password;
     private boolean emailDisabled;
     private List<String> accessKeys;
 
@@ -427,5 +427,18 @@ public class User extends Folder implements IUser {
             return false;
         }
         return _( PermissionChecker.class ).hasRole( r, res, null );
+    }
+
+    /**
+     * Access legacy password component
+     * 
+     * @return
+     */
+    public Text passwordComponent() {
+        return this.password;
+    }
+
+    public void setPasswordComponent( Text text ) {
+        this.password = text;
     }
 }
