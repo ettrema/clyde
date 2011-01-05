@@ -80,10 +80,10 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
                 delete();
                 wrapped = actualMetaHandler.createFromXml( parent, elItem, name );
                 if( bufferedContent.getSize() > 0 ) {
-                    log.trace("restoring buffered content of size: " + bufferedContent.getSize());
+                    log.trace( "restoring buffered content of size: " + bufferedContent.getSize() );
                     restoreBufferedContent( bufferedContent );
-                } else{
-                    log.trace("buffered content is empty, will not restore");
+                } else {
+                    log.trace( "buffered content is empty, will not restore" );
                 }
             } else {
                 metaHandler.updateFromXml( wrapped, elItem );
@@ -97,30 +97,33 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
 
     private BufferingOutputStream bufferContent() {
         if( wrapped instanceof GetableResource ) {
+            log.trace( "bufferContent: Resource is getable: " + wrapped );
             BufferingOutputStream out = new BufferingOutputStream( 50000 );
-            CodeContentPage contentPage = new CodeContentPage( rf, wrapped.getName(), (GetableResource) this.wrapped );
-            generateContent( contentPage, out );
-            IOUtils.closeQuietly( out );
+            try {
+                CodeContentPage contentPage = new CodeContentPage( rf, wrapped.getName(), (GetableResource) this.wrapped );
+                generateContent( contentPage, out );
+            } finally {
+                IOUtils.closeQuietly( out );
+            }
+            log.trace( "generated content of size: " + out.getSize() );
             return out;
         } else {
+            log.trace( "bufferContent: resource is not getable: " + wrapped );
             return null;
         }
     }
 
-
-    private void generateContent( CodeContentPage contentPage, BufferingOutputStream out ) {
-        out = new BufferingOutputStream( 50000 );
+    private void generateContent( CodeContentPage contentPage, final BufferingOutputStream out ) {
+        log.trace( "generate content: " + contentPage.getName() );
         try {
             contentPage.sendContent( out, null, null, null );
-            out.flush();
+            log.trace( "content size: " + out.getSize() );
         } catch( IOException ex ) {
             throw new RuntimeException( ex );
         } catch( NotAuthorizedException ex ) {
             throw new RuntimeException( ex );
         } catch( BadRequestException ex ) {
             throw new RuntimeException( ex );
-        } finally {
-            IOUtils.closeQuietly( out );
         }
     }
 

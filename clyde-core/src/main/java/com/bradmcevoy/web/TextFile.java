@@ -36,7 +36,7 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
         // we try to infer from the file name
         return ContentTypeUtil.getContentTypeString( getName() );
     }
-    
+
     @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         return new TextFile( parent, newName );
@@ -67,6 +67,7 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
         if( content == null ) {
             log.debug( "no content for: " + this.getPath() );
         } else {
+            log.trace( "send content size: " + content.length() );
             out.write( content.getBytes() );
         }
     }

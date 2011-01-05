@@ -1151,7 +1151,5 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if( persistedSize != length ) {
             throw new RuntimeException( "Data integrity failure. Byte sizes do not match: persisted: " + persistedSize );
         }
-        log.info("byte sizes matched ok");
-
     }
 }

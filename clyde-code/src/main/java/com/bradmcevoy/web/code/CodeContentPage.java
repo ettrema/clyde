@@ -34,7 +34,10 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
         if( cth != null ) {
+            log.trace( "generate content for: " + wrapped.getClass() + " with " + cth.getClass() );
             cth.generateContent( out, wrapped );
+        } else {
+            log.warn( "No content type handler for: " + wrapped.getClass() );
         }
     }
 
