@@ -428,6 +428,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         Element elFrom = new Element( "from" );
         elRels.addContent( elFrom );
         for( Relationship r : this.getNameNode().findFromRelations( null ) ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "relation from: " + r.from().getId() + " -> " + r.to().getId() );
+            }
+
             Element elRel = new Element( "relationship" );
             elFrom.addContent( elRel );
             elRel.setAttribute( "relationship", r.relationship() );
@@ -958,6 +962,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
         public boolean equalTo( RoleAndGroup rag ) {
             return rag.getGroupName().equals( systemUserGroupName ) && rag.getRole().equals( role );
+        }
+
+        @Override
+        public String toString() {
+            return "Grant " + role.name() + " on " + systemUserGroupName;
         }
     }
 }

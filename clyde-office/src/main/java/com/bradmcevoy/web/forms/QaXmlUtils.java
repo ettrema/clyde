@@ -35,6 +35,7 @@ public final class QaXmlUtils {
                 log.warn( "Wrong element. Should be question, is a: " + elQuestion.getName() );
             } else {
                 String questionHtml = JDomUtils.getInnerXmlOf( elQuestion, "html" );
+                String comment = JDomUtils.getInnerXmlOf( elQuestion, "comment" );
                 String sCorrect = elQuestion.getAttributeValue( "correct" );
                 Integer correct = null;
                 if( StringUtils.isBlank( sCorrect ) ) {
@@ -49,7 +50,7 @@ public final class QaXmlUtils {
                     String answerText = JDomUtils.getInnerXml( elAnswer );
                     answers.add( answerText );
                 }
-                Item i = new Item( questionHtml, correct, answers );
+                Item i = new Item( questionHtml, correct, answers, comment );
                 items.add( i );
             }
         }
@@ -78,6 +79,12 @@ public final class QaXmlUtils {
             Element elQuestionHtml = new Element( "html" );
             elQ.addContent( elQuestionHtml );
             JDomUtils.setInnerXml( elQuestionHtml, i.getQuestion() );
+
+            Element elComment = new Element( "comment" );
+            elQ.addContent( elComment );
+            JDomUtils.setInnerXml( elComment, i.getComment() );
+
+
             elQ.setAttribute( "correct", i.getCorrectNum() + "" );
             Element elAnswers = new Element( "answers" );
             elQ.addContent( elAnswers );

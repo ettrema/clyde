@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.utils.Redirectable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  *
  * @author brad
  */
-public interface ISubPage extends Templatable{
+public interface ISubPage extends Templatable, Redirectable{
     /**
      * subpages may require a logged in user, despite the folder's permissions
      *

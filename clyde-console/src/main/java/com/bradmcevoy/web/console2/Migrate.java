@@ -53,7 +53,7 @@ public class Migrate extends AbstractConsoleCommand {
 
         BinaryMigrator migrator = new BinaryMigrator( from, to );
         long tm = System.currentTimeMillis();
-        if( migrator.migrate( node, -1 ) ) {
+        if( migrator.migrate(sess, node, -1 ) ) {
             tm = (System.currentTimeMillis()-tm)/1000;
             log.warn("migration took: " + tm + "sec");
 

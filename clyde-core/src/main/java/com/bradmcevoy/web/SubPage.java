@@ -11,6 +11,7 @@ import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
 import java.io.IOException;
@@ -26,7 +27,7 @@ import org.jdom.Element;
  * 
  * @author brad
  */
-public class SubPage extends CommonTemplated implements Component, PostableResource, XmlPersistableResource, ISubPage {
+public class SubPage extends CommonTemplated implements Component, PostableResource, XmlPersistableResource, ISubPage, Redirectable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubPage.class);
         
@@ -37,6 +38,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     CommonTemplated parentPage;
 
     boolean secure;
+    private String redirect;
         
     public SubPage(CommonTemplated parent, String name) {
         super();
@@ -261,5 +263,11 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         this.secure = secure;
     }
 
-    
+    public String getRedirect() {
+        return this.redirect;
+    }
+
+    public void setRedirect( String redirect ) {
+        this.redirect = redirect;
+    }        
 }

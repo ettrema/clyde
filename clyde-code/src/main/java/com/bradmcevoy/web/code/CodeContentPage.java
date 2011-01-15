@@ -1,8 +1,10 @@
 package com.bradmcevoy.web.code;
 
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
@@ -23,7 +25,7 @@ import java.util.Map;
  *
  * @author brad
  */
-public class CodeContentPage extends AbstractCodeResource<GetableResource> implements GetableResource, DeletableResource, Replaceable {
+public class CodeContentPage extends AbstractCodeResource<GetableResource> implements GetableResource, DeletableResource, Replaceable, MoveableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeContentPage.class );
 
@@ -64,6 +66,20 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
         if( cth != null ) {
             cth.replaceContent( in, l, wrapped );
             CodeUtils.commit();
+        }
+    }
+
+    public void moveTo( CollectionResource rDest, String name ) throws ConflictException, NotAuthorizedException, BadRequestException {
+        if( rDest instanceof CodeFolder ) {
+            if( this.wrapped instanceof MoveableResource ) {
+                MoveableResource source = (MoveableResource) this.wrapped;
+                CodeFolder cfDest = (CodeFolder) rDest;
+                source.moveTo( cfDest.wrapped, name );
+            } else {
+                throw new ConflictException( rDest );
+            }
+        } else {
+            throw new ConflictException( rDest );
         }
     }
 }

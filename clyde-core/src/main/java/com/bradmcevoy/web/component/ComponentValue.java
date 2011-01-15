@@ -329,6 +329,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     private String getFormattedValue( CommonTemplated container, Object v ) {
+        if (v instanceof String) {
+            return v.toString();
+        }
         ComponentDef def = getDef( container );
         if( def == null ) {
             if( v == null ) return "";

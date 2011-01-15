@@ -297,5 +297,10 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     @Override
     public boolean isSecure() {
         return subPage.isSecure();
-    }   
+    }
+
+    public String getRedirect() {
+        System.out.println( "getRedirect: " + subPage.getRedirect() );
+        return subPage.getRedirect();
+    }
 }

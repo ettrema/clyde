@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 public class ComponentUtils {
 
@@ -26,7 +27,6 @@ public class ComponentUtils {
         Path p = findPath( c.getContainer() );
         return p.child( c.getName() );
     }
-
 
     /**
      * Build a path object for the given container. Implemented here because
@@ -46,7 +46,6 @@ public class ComponentUtils {
         return parentPath.child( container.getName() );
     }
 
-
     public static Templatable find( Templatable from, Path p ) {
         Templatable ct;
         if( p == null ) {
@@ -63,7 +62,6 @@ public class ComponentUtils {
         return ct;
     }
 
-
     public static Templatable findPageWithRelativePath( Path path, Templatable page ) {
         if( path == null ) {
             return page;
@@ -74,7 +72,6 @@ public class ComponentUtils {
         }
         return null;
     }
-
 
     public static boolean validateComponents( Object target, RenderContext rc ) {
         Map<String, Field> fields = InitUtils.componentFields( target );
@@ -149,25 +146,24 @@ public class ComponentUtils {
         }
     }
 
-    public static List<Component> getAllComponents(Templatable page) {
+    public static List<Component> getAllComponents( Templatable page ) {
         List<Component> list = new ArrayList<Component>();
-        addComponents(page, list);
+        addComponents( page, list );
         return list;
     }
 
     private static void addComponents( Templatable page, List<Component> list ) {
         if( page == null ) {
-            return ;
+            return;
         }
-        for( Component c: page.getValues().values()) {
+        for( Component c : page.getValues().values() ) {
             list.add( c );
         }
-        for( Component c: page.getComponents().values() ) {
+        for( Component c : page.getComponents().values() ) {
             list.add( c );
         }
-        addComponents( page.getTemplate(), list);
+        addComponents( page.getTemplate(), list );
     }
-
 
     public static Collection<Component> allComponents( Templatable res ) {
         Map<String, Component> map = new HashMap<String, Component>();
@@ -208,7 +204,7 @@ public class ComponentUtils {
      * @param includeValues
      * @return
      */
-    public static Component getComponent( Templatable res,String paramName, boolean includeValues ) {
+    public static Component getComponent( Templatable res, String paramName, boolean includeValues ) {
         Component c;
         if( includeValues ) {
             c = res.getValues().get( paramName );
@@ -238,4 +234,35 @@ public class ComponentUtils {
         }
     }
 
+    public static boolean isEmpty( Object val ) {
+        if( val == null ) {
+            return true;
+        } else if( val instanceof String ) {
+            String s = (String) val;
+            return StringUtils.isBlank( s );
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * TODO: replace with JTidy or AntiSamy
+     * http://jtidy.sourceforge.net/multiproject/jtidyservlet/clover/org/w3c/tidy/servlet/util/HTMLEncode.html
+     * 
+     *
+     * @param s
+     * @return
+     */
+    public static String encodeHTML( String s ) {
+        StringBuilder out = new StringBuilder();
+        for( int i = 0; i < s.length(); i++ ) {
+            char c = s.charAt( i );
+            if( c > 127 || c == '"' || c == '<' || c == '>' ) {
+                out.append( "&#" + (int) c + ";" );
+            } else {
+                out.append( c );
+            }
+        }
+        return out.toString();
+    }
 }

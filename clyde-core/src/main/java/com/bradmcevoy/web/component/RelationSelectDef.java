@@ -2,21 +2,28 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.ExistingResourceFactory;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
 /**
+ * Accepts an input value which is either a name of a resource in the selectFrom
+ * folder or a UUID of a resource
+ *
+ * But will always set a value of the UUID
  *
  * @author brad
  */
 public class RelationSelectDef extends CommonComponent implements ComponentDef, Addressable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TextDef.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RelationSelectDef.class );
     private static final long serialVersionUID = 1L;
     protected Addressable container;
     protected String name;
@@ -54,7 +61,33 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     @Override
     public boolean validate( ComponentValue c, RenderContext rc ) {
-        return true;
+        Object val = c.getValue();
+        log.trace("validate: " + val);
+        if( required ) {
+            if( ComponentUtils.isEmpty( val ) ) {
+                log.trace( "required, and no value given" );
+                c.setValidationMessage( "Please enter a value" );
+                return false;
+            } else {
+                if( log.isTraceEnabled() ) {
+                    log.trace( "required and value supplied, so ok: " + val );
+                }
+            }
+        } else {
+            if( ComponentUtils.isEmpty( val ) ) {
+                log.trace( "not required and empty so apply no validation" );
+                return true;
+            }
+        }
+        Resource r = findResource( val, rc.getTargetPage() );
+        if( r == null ) {
+            c.setValidationMessage( "Invalid value" );
+            log.trace( "not valid because no resource was found" );
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
     @Override
@@ -166,7 +199,23 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     @Override
     public Object parseValue( ComponentValue cv, Templatable ct, String s ) {
-        return UUID.fromString( s );
+        if( StringUtils.isNotBlank( s ) ) {
+            try {
+                return UUID.fromString( s );
+            } catch( IllegalArgumentException e ) {
+                BaseResource res = (BaseResource) findResource( s, ct );
+                if( res != null ) {
+                    return res.getNameNodeId();
+                } else {
+                    log.warn( "not found: " + s );
+                    // return the invalid value so it can be used in validation. Not that
+                    // efficient, should set some temporary value
+                    return s;
+                }
+            }
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -193,7 +242,13 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             return;
         }
         String s = parameters.get( key );
-        UUID id = (UUID) parseValue( componentValue, rc.page, s );
+        Object value = parseValue( componentValue, rc.page, s );
+        if( value != null && !(value instanceof UUID) ) {
+            log.trace("not a valid uuid, so dont do anything");
+            componentValue.setValue( value );
+            return ;
+        }
+        UUID id = (UUID)value;
 //        BaseResource dest =
         BaseResource res = (BaseResource) componentValue.getContainer();
         boolean found = false;
@@ -209,6 +264,13 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 // already exists, do nothing
                 found = true;
             }
+        } else {
+            if( id == null ) {
+                log.trace( "selected value is null, and no current value. So do nothing" );
+                found = true;
+            } else {
+                log.trace( "current relationship doesnt exist, but value is selected. Create." );
+            }
         }
         if( !found ) {
             BaseResource dest = res.findByNameNodeId( id );
@@ -216,6 +278,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 log.debug( "create relationship: " + relationName + " to: " + dest.getHref() );
             }
             res.createRelationship( relationName, dest );
+            componentValue.setValue( id );
         }
     }
 
@@ -264,6 +327,40 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         this.selectTemplate = selectTemplate;
     }
 
-    
-
+    private Resource findResource( Object val, Templatable page ) {
+        UUID id;
+        if( val == null ) {
+            return null;
+        } else if( val instanceof String ) {
+            String sVal = (String) val;
+            try {
+                id = UUID.fromString( sVal );
+            } catch( IllegalArgumentException e ) {
+                // Not a UUID, so look for name
+                Folder selectFrom = (Folder)ComponentUtils.find( page, Path.path( selectFromFolder ) );
+                Resource child = selectFrom.child( sVal );
+                if( child == null ) {
+                    log.trace( "no child found called: " + sVal );
+                    return null;
+                } else {
+                    log.trace( "found child" );
+                    return child;
+                }
+            }
+        } else if( val instanceof UUID ) {
+            id = (UUID) val;
+        } else {
+            log.warn( "unknown value type: " + val.getClass() );
+            return null;
+        }
+        BaseResource res = ExistingResourceFactory.get( id );
+        if( log.isTraceEnabled() ) {
+            if( res == null ) {
+                log.warn( "no resource found with id: " + id );
+            } else {
+                log.trace( "found resource with id: " + id );
+            }
+        }
+        return res;
+    }
 }

@@ -191,5 +191,9 @@ public class FaceBookDef implements ComponentDef, Serializable {
         return apiKey;
     }
 
+    public String getValidationMessage() {
+        return null;
+    }
+
     
 }

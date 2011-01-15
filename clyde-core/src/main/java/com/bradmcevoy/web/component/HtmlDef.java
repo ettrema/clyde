@@ -33,6 +33,13 @@ public class HtmlDef extends TextDef {
     }
     
     
+    @Override
+    public String formatValue( Object v ) {
+        if( v == null ) {
+            return "";
+        }
+        return v.toString();
+    }
     
     @Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) { 

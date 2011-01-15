@@ -5,6 +5,7 @@ import com.bradmcevoy.web.User;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
+import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.security.PasswordValidationService;
@@ -108,8 +109,8 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
         return cv;
     }
 
-    protected String editChildTemplate( Map<String, String> parameters ) {
-        String displayValue = HIDDEN_PASSWORD;
+    protected String editChildTemplate( Map<String, String> parameters, boolean isNew ) {
+        String displayValue = isNew ? "" : HIDDEN_PASSWORD;
         if( parameters != null && parameters.containsKey( getName() ) ) {
             displayValue = parameters.get( getName() );
         }
@@ -149,9 +150,23 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
         if( request != null ) {
             params = request.getParams();
         }
-        String t = editChildTemplate( params );
+        String t = editChildTemplate( params, isNew(c) );
         VelocityContext vc = velocityContext( rc, c );
         return _render( t, vc );
+    }
+
+    /**
+     * true if the container is a new object.
+     *
+     * @param cv
+     * @return
+     */
+    private boolean isNew(ComponentValue cv) {
+       if( cv.getContainer() instanceof BaseResource ) {
+           return ((BaseResource)cv.getContainer()).isNew();
+       } else {
+           return false;
+       }
     }
 
     protected VelocityContext velocityContext( RenderContext rc, ComponentValue c ) {

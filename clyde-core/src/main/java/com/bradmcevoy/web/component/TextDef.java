@@ -127,7 +127,6 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         cols.setValue( i );
     }
 
-
     @Override
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "componentDef" );
@@ -201,9 +200,9 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             template = sb.toString();
         } else {
             if( rows == null || rows.getValue() == null || rows.getValue() == 1 ) {
-                template = "<input type='text' name='${path}' value='${val.formattedValue}' size='${def.cols}' />";
+                template = "<input type='text' name='${path}' value=\"${val.formattedValue}\" size='${def.cols}' />";
             } else {
-                template = "<textarea name='${path}' rows='${def.rows}' cols='${def.cols}'>${value}</textarea>";
+                template = "<textarea name='${path}' rows='${def.rows}' cols='${def.cols}'>${val.formattedValue}</textarea>";
                 //template = "<div id='${path}' class='editDiv' onclick='enableEdit(this)'>${value}</div>";
             }
         }
@@ -235,15 +234,15 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             return "";
         }
         String template = c.getValue().toString();
-        if(log.isTraceEnabled()) {
-            log.trace( "template: " + template);
+        if( log.isTraceEnabled() ) {
+            log.trace( "template: " + template );
         }
         if( !disAllowTemplating ) {
-            log.trace("merge template");
+            log.trace( "merge template" );
             VelocityContext vc = velocityContext( rc, c );
             return _render( template, vc );
         } else {
-            log.trace("templating disallowed");
+            log.trace( "templating disallowed" );
             return template;
         }
         //return eval(template, rc);
@@ -296,7 +295,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         if( v == null ) {
             return "";
         }
-        return v.toString();
+        return ComponentUtils.encodeHTML( v.toString() );
     }
 
     /** Do pre-processing for child component. This means that it will parse the request
@@ -313,7 +312,6 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         Object value = parseValue( componentValue, rc.page, s );
         componentValue.setValue( value );
     }
-
 
     public class EditSource {
 

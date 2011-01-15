@@ -35,6 +35,9 @@
     maxAge CDATA #IMPLIED
   >
 
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:afterSaveScript (#PCDATA)>
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:attributes (c:email|c:value|c:date)*>
@@ -91,13 +94,13 @@
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:groupPerm EMPTY>
 <!ATTLIST c:groupPerm
-    role CDATA #REQUIRED
+    role (SYSADMIN|OWNER|ADMINISTRATOR|AUTHOR|VIEWER|AUTHENTICATED|CREATOR|ANONYMOUS) #REQUIRED
     group CDATA #REQUIRED
   >
 
 <!ELEMENT c:userPerm EMPTY>
 <!ATTLIST c:userPerm
-    role CDATA #REQUIRED
+    role (SYSADMIN|OWNER|ADMINISTRATOR|AUTHOR|VIEWER|AUTHENTICATED|CREATOR|ANONYMOUS) #REQUIRED
     path CDATA #REQUIRED
   >
 
@@ -111,11 +114,22 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text|c:email|c:password)*>
+<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation)*>
 
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:relation (#PCDATA)>
+<!ATTLIST c:relation
+    required (true|false) #IMPLIED
+    name CDATA #REQUIRED
+    description CDATA #IMPLIED
+    relation CDATA #IMPLIED
+    selectFromFolder CDATA #IMPLIED
+    selectTemplate CDATA #IMPLIED
+  >
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha)*>
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
@@ -142,15 +156,21 @@
     publicKey CDATA #REQUIRED
   >
 
-<!ELEMENT c:forgottenPassword (#PCDATA|c:subject|c:body)*>
+<!ELEMENT c:forgottenPassword (#PCDATA|c:subject|c:bodyText|c:bodyHtml)*>
 <!ATTLIST c:forgottenPassword
-    name CDATA #IMPLIED
+    name CDATA #REQUIRED
+    from CDATA #REQUIRED
     replyTo CDATA #IMPLIED
     thankyouPage CDATA #IMPLIED
-    useToken CDATA #IMPLIED
+    useToken (true|false) #IMPLIED
+    recaptcha CDATA #IMPLIED
   >
   
+<!ELEMENT c:bodyText (#PCDATA)>
 
+<!ELEMENT c:bodyHtml ANY>
+
+<!ELEMENT c:subject (#PCDATA)>
 
 <!ELEMENT c:eval (#PCDATA)>
 <!ATTLIST c:eval
@@ -166,6 +186,8 @@
 <!ATTLIST c:subpage
     template CDATA #IMPLIED
     name CDATA #REQUIRED
+    redirect CDATA #IMPLIED
+    secure (true|false) #IMPLIED
   >
 
 

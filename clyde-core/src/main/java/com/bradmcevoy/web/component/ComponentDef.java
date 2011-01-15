@@ -6,7 +6,7 @@ import java.util.Map;
 
 public interface ComponentDef extends Component {
 
-    public boolean validate(ComponentValue c,RenderContext rc);
+    boolean validate(ComponentValue c,RenderContext rc);
     
     @Override
     String getName();

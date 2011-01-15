@@ -21,10 +21,11 @@ import com.bradmcevoy.web.Templatable;
  */
 public class SecureReadAuthoriser implements ClydeAuthoriser {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SecureReadAuthoriser.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SecureReadAuthoriser.class);
     private final ClydeAuthoriser wrapped;
+    private boolean securePropfind;
 
-    public SecureReadAuthoriser( ClydeAuthoriser wrapped ) {
+    public SecureReadAuthoriser(ClydeAuthoriser wrapped) {
         this.wrapped = wrapped;
     }
 
@@ -34,14 +35,20 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     }
 
     @Override
-    public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
-        if( resource instanceof Templatable ) {
-            if( !isSecure( (Templatable) resource ) && isReadMethod( method ) ) {
+    public Boolean authorise(Resource resource, Request request, Method method, Auth auth) {
+        if (resource instanceof Templatable) {
+            if (method == Method.PROPFIND && securePropfind) {
+                if (auth == null) {
+                    log.info("SecureReadAuthoriser has securePropfind set, this method is a propfind, and there is no user, so decline");
+                    return Boolean.FALSE;
+                }
+            }
+            if (!isSecure((Templatable) resource) && isReadMethod(method)) {
                 log.trace("authorise: templatable, not secure and is read method so allow");
                 return Boolean.TRUE;
             } else {
                 log.trace("authorise: templatable, is secure or write method so delegate authorisation");
-                return wrapped.authorise( resource, request, method, auth );
+                return wrapped.authorise(resource, request, method, auth);
             }
             //return authoriseClydeResource( (Templatable) resource, request, method, auth );
         } else {
@@ -88,30 +95,41 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
 //            return authoriseClydeResource( folder, request, method, auth );
 //        }
 //    }
-
-    private boolean isWriteMethod( Method method ) {
-        if( method == Method.POST ) return false;  // we want POST authorisation to be done by components
+    private boolean isWriteMethod(Method method) {
+        if (method == Method.POST) {
+            return false;  // we want POST authorisation to be done by components
+        }
         return method.isWrite;
     }
 
-    private boolean isReadMethod( Method method ) {
-        return !isWriteMethod( method );
+    private boolean isReadMethod(Method method) {
+        return !isWriteMethod(method);
     }
 
-    private boolean isSecure( Templatable templatable ) {
-        if( templatable instanceof Host ) {
+    private boolean isSecure(Templatable templatable) {
+        if (templatable instanceof Host) {
             Host h = (Host) templatable;
             return h.isSecureRead();
-        } else if( templatable instanceof Folder ) {
+        } else if (templatable instanceof Folder) {
             Folder folder = (Folder) templatable;
-            if( folder.isSecureRead() ) {
+            if (folder.isSecureRead()) {
                 return true;
             } else {
                 return false;
             }
         } else {
             Folder folder = templatable.getParentFolder();
-            return isSecure( folder );
+            return isSecure(folder);
         }
     }
+
+    public boolean isSecurePropfind() {
+        return securePropfind;
+    }
+
+    public void setSecurePropfind(boolean securePropfind) {
+        this.securePropfind = securePropfind;
+    }
+
+    
 }

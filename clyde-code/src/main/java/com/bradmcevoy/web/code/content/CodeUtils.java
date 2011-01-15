@@ -23,75 +23,87 @@ import static com.ettrema.context.RequestContext._;
  */
 public class CodeUtils {
 
-    public static void appendValue( Page page, ComponentValue cv, Document doc ) {
-        String v = getFormattedValue( page, cv );
+    public static void appendValue(Page page, ComponentValue cv, Document doc) {
+        String v = getFormattedValue(page, cv);
         XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( v );
-        if( content == null || content.isEmpty() ) {
-            Element elRoot = new Element( "html" );
-            doc.setRootElement( elRoot );
-        } else if( content.size() == 1 ) {
-            doc.setRootElement( (Element) content.get( 0 ) );
+        List content = helper.getContent(v);
+        if (content == null || content.isEmpty()) {
+            Element elRoot = new Element("html");
+            doc.setRootElement(elRoot);
+        } else if (content.size() == 1) {
+            doc.setRootElement((Element) content.get(0));
         } else {
-            Element elRoot = new Element( "multipleRootElements-EEK" );
-            elRoot.addContent( content );
-            doc.setRootElement( elRoot );
+            Element elRoot = new Element("multipleRootElements-EEK");
+            elRoot.addContent(content);
+            doc.setRootElement(elRoot);
         }
     }
 
-    public static void appendValue( Page page, ComponentValue cv, Element e2 ) {
-        String v = getFormattedValue( page, cv );
+    public static void appendValue(Page page, ComponentValue cv, Element e2) {
+        String v = getFormattedValue(page, cv);
+        System.out.println("raw value: " + cv.getName());
+        System.out.println(cv.getValue());
+        System.out.println("-----------------");
+        System.out.println("formatted value: " + cv.getName());
+        System.out.println(v);
         XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( v );
-        e2.setContent( content );
+        List content = helper.getContent(v);
+        System.out.println("content: " + content.size());
+        e2.setContent(content);
     }
 
-    public static String getFormattedValue( CommonTemplated container, ComponentValue cv ) {
+    public static String getFormattedValue(CommonTemplated container, ComponentValue cv) {
         Object v = cv.getValue();
-        ComponentDef def = cv.getDef( container );
-        return getFormattedValue( v, def );
+        ComponentDef def = cv.getDef(container);
+        return getFormattedValue(v, def);
     }
 
-    public static String getFormattedValue( Object v, ComponentDef def ) {
-
-        if( def == null ) {
-            if( v == null ) return "";
+    public static String getFormattedValue(Object v, ComponentDef def) {
+        if (v instanceof String) {
             return v.toString();
         }
-        return def.formatValue( v );
+        if (def == null) {
+            if (v == null) {
+                return "";
+            }
+            System.out.println("no def, do tostring");
+            return v.toString();
+        }
+        return def.formatValue(v);
     }
 
-    static void saveValue( CommonTemplated page, String param, String value ) {
-        ComponentValue cv = page.getValues().get( param );
+    static void saveValue(CommonTemplated page, String param, String value) {
+        ComponentValue cv = page.getValues().get(param);
         ComponentDef def = null;
         ITemplate template = page.getTemplate();
-        if( template != null ) {
-            def = template.getComponentDef( param );
+        if (template != null) {
+            def = template.getComponentDef(param);
         }
-        if( cv == null ) {
-            if( def != null ) {
-                cv = def.createComponentValue( page );
+        if (cv == null) {
+            if (def != null) {
+                cv = def.createComponentValue(page);
             } else {
-                cv = new ComponentValue( param, page );                
+                cv = new ComponentValue(param, page);
             }
-            page.getValues().add( cv );
+            page.getValues().add(cv);
         }
         Object oVal = value;
-        if( def != null ) {
-            oVal = def.parseValue( cv, page, value );
+        if (def != null) {
+            oVal = def.parseValue(cv, page, value);
         }
-        cv.setValue( oVal );
+        System.out.println("codeutils:saveValue: oVal: " + oVal);
+        cv.setValue(oVal);
     }
 
-    public static void formatDoc( Document doc, OutputStream out ) throws IOException {
+    public static void formatDoc(Document doc, OutputStream out) throws IOException {
         Format format = Format.getPrettyFormat();
-        format.setIndent( "\t" );
-        format.setLineSeparator( "\n" );
-        MyXmlOutputter op = new MyXmlOutputter( format );
-        op.output( doc, out );
+        format.setIndent("\t");
+        format.setLineSeparator("\n");
+        MyXmlOutputter op = new MyXmlOutputter(format);
+        op.output(doc, out);
     }
 
     public static void commit() {
-        _( VfsSession.class ).commit();
+        _(VfsSession.class).commit();
     }
 }

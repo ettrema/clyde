@@ -212,10 +212,13 @@ public class Template extends Page implements ITemplate {
         if( name == null )
             throw new IllegalArgumentException( "name cannot be null" );
         String sClass = getClassToCreate();
-        if( sClass == null ) {
-            return null;
+        if( StringUtils.isEmpty( sClass ) ) {
+            log.trace( "no class to create specified, so default to page" );
+            return new Page( location, name );
         } else {
-            log.debug( "creating a '" + sClass + "' called: " + name );
+            if( log.isTraceEnabled() ) {
+                log.trace( "creating a '" + sClass + "' called: " + name );
+            }
             Class clazz = ReflectionUtils.findClass( sClass );
             return (BaseResource) ReflectionUtils.create( clazz, location, name );
         }
@@ -277,9 +280,6 @@ public class Template extends Page implements ITemplate {
     public void onAfterSave( BaseResource aThis ) {
         if( afterSaveScript != null ) {
             log.trace( "onAfterSave: run script" );
-            if( log.isTraceEnabled() ) {
-                Thread.dumpStack();
-            }
             Map map = new HashMap();
             exec( aThis, map, afterSaveScript );
         }

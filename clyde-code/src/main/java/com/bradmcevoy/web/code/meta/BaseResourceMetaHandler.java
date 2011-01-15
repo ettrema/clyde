@@ -67,7 +67,7 @@ public class BaseResourceMetaHandler {
                 } else if( grantee instanceof UserGroup ) {
                     UserGroup granteeGroup = (UserGroup) grantee;
                     elRag = new Element( "groupPerm", CodeMeta.NS );
-                    elRag.setAttribute( "name", granteeGroup.getSubjectName() );
+                    elRag.setAttribute( "group", granteeGroup.getSubjectName() );
                 } else {
                     log.debug( "unsupported permission recipient type: " + grantee.getClass() );
                     elRag = null;
@@ -127,47 +127,59 @@ public class BaseResourceMetaHandler {
 
 
         List<Element> permElements = JDomUtils.childrenOf( el, "permissions", CodeMeta.NS );
-        log.trace( "processing permissions: " + permElements.size() );
+
         GroupService groupService = _( GroupService.class );
-        for( Element elPerm : permElements ) {
-            String roleName = elPerm.getAttributeValue( "role" );
-            Role role;
-            if( !StringUtils.isEmpty( roleName ) ) {
-                roleName = roleName.trim();
-                try {
-                    role = Role.valueOf( roleName );
-                } catch( Exception e ) {
-                    log.error( "unknown role: " + roleName, e );
-                    throw new RuntimeException( "Unknown role: " + roleName);
-                }
-                String type = elPerm.getName();
-                if( type.equals( "groupPerm" ) ) {
-                    String groupName = elPerm.getAttributeValue( "group" );
-                    if( StringUtils.isEmpty( groupName) ) {
-                        throw new RuntimeException( "Group attribute is empty");
+
+        Permissions previousPerms = res.permissions();
+        if( previousPerms != null ) {
+            log.trace( "remove all previous permissions" );
+            for( Permission perm : previousPerms ) {
+                log.trace( "remove: " + perm );
+                previousPerms.revoke( perm.getRole(), perm.getGrantee() );
+            }
+        }
+
+        if( permElements.size() > 0 ) {
+            log.trace( "adding permissions: " + permElements.size() );
+            for( Element elPerm : permElements ) {
+                String roleName = elPerm.getAttributeValue( "role" );
+                Role role;
+                if( !StringUtils.isEmpty( roleName ) ) {
+                    roleName = roleName.trim();
+                    try {
+                        role = Role.valueOf( roleName );
+                    } catch( Exception e ) {
+                        log.error( "unknown role: " + roleName, e );
+                        throw new RuntimeException( "Unknown role: " + roleName );
                     }
-                    UserGroup group = groupService.getGroup( res, groupName );
-                    if( group != null ) {
-                        res.permissions( true ).grant( role, group );
+                    String type = elPerm.getName();
+                    if( type.equals( "groupPerm" ) ) {
+                        String groupName = elPerm.getAttributeValue( "group" );
+                        if( StringUtils.isEmpty( groupName ) ) {
+                            throw new RuntimeException( "Group attribute is empty" );
+                        }
+                        UserGroup group = groupService.getGroup( res, groupName );
+                        if( group != null ) {
+                            res.permissions( true ).grant( role, group );
+                        } else {
+                            throw new RuntimeException( "Group not found: " + groupName );
+                        }
+                    } else if( type.equals( "userPerm" ) ) {
+                        String userPath = elPerm.getAttributeValue( "path" );
+                        Resource r = res.getHost().find( userPath );
+                        if( r == null ) {
+                            throw new RuntimeException( "User path not found: " + userPath + " in host: " + res.getHost().getName() );
+                        } else if( r instanceof User ) {
+                            User u = (User) r;
+                            res.permissions( true ).grant( role, u );
+                        }
                     } else {
-                        throw new RuntimeException( "Group not found: " + groupName);
-                    }
-                } else if( type.equals( "userPerm" ) ) {
-                    String userPath = elPerm.getAttributeValue( "path" );
-                    Resource r = res.getHost().find( userPath );
-                    if( r == null ) {
-                        throw new RuntimeException( "User path not found: " + userPath + " in host: " + res.getHost().getName() );
-                    } else if( r instanceof User ) {
-                        User u = (User) r;
-                        res.permissions( true ).grant( role, u );
+                        throw new RuntimeException( "Unknown permission type: " + type );
                     }
                 } else {
-                    throw new RuntimeException( "Unknown permission type: " + type);
+                    throw new RuntimeException( "empty role name" );
                 }
-            } else {
-                throw new RuntimeException( "empty role name" );
             }
-
         }
     }
 }

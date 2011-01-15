@@ -102,10 +102,21 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @param role
      * @param user
      */
-    public void revoke( Role role, User user ) {
+    public void revoke( Role role, Subject subject ) {
+        log.trace( "revoke" );
+        if( subject instanceof PermissionRecipient ) {
+            revokeUser( role, (PermissionRecipient) subject );
+        } else if( subject instanceof SystemUserGroup ) {
+            log.trace( "remove group permission" );
+            SystemUserGroup group = (SystemUserGroup) subject;
+            removeGroup( new RoleAndGroup( role, group.getSubjectName() ) );
+        }
+    }
+
+    private void revokeUser( Role role, PermissionRecipient res ) {
         List<Relationship> rels = this.nameNode.findFromRelations( role.toString() );
         for( Relationship r : rels ) {
-            if( r.to().getId().equals( user.getNameNodeId() ) ) {
+            if( r.to().getId().equals( res.getNameNodeId() ) ) {
                 r.delete();
             }
         }
@@ -336,6 +347,24 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         }
         perms.add( rag );
         granted.save();
+    }
+
+    private void removeGroup( RoleAndGroup rag ) {
+        BaseResource granted = granted();
+        List<RoleAndGroup> perms = granted.getGroupPermissions();
+        Iterator<RoleAndGroup> itPerms = perms.iterator();
+        while( itPerms.hasNext() ) {
+            RoleAndGroup current = itPerms.next();
+            if( current.equalTo( rag ) ) {
+                if( log.isTraceEnabled() ) {
+                    log.trace( "remote role/group: " + rag );
+                }
+                itPerms.remove();
+            }
+        }
+        perms.add( rag );
+        granted.save();
+
     }
 
     private BaseResource granted() {

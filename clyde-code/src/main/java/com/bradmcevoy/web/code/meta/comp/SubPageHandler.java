@@ -41,13 +41,15 @@ public class SubPageHandler implements ComponentHandler {
         if( t.isSecure() ) {
             InitUtils.setBoolean( e2, "secure", t.isSecure() );
         }
+        InitUtils.set( e2, "redirect", t.getRedirect() );
         commonTemplatedMetaHandler.populateXml( e2, t, true );
     }
 
     public Component fromXml( CommonTemplated res, Element el ) {
         String name = el.getAttributeValue( "name" );
         SubPage sp = new SubPage( res, name );
-        updateFromXml(sp, el);
+        sp.setRedirect( InitUtils.getValue( el, "redirect" ) );
+        updateFromXml( sp, el );
         return sp;
     }
 

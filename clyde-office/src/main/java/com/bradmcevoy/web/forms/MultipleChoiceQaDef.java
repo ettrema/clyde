@@ -37,6 +37,12 @@ public class MultipleChoiceQaDef implements ComponentDef {
         this.name = name;
     }
 
+    public MultipleChoiceQaDef( Template res, Element el ) {
+        this.container = res;
+        this.name = el.getAttributeValue( "name" );
+    }
+
+
     public void init( Addressable container ) {
         this.container = container;
     }
@@ -309,13 +315,15 @@ public class MultipleChoiceQaDef implements ComponentDef {
 
         private static final long serialVersionUID = 1L;
         private String question;
+        private String comment;
         private int correctNum;
         private List<String> answers;
 
-        public Item( String question, int correctNum, List<String> answers ) {
+        public Item( String question, int correctNum, List<String> answers, String comment ) {
             this.question = question;
             this.correctNum = correctNum;
             this.answers = answers;
+            this.comment = comment;
         }
 
         public Item() {
@@ -362,6 +370,16 @@ public class MultipleChoiceQaDef implements ComponentDef {
         public void setAnswers( List<String> answers ) {
             this.answers = answers;
         }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+
+        
     }
 
     public final void setValidationMessage( String s ) {

@@ -1,7 +1,6 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
@@ -38,15 +37,6 @@ public class EmailDef extends TextDef {
     @Override
     public String parseValue( ComponentValue cv, Templatable ct, String s ) {
         return s;
-    }
-
-    @Override
-    public String formatValue( Object v ) {
-        if( v == null ) {
-            return "";
-        } else {
-            return v.toString();
-        }
     }
 
     @Override

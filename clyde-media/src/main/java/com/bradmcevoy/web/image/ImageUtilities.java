@@ -18,10 +18,10 @@ public class ImageUtilities {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ImageUtilities.class);
     
     static {
-        ImageIO.setUseCache(true);
-        File f = new File("/webs/image_cache");
-        f.mkdirs();
-        ImageIO.setCacheDirectory(f);
+//        ImageIO.setUseCache(true);
+//        File f = new File("/webs/image_cache");
+//        f.mkdirs();
+//        ImageIO.setCacheDirectory(f);
     }
     
     public static Dimensions getImageDimensions( File in ) {
