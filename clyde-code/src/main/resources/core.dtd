@@ -83,7 +83,6 @@
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
     secureRead (true|false) #IMPLIED
-    template CDATA #IMPLIED
     allowedTemplates CDATA #IMPLIED
   >
 
@@ -114,7 +113,29 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation)*>
+<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef)*>
+
+<!ELEMENT c:numberDef ANY>
+<!ATTLIST c:numberDef
+    name CDATA #REQUIRED
+    decimals CDATA #IMPLIED
+    required (true|false) #IMPLIED
+    requestScope (true|false) #IMPLIED
+    choices CDATA #IMPLIED
+    disAllowTemplating CDATA #IMPLIED
+    cols CDATA #IMPLIED
+    description CDATA #IMPLIED
+  >
+
+
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:process ANY>
+<!ATTLIST c:process
+    name CDATA #REQUIRED
+    startState CDATA #IMPLIED
+  >
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:relation (#PCDATA)>
@@ -188,6 +209,7 @@
     name CDATA #REQUIRED
     redirect CDATA #IMPLIED
     secure (true|false) #IMPLIED
+    maxAge CDATA #IMPLIED
   >
 
 

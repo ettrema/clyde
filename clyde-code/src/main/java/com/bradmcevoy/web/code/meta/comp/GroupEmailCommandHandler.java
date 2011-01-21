@@ -67,8 +67,7 @@ public class GroupEmailCommandHandler implements ComponentHandler {
 
     private void setHtml( Element el, String value ) {
         Element child = new Element( "html", DefaultValueHandler.NS_HTML_DEFAULT );
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( value );
+        List content = XmlHelper.getContent( value );
         child.setContent( content );
         el.addContent( child );
     }

@@ -33,8 +33,7 @@ public class DefaultValueHandler implements ValueHandler {
     public void populateXml( Element e2, ComponentValue cv, CommonTemplated container ) {
         e2.setAttribute( "name", cv.getName() );
         String v = cv.getFormattedValue( container );
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( v );
+        List content = XmlHelper.getContent( v );
         e2.setContent( content );
     }
 

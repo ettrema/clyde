@@ -301,8 +301,7 @@ public class InitUtils {
         if( child != null ) el.removeChild( name );
 
         child = new Element( name );
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( value );
+        List content = XmlHelper.getContent( value );
         child.setContent( content );
 
         el.addContent( child );

@@ -25,8 +25,7 @@ public class CodeUtils {
 
     public static void appendValue(Page page, ComponentValue cv, Document doc) {
         String v = getFormattedValue(page, cv);
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent(v);
+        List content = XmlHelper.getContent(v);
         if (content == null || content.isEmpty()) {
             Element elRoot = new Element("html");
             doc.setRootElement(elRoot);
@@ -41,13 +40,7 @@ public class CodeUtils {
 
     public static void appendValue(Page page, ComponentValue cv, Element e2) {
         String v = getFormattedValue(page, cv);
-        System.out.println("raw value: " + cv.getName());
-        System.out.println(cv.getValue());
-        System.out.println("-----------------");
-        System.out.println("formatted value: " + cv.getName());
-        System.out.println(v);
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent(v);
+        List content = XmlHelper.getContent(v);
         System.out.println("content: " + content.size());
         e2.setContent(content);
     }

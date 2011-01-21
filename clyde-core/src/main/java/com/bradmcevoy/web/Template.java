@@ -24,88 +24,90 @@ import static com.ettrema.context.RequestContext._;
 
 public class Template extends Page implements ITemplate {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Template.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Template.class);
     private static final long serialVersionUID = 1L;
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
     private String afterCreateScript;
     private String afterSaveScript;
 
-    public Template( Folder parent, String name ) {
-        super( parent, name );
+    public Template(Folder parent, String name) {
+        super(parent, name);
     }
 
     @Override
-    protected BaseResource copyInstance( Folder parent, String newName ) {
-        Template newRes = (Template) super.copyInstance( parent, newName );
-        newRes.componentDefs.addAll( this.componentDefs );
+    protected BaseResource copyInstance(Folder parent, String newName) {
+        Template newRes = (Template) super.copyInstance(parent, newName);
+        newRes.componentDefs.addAll(this.componentDefs);
         return newRes;
     }
 
     @Override
     protected void initComponents() {
         super.initComponents();
-        componentDefs.init( this );
+        componentDefs.init(this);
     }
 
     @Override
-    public void loadFromXml( Element el ) {
-        log.trace( "loadFromXml" );
-        super.loadFromXml( el );
-        componentDefs.fromXml( this, el );
-        Element elScript = el.getChild( "afterCreateScript" );
-        if( elScript != null ) {
+    public void loadFromXml(Element el) {
+        log.trace("loadFromXml");
+        super.loadFromXml(el);
+        componentDefs.fromXml(this, el);
+        Element elScript = el.getChild("afterCreateScript");
+        if (elScript != null) {
             afterCreateScript = elScript.getText();
         }
-        elScript = el.getChild( "afterSaveScript" );
-        log.trace( "loadFromXml: " + el.getName() + elScript );
-        if( elScript != null ) {
+        elScript = el.getChild("afterSaveScript");
+        log.trace("loadFromXml: " + el.getName() + elScript);
+        if (elScript != null) {
             afterSaveScript = elScript.getText();
-            log.trace( "loadFromXml: afterSaveScript: " + afterSaveScript );
+            log.trace("loadFromXml: afterSaveScript: " + afterSaveScript);
         }
 
     }
 
     @Override
-    public void populateXml( Element e2 ) {
-        log.trace( "populateXml" );
-        super.populateXml( e2 );
-        componentDefs.toXml( this, e2 );
-        if( afterCreateScript != null ) {
-            Element elScript = new Element( "afterCreateScript" );
-            elScript.setText( afterCreateScript );
-            e2.addContent( elScript );
+    public void populateXml(Element e2) {
+        log.trace("populateXml");
+        super.populateXml(e2);
+        componentDefs.toXml(this, e2);
+        if (afterCreateScript != null) {
+            Element elScript = new Element("afterCreateScript");
+            elScript.setText(afterCreateScript);
+            e2.addContent(elScript);
         }
-        if( afterSaveScript != null ) {
-            Element elScript = new Element( "afterSaveScript" );
-            elScript.setText( afterSaveScript );
-            e2.addContent( elScript );
-            log.trace( "populateXml: afterSaveScript: " + afterSaveScript );
+        if (afterSaveScript != null) {
+            Element elScript = new Element("afterSaveScript");
+            elScript.setText(afterSaveScript);
+            e2.addContent(elScript);
+            log.trace("populateXml: afterSaveScript: " + afterSaveScript);
         }
 
     }
 
     @Override
-    public Element toXml( Addressable container, Element el ) {
-        return super.toXml( container, el );
+    public Element toXml(Addressable container, Element el) {
+        return super.toXml(container, el);
     }
 
     @Override
-    public boolean is( String type ) {
-        if( type.equalsIgnoreCase( "template" ) ) return true;
-        return super.is( type );
+    public boolean is(String type) {
+        if (type.equalsIgnoreCase("template")) {
+            return true;
+        }
+        return super.is(type);
     }
 
     @Override
-    public boolean represents( String type ) {
+    public boolean represents(String type) {
         String tname = getName();
-        boolean b = type.equals( tname ) || ( type + ".html" ).equals( tname );
-        if( b ) {
+        boolean b = type.equals(tname) || (type + ".html").equals(tname);
+        if (b) {
             return true;
         }
         ITemplate parent = getTemplate();
-        if( parent != null ) {
-            return parent.represents( type );
+        if (parent != null) {
+            return parent.represents(type);
         } else {
             return false;
         }
@@ -113,32 +115,34 @@ public class Template extends Page implements ITemplate {
     }
 
     @Override
-    public Component getAnyComponent( String childName ) {
+    public Component getAnyComponent(String childName) {
         // not, for rendercontext.invoke to work properly, this must return cdef's in preference to cvalues
-        Component c = getComponentDef( childName );
-        if( c != null ) return c;
+        Component c = getComponentDef(childName);
+        if (c != null) {
+            return c;
+        }
 
-        return super.getAnyComponent( childName );
+        return super.getAnyComponent(childName);
     }
 
     @Override
-    public ComponentDef getComponentDef( String name ) {
-        ComponentDef def = getComponentDefs().get( name );
-        if( def != null ) {
+    public ComponentDef getComponentDef(String name) {
+        ComponentDef def = getComponentDefs().get(name);
+        if (def != null) {
             return def;
         }
         ITemplate t = this.getTemplate();
-        if( t == null ) {
+        if (t == null) {
             return null;
         }
-        return t.getComponentDef( name );
+        return t.getComponentDef(name);
     }
 
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length ) {
-        BaseResource res = createPageFromTemplate( location, name );
+    public BaseResource createPageFromTemplate(Folder location, String name, InputStream in, Long length) {
+        BaseResource res = createPageFromTemplate(location, name);
         res.save();
-        res.setContent( in );
+        res.setContent(in);
         return res;
     }
 
@@ -149,116 +153,118 @@ public class Template extends Page implements ITemplate {
      * @return - a newly created, but not saved, baseresource
      */
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name ) {
-        log.debug( "createPageFromTemplate" );
+    public BaseResource createPageFromTemplate(Folder location, String name) {
+        log.debug("createPageFromTemplate");
         BaseResource newRes;
-        if( location.getName().equals( this.getParent().getName() ) ) {
+        if (location.getName().equals(this.getParent().getName())) {
 //            log.debug("  creating a template, because in templates folder"); // hack alert
-            newRes = new Template( location, name );
+            newRes = new Template(location, name);
         } else {
-            newRes = newInstanceFromTemplate( location, name );
-            if( newRes == null ) {
-                log.debug( "  creating a page because nothing else specified" );
-                newRes = new Page( location, name );
+            newRes = newInstanceFromTemplate(location, name);
+            if (newRes == null) {
+                log.debug("  creating a page because nothing else specified");
+                newRes = new Page(location, name);
             } else {
-                log.debug( "  created a: " + newRes.getClass() );
+                log.debug("  created a: " + newRes.getClass());
             }
         }
-        IUser creator = _( CurrentUserService.class ).getOnBehalfOf();
-        if( creator instanceof User ) {
-            newRes.setCreator( (User) creator );
+        IUser creator = _(CurrentUserService.class).getOnBehalfOf();
+        if (creator instanceof User) {
+            newRes.setCreator((User) creator);
         }
 
-        newRes.setTemplate( this );
-        for( ComponentDef def : componentDefs.values() ) {
-            ComponentValue cv = def.createComponentValue( newRes );
-            newRes.getValues().add( cv );
+        newRes.setTemplate(this);
+        for (ComponentDef def : componentDefs.values()) {
+            ComponentValue cv = def.createComponentValue(newRes);
+            newRes.getValues().add(cv);
         }
-        execAfterScript( newRes );
+        execAfterScript(newRes);
         return newRes;
     }
 
     @Override
-    public Folder createFolderFromTemplate( Folder location, String name ) {
-        log.debug( "createFolderFromTemplate" );
+    public Folder createFolderFromTemplate(Folder location, String name) {
+        log.debug("createFolderFromTemplate");
         Folder newRes;
-        newRes = (Folder) newInstanceFromTemplate( location, name );
-        if( newRes == null ) {
-            newRes = new Folder( location, name );
+        newRes = (Folder) newInstanceFromTemplate(location, name);
+        if (newRes == null) {
+            newRes = new Folder(location, name);
         }
 
-        newRes.setTemplate( this );
+        newRes.setTemplate(this);
 
-        for( ComponentDef def : componentDefs.values() ) {
-            ComponentValue cv = def.createComponentValue( newRes );
-            log.debug( "createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName() );
-            newRes.getValues().add( cv );
+        for (ComponentDef def : componentDefs.values()) {
+            ComponentValue cv = def.createComponentValue(newRes);
+            log.debug("createFolderFromTemplate: created a: " + cv.getClass() + " def:" + def.getName());
+            newRes.getValues().add(cv);
         }
-        execAfterScript( newRes );
+        execAfterScript(newRes);
         return newRes;
     }
 
     @Override
     public Collection<Component> allComponents() {
         Collection<Component> set = super.allComponents();
-        set.addAll( componentDefs.values() );
+        set.addAll(componentDefs.values());
 //        set.add( getAddParameterComponent() );
         return set;
     }
 
-    private BaseResource newInstanceFromTemplate( Folder location, String name ) {
-        if( location == null )
-            throw new IllegalArgumentException( "location is null" );
-        if( name == null )
-            throw new IllegalArgumentException( "name cannot be null" );
+    private BaseResource newInstanceFromTemplate(Folder location, String name) {
+        if (location == null) {
+            throw new IllegalArgumentException("location is null");
+        }
+        if (name == null) {
+            throw new IllegalArgumentException("name cannot be null");
+        }
         String sClass = getClassToCreate();
-        if( StringUtils.isEmpty( sClass ) ) {
-            log.trace( "no class to create specified, so default to page" );
-            return new Page( location, name );
+        if (StringUtils.isEmpty(sClass)) {
+            log.trace("no class to create specified, so default to page");
+            return new Page(location, name);
         } else {
-            if( log.isTraceEnabled() ) {
-                log.trace( "creating a '" + sClass + "' called: " + name );
+            if (log.isTraceEnabled()) {
+                log.trace("creating a '" + sClass + "' called: " + name);
             }
-            Class clazz = ReflectionUtils.findClass( sClass );
-            return (BaseResource) ReflectionUtils.create( clazz, location, name );
+            Class clazz = ReflectionUtils.findClass(sClass);
+            return (BaseResource) ReflectionUtils.create(clazz, location, name);
         }
     }
 
     public boolean canCreateFolder() {
         String s = getClassToCreate();
-        if( StringUtils.isEmpty( s ) ) {
+        if (StringUtils.isEmpty(s)) {
             return false;
         } else {
-            return Folder.class.getCanonicalName().equals( s );
+            return Folder.class.getCanonicalName().equals(s);
         }
     }
 
     public String getClassToCreate() {
-        Component c = this.getComponent( "class" );
+        Component c = this.getComponent("class");
         String sClass = null;
-        if( c != null ) {
+        if (c != null) {
             Text t = (Text) c;
             sClass = t.getValue();
         }
-        if( sClass == null ) {
+        if (sClass == null) {
             return null;
         } else {
             return sClass.trim();
         }
     }
 
-    public void setClassToCreate( String s ) {
-        Text c = (Text) this.getComponent( "class" );
-        if( c == null ) {
-            c = new Text( this, "class" );
-            this.getComponents().add( c );
+    public void setClassToCreate(String s) {
+        Text c = (Text) this.getComponent("class");
+        if (c == null) {
+            c = new Text(this, "class");
+            this.getComponents().add(c);
         }
-        c.setValue( s );
+        c.setValue(s);
     }
 
     @Override
-    protected BaseResource newInstance( Folder parent, String newName ) {
-        return new Template( parent, newName );
+    protected BaseResource newInstance(Folder parent, String newName) {
+        return new Template(parent, newName);
     }
 
     @Override
@@ -266,57 +272,61 @@ public class Template extends Page implements ITemplate {
         return componentDefs;
     }
 
-    private void execAfterScript( BaseResource newlyCreated ) {
-        if( afterCreateScript == null ) return;
-        log.debug( "execAfterScript" );
+    private void execAfterScript(BaseResource newlyCreated) {
+        if (afterCreateScript == null) {
+            return;
+        }
+        log.debug("execAfterScript");
         Map map = new HashMap();
-        map.put( "created", newlyCreated );
-        map.put( "command", this );
+        map.put("created", newlyCreated);
+        map.put("command", this);
         Templatable ct = (Templatable) this.getContainer();
-        exec( ct, map, afterCreateScript );
-        log.debug( "done execAfterScript" );
+        exec(ct, map, afterCreateScript);
+        log.debug("done execAfterScript");
     }
 
-    public void onAfterSave( BaseResource aThis ) {
-        if( afterSaveScript != null ) {
-            log.trace( "onAfterSave: run script" );
-            Map map = new HashMap();
-            exec( aThis, map, afterSaveScript );
+    public void onAfterSave(BaseResource aThis) {
+        if (afterSaveScript != null) {
+            if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
+                log.trace("onAfterSave: run script");
+                Map map = new HashMap();
+                exec(aThis, map, afterSaveScript);
+            }
         }
     }
 
-    private void exec( Templatable aThis, Map map, String script ) {
+    private void exec(Templatable aThis, Map map, String script) {
         Binding binding = new Binding();
-        IUser user = _( CurrentUserService.class ).getOnBehalfOf();
-        binding.setVariable( "targetPage", aThis );
-        binding.setVariable( "user", user );
-        binding.setVariable( "formatter", Formatter.getInstance() );
-        GroovyShell shell = new GroovyShell( binding );
+        IUser user = _(CurrentUserService.class).getOnBehalfOf();
+        binding.setVariable("targetPage", aThis);
+        binding.setVariable("user", user);
+        binding.setVariable("formatter", Formatter.getInstance());
+        GroovyShell shell = new GroovyShell(binding);
 
-        shell.evaluate( script );
+        shell.evaluate(script);
     }
 
-    public TextDef addTextDef( String name ) {
-        TextDef d = new TextDef( this, name );
-        this.componentDefs.add( d );
+    public TextDef addTextDef(String name) {
+        TextDef d = new TextDef(this, name);
+        this.componentDefs.add(d);
         return d;
     }
 
-    public NumberDef addNumberDef( String name ) {
-        NumberDef d = new NumberDef( this, name );
-        this.componentDefs.add( d );
+    public NumberDef addNumberDef(String name) {
+        NumberDef d = new NumberDef(this, name);
+        this.componentDefs.add(d);
         return d;
     }
 
-    public HtmlDef addHtmlDef( String name ) {
-        HtmlDef d = new HtmlDef( this, name );
-        this.componentDefs.add( d );
+    public HtmlDef addHtmlDef(String name) {
+        HtmlDef d = new HtmlDef(this, name);
+        this.componentDefs.add(d);
         return d;
     }
 
-    public EmailDef addEmailDef( String name ) {
-        EmailDef d = new EmailDef( this, name );
-        this.componentDefs.add( d );
+    public EmailDef addEmailDef(String name) {
+        EmailDef d = new EmailDef(this, name);
+        this.componentDefs.add(d);
         return d;
     }
 
@@ -324,7 +334,7 @@ public class Template extends Page implements ITemplate {
         return afterCreateScript;
     }
 
-    public void setAfterCreateScript( String afterCreateScript ) {
+    public void setAfterCreateScript(String afterCreateScript) {
         this.afterCreateScript = afterCreateScript;
     }
 
@@ -332,7 +342,7 @@ public class Template extends Page implements ITemplate {
         return afterSaveScript;
     }
 
-    public void setAfterSaveScript( String afterSaveScript ) {
+    public void setAfterSaveScript(String afterSaveScript) {
         this.afterSaveScript = afterSaveScript;
     }
 }

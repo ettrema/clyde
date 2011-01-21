@@ -20,7 +20,7 @@ public class PluggableResourceCreator implements ResourceCreator {
 
     public PluggableResourceCreator() {
         log.debug( "creating PluggableResourceCreator" );
-//        addCreator( new PageCreator() );
+        addCreator( new PageCreator() );
         addCreator( new FolderCreator() );
         addCreator( new TextFileCreator() );
         addCreator( new ObjectCreaator() );

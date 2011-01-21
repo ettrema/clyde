@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.utils.ClydeUtils;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -568,11 +569,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      *
      * Does not commit
      * 
-     * @param name - the name of the resource to create
+     * @param name - the name of the resource to create. May be null, which will cause
+     * a unique name to be generated
      * @param templateName - the name of the template to assign to the resource. Is validated.
      * @return
      */
     public Resource create( String name, String templateName ) {
+        if( name == null ) {
+            name = ClydeUtils.getDateAsNameUnique( this );
+        }
         ITemplate t = getTemplate( templateName );
         if( t == null ) {
             throw new RuntimeException( "No such template: " + templateName );

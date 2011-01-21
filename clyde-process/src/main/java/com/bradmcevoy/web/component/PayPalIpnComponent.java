@@ -54,6 +54,46 @@ public class PayPalIpnComponent extends VfsCommon implements Component, Addressa
         description = InitUtils.getValue( el, "description" );
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+
+
     public void populateXml( Element e2 ) {
         e2.setAttribute( "class", getClass().getName() );
         e2.setAttribute( "name", name );

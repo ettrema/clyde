@@ -159,11 +159,6 @@ public class CombiningTextFile extends File {
         }
     }
 
-    @Override
-    protected void populateHelpAttributes( Map<String, String> mapOfAttributes ) {
-        super.populateHelpAttributes( mapOfAttributes );
-        mapOfAttributes.put( "includes", "Comma seperated list of file names in the same folder to concatenate" );
-    }
 
     @Override
     public boolean isIndexable() {

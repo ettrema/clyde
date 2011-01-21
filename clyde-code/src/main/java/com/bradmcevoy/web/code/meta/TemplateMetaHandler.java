@@ -15,8 +15,11 @@ import com.bradmcevoy.web.code.meta.comp.DateDefHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailDefHandler;
 import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
 import com.bradmcevoy.web.code.meta.comp.MultipleChoiceQaDefHandler;
+import com.bradmcevoy.web.code.meta.comp.NumberDefHandler;
 import com.bradmcevoy.web.code.meta.comp.PasswordDefHandler;
+import com.bradmcevoy.web.code.meta.comp.ProcessDefHandler;
 import com.bradmcevoy.web.code.meta.comp.RelationSelectDefHandler;
+import com.bradmcevoy.web.code.meta.comp.SubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.TextDefHandler;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.InitUtils;
@@ -45,7 +48,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     private Map<Class, ComponentDefHandler> mapOfHandlers;
     private Map<String, ComponentDefHandler> mapOfHandlersByAlias;
 
-    public TemplateMetaHandler( PageMetaHandler pageMetaHandler, Map<Class, String> mapOfAliases ) {
+    public TemplateMetaHandler( PageMetaHandler pageMetaHandler, Map<Class, String> mapOfAliases, SubPageHandler subPageHandler ) {
         this.pageMetaHandler = pageMetaHandler;
         this.mapOfAliasesByClass = mapOfAliases;
         mapOfClassesByAlias = new HashMap();
@@ -55,6 +58,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         mapOfHandlers = new LinkedHashMap<Class, ComponentDefHandler>();
         mapOfHandlersByAlias = new HashMap<String, ComponentDefHandler>();
         TextDefHandler textDefHandler = new TextDefHandler();
+        NumberDefHandler numberDefHandler = new NumberDefHandler(textDefHandler);
         HtmlDefHandler htmlDefHandler = new HtmlDefHandler( textDefHandler );
         DateDefHandler dateDefHandler = new DateDefHandler( textDefHandler );
         EmailDefHandler emailDefHandler = new EmailDefHandler( textDefHandler );
@@ -62,7 +66,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         RelationSelectDefHandler relationSelectDefHandler = new RelationSelectDefHandler();
         MultipleChoiceQaDefHandler multipleChoiceQaDefHandler = new MultipleChoiceQaDefHandler();
         PasswordDefHandler passwordDefHandler = new PasswordDefHandler();
+        ProcessDefHandler processDefHandler = new ProcessDefHandler(subPageHandler);
 
+        add( processDefHandler );
         add( passwordDefHandler );
         add( multipleChoiceQaDefHandler );
         add( relationSelectDefHandler );
@@ -70,6 +76,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         add( emailDefHandler );
         add( dateDefHandler );
         add( htmlDefHandler );
+        add( numberDefHandler );
         add( textDefHandler );
     }
 

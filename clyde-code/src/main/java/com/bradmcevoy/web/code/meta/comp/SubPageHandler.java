@@ -48,9 +48,13 @@ public class SubPageHandler implements ComponentHandler {
     public Component fromXml( CommonTemplated res, Element el ) {
         String name = el.getAttributeValue( "name" );
         SubPage sp = new SubPage( res, name );
-        sp.setRedirect( InitUtils.getValue( el, "redirect" ) );
-        updateFromXml( sp, el );
+        fromXml( sp, el );
         return sp;
+    }
+
+    public void fromXml(SubPage sp, Element el) {
+        sp.setRedirect(InitUtils.getValue(el, "redirect"));
+        updateFromXml(sp, el);
     }
 
     public void updateFromXml( SubPage sp, Element el ) {

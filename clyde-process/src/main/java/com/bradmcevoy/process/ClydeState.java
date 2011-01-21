@@ -20,6 +20,11 @@ public class ClydeState extends SubPage implements State {
         this.state = new MyStateImpl(def, name);
     }
 
+    public StateImpl getState() {
+        return state;
+    }
+
+
     @Override
     public List<ActionHandler> getOnEnterHandlers() {
         List<ActionHandler> handlers = new ArrayList<ActionHandler>();

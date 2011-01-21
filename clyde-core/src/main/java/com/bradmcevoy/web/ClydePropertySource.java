@@ -23,8 +23,10 @@ public class ClydePropertySource implements PropertySource{
                 Templatable t = (Templatable) r;
                 ComponentValue v = t.getValues().get(name.getLocalPart());
                 if( v == null ) {
+                    log.trace("not found: " + name.getLocalPart());
                     return null;
                 } else {
+                    log.trace("found: " + name.getLocalPart());
                     return v.getValue();
                 }
             } else {
@@ -80,7 +82,7 @@ public class ClydePropertySource implements PropertySource{
                         return PropertyMetaData.UNKNOWN;
                     }
                 } else {
-                    log.debug("no template for: " + t.getHref());
+                    log.debug("couldnt find template when resolving property meta data. TemplateName: " + t.getTemplateName() );
                     return PropertyMetaData.UNKNOWN;
                 }
             } else {

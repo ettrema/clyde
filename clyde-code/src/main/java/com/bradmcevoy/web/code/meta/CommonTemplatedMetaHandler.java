@@ -17,6 +17,7 @@ import com.bradmcevoy.web.code.meta.comp.ForgottenPasswordComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupSelectHandler;
 import com.bradmcevoy.web.code.meta.comp.NumberInputHandler;
+import com.bradmcevoy.web.code.meta.comp.PayPalIpnComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.ReCaptchaComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.SubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.TemplateInputHandler;
@@ -45,6 +46,8 @@ public class CommonTemplatedMetaHandler {
     private Map<Class, ValueHandler> mapOfValueHandlers;
     private Map<String, ValueHandler> mapOfValueAliases;
 
+    private SubPageHandler subPageHandler;
+
     public CommonTemplatedMetaHandler() {
         mapOfComponentHandlersByClass = new LinkedHashMap<Class, ComponentHandler>();
         mapOfComponentHandlersByAlias = new LinkedHashMap<String, ComponentHandler>();
@@ -58,9 +61,11 @@ public class CommonTemplatedMetaHandler {
         ForgottenPasswordComponentHandler forgottenPasswordComponentHandler = new ForgottenPasswordComponentHandler();
         EmailInputHandler emailInputHandler = new EmailInputHandler( textHandler );
         EmailCommandHandler emailCommandHandler = new EmailCommandHandler( commandHandler );
-        SubPageHandler subPageHandler = new SubPageHandler( this );
+        subPageHandler = new SubPageHandler( this );
         CsvSubPageHandler csvSubPageHandler = new CsvSubPageHandler( subPageHandler );
         ReCaptchaComponentHandler reCaptchaComponentHandler = new ReCaptchaComponentHandler();
+        PayPalIpnComponentHandler payPalIpnComponentHandler = new PayPalIpnComponentHandler();
+        add( payPalIpnComponentHandler );
         add( reCaptchaComponentHandler );
         add( emailCommandHandler );
         add( emailInputHandler );
@@ -80,6 +85,12 @@ public class CommonTemplatedMetaHandler {
         add( new EmailValHandler( defaultValueHandler ) );
         add( defaultValueHandler );
     }
+
+    public SubPageHandler getSubPageHandler() {
+        return subPageHandler;
+    }
+
+    
 
     private void add( ComponentHandler h ) {
         mapOfComponentHandlersByClass.put( h.getComponentClass(), h );

@@ -25,6 +25,7 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.error.HtmlExceptionFormatter;
+import com.bradmcevoy.web.search.FolderSearcher;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
 import java.io.IOException;
@@ -41,7 +42,7 @@ import static com.ettrema.context.RequestContext._;
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
     public static final String MAXAGE_COMP_NAME = "maxAge";
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommonTemplated.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommonTemplated.class);
     private static final long serialVersionUID = 1L;
     private static ThreadLocal<CommonTemplated> tlTargetPage = new ThreadLocal<CommonTemplated>();
     public static ThreadLocal<BaseResource> tlTargetContainer = new ThreadLocal<BaseResource>();
@@ -80,8 +81,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public CommonTemplated() {
         valueMap = new ComponentValueMap();
         componentMap = new ComponentMap();
-        templateSelect = new TemplateSelect( this, "template" );
-        componentMap.add( templateSelect );
+        templateSelect = new TemplateSelect(this, "template");
+        componentMap.add(templateSelect);
     }
 
     /**
@@ -92,20 +93,29 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     @Override
-    public Templatable find( Path path ) {
-        return ComponentUtils.find( this, path );
+    public Templatable find(Path path) {
+        return ComponentUtils.find(this, path);
     }
 
-    public Templatable find( String sPath ) {
-        Path p = Path.path( sPath );
-        return find( p );
+    public Templatable find(String sPath) {
+        Path p = Path.path(sPath);
+        return find(p);
+    }
+
+    public BaseResourceList search(String sPath) {
+        Path p = Path.path(sPath);
+        return search(p);
+    }
+
+    private BaseResourceList search(Path p) {
+        return FolderSearcher.getFolderSearcher().search(this, p);
     }
 
     public String getTitle() {
-        ComponentValue cv = this.getValues().get( "title" );
-        if( cv != null ) {
+        ComponentValue cv = this.getValues().get("title");
+        if (cv != null) {
             Object o = cv.getValue();
-            if( o != null ) {
+            if (o != null) {
                 return o.toString();
             }
         }
@@ -113,24 +123,24 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String getBrief() {
-        ComponentValue cv = this.getValues().get( "brief" );
-        if( cv != null ) {
+        ComponentValue cv = this.getValues().get("brief");
+        if (cv != null) {
             Object o = cv.getValue();
-            if( o != null ) {
+            if (o != null) {
                 return o.toString();
             }
         }
-        cv = this.getValues().get( "body" );
-        if( cv != null ) {
+        cv = this.getValues().get("body");
+        if (cv != null) {
             Object o = cv.getValue();
-            if( o != null ) {
+            if (o != null) {
                 String s = o.toString();
-                int pos = s.indexOf( "<body" );
-                if( pos >= 0 ) {
-                    s = s.substring( pos + 5 );
+                int pos = s.indexOf("<body");
+                if (pos >= 0) {
+                    s = s.substring(pos + 5);
                 }
-                if( s.length() > 200 ) {
-                    return s.substring( 1, 200 ) + "...";
+                if (s.length() > 200) {
+                    return s.substring(1, 200) + "...";
                 } else {
                     return s;
                 }
@@ -145,36 +155,36 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     @Override
-    public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.info( "processForm" );
-        preProcess( null, parameters, files );
-        String s = process( null, parameters, files );
+    public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
+        log.info("processForm");
+        preProcess(null, parameters, files);
+        String s = process(null, parameters, files);
         return s;
     }
 
     /** Components should read their values from request params
      */
     @Override
-    public void preProcess( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) {
+    public void preProcess(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) {
         ITemplate lTemplate = getTemplate();
-        RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
-        if( lTemplate != null ) {
-            lTemplate.preProcess( rc, parameters, files );
-            for( ComponentDef def : lTemplate.getComponentDefs().values() ) {
-                ComponentValue cv = this.getValues().get( def.getName() );
-                if( cv == null ) {
-                    cv = def.createComponentValue( this );
-                    getValues().add( cv );
+        RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
+        if (lTemplate != null) {
+            lTemplate.preProcess(rc, parameters, files);
+            for (ComponentDef def : lTemplate.getComponentDefs().values()) {
+                ComponentValue cv = this.getValues().get(def.getName());
+                if (cv == null) {
+                    cv = def.createComponentValue(this);
+                    getValues().add(cv);
                 }
-                def.onPreProcess( cv, rc, parameters, files );
+                def.onPreProcess(cv, rc, parameters, files);
             }
         }
 
-        for( String paramName : parameters.keySet() ) {
-            Path path = Path.path( paramName );
-            Component c = rc.findComponent( path );
-            if( c != null ) {
-                c.onPreProcess( rc, parameters, files );
+        for (String paramName : parameters.keySet()) {
+            Path path = Path.path(paramName);
+            Component c = rc.findComponent(path);
+            if (c != null) {
+                c.onPreProcess(rc, parameters, files);
             }
         }
     }
@@ -182,20 +192,20 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     /** Commands should be invoked, if user clicked
      */
     @Override
-    public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        log.info( "process" );
+    public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
+        log.info("process");
         ITemplate lTemplate = getTemplate();
-        RenderContext rc = new RenderContext( lTemplate, this, rcChild, false );
+        RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
         String redirectTo = null;
 
-        for( String paramName : parameters.keySet() ) {
-            Path path = Path.path( paramName );
-            Component c = rc.findComponent( path );
-            if( c != null ) {
-                log.info( "-- processing command: " + c.getClass().getName() + " - " + c.getName() );
-                redirectTo = c.onProcess( rc, parameters, files );
-                if( redirectTo != null ) {
-                    log.trace( ".. redirecting to: " + redirectTo );
+        for (String paramName : parameters.keySet()) {
+            Path path = Path.path(paramName);
+            Component c = rc.findComponent(path);
+            if (c != null) {
+                log.info("-- processing command: " + c.getClass().getName() + " - " + c.getName());
+                redirectTo = c.onProcess(rc, parameters, files);
+                if (redirectTo != null) {
+                    log.trace(".. redirecting to: " + redirectTo);
                     return redirectTo;
                 }
             }
@@ -209,7 +219,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getHref() {
-        return _( HrefService.class ).getHref( this );
+        return _(HrefService.class).getHref(this);
     }
 
     /**
@@ -218,28 +228,28 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     @Override
     public String getUrl() {
-        return _( HrefService.class ).getUrl( this );
+        return _(HrefService.class).getUrl(this);
     }
 
     @Override
     public Path getPath() {
         CommonTemplated lParent = getParent();
-        if( lParent == null ) {
+        if (lParent == null) {
             return Path.root();
         }
         Path p = lParent.getPath();
-        p = p.child( getName() );
+        p = p.child(getName());
         return p;
     }
 
     @Override
     public Folder getParentFolder() {
-        return Folder.find( this );
+        return Folder.find(this);
     }
 
     @Override
     public Web getWeb() {
-        return Web.find( this );
+        return Web.find(this);
     }
 
     /**
@@ -248,16 +258,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      */
     public long getPersistedSize() {
         long size = 100;
-        for( ComponentValue cv : this.getValues().values() ) {
+        for (ComponentValue cv : this.getValues().values()) {
             Object val = cv.getValue();
-            if( val == null ) {
-            } else if( val instanceof String ) {
-                size += ( (String) val ).length();
+            if (val == null) {
+            } else if (val instanceof String) {
+                size += ((String) val).length();
             } else {
                 size += 100; // approx
             }
         }
-        for( Component c : this.getComponents().values() ) {
+        for (Component c : this.getComponents().values()) {
             size += 100;
         }
         return size;
@@ -265,61 +275,61 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public Collection<Component> allComponents() {
-        return ComponentUtils.allComponents( this );
+        return ComponentUtils.allComponents(this);
     }
 
     @Override
     public Params getParams() {
-        if( params == null ) {
+        if (params == null) {
             params = new Params();
         }
         return params;
     }
 
     @Override
-    public boolean is( String type ) {
+    public boolean is(String type) {
         ITemplate t = getTemplate();
-        return ( t != null ) && t.represents( type );
+        return (t != null) && t.represents(type);
     }
 
     @Override
     public PostableResource getEditPage() {
-        return new EditPage( this );
+        return new EditPage(this);
     }
 
-    public void loadFromXml( Element el ) {
+    public void loadFromXml(Element el) {
         // if not present, just ignore values (eg for code behind page)
-        if( el.getChild( "componentValues" ) != null ) {
-            getValues().fromXml( el, this );
+        if (el.getChild("componentValues") != null) {
+            getValues().fromXml(el, this);
         }
-        getComponents().fromXml( this, el );
-        templateSelect = (TemplateSelect) componentMap.get( "template" );
-        this.contentType = InitUtils.getValue( el, "contentType" );
-        if( templateSelect == null ) {
-            templateSelect = new TemplateSelect( this, "template" );
-            componentMap.add( templateSelect );
-            String s = InitUtils.getValue( el, "template" );
-            templateSelect.setValue( s );
+        getComponents().fromXml(this, el);
+        templateSelect = (TemplateSelect) componentMap.get("template");
+        this.contentType = InitUtils.getValue(el, "contentType");
+        if (templateSelect == null) {
+            templateSelect = new TemplateSelect(this, "template");
+            componentMap.add(templateSelect);
+            String s = InitUtils.getValue(el, "template");
+            templateSelect.setValue(s);
         }
 
     }
 
     @Override
-    public IUser authenticate( String user, String password ) {
-        ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
-        IUser o = authenticator.authenticate( this, user, password );
-        if( o == null ) {
-            log.warn( "authentication failed by: " + authenticator.getClass() );
+    public IUser authenticate(String user, String password) {
+        ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
+        IUser o = authenticator.authenticate(this, user, password);
+        if (o == null) {
+            log.warn("authentication failed by: " + authenticator.getClass());
         }
         return o;
     }
 
     @Override
-    public Object authenticate( DigestResponse digestRequest ) {
-        ClydeAuthenticator authenticator = requestContext().get( ClydeAuthenticator.class );
-        Object o = authenticator.authenticate( this, digestRequest );
-        if( o == null ) {
-            log.warn( "authentication failed by: " + authenticator.getClass() );
+    public Object authenticate(DigestResponse digestRequest) {
+        ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
+        Object o = authenticator.authenticate(this, digestRequest);
+        if (o == null) {
+            log.warn("authentication failed by: " + authenticator.getClass());
         }
         return o;
     }
@@ -328,12 +338,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return true;
     }
 
-    public Host findHost( String authority ) {
+    public Host findHost(String authority) {
         Host h = getHost();
-        if( authority == null ) {
+        if (authority == null) {
             return h;
         }
-        while( h != null && !h.getName().equals( authority ) ) {
+        while (h != null && !h.getName().equals(authority)) {
             h = h.getParentHost();
         }
         return h;
@@ -341,33 +351,33 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     public Host getParentHost() {
         Folder f = getParentFolder();
-        if( f == null ) {
+        if (f == null) {
             return null;
         }
         return f.getHost();
     }
 
     @Override
-    public boolean authorise( Request request, Request.Method method, Auth auth ) {
-        ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
-        boolean b = authoriser.authorise( this, request, method, auth );
+    public boolean authorise(Request request, Request.Method method, Auth auth) {
+        ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
+        boolean b = authoriser.authorise(this, request, method, auth);
         return b;
     }
 
     @Override
-    public String checkRedirect( Request request ) {
-        return _( RedirectService.class ).checkRedirect( this, request );
+    public String checkRedirect(Request request) {
+        return _(RedirectService.class).checkRedirect(this, request);
     }
 
     @Override
-    public int compareTo( Resource o ) {
+    public int compareTo(Resource o) {
         Resource res = o;
-        return this.getName().toUpperCase().compareTo( res.getName().toUpperCase() ); // todo: this will be unstable. should fall back to case sensitive if both names are otherwise equal
+        return this.getName().toUpperCase().compareTo(res.getName().toUpperCase()); // todo: this will be unstable. should fall back to case sensitive if both names are otherwise equal
     }
 
     @Override
     public ComponentMap getComponents() {
-        if( componentMap == null ) {
+        if (componentMap == null) {
             componentMap = new ComponentMap();
         }
         return componentMap;
@@ -379,16 +389,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     @Override
-    public String getContentType( String accepts ) {
+    public String getContentType(String accepts) {
         String ct;
-        if( this.contentType != null && contentType.length() > 0 ) {
+        if (this.contentType != null && contentType.length() > 0) {
             ct = contentType;
         } else {
             //ct = null;
             ct = getDefaultContentType();
         }
-        if( log.isTraceEnabled() ) {
-            log.trace( "getContentType: " + accepts + " -> " + ct );
+        if (log.isTraceEnabled()) {
+            log.trace("getContentType: " + accepts + " -> " + ct);
         }
         return ct;
     }
@@ -397,7 +407,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return this.contentType;
     }
 
-    public void setContentType( String contentType ) {
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
@@ -407,51 +417,55 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     public Long getMaxAgeSecsThis() {
-        Component c = this.getComponent( MAXAGE_COMP_NAME );
-        if( c == null ) return null;
-        return getMaxAgeSecs( c );
+        Component c = this.getComponent(MAXAGE_COMP_NAME);
+        if (c == null) {
+            return null;
+        }
+        return getMaxAgeSecs(c);
     }
 
-    public void setMaxAgeSecsThis( Long l ) {
-        if( l == null ) {
-            setMaxAgeSecsThis( (Integer) null );
+    public void setMaxAgeSecsThis(Long l) {
+        if (l == null) {
+            setMaxAgeSecsThis((Integer) null);
         } else {
-            setMaxAgeSecsThis( (int) l.longValue() );
+            setMaxAgeSecsThis((int) l.longValue());
         }
     }
 
-    public void setMaxAgeSecsThis( Integer l ) {
-        if( l == null ) {
-            this.getComponents().remove( MAXAGE_COMP_NAME );
+    public void setMaxAgeSecsThis(Integer l) {
+        if (l == null) {
+            this.getComponents().remove(MAXAGE_COMP_NAME);
         } else {
-            Component c = this.getComponents().get( MAXAGE_COMP_NAME );
+            Component c = this.getComponents().get(MAXAGE_COMP_NAME);
             NumberInput n;
-            if( c == null ) {
-                n = new NumberInput( this, MAXAGE_COMP_NAME );
-                this.getComponents().add( n );
+            if (c == null) {
+                n = new NumberInput(this, MAXAGE_COMP_NAME);
+                this.getComponents().add(n);
             } else {
                 n = (NumberInput) c;
             }
-            if( l == null ) {
-                n.setValue( null );
+            if (l == null) {
+                n.setValue(null);
             } else {
-                n.setValue( l.intValue() );
+                n.setValue(l.intValue());
             }
         }
     }
 
-    private Long getMaxAgeSecs( Component c ) {
-        if( c instanceof NumberInput ) {
+    private Long getMaxAgeSecs(Component c) {
+        if (c instanceof NumberInput) {
             NumberInput n = (NumberInput) c;
             Integer ii = n.getValue();
-            if( log.isTraceEnabled() ) {
-                log.trace( "using maxAge component from: " + c.getContainer().getPath() + " = " + ii );
+            if (log.isTraceEnabled()) {
+                log.trace("using maxAge component from: " + c.getContainer().getPath() + " = " + ii);
             }
-            if( ii == null ) return null;
+            if (ii == null) {
+                return null;
+            }
             return (long) ii.intValue();
         } else {
-            if( log.isTraceEnabled() ) {
-                log.trace( "maxAge component is not compatible type: " + c.getClass() + " from: " + c.getContainer().getPath() );
+            if (log.isTraceEnabled()) {
+                log.trace("maxAge component is not compatible type: " + c.getClass() + " from: " + c.getContainer().getPath());
             }
             return null;
         }
@@ -459,30 +473,30 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     @Override
-    public Long getMaxAgeSeconds( Auth auth ) {
-        Component c = this.getComponent( "maxAge" );
-        if( c != null ) {
-            Long l = getMaxAgeSecs( c );
-            if( l != null ) {
-                if( log.isTraceEnabled() ) {
-                    log.trace( "found a maxAge component with value: " + l );
+    public Long getMaxAgeSeconds(Auth auth) {
+        Component c = this.getComponent("maxAge");
+        if (c != null) {
+            Long l = getMaxAgeSecs(c);
+            if (l != null) {
+                if (log.isTraceEnabled()) {
+                    log.trace("found a maxAge component with value: " + l);
                 }
                 return l;
             } else {
-                log.trace( "maxAge component has null value so ignore it and use default" );
+                log.trace("maxAge component has null value so ignore it and use default");
             }
         }
-        if( this.getTemplate() == null ) {
-            log.trace( "no template so probably not a templated rsource so use large default max-age" );
+        if (this.getTemplate() == null) {
+            log.trace("no template so probably not a templated rsource so use large default max-age");
             return 315360000l;
         } else {
-            log.trace( "get default max age" );
-            return getDefaultMaxAge( auth );
+            log.trace("get default max age");
+            return getDefaultMaxAge(auth);
         }
     }
 
-    protected long getDefaultMaxAge( Auth auth ) {
-        if( auth == null ) {
+    protected long getDefaultMaxAge(Auth auth) {
+        if (auth == null) {
             //log.trace( "no authentication, use long max-age" );
             return 60 * 60 * 24l;
         } else {
@@ -495,23 +509,23 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public ITemplate getTemplate() {
         ITemplate template = null;
         Web web = getWeb();
-        if( web != null ) {
+        if (web != null) {
             String templateName = getTemplateName();
-            if( templateName == null || templateName.length() == 0 || templateName.equals( "null" ) ) {
-                log.debug( "empty template name" );
+            if (templateName == null || templateName.length() == 0 || templateName.equals("null")) {
+                log.debug("empty template name");
                 return null;
             }
-            TemplateManager tm = requestContext().get( TemplateManager.class );
-            template = tm.lookup( templateName, web );
-            if( template == null ) {
-                log.warn( "no template: " + templateName + " for web: " + web.getName() );
+            TemplateManager tm = requestContext().get(TemplateManager.class);
+            template = tm.lookup(templateName, web);
+            if (template == null) {
+                log.warn("no template: " + templateName + " for web: " + web.getName());
             } else {
-                if( template == this ) {
-                    throw new RuntimeException( "my template is myself" );
+                if (template == this) {
+                    throw new RuntimeException("my template is myself");
                 }
             }
         } else {
-            log.warn( "no web for: " + this.getName() );
+            log.warn("no web for: " + this.getName());
         }
 //        if( template != null ) {
 //            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
@@ -522,89 +536,89 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public String getTemplateName() {
         TemplateSelect sel = getTemplateSelect();
-        if( sel == null ) {
-            log.trace( "getTemplateName: no template component`" );
+        if (sel == null) {
+            log.trace("getTemplateName: no template component`");
             return null;
         }
         return sel.getValue();
     }
 
     public TemplateSelect getTemplateSelect() {
-        TemplateSelect sel = (TemplateSelect) getComponents().get( "template" );
-        if( sel == null ) {
-            sel = new TemplateSelect( this, "template" );
+        TemplateSelect sel = (TemplateSelect) getComponents().get("template");
+        if (sel == null) {
+            sel = new TemplateSelect(this, "template");
             templateSelect = sel;
-            componentMap.add( templateSelect );
+            componentMap.add(templateSelect);
         }
         return sel;
     }
 
     @Override
     public ComponentValueMap getValues() {
-        if( valueMap == null ) {
+        if (valueMap == null) {
             valueMap = new ComponentValueMap();
         }
         return valueMap;
     }
 
-    public String render( RenderContext child ) {
-        _( ClydeEventDispatcher.class ).beforeRender( this, child );
+    public String render(RenderContext child) {
+        _(ClydeEventDispatcher.class).beforeRender(this, child);
         ITemplate t = getTemplate();
-        if( t == null ) {
+        if (t == null) {
 //            log.debug( "render: null template for: " + this.getName());
         }
-        RenderContext rc = new RenderContext( t, this, child, false );
-        if( t != null ) {
+        RenderContext rc = new RenderContext(t, this, child, false);
+        if (t != null) {
 //            log.debug( "render: rendering from template " + t.getName());
-            return t.render( rc );
+            return t.render(rc);
         } else {
 //            log.debug( "render: no template, so try to use root parameter" );
-            Component cRoot = this.getParams().get( "root" );
-            if( cRoot == null ) {
-                log.warn( "render: no template " + this.getTemplateName() + " and no root component for template: " + this.getHref() );
+            Component cRoot = this.getParams().get("root");
+            if (cRoot == null) {
+                log.warn("render: no template " + this.getTemplateName() + " and no root component for template: " + this.getHref());
                 return "";
             } else {
 //                log.debug( "render: rendering from root component");
-                return cRoot.render( rc );
+                return cRoot.render(rc);
             }
         }
     }
 
-    public String renderEdit( RenderContext rc ) {
+    public String renderEdit(RenderContext rc) {
         return rc.doBody();
     }
 
     @Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        generateContent( out );
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        generateContent(out);
     }
 
-    public void generateContent( OutputStream out ) throws IOException {
-        if( log.isTraceEnabled() ) {
-            log.trace( "sendContent: " + this.getHref() );
+    public void generateContent(OutputStream out) throws IOException {
+        if (log.isTraceEnabled()) {
+            log.trace("sendContent: " + this.getHref());
         }
-        tlTargetPage.set( this );
+        tlTargetPage.set(this);
         String s = null;
         try {
-            s = render( null );
-        } catch( Throwable e ) {
+            s = render(null);
+        } catch (Throwable e) {
             // TODO move to context
             HtmlExceptionFormatter formatter = new HtmlExceptionFormatter();
-            s = formatter.formatExceptionAsHtml( e );
+            s = formatter.formatExceptionAsHtml(e);
         }
-        out.write( s.getBytes() );
+        out.write(s.getBytes());
     }
 
     public CommonTemplated getRequestPage() {
         return tlTargetPage.get();
     }
 
-    public void setTemplate( Page template ) {
-        this.templateSelect.setValue( template.getName() );
+    public void setTemplate(Page template) {
+        this.templateSelect.setValue(template.getName());
     }
 
-    public void setTemplateName( String templateName ) {
-        this.templateSelect.setValue( templateName );
+    public void setTemplateName(String templateName) {
+        this.templateSelect.setValue(templateName);
     }
 
     /**
@@ -614,57 +628,59 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @param el
      * @return
      */
-    public Element toXml( Addressable container, Element el ) {
-        log.warn( "toXml" );
-        Element e2 = new Element( "component" );
-        el.addContent( e2 );
-        populateXml( e2 );
+    public Element toXml(Addressable container, Element el) {
+        log.warn("toXml");
+        Element e2 = new Element("component");
+        el.addContent(e2);
+        populateXml(e2);
         return e2;
     }
 
-    /**
-     * 
-     * @return - text describing this class. Overridden in subclasses
-     */
-    protected String getHelpDescription() {
-        return "the abstract common base class for templatable resources";
+    public void populateXml(Element e2) {
+        log.trace("populateXml");
+        e2.setAttribute("class", this.getClass().getName());
+        getValues().toXml(this, e2);
+        getComponents().toXml(this, e2);
+        InitUtils.setString(e2, getTemplateSelect());
+        InitUtils.setString(e2, "contentType", contentType);
     }
 
-    /**
-     * Add help text for each of the attributes this class defines on the xml
-     */
-    protected void populateHelpAttributes( Map<String, String> mapOfAttributes ) {
-        mapOfAttributes.put( "contentType", "the list of allowable content types of this resource. Normally only a single value. Eg text/html" );
-        mapOfAttributes.put( "template", "the name of the template this resource extends. May be empty" );
-    }
-
-    public void populateXml( Element e2 ) {
-        log.trace( "populateXml" );
-        e2.setAttribute( "class", this.getClass().getName() );
-        getValues().toXml( this, e2 );
-        getComponents().toXml( this, e2 );
-        InitUtils.setString( e2, getTemplateSelect() );
-        InitUtils.setString( e2, "contentType", contentType );
-    }
-
-    public Object value( String name ) {
-        ComponentValue cv = valueMap.get( name );
-        if( cv == null ) {
+    public Object value(String name) {
+        ComponentValue cv = valueMap.get(name);
+        if (cv == null) {
             return null;
         }
         return cv.getValue();
     }
 
+    public void setValue(String name, Object val) {
+        ComponentValue cv = valueMap.get(name);
+        if (cv == null) {
+            ITemplate t = this.getTemplate();
+            ComponentDef def = null;
+            if (t != null) {
+                def = t.getComponentDef(name);
+            }
+            if (def != null) {
+                cv = def.createComponentValue(this);
+            } else {
+                cv = new ComponentValue(name, this);
+            }
+            valueMap.add(cv);
+        }
+        cv.setValue(val);
+    }
+
     @Override
     public Host getHost() {
         Web web = getWeb();
-        if( web == null ) {
-            log.warn( "null web for: " + this.getPath() + " - " + this.getName() + " - " + this.getClass() );
+        if (web == null) {
+            log.warn("null web for: " + this.getPath() + " - " + this.getName() + " - " + this.getClass());
             return null;
         }
         Host h = web.getHost();
-        if( h == null ) {
-            log.warn( "null host for: " + this.getPath() );
+        if (h == null) {
+            log.warn("null host for: " + this.getPath());
         }
         return h;
     }
@@ -675,45 +691,45 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return - html to show a link to this file with the supplied text
      */
     @Override
-    public String link( String text ) {
+    public String link(String text) {
         return "<a href='" + getHref() + "'>" + text + "</a>";
     }
 
     @Override
     public String getLink() {
         String text = getLinkText();
-        return link( text );
+        return link(text);
     }
 
     public String getLinkText() {
         String s = getTitle();
-        if( s == null || s.length() == 0 ) {
+        if (s == null || s.length() == 0) {
             return getName();
         } else {
             return s;
         }
     }
 
-    public Resource getChildResource( String childName ) {
+    public Resource getChildResource(String childName) {
 //        log.debug( "getChildResource: " + childName + " from: " + this.getHref());
-        Component c = getAnyComponent( childName );
+        Component c = getAnyComponent(childName);
         Resource r = null;
-        if( c != null ) {
+        if (c != null) {
             // nasty hacks to ensure the physical resource is always available
             // to components from subpages and templates
-            if( this instanceof BaseResource ) {
+            if (this instanceof BaseResource) {
 //                log.debug( "setting target container: " + this.getHref());
-                tlTargetContainer.set( (BaseResource) this );
+                tlTargetContainer.set((BaseResource) this);
             } else {
 //                log.debug( "not setting: " + this.getClass());
             }
         }
-        if( c instanceof Resource ) {
+        if (c instanceof Resource) {
             r = (Resource) c;
-        } else if( c instanceof ComponentValue ) {
+        } else if (c instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) c;
             Object o = cv.getValue();
-            if( o != null && ( o instanceof Resource ) ) {
+            if (o != null && (o instanceof Resource)) {
                 r = (Resource) o;
             }
         }
@@ -726,14 +742,18 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return - a component of any type which has the given name
      */
     @Override
-    public Component getAnyComponent( String name ) {
+    public Component getAnyComponent(String name) {
         Component c;
 
-        c = getValues().get( name );
-        if( c != null ) return c;
+        c = getValues().get(name);
+        if (c != null) {
+            return c;
+        }
 
-        c = getComponent( name );
-        if( c != null ) return c;
+        c = getComponent(name);
+        if (c != null) {
+            return c;
+        }
 
         return null;
     }
@@ -750,8 +770,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @param paramName
      * @return
      */
-    public Component getComponent( String paramName ) {
-        return getComponent( paramName, false );
+    public Component getComponent(String paramName) {
+        return getComponent(paramName, false);
     }
 
     /**
@@ -763,17 +783,17 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @return
      */
     @Override
-    public Component getComponent( String paramName, boolean includeValues ) {
-        log.debug( "getComponent: " + paramName + " - " + this.getName() );
-        return ComponentUtils.getComponent( this, paramName, includeValues );
+    public Component getComponent(String paramName, boolean includeValues) {
+        log.debug("getComponent: " + paramName + " - " + this.getName());
+        return ComponentUtils.getComponent(this, paramName, includeValues);
     }
 
     public BaseResourceList getParents() {
         BaseResourceList list = new BaseResourceList();
         Templatable t = this;
-        while( t != null ) {
-            list.add( t );
-            if( t instanceof Host ) {
+        while (t != null) {
+            list.add(t);
+            if (t instanceof Host) {
                 t = null;
             } else {
                 t = t.getParent();
@@ -782,20 +802,20 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return list;
     }
 
-    public Component _invoke( String name ) {
-        ComponentValue cv = this.getValues().get( name );
-        if( cv != null ) {
+    public Component _invoke(String name) {
+        ComponentValue cv = this.getValues().get(name);
+        if (cv != null) {
             return cv;
         }
-        Component c = this.getComponents().get( name );
-        if( c != null ) {
+        Component c = this.getComponents().get(name);
+        if (c != null) {
             return c;
         }
         ITemplate t = getTemplate();
-        if( t == null ) {
+        if (t == null) {
             return null;
         }
-        return t._invoke( name );
+        return t._invoke(name);
     }
 
     /**
@@ -803,49 +823,58 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
      * @param name
      * @return - must never return null!
      */
-    public String invoke( String name ) {
-        Component c = _invoke( name );
-        if( c == null ) {
+    public String invoke(String name) {
+        Component c = _invoke(name);
+        if (c == null) {
             return "";
         }
-        RenderContext rc = new RenderContext( this.getTemplate(), this, null, false );
-        return c.render( rc );
+        RenderContext rc = new RenderContext(this.getTemplate(), this, null, false);
+        return c.render(rc);
     }
 
     public String getFirstPara() {
-        return firstPara( "body" );
+        return firstPara("body");
     }
 
-    public String firstPara( String paramName ) {
-        String s = invoke( paramName );
-        int posEnd = s.indexOf( "</p>" );
-        if( posEnd > 0 ) {
-            int posStart = s.indexOf( "<p>" );
-            if( posStart > 0 ) {
+    public String firstPara(String paramName) {
+        String s = invoke(paramName);
+        int posEnd = s.indexOf("</p>");
+        if (posEnd > 0) {
+            int posStart = s.indexOf("<p>");
+            if (posStart > 0) {
                 posStart = posStart + 3; // for p tag
-                posEnd = s.indexOf( "</p>", posStart ); // need to find first closing for this opening
-                return s.substring( posStart, posEnd );
+                posEnd = s.indexOf("</p>", posStart); // need to find first closing for this opening
+                return s.substring(posStart, posEnd);
             }
         }
         return "";
+    }
+
+    public boolean hasValue(String name) {
+        ComponentValue cv = valueMap.get(name);
+        if (cv == null) {
+            return false;
+        } else {
+            return !cv.isEmpty();
+        }
     }
 
     public class Params implements Map<String, Component> {
 
         @Override
         public int size() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public boolean isEmpty() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
-        public boolean containsKey( Object key ) {
-            if( key instanceof String ) {
-                Component c = get( (String) key );
+        public boolean containsKey(Object key) {
+            if (key instanceof String) {
+                Component c = get((String) key);
                 return c != null;
             } else {
                 return false;
@@ -853,66 +882,70 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
 
         @Override
-        public boolean containsValue( Object value ) {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public boolean containsValue(Object value) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
-        public Component get( Object key ) {
-            if( log.isTraceEnabled() ) {
-                log.trace( "get: " + key );
+        public Component get(Object key) {
+            if (log.isTraceEnabled()) {
+                log.trace("get: " + key);
             }
             String sKey = key.toString();
 //            return getAnyComponentRecursive(sKey);
-            Component c = getComponent( sKey, true );
-            if( c != null ) {
+            Component c = getComponent(sKey, true);
+            if (c != null) {
                 return c;
             }
             ITemplate template = getTemplate();
-            if( template == null ) return null;
+            if (template == null) {
+                return null;
+            }
 
 
-            ComponentDef def = getTemplate().getComponentDef( sKey );
-            if( def == null ) return null;
-            ComponentValue cv = def.createComponentValue( CommonTemplated.this );
-            getValues().put( sKey, cv );
+            ComponentDef def = getTemplate().getComponentDef(sKey);
+            if (def == null) {
+                return null;
+            }
+            ComponentValue cv = def.createComponentValue(CommonTemplated.this);
+            getValues().put(sKey, cv);
             return cv;
         }
 
         @Override
-        public Component put( String key, Component value ) {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public Component put(String key, Component value) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
-        public Component remove( Object key ) {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public Component remove(Object key) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
-        public void putAll( Map<? extends String, ? extends Component> m ) {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public void putAll(Map<? extends String, ? extends Component> m) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public void clear() {
 
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public Set<String> keySet() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public Collection<Component> values() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         public Set<Entry<String, Component>> entrySet() {
-            throw new UnsupportedOperationException( "Not supported yet." );
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 }

@@ -189,6 +189,11 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         return choices;
     }
 
+    public void setChoices(List<String> choices) {
+        this.choices = choices;
+    }
+    
+
     protected String editChildTemplate() {
         String template = "";
         if( choices != null && choices.size() > 0 ) {

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -19,7 +20,7 @@ import org.xml.sax.ext.EntityResolver2;
 
 public class ComponentValue implements Component, Serializable, ValueHolder {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ComponentValue.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ComponentValue.class);
     private static final long serialVersionUID = 1L;
     public String name;
     public Object value;
@@ -27,46 +28,62 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     private Addressable parent;
     private transient ThreadLocal<String> thValidationMessage = new ThreadLocal<String>();
 
-    public ComponentValue( String name, Addressable container ) {
+    public ComponentValue(String name, Addressable container) {
         this.name = name;
         this.parent = container;
         this.oldValues = new ArrayList<OldValue>();
     }
 
-    public ComponentValue( Element el, Templatable container ) {
-        this.name = el.getAttributeValue( "name" );
+    public ComponentValue(Element el, Templatable container) {
+        this.name = el.getAttributeValue("name");
         this.oldValues = new ArrayList<OldValue>();
         this.parent = container;
-        log.debug( "created: " + this.name );
-        String sVal = InitUtils.getValue( el );
-        ComponentDef def = getDef( container );
-        if( def == null ) {
-            log.warn( "no container for CV " + name + ", cant' parse value so it will be a String!!!" );
+        log.debug("created: " + this.name);
+        String sVal = InitUtils.getValue(el);
+        ComponentDef def = getDef(container);
+        if (def == null) {
+            log.warn("no container for CV " + name + ", cant' parse value so it will be a String!!!");
             this.value = sVal;
         } else {
-            log.debug( "parse value of CV" );
-            this.value = def.parseValue( this, container, sVal );
+            log.debug("parse value of CV");
+            this.value = def.parseValue(this, container, sVal);
         }
     }
+
+    public boolean isEmpty() {
+        Object v = this.getValue();
+        if( v == null ) {
+            return true;
+        } else {
+            if( v instanceof String ) {
+                String s = (String) v;
+                return StringUtils.isBlank(s);
+            } else {
+                return false;
+            }
+        }
+    }
+
+
 
     public List<OldValue> getOldValues() {
-        if( oldValues == null ) {
+        if (oldValues == null) {
             return Collections.EMPTY_LIST;
         } else {
-            return Collections.unmodifiableList( oldValues );
+            return Collections.unmodifiableList(oldValues);
         }
     }
 
-    public void setValidationMessage( String validationMessage ) {
-        log.debug( "setValidationMessage: " + name + " -> " + validationMessage );
-        if( thValidationMessage == null ) {
+    public void setValidationMessage(String validationMessage) {
+        log.debug("setValidationMessage: " + name + " -> " + validationMessage);
+        if (thValidationMessage == null) {
             thValidationMessage = new ThreadLocal<String>();
         }
-        thValidationMessage.set( validationMessage );
+        thValidationMessage.set(validationMessage);
     }
 
     public String getValidationMessage() {
-        if( thValidationMessage == null ) {
+        if (thValidationMessage == null) {
             return null;
         }
         return thValidationMessage.get();
@@ -79,16 +96,18 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
      */
     public boolean afterSave() {
         Object val = getValue();
-        if( val == null ) return false;
-        if( val instanceof AfterSavable ) {
-            return ( (AfterSavable) val ).afterSave();
+        if (val == null) {
+            return false;
+        }
+        if (val instanceof AfterSavable) {
+            return ((AfterSavable) val).afterSave();
         } else {
             return false;
         }
     }
 
     @Override
-    public void init( Addressable parent ) {
+    public void init(Addressable parent) {
         this.parent = parent;
     }
 
@@ -98,51 +117,51 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     @Override
-    public boolean validate( RenderContext rc ) {
-        ComponentDef def = getDef( rc );
-        if( def == null ) {
+    public boolean validate(RenderContext rc) {
+        ComponentDef def = getDef(rc);
+        if (def == null) {
             log.warn("No component definition for value: " + this.getName());
             return true;
         } else {
-            return def.validate( this, rc );
+            return def.validate(this, rc);
         }
     }
 
     @Override
-    public Element toXml( Addressable container, Element el ) {
-        Element e2 = new Element( "componentValue" );
-        el.addContent( e2 );
+    public Element toXml(Addressable container, Element el) {
+        Element e2 = new Element("componentValue");
+        el.addContent(e2);
         String clazzName = this.getClass().getName();
-        log.debug( "toXml: " + name );
-        if( !clazzName.equals( ComponentValue.class.getName() ) ) { // for brevity, only add class where not default
-            e2.setAttribute( "class", clazzName );
+        log.debug("toXml: " + name);
+        if (!clazzName.equals(ComponentValue.class.getName())) { // for brevity, only add class where not default
+            e2.setAttribute("class", clazzName);
         }
-        e2.setAttribute( "name", name );
+        e2.setAttribute("name", name);
         int numOldVals = 0;
-        if( oldValues != null ) {
+        if (oldValues != null) {
             numOldVals = oldValues.size();
         }
-        InitUtils.set( e2, "numOldVals", numOldVals);
-        String v = getFormattedValue( (CommonTemplated) container );
+        InitUtils.set(e2, "numOldVals", numOldVals);
+        String v = getFormattedValue((CommonTemplated) container);
         //        List l = formatContentToXmlList( v );
         //        e2.setContent( l );
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( v );
-        e2.setContent( content );
+
+        List content = XmlHelper.getContent(v);
+        e2.setContent(content);
         Request req = HttpManager.request();
         String showOld;
-        if( req != null && oldValues != null ) {
-            if( req.getParams() != null ) {
-                showOld = req.getParams().get( "showold" );
-                if( showOld != null && showOld.length() > 0 ) {
-                    for( OldValue ov : this.getOldValues() ) {
-                        Element elOld = new Element( "oldval" );
-                        e2.addContent( elOld );
-                        elOld.setAttribute( "user", ov.user );
-                        elOld.setAttribute( "date", ov.getDateModified().toString() );
-                        v = getFormattedValue( (CommonTemplated) container, ov.value );
-                        content = helper.getContent( v );
-                        elOld.setContent( content );
+        if (req != null && oldValues != null) {
+            if (req.getParams() != null) {
+                showOld = req.getParams().get("showold");
+                if (showOld != null && showOld.length() > 0) {
+                    for (OldValue ov : this.getOldValues()) {
+                        Element elOld = new Element("oldval");
+                        e2.addContent(elOld);
+                        elOld.setAttribute("user", ov.user);
+                        elOld.setAttribute("date", ov.getDateModified().toString());
+                        v = getFormattedValue((CommonTemplated) container, ov.value);
+                        content = XmlHelper.getContent(v);
+                        elOld.setContent(content);
                     }
                 }
             }
@@ -183,16 +202,16 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public String toString() {
         try {
             CommonTemplated ct = (CommonTemplated) this.getContainer();
-            if( ct != null ) {
-                RenderContext rc = new RenderContext( ct.getTemplate(), ct, null, true );
-                String s = this.render( rc );
+            if (ct != null) {
+                RenderContext rc = new RenderContext(ct.getTemplate(), ct, null, true);
+                String s = this.render(rc);
                 return s;
             } else {
                 Object o = this.getValue();
                 return o == null ? "" : o.toString();
             }
-        } catch( Exception e ) {
-            log.error( "exception rendering componentvalue: " + this.getName(), e );
+        } catch (Exception e) {
+            log.error("exception rendering componentvalue: " + this.getName(), e);
             return "ERR: " + this.getName() + ": " + e.getMessage();
         }
 
@@ -203,7 +222,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         return name;
     }
 
-    public void setName( String name ) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -221,38 +240,42 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 //        }
     }
 
-    public Object typedValue( Page page ) {
+    public Object typedValue(Page page) {
         Object val = this.value;
-        if( val == null ) return null;
-        if( val instanceof String ) {
-            return getDef( page ).parseValue( this, page, (String) val );
+        if (val == null) {
+            return null;
+        }
+        if (val instanceof String) {
+            return getDef(page).parseValue(this, page, (String) val);
         } else {
             return val;
         }
     }
 
-    public void setValue( Object value ) {
-        if( this.value != null && !this.value.equals( value ) ) {
+    public void setValue(Object value) {
+        if (this.value != null && !this.value.equals(value)) {
             RequestParams cur = RequestParams.current();
             String userName = null;
-            if( cur != null && cur.getAuth() != null ) {
+            if (cur != null && cur.getAuth() != null) {
                 User user = (User) cur.getAuth().getTag();
-                if( user != null ) {
+                if (user != null) {
                     userName = user.getEmailAddress().toString();
                 }
             }
-            OldValue old = new OldValue( value, new Date(), userName );
-            if( oldValues == null ) {
+            OldValue old = new OldValue(value, new Date(), userName);
+            if (oldValues == null) {
                 oldValues = new ArrayList<OldValue>();
             }
-            oldValues.add( old );
+            oldValues.add(old);
         }
         this.value = value;
     }
 
-    public ComponentDef getDef( RenderContext rc ) {
-        if( rc == null ) return null;
-        return getDef( rc.page );
+    public ComponentDef getDef(RenderContext rc) {
+        if (rc == null) {
+            return null;
+        }
+        return getDef(rc.page);
 //        Template templatePage = rc.template;
 //        if( templatePage == null ) {
 //            templatePage = (Template) rc.page; // if the page doesnt have a template, use itself as template
@@ -270,99 +293,103 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
      * @param page
      * @return
      */
-    public final ComponentDef getDef( Templatable page ) {
+    public final ComponentDef getDef(Templatable page) {
         ITemplate templatePage = page.getTemplate();
-        if( templatePage == null ) {
+        if (templatePage == null) {
             return null;
         }
-        ComponentDef def = templatePage.getComponentDef( name );
-        if( def == null ) {
-            log.warn( "did not find componentdef for: " + name + " in template: " + templatePage.getName() );
+        ComponentDef def = templatePage.getComponentDef(name);
+        if (def == null) {
+            log.warn("did not find componentdef for: " + name + " in template: " + templatePage.getName());
         }
         return def;
     }
 
     @Override
-    public String render( RenderContext rc ) {
-        ComponentDef def = getDef( rc );
-        if( def == null ) return "";
-        if( this.parent == null ) {
-            this.parent = rc.page;
-        }
-        if(log.isTraceEnabled()) {
-            log.trace("render CV: " + name + " ::: " + this.getValue());
-        }
-        return def.render( this, rc );
-    }
-
-    @Override
-    public String renderEdit( RenderContext rc ) {
-        ComponentDef def = getDef( rc );
-        if( def == null ) {
+    public String render(RenderContext rc) {
+        ComponentDef def = getDef(rc);
+        if (def == null) {
             return "";
         }
-        if( this.parent == null ) {
+        if (this.parent == null) {
             this.parent = rc.page;
         }
-        return def.renderEdit( this, rc );
+        if (log.isTraceEnabled()) {
+            log.trace("render CV: " + name + " ::: " + this.getValue());
+        }
+        return def.render(this, rc);
     }
 
     @Override
-    public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
-        init( rc.page );
-        ComponentDef def = getDef( rc );
-        if( def == null ) {
-            log.warn( "Could not find definition for : " + this.name );  // this can happen when changing templates
+    public String renderEdit(RenderContext rc) {
+        ComponentDef def = getDef(rc);
+        if (def == null) {
+            return "";
+        }
+        if (this.parent == null) {
+            this.parent = rc.page;
+        }
+        return def.renderEdit(this, rc);
+    }
+
+    @Override
+    public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+        init(rc.page);
+        ComponentDef def = getDef(rc);
+        if (def == null) {
+            log.warn("Could not find definition for : " + this.name);  // this can happen when changing templates
         } else {
-            def.onPreProcess( this, rc, parameters, files );
+            def.onPreProcess(this, rc, parameters, files);
         }
     }
 
     @Override
-    public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
+    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         return null;
     }
 
-    public String getFormattedValue( CommonTemplated container ) {
+    public String getFormattedValue(CommonTemplated container) {
         Object v = getValue();
-        return getFormattedValue( container, v );
+        return getFormattedValue(container, v);
     }
 
-    private String getFormattedValue( CommonTemplated container, Object v ) {
+    private String getFormattedValue(CommonTemplated container, Object v) {
         if (v instanceof String) {
             return v.toString();
         }
-        ComponentDef def = getDef( container );
-        if( def == null ) {
-            if( v == null ) return "";
+        ComponentDef def = getDef(container);
+        if (def == null) {
+            if (v == null) {
+                return "";
+            }
             return v.toString();
         }
-        return def.formatValue( v );
+        return def.formatValue(v);
     }
 
     public int getYear() {
-        return Formatter.getInstance().getYear( getValue() );
+        return Formatter.getInstance().getYear(getValue());
     }
 
     public int getMonth() {
-        return Formatter.getInstance().getMonth( getValue() );
+        return Formatter.getInstance().getMonth(getValue());
     }
 
     public class MyEntityResolver implements EntityResolver2 {
 
-        public InputSource resolveEntity( String publicId, String systemId ) throws SAXException, IOException {
-            System.out.println( "resolveEntity: " + publicId + " - " + systemId );
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            System.out.println("resolveEntity: " + publicId + " - " + systemId);
 //            return new InputSource( new ByteArrayInputStream( "".getBytes()));
             return null;
         }
 
-        public InputSource getExternalSubset( String name, String baseURI ) throws SAXException, IOException {
-            System.out.println( "getExternalSubset: " + name );
+        public InputSource getExternalSubset(String name, String baseURI) throws SAXException, IOException {
+            System.out.println("getExternalSubset: " + name);
             return null;
         }
 
-        public InputSource resolveEntity( String name, String publicId, String baseURI, String systemId ) throws SAXException, IOException {
-            System.out.println( "resolveEntity: name: " + name + " publicid: " + publicId + " - " + systemId );
+        public InputSource resolveEntity(String name, String publicId, String baseURI, String systemId) throws SAXException, IOException {
+            System.out.println("resolveEntity: name: " + name + " publicid: " + publicId + " - " + systemId);
             //return new InputSource( new ByteArrayInputStream( "".getBytes()));
             return null;
         }
@@ -439,7 +466,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         private final Date dateModified;
         private final String user;
 
-        public OldValue( Object value, Date dateModified, String user ) {
+        public OldValue(Object value, Date dateModified, String user) {
             this.value = value;
             this.dateModified = dateModified;
             this.user = user;

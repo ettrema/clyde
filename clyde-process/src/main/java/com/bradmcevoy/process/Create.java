@@ -33,11 +33,10 @@ public class Create implements ActionHandler, Serializable{
         String sPath = el.getAttributeValue("path");
         path = Path.path(sPath);
         attributes.clear();
-        XmlHelper helper = new XmlHelper();
         for( Object o : el.getChildren() ) {
             if( o instanceof Element ) {
                 Element elAtt = (Element) o;
-                String text = helper.getAllText( elAtt );
+                String text = XmlHelper.getAllText( elAtt );
                 attributes.put(elAtt.getName(), text);
             }
         }
@@ -47,11 +46,10 @@ public class Create implements ActionHandler, Serializable{
     public void populateXml(Element el) {
         InitUtils.setString( el, "template", templateName);
         InitUtils.setString(el,"path", path.toString());
-        XmlHelper helper = new XmlHelper();
         for( Map.Entry<String,String> e : attributes.entrySet() ) {
             Element elAtt = new Element(e.getKey());
             el.addContent(elAtt);
-            List content = helper.getContent( e.getValue() );
+            List content = XmlHelper.getContent( e.getValue() );
             elAtt.setContent( content );
         }
     }

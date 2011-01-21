@@ -21,6 +21,10 @@ public class ClydeTransition extends SubPage implements Transition {
         this.transition = new TransitionImpl(fromState.getProcess(), name, fromState, toState, rule);
     }
 
+    public Transition getTransition() {
+        return transition;
+    }
+
     
     @Override
     public State getFromState() {

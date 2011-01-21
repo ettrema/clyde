@@ -128,7 +128,9 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         }
         return res;
     }
-    ProcessImpl process;
+
+    
+    private ProcessImpl process;
 
     public ProcessDef(CommonTemplated parent, String name) {
         super(parent, name);
@@ -283,6 +285,15 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     public void changedValue(ComponentValue cv) {
         
     }
+
+    public ProcessImpl getProcess() {
+        return process;
+    }
+
+    public void setProcess(ProcessImpl process) {
+        this.process = process;
+    }
+
 
 
     public class ClydeProcess extends ProcessImpl {

@@ -92,8 +92,7 @@ public class JDomUtils {
     }
 
     public static void setInnerXml(Element el, String xml) {
-        XmlHelper helper = new XmlHelper();
-        List content = helper.getContent( xml );
+        List content = XmlHelper.getContent( xml );
         el.setContent( content );
     }
 

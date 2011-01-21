@@ -222,7 +222,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         add( new PdfMetaHandler( binaryFileMetaHandler ), mapOfAliases );
 
         // Must be constructed last because uses mapOfAlias, but must be ahead of page because of supports
-        add( new TemplateMetaHandler( pageMetaHandler, mapOfAliases ), mapOfAliases );
+        add( new TemplateMetaHandler( pageMetaHandler, mapOfAliases,commonTemplatedMetaHandler.getSubPageHandler() ), mapOfAliases );
     }
 
     private <T extends MetaHandler> T add( T h, Map<Class, String> mapOfAliases ) {

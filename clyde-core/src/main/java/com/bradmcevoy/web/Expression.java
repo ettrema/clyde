@@ -1,4 +1,3 @@
-
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.FileItem;
@@ -13,18 +12,37 @@ import java.util.Map;
 import org.jdom.Element;
 import org.joda.time.DateTime;
 
-public class Expression implements Component, WrappableComponent{
+public class Expression implements Component, WrappableComponent {
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Expression.class);
-    
     private static final long serialVersionUID = 1L;
-    
-    protected Addressable container;    
+
+    public static Object doCalc(Templatable ct, Map map, String expr, BaseResource targetContainer) {
+        if (log.isTraceEnabled()) {
+            log.trace("calc: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());
+        }
+        try {
+            if( map == null ) {
+                map = new HashMap();
+            }
+            if (targetContainer != null) {
+                map.put("targetPage", targetContainer);
+            }
+            map.put("formatter", Formatter.getInstance());
+            Object o = org.mvel.MVEL.eval(expr, ct, map);
+            return o;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception evaluating expression: " + expr + " in page: " + ct.getName(), e);
+        }
+
+    }
+    protected Addressable container;
     protected String name;
     protected String expr;
     protected int decimals;
     protected String sDateFormat;
     protected org.joda.time.format.DateTimeFormatter dateFormat;
-    
+
     public Expression(Addressable container, String name) {
         this.container = container;
         this.name = name;
@@ -34,7 +52,7 @@ public class Expression implements Component, WrappableComponent{
         this.container = container;
         fromXml(el);
     }
-                
+
     @Override
     public void init(Addressable container) {
         this.container = container;
@@ -54,7 +72,9 @@ public class Expression implements Component, WrappableComponent{
     public String render(RenderContext rc) {
         Templatable page = rc.getTargetPage();
         Object o = calc(page);
-        if( o == null ) return "";
+        if (o == null) {
+            return "";
+        }
         String s = o.toString();
         return s;
     }
@@ -76,16 +96,15 @@ public class Expression implements Component, WrappableComponent{
 
     @Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        
     }
 
     @Override
     public Element toXml(Addressable container, Element el) {
         Element e2 = new Element("component");
         el.addContent(e2);
-        e2.setAttribute("name",name);                
-        e2.setAttribute("class",this.getClass().getName());
-        InitUtils.set(e2, "decimals",decimals);
+        e2.setAttribute("name", name);
+        e2.setAttribute("class", this.getClass().getName());
+        InitUtils.set(e2, "decimals", decimals);
         InitUtils.setString(el, "dateformat", sDateFormat);
         e2.setText(expr);
         return e2;
@@ -93,28 +112,20 @@ public class Expression implements Component, WrappableComponent{
 
     public Object calc(Templatable ct) {
         Map map = new HashMap();
-        return calc(ct,map);
+        return calc(ct, map);
     }
-    
+
     public Object calc(Templatable ct, Map map) {
-        log.debug("calc: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());
-        try {
-            BaseResource targetContainer = CommonTemplated.getTargetContainer();
-            map.put( "targetPage", targetContainer);
-            map.put( "formatter", Formatter.getInstance());
-            Object o = org.mvel.MVEL.eval(expr, ct, map);
-            return o;
-        } catch (Exception e) {
-            throw new RuntimeException("Exception evaluating expression: " + expr + " in page: " + ct.getName(), e);
-        }
+        BaseResource targetContainer = CommonTemplated.getTargetContainer();
+        return doCalc(ct, map, expr, targetContainer);
     }
 
     private void fromXml(Element el) {
         this.name = InitUtils.getValue(el, "name");
         this.expr = el.getText();
-        this.decimals = InitUtils.getInt(el,"decimals");
+        this.decimals = InitUtils.getInt(el, "decimals");
         this.sDateFormat = InitUtils.getValue(el, "dateformat");
-        if( this.sDateFormat != null ) {
+        if (this.sDateFormat != null) {
             dateFormat = org.joda.time.format.DateTimeFormat.forPattern(sDateFormat);
         }
     }
@@ -133,7 +144,9 @@ public class Expression implements Component, WrappableComponent{
     public String render(Addressable container, RenderContext rc) {
         CommonTemplated page = (CommonTemplated) container;
         Object o = calc(page);
-        if( o == null ) return "";
+        if (o == null) {
+            return "";
+        }
         String s = getFormattedValue(o);
         return s;
     }
@@ -150,7 +163,7 @@ public class Expression implements Component, WrappableComponent{
 
     @Override
     public Object getValue(Addressable container) {
-        if( container instanceof Templatable) {
+        if (container instanceof Templatable) {
             return calc((Templatable) container);
         } else {
 
@@ -163,36 +176,36 @@ public class Expression implements Component, WrappableComponent{
         Object v = getValue(container);
         return getFormattedValue(v);
     }
-    
+
     public String getFormattedValue(Object o) {
-        if( o == null ) {
+        if (o == null) {
             return "";
-        } else if( o instanceof String ) {
+        } else if (o instanceof String) {
             return o.toString();
-        } else if( o instanceof Integer ) {
+        } else if (o instanceof Integer) {
             Integer ii = (Integer) o;
             BigDecimal bd = BigDecimal.valueOf(ii.intValue());
             return bd.setScale(decimals, RoundingMode.HALF_UP).toPlainString();
-        } else if( o instanceof Long ) {
+        } else if (o instanceof Long) {
             Long ll = (Long) o;
             BigDecimal bd = BigDecimal.valueOf(ll.longValue());
             return bd.setScale(decimals, RoundingMode.HALF_UP).toPlainString();
-        } else if( o instanceof BigDecimal ) {
+        } else if (o instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) o;
             bd = bd.setScale(decimals, RoundingMode.HALF_UP);
             return bd.toPlainString();
-        } else if( o instanceof Float ) {
+        } else if (o instanceof Float) {
             Float ff = (Float) o;
             return getFormattedFloat(ff);
-        } else if( o instanceof Double ) {
-            Double dd = (Double)o;
+        } else if (o instanceof Double) {
+            Double dd = (Double) o;
             return getFormattedFloat(dd);
-        } else if( o instanceof Date ) {
-            return getFormattedDate((Date)o);
-        } else if( o instanceof DateTime ) {
+        } else if (o instanceof Date) {
+            return getFormattedDate((Date) o);
+        } else if (o instanceof DateTime) {
             DateTime dt = (DateTime) o;
             return getFormattedDate(dt);
-        } else if( o instanceof Boolean ) {
+        } else if (o instanceof Boolean) {
             return o.toString();
         } else {
             log.warn("** unhandled data type: " + o.getClass());
@@ -203,16 +216,16 @@ public class Expression implements Component, WrappableComponent{
     public String getFormattedFloat(Float ff) {
         BigDecimal bd = BigDecimal.valueOf(ff.floatValue());
         bd = bd.setScale(decimals, RoundingMode.HALF_DOWN);
-        return bd.toPlainString();        
+        return bd.toPlainString();
     }
-    
-    public String getFormattedDate(Date dt) {        
+
+    public String getFormattedDate(Date dt) {
         DateTime jdt = new DateTime(dt.getTime());
         return getFormattedDate(jdt);
     }
 
     public String getFormattedDate(DateTime jdt) {
-        if(dateFormat == null ) {
+        if (dateFormat == null) {
             return jdt.toString();
         } else {
             return dateFormat.print(jdt);
@@ -220,9 +233,9 @@ public class Expression implements Component, WrappableComponent{
     }
 
     public String getFormattedFloat(Double dd) {
-        BigDecimal bd = BigDecimal.valueOf((double)dd.floatValue());
+        BigDecimal bd = BigDecimal.valueOf((double) dd.floatValue());
         bd = bd.setScale(decimals, RoundingMode.HALF_UP);
-        String s = bd.toPlainString();        
+        String s = bd.toPlainString();
         return s;
     }
 
@@ -231,15 +244,14 @@ public class Expression implements Component, WrappableComponent{
         //return getFormattedValue(container);
         return this.expr;
     }
-    
-    public final void setValidationMessage( String s ) {
+
+    public final void setValidationMessage(String s) {
         RequestParams params = RequestParams.current();
-        params.attributes.put( this.getName() + "_validation", s );
+        params.attributes.put(this.getName() + "_validation", s);
     }
 
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
-        return (String) params.attributes.get( this.getName() + "_validation" );
+        return (String) params.attributes.get(this.getName() + "_validation");
     }
-
 }

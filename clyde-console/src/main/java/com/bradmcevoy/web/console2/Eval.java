@@ -26,7 +26,7 @@ public class Eval extends AbstractConsoleCommand {
 
     @Override
     public Result execute() {
-        if (args.size() == 0) {
+        if (args.isEmpty()) {
             return result("missing expression");
         }
         String exp = "";
