@@ -7,7 +7,6 @@ import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.EmailCommand;
 import com.bradmcevoy.web.component.InitUtils;
 import org.jdom.Element;
-import org.jdom.Namespace;
 
 /**
  *

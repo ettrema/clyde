@@ -149,8 +149,27 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail)*>
 
+
+<!ELEMENT c:singleEmail (#PCDATA)>
+<!ATTLIST c:text
+    fromComp CDATA #IMPLIED
+    toGroupExpr CDATA #IMPLIED
+    subjectComp CDATA #IMPLIED
+    replyToComp CDATA #IMPLIED
+    confirmationUrl CDATA #IMPLIED
+  >
+
+<!ELEMENT c:groupEmail (#PCDATA)>
+<!ATTLIST c:groupEmail
+    name CDATA #REQUIRED
+    fromComp CDATA #IMPLIED
+    toGroupExpr CDATA #IMPLIED
+    subjectComp CDATA #IMPLIED
+    replyToComp CDATA #IMPLIED
+    confirmationUrl CDATA #IMPLIED
+  >
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
