@@ -30,6 +30,7 @@ import static com.ettrema.context.RequestContext._;
  * An email command which sends to a group, rather then a particular user
  *
  * @author brad
+ * @deprecated - use GroupEmailCommand2 instead
  */
 public class GroupEmailCommand extends Command {
 

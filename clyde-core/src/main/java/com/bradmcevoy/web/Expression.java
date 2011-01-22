@@ -4,6 +4,7 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.WrappableComponent;
+import com.bradmcevoy.web.security.CurrentUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -12,23 +13,43 @@ import java.util.Map;
 import org.jdom.Element;
 import org.joda.time.DateTime;
 
+import static com.ettrema.context.RequestContext._;
+
 public class Expression implements Component, WrappableComponent {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Expression.class);
     private static final long serialVersionUID = 1L;
 
-    public static Object doCalc(Templatable ct, Map map, String expr, BaseResource targetContainer) {
+    /**
+     *
+     * @param ct - this is the point of reference when evaluating the expression
+     * @param map - maybe null, otherwise is passed to the expression
+     * @param expr - the expression to evaluate. This expression is processed by the expression language, NOT
+     * by a template interpreter, so does not contain template tags like $ and @
+     * @param targetPage - is passed to the expression as targetContainer. Should be the parent which is a physical resource
+     * @return
+     */
+    public static Object doCalc(Templatable ct, Map map, String expr, BaseResource targetPage) {
         if (log.isTraceEnabled()) {
             log.trace("calc: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());
         }
         try {
-            if( map == null ) {
+            if (map == null) {
                 map = new HashMap();
             }
-            if (targetContainer != null) {
-                map.put("targetPage", targetContainer);
+            IUser user = _(CurrentUserService.class).getOnBehalfOf();
+            if (user != null) {
+                map.put("user", user);
+            }
+            if (targetPage != null) {
+                map.put("targetPage", targetPage);
+                map.put( "folder", targetPage.getParent() );
+                map.put( "web", targetPage.getWeb() );
             }
             map.put("formatter", Formatter.getInstance());
+            RequestParams requestParams = RequestParams.current();
+            map.put("request", requestParams);
+
             Object o = org.mvel.MVEL.eval(expr, ct, map);
             return o;
         } catch (Exception e) {
@@ -110,6 +131,12 @@ public class Expression implements Component, WrappableComponent {
         return e2;
     }
 
+    /**
+     * Calculate this expression, using the given resource as the point of reference
+     *
+     * @param ct
+     * @return
+     */
     public Object calc(Templatable ct) {
         Map map = new HashMap();
         return calc(ct, map);
