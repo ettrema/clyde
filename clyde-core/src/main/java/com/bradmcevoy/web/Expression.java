@@ -22,14 +22,15 @@ public class Expression implements Component, WrappableComponent {
 
     /**
      *
-     * @param ct - this is the point of reference when evaluating the expression
+     * @param ct - this is the point of reference when evaluating the expression. This might be a template, or is
+     * whatever defined the component invoking the expression
      * @param map - maybe null, otherwise is passed to the expression
      * @param expr - the expression to evaluate. This expression is processed by the expression language, NOT
      * by a template interpreter, so does not contain template tags like $ and @
-     * @param targetPage - is passed to the expression as targetContainer. Should be the parent which is a physical resource
+     * @param targetPage - is passed to the expression as targetContainer. Should be the actual target of the request
      * @return
      */
-    public static Object doCalc(Templatable ct, Map map, String expr, BaseResource targetPage) {
+    public static Object doCalc(Templatable ct, Map map, String expr, Templatable targetPage) {
         if (log.isTraceEnabled()) {
             log.trace("calc: " + expr + " on: " + ct.getPath() + " - " + ct.getClass());
         }

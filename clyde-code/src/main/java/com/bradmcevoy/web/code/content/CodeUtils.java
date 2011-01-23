@@ -41,7 +41,6 @@ public class CodeUtils {
     public static void appendValue(Page page, ComponentValue cv, Element e2) {
         String v = getFormattedValue(page, cv);
         List content = XmlHelper.getContent(v);
-        System.out.println("content: " + content.size());
         e2.setContent(content);
     }
 
@@ -59,7 +58,6 @@ public class CodeUtils {
             if (v == null) {
                 return "";
             }
-            System.out.println("no def, do tostring");
             return v.toString();
         }
         return def.formatValue(v);
@@ -84,7 +82,6 @@ public class CodeUtils {
         if (def != null) {
             oVal = def.parseValue(cv, page, value);
         }
-        System.out.println("codeutils:saveValue: oVal: " + oVal);
         cv.setValue(oVal);
     }
 

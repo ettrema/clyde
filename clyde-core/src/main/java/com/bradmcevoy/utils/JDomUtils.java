@@ -119,7 +119,7 @@ public class JDomUtils {
             el.addContent( elChild );
             setInnerXml( elChild, val );
         } else {
-            System.out.println( "no val: " + childName );
+
         }
     }
 

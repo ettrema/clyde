@@ -1,7 +1,6 @@
 package com.bradmcevoy.web;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
+import com.bradmcevoy.utils.GroovyUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -281,7 +280,7 @@ public class Template extends Page implements ITemplate {
         map.put("created", newlyCreated);
         map.put("command", this);
         Templatable ct = (Templatable) this.getContainer();
-        exec(ct, map, afterCreateScript);
+        GroovyUtils.exec(ct, map, afterCreateScript);
         log.debug("done execAfterScript");
     }
 
@@ -290,21 +289,11 @@ public class Template extends Page implements ITemplate {
             if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
                 log.trace("onAfterSave: run script");
                 Map map = new HashMap();
-                exec(aThis, map, afterSaveScript);
+                GroovyUtils.exec(aThis, map, afterSaveScript);
             }
         }
     }
 
-    private void exec(Templatable aThis, Map map, String script) {
-        Binding binding = new Binding();
-        IUser user = _(CurrentUserService.class).getOnBehalfOf();
-        binding.setVariable("targetPage", aThis);
-        binding.setVariable("user", user);
-        binding.setVariable("formatter", Formatter.getInstance());
-        GroovyShell shell = new GroovyShell(binding);
-
-        shell.evaluate(script);
-    }
 
     public TextDef addTextDef(String name) {
         TextDef d = new TextDef(this, name);

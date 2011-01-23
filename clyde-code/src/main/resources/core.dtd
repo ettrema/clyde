@@ -35,20 +35,24 @@
     maxAge CDATA #IMPLIED
   >
 
-<!--- Put your DTDDoc comment here. -->
+<!--- Groovy script to be invoked after every save, unless the file is in Trash. Available objects are:
+targetPage - the resource being saved
+user - the current user
+formatter - the standard formatter
+-->
 <!ELEMENT c:afterSaveScript (#PCDATA)>
 
 
-<!--- Put your DTDDoc comment here. -->
+<!--- Attribute values for a templated resource. These should correspond to the fields defined on a template-->
 <!ELEMENT c:attributes (c:email|c:value|c:date)*>
 
-<!--- Put your DTDDoc comment here. -->
+<!--- A date field definition -->
 <!ELEMENT c:date (#PCDATA)>
 <!ATTLIST c:date
     name CDATA #REQUIRED
   >
 
-<!--- Put your DTDDoc comment here. -->
+<!--- An email address value -->
 <!ELEMENT c:email (#PCDATA)>
 <!ATTLIST c:email
     name CDATA #REQUIRED
@@ -58,7 +62,7 @@
     description CDATA #IMPLIED
   >
 
-<!--- Put your DTDDoc comment here. -->
+<!--- An untyped value -->
 <!ELEMENT c:value ANY>
 <!ATTLIST c:value
     name CDATA #REQUIRED
@@ -149,27 +153,37 @@
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy)*>
 
+<!--- The text of a groovy command is a script to execute. Like most commands is executed on a form POST when there is a request
+ variable present with the same name as the command -->
+<!ELEMENT c:groovy (#PCDATA)>
 
-<!ELEMENT c:singleEmail (#PCDATA)>
-<!ATTLIST c:text
-    fromComp CDATA #IMPLIED
-    toGroupExpr CDATA #IMPLIED
-    subjectComp CDATA #IMPLIED
-    replyToComp CDATA #IMPLIED
-    confirmationUrl CDATA #IMPLIED
+<!--- Intended for single email recipients, but the to expression can return a list, but not a group -->
+<!ELEMENT c:singleEmail (c:bodyText|c:bodyHtml|c:from|c:to|c:subject|c:replyTo|c:confirmationUrl)*>
+<!ATTLIST c:singleEmail
+        name CDATA #REQUIRED
   >
 
-<!ELEMENT c:groupEmail (#PCDATA)>
+<!ELEMENT c:groupEmail (c:bodyText|c:bodyHtml|c:from|c:toGroup|c:subject|c:replyTo|c:confirmationUrl)*>
 <!ATTLIST c:groupEmail
-    name CDATA #REQUIRED
-    fromComp CDATA #IMPLIED
-    toGroupExpr CDATA #IMPLIED
-    subjectComp CDATA #IMPLIED
-    replyToComp CDATA #IMPLIED
-    confirmationUrl CDATA #IMPLIED
+        name CDATA #REQUIRED
   >
+
+<!ELEMENT c:bodyText (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:bodyHtml (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:from (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:toGroup (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:to (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:subject (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:replyTo (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:confirmationUrl  (c:const|c:ref|c:mvel|c:velocity) >
+
+<!ELEMENT c:const ANY >
+<!ELEMENT c:ref (#PCDATA) >
+<!ELEMENT c:mvel (#PCDATA) >
+<!ELEMENT c:velocity ANY >
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:text (#PCDATA)>
@@ -206,12 +220,6 @@
     recaptcha CDATA #IMPLIED
   >
   
-<!ELEMENT c:bodyText (#PCDATA)>
-
-<!ELEMENT c:bodyHtml ANY>
-
-<!ELEMENT c:subject (#PCDATA)>
-
 <!ELEMENT c:eval (#PCDATA)>
 <!ATTLIST c:eval
     name CDATA #REQUIRED

@@ -300,7 +300,6 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
 
     public String getRedirect() {
-        System.out.println( "getRedirect: " + subPage.getRedirect() );
         return subPage.getRedirect();
     }
 }

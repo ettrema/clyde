@@ -76,7 +76,6 @@ public class EvalUtils {
         Element el = InitUtils.getChildElement(elParent, name, ns);
         EvaluatableToXml parser;
         if (el == null) {
-            System.out.println("el not found: " + name);
             return new ConstEvaluatable();
         } else {
             Element elChild = null;
@@ -87,17 +86,14 @@ public class EvalUtils {
                 }
             }
             if (elChild == null) {
-                System.out.println("no child found: " + el.toString());
                 return new ConstEvaluatable();
             } else {
                 String n = elChild.getName();
-                System.out.println("el child" + n ) ;
                 parser = parsersByName.get(n);
                 if (parser == null) {
                     throw new RuntimeException("Unsupported evaulatable type: " + n);
                 } else {
                     Evaluatable eval = parser.fromXml(elChild);
-                    System.out.println("created: " + eval);
                     return eval;
                 }
             }
@@ -106,7 +102,6 @@ public class EvalUtils {
 
     public static void setEval(Element elParent, String name, Evaluatable eval, Namespace ns) {
         if (eval == null) {
-            System.out.println("setEval: null");
             return;
         }
         EvaluatableToXml parser = parsersByClass.get(eval.getClass());
@@ -117,7 +112,6 @@ public class EvalUtils {
             }
             throw new RuntimeException("Unsupported evaulablte type: " + eval.getClass());
         } else {
-            System.out.println("seteval: " + eval);
             Element el = new Element(name, ns);
             elParent.addContent(el);
             Element elChild = new Element(parser.getLocalName(), ns);

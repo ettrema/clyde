@@ -26,7 +26,7 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
 
 
     public Object evaluate(RenderContext rc, Addressable from) {
-        BaseResource parent = getPhysicalParent(from.getContainer());
+        Templatable parent = getTemplatable(from);
         return Expression.doCalc((Templatable) from, null, expr, parent);
     }
 
@@ -34,13 +34,13 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private BaseResource getPhysicalParent(Addressable from) {
-        if (from instanceof BaseResource) {
+    private Templatable getTemplatable(Addressable from) {
+        if (from instanceof Templatable) {
             return (BaseResource) from;
         } else if (from == null) {
             return null;
         } else {
-            return getPhysicalParent(from.getContainer());
+            return getTemplatable(from.getContainer());
         }
     }
 

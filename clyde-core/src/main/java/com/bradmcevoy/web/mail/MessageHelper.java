@@ -58,7 +58,6 @@ public class MessageHelper {
         Set<String> set = new HashSet<String>();
         int pos = s.indexOf("cid:");
         while( pos >= 0 ) {
-            System.out.println("found: " + pos);
             int posEnd = s.indexOf("\"", pos+1);
             if( posEnd < 0 ) posEnd = s.indexOf("'", pos+1);
             if( posEnd > 0 ) {

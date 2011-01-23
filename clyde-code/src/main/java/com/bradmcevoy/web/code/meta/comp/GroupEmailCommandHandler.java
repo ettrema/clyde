@@ -4,8 +4,6 @@ import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.GroupEmailCommand2;
-import com.bradmcevoy.xml.XmlHelper;
-import java.util.List;
 import org.jdom.Element;
 
 /**
@@ -48,16 +46,4 @@ public class GroupEmailCommandHandler implements ComponentHandler {
         return g;
     }
 
-    private void setHtml( Element el, String value ) {
-        Element child = new Element( "bodyHtml", DefaultValueHandler.NS_HTML_DEFAULT );
-        List content = XmlHelper.getContent( value );
-        child.setContent( content );
-        el.addContent( child );
-    }
-
-    private void setText( Element el, String text ) {
-        Element child = new Element( "bodyText", DefaultValueHandler.NS_HTML_DEFAULT );
-        child.setText( text );
-        el.addContent( child );
-    }
 }

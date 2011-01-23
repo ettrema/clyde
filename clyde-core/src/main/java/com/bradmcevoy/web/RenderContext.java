@@ -180,6 +180,12 @@ public class RenderContext implements Map<String, Component> {
         }
     }
 
+    /**
+     * Return the actual page identified in the request. This is the page
+     * associated with teh target request context
+     *
+     * @return
+     */
     public Templatable getTargetPage() {
         if( child == null ) {
             return page;

@@ -169,34 +169,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
         return e2;
     }
-//
-//    List formatContentToXmlList( String content ) {
-//        try {
-//            XMLReader reader = XMLReaderFactory.createXMLReader();
-//            try {
-//                reader.setFeature( "http://xml.org/sax/features/dom/create-entity-ref-nodes", true );
-//            } catch( Exception e ) {
-//                e.printStackTrace();
-//            }
-//            try {
-//                reader.setFeature( "http://apache.org/xml/features/dom/create-entity-ref-nodes", true );
-//            } catch( Exception e ) {
-//                e.printStackTrace();
-//            }
-//            System.out.println( "using reader: " + reader.getClass() );
-////            reader.setEntityResolver( new MyEntityResolver());
-//            ContentParsingSaxHandler hnd = new ContentParsingSaxHandler();
-//            reader.setContentHandler( hnd );
-//            String xml = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE root PUBLIC '-//MyDT//DTD MYDTD-XML//MYDTD' 'xhtml-lat1.ent'><root>" + content + "</root>";
-//            reader.parse( new InputSource( new ByteArrayInputStream( xml.getBytes() ) ) );
-//            return hnd.getContent();
-//        } catch( IOException ex ) {
-//            throw new RuntimeException( ex );
-//        } catch( SAXException ex ) {
-//            throw new RuntimeException( ex );
-//        }
-//
-//    }
+
 
     @Override
     public String toString() {
@@ -384,12 +357,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
 
         public InputSource getExternalSubset(String name, String baseURI) throws SAXException, IOException {
-            System.out.println("getExternalSubset: " + name);
+//            System.out.println("getExternalSubset: " + name);
             return null;
         }
 
         public InputSource resolveEntity(String name, String publicId, String baseURI, String systemId) throws SAXException, IOException {
-            System.out.println("resolveEntity: name: " + name + " publicid: " + publicId + " - " + systemId);
+//            System.out.println("resolveEntity: name: " + name + " publicid: " + publicId + " - " + systemId);
             //return new InputSource( new ByteArrayInputStream( "".getBytes()));
             return null;
         }

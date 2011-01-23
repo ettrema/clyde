@@ -56,7 +56,6 @@ public class EditPage implements PostableResource, DigestResource {
         if( template == null ) {
             log.debug( "-- no template. using default" );
             String sTemplate = FileUtils.readResource( this.getClass(), "defaultEdit.vel" );
-            System.out.println( sTemplate );
             VelocityContext vc = new VelocityContext();
             vc.put( "editee", editee );
             vc.put( "targetPage", this );

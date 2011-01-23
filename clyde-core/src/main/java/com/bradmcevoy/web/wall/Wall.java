@@ -21,7 +21,6 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
     private List<WallItem> wallItems;
 
     public void setId( UUID id ) {
-        System.out.println( "------- setId: " + id );
         this.id = id;
     }
 

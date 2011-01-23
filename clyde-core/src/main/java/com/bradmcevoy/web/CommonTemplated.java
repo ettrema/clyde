@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentUtils;
 import com.ettrema.event.ClydeEventDispatcher;
 import com.bradmcevoy.common.Path;
@@ -832,6 +833,20 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return c.render(rc);
     }
 
+    public String execute(String name) throws NotAuthorizedException {
+        Component c = _invoke(name);
+        if (c == null) {
+            return "";
+        } else if (c instanceof Command) {
+            RenderContext rc = new RenderContext(this.getTemplate(), this, null, false);
+            Command cmd = (Command) c;
+            cmd.process(this);
+            return c.render(rc);
+        } else {
+            throw new RuntimeException("Component is not a command");
+        }
+    }
+
     public String getFirstPara() {
         return firstPara("body");
     }
@@ -889,24 +904,27 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         @Override
         public Component get(Object key) {
             if (log.isTraceEnabled()) {
-                log.trace("get: " + key);
+                log.trace("params.get: " + key);
             }
             String sKey = key.toString();
 //            return getAnyComponentRecursive(sKey);
             Component c = getComponent(sKey, true);
             if (c != null) {
+                log.trace("got a component");
                 return c;
             }
             ITemplate template = getTemplate();
             if (template == null) {
+                log.trace("template is null so can't return component");
                 return null;
             }
 
-
-            ComponentDef def = getTemplate().getComponentDef(sKey);
+            ComponentDef def = template.getComponentDef(sKey);
             if (def == null) {
+                log.trace("no component found and no component def on the template: field:" + sKey + " template: " + template.getName());
                 return null;
             }
+            log.trace("creating a new component value");
             ComponentValue cv = def.createComponentValue(CommonTemplated.this);
             getValues().put(sKey, cv);
             return cv;

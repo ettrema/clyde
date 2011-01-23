@@ -8,7 +8,6 @@ import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.security.ForgottenPasswordHelper;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jdom.Namespace;
 

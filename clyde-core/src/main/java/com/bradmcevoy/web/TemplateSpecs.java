@@ -104,7 +104,6 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
         Role editRole = null;
         if( sSpec.contains( "(" ) ) {
             if( sSpec.endsWith( ")" ) ) {
-                System.out.println( "sSpec:" + sSpec );
                 String roles = sSpec.substring( sSpec.indexOf( "(" ) + 1, sSpec.indexOf( ")" ) );
                 sSpec = sSpec.substring( 0, sSpec.indexOf( "(" ) );
                 String[] arrRoles = roles.split( "," );

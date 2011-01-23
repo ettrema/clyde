@@ -2,50 +2,49 @@ package com.bradmcevoy.web.component;
 
 import org.jdom.Namespace;
 import java.util.Arrays;
-import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Group;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.security.UserGroup;
 import com.ettrema.mail.MailServer;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
-import com.bradmcevoy.web.groups.GroupService;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
 import org.jdom.Element;
 
-import static com.ettrema.context.RequestContext._;
-
 /**
- * An email command which sends to a group, rather then a particular user
+ * Intended for sending to single email recipients, but will cope if the expression
+ * evaluates to a list
+ *
+ * The expression must be a string represetion of an email address of a User object,
+ * or a list of either.
  *
  * @author brad
  */
-public final class GroupEmailCommand2 extends Command {
+public final class EmailCommand3 extends Command {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GroupEmailCommand2.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailCommand.class);
     private static final long serialVersionUID = 1L;
     public static final Namespace NS = Namespace.getNamespace("c", "http://clyde.ettrema.com/ns/core");
     private Evaluatable bodyText;
     private Evaluatable bodyHtml;
     private Evaluatable from;
-    private Evaluatable toGroup;
+    private Evaluatable to;
     private Evaluatable subject;
     private Evaluatable replyTo;
     private Evaluatable confirmationUrl;
 
-    public GroupEmailCommand2(Addressable container, String name) {
+    public EmailCommand3(Addressable container, String name) {
         super(container, name);
     }
 
-    public GroupEmailCommand2(Addressable container, Element el) {
+    public EmailCommand3(Addressable container, Element el) {
         super(container, el);
         parseXml(el);
     }
@@ -54,7 +53,7 @@ public final class GroupEmailCommand2 extends Command {
         bodyText = EvalUtils.getEval(el, "bodyText", NS);
         bodyHtml = EvalUtils.getEval(el, "bodyHtml", NS);
         from = EvalUtils.getEval(el, "from", NS);
-        toGroup = EvalUtils.getEval(el, "toGroup", NS);
+        to = EvalUtils.getEval(el, "to", NS);
         subject = EvalUtils.getEval(el, "subject", NS);
         replyTo = EvalUtils.getEval(el, "replyTo", NS);
         confirmationUrl = EvalUtils.getEval(el, "confirmationUrl", NS);
@@ -70,7 +69,7 @@ public final class GroupEmailCommand2 extends Command {
         EvalUtils.setEval(e2, "bodyText", bodyText, NS);
         EvalUtils.setEval(e2, "bodyHtml", bodyHtml, NS);
         EvalUtils.setEval(e2, "from", from, NS);
-        EvalUtils.setEval(e2, "toGroup", toGroup, NS);
+        EvalUtils.setEval(e2, "to", to, NS);
         EvalUtils.setEval(e2, "subject", subject, NS);
         EvalUtils.setEval(e2, "replyTo", replyTo, NS);
         EvalUtils.setEval(e2, "confirmationUrl", confirmationUrl, NS);
@@ -87,9 +86,33 @@ public final class GroupEmailCommand2 extends Command {
         return MailboxAddress.parse(s);
     }
 
-    private List<User> getTo(RenderContext rc) {
-        Group group = getGroup(rc);
-        return group.getMembers();
+    private List<MailboxAddress> getTo(RenderContext rc) {
+        Object o = EvalUtils.eval(to, rc, rc.getTargetPage());
+        List<MailboxAddress> list = new ArrayList<MailboxAddress>();
+        if (o == null) {
+            throw new RuntimeException("Expression returned null, should have returned an email address or list of users");
+        } else if (o instanceof List) {
+            for (Object oRecip : (List) o) {
+                list.add(getAddress(oRecip));
+            }
+        } else {
+            MailboxAddress add = getAddress(o);
+            list.add(add);
+        }
+        return list;
+    }
+
+    private MailboxAddress getAddress(Object o) {
+        if (o instanceof String) {
+            String s = (String) o;
+            MailboxAddress add = MailboxAddress.parse(s);
+            return add;
+        } else if (o instanceof User) {
+            return getAddress((User) o);
+        } else {
+            throw new RuntimeException("Un-supported recipient type: " + o.getClass().getName());
+        }
+
     }
 
     private MailboxAddress getAddress(User user) {
@@ -105,31 +128,6 @@ public final class GroupEmailCommand2 extends Command {
             }
         } else {
             return null;
-        }
-    }
-
-    private Group getGroup(RenderContext rc) {
-        Object o = EvalUtils.eval(toGroup, rc, container);
-        if (o == null) {
-            throw new RuntimeException("Expression returned null, should have returned group or name of group");
-        } else if (o instanceof String) {
-            GroupService groupService = _(GroupService.class);
-            String groupName = (String) o;
-            UserGroup group = groupService.getGroup((Resource) this.getContainer(), groupName);
-            if (group == null) {
-                throw new RuntimeException("Unknown group: " + groupName);
-            }
-            if (group instanceof Group) {
-                Group g = (Group) group;
-                return g;
-            } else {
-                throw new RuntimeException("Group " + groupName + " is not an appropriate type. Is a: " + group.getClass() + " - but must be a: " + Group.class);
-            }
-
-        } else if (o instanceof Group) {
-            return (Group) o;
-        } else {
-            throw new RuntimeException("Un-supported group type: " + o.getClass().getName());
         }
     }
 
@@ -182,10 +180,9 @@ public final class GroupEmailCommand2 extends Command {
 
     public void send(RenderContext rc) throws MessagingException {
         log.debug("send");
-        List<User> recipList = getTo(rc);
+        List<MailboxAddress> recipList = getTo(rc);
         MailServer mailServer = requestContext().get(MailServer.class);
-        for (User user : recipList) {
-            MailboxAddress address = getAddress(user);
+        for (MailboxAddress address : recipList) {
             if (address != null) {
 
                 StandardMessage sm = new StandardMessageImpl();
@@ -197,7 +194,7 @@ public final class GroupEmailCommand2 extends Command {
                 sm.setReplyTo(getReplyTo(rc));
                 mailServer.getMailSender().sendMail(sm);
             } else {
-                log.warn("no external email address for: " + user.getUrl());
+                log.warn("null email address in to list");
             }
         }
     }
