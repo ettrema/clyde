@@ -125,14 +125,6 @@ public class ForgottenPasswordComponent implements Component {
 
     }
 
-    public void setValidationError( String s ) {
-        RequestParams.current().getAttributes().put( name + "_error", s );
-    }
-
-    public String getValidationError() {
-        return (String) RequestParams.current().getAttributes().get( name + "_error" );
-    }
-
     public String getFromAdd() {
         return fromAdd;
     }
