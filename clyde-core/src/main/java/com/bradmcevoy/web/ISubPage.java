@@ -6,6 +6,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.utils.Redirectable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
@@ -40,4 +41,13 @@ public interface ISubPage extends Templatable, Redirectable{
      * @throws BadRequestException
      */
     void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException;
+
+    /**
+     * Called by the wrapped sub page
+     * 
+     * @param aThis
+     * @param in
+     * @param length
+     */
+    void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException;
 }

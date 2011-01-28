@@ -316,8 +316,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      */
     public void deletePhysically() {
-        if (log.isInfoEnabled()) {
-            log.info("physically delete item: " + getHref());
+        if (log.isTraceEnabled()) {
+            log.trace("physically delete item: " + getHref());
         }
         nameNode.delete();
     }

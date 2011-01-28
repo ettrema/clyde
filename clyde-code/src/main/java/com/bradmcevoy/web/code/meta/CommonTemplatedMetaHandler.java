@@ -24,6 +24,7 @@ import com.bradmcevoy.web.code.meta.comp.SubPageHandler;
 import com.bradmcevoy.web.code.meta.comp.TemplateInputHandler;
 import com.bradmcevoy.web.code.meta.comp.TextHandler;
 import com.bradmcevoy.web.code.meta.comp.ValueHandler;
+import com.bradmcevoy.web.code.meta.comp.ViewSubPageHandler;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NameInput;
@@ -63,6 +64,7 @@ public class CommonTemplatedMetaHandler {
         EmailCommandHandler emailCommandHandler = new EmailCommandHandler(commandHandler);
         subPageHandler = new SubPageHandler(this);
         CsvSubPageHandler csvSubPageHandler = new CsvSubPageHandler(subPageHandler);
+        ViewSubPageHandler viewSubPageHandler = new ViewSubPageHandler(subPageHandler);
         ReCaptchaComponentHandler reCaptchaComponentHandler = new ReCaptchaComponentHandler();
         PayPalIpnComponentHandler payPalIpnComponentHandler = new PayPalIpnComponentHandler();
         GroovyCommandHandler groovyCommandHandler = new GroovyCommandHandler();
@@ -78,6 +80,7 @@ public class CommonTemplatedMetaHandler {
         add(templateInputHandler);
         add(groupEmailCommandHandler);
         add(textHandler);
+        add(viewSubPageHandler);
         add(csvSubPageHandler);
         add(subPageHandler);
 
@@ -114,11 +117,12 @@ public class CommonTemplatedMetaHandler {
     }
 
     private void populateComponents(CommonTemplated res, Element el) {
+        log.trace("populateComponents");
         Element e2 = null;
 
         for (Component c : res.getComponents().values()) {
             if (isIgnoredComponent(c)) {
-                // ignore
+                log.trace("ignore component: " + c.getName());
             } else {
                 if (e2 == null) {
                     e2 = new Element("components", CodeMeta.NS);
@@ -127,6 +131,7 @@ public class CommonTemplatedMetaHandler {
                 if (ch == null) {
                     throw new RuntimeException("No component handler for: " + c.getClass());
                 }
+                log.trace("add component: " + c.getName());
                 Element eComp = ch.toXml(c);
                 e2.addContent(eComp);
             }
@@ -245,7 +250,12 @@ public class CommonTemplatedMetaHandler {
                 throw new RuntimeException("Couldnt find component handler for element of type: " + eAtt.getName());
             }
             Component c = h.fromXml(res, eAtt);
-            res.getComponents().add(c);
+            if (c != null) {
+                log.trace("add component: " + c.getName());
+                res.getComponents().add(c);
+            } else {
+                log.warn("got null component from: " + h.getClass());
+            }
         }
     }
 }

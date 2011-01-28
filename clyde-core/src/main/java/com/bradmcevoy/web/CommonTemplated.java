@@ -656,9 +656,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     public void setValue(String name, Object val) {
         ComponentValue cv = valueMap.get(name);
+        ITemplate t = null;
+        ComponentDef def = null;
         if (cv == null) {
-            ITemplate t = this.getTemplate();
-            ComponentDef def = null;
+            t = this.getTemplate();
             if (t != null) {
                 def = t.getComponentDef(name);
             }
@@ -668,6 +669,21 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 cv = new ComponentValue(name, this);
             }
             valueMap.add(cv);
+        }
+        if (val instanceof String) {
+            if (def == null) {
+                if (t == null) {
+                    t = this.getTemplate();
+                    if (t != null) {
+                        def = t.getComponentDef(name);
+                        if( def != null ) {
+                            val = def.parseValue(cv, t, (String)val);
+                        } else {
+                            log.warn("no component def found: " + name + " in template: " + t.getName());
+                        }
+                    }
+                }
+            }
         }
         cv.setValue(val);
     }

@@ -17,6 +17,7 @@ import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
@@ -35,7 +36,7 @@ import java.util.Map;
  * 
  * @author brad
  */
-public class WrappedSubPage extends CommonTemplated implements PostableResource, ISubPage {
+public class WrappedSubPage extends CommonTemplated implements PostableResource, ISubPage, Replaceable {
     private static final long serialVersionUID = 1L;
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( WrappedSubPage.class );
     
@@ -302,4 +303,14 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     public String getRedirect() {
         return subPage.getRedirect();
     }
+
+    public void replaceContent(InputStream in, Long length) throws BadRequestException{
+        subPage.replaceContent(this,in,length);
+    }
+
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+        subPage.replaceContent(this, in, length);
+    }
+
+
 }

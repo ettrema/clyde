@@ -9,21 +9,26 @@ import com.bradmcevoy.web.IUser;
  *
  * @author brad
  */
-public class HttpCurrentUserService implements CurrentUserService{
+public class HttpCurrentUserService implements CurrentUserService {
 
     public IUser getSecurityContextUser() {
         Auth auth = HttpManager.request().getAuthorization();
-        if( auth == null ) return null;
+        if (auth == null) {
+            return null;
+        }
         Object tag = auth.getTag();
-        if( tag instanceof IUser ) {
+        if (tag instanceof IUser) {
             return (IUser) tag;
         } else {
-            throw new RuntimeException( "auth.tag is not a IUser. Is a: " + tag.getClass().getCanonicalName());
+            if (tag == null) {
+                return null;
+            } else {
+                throw new RuntimeException("auth.tag is not a IUser. Is a: " + tag.getClass().getCanonicalName());
+            }
         }
     }
 
     public IUser getOnBehalfOf() {
         return getSecurityContextUser();
     }
-
 }

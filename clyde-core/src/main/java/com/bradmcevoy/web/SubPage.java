@@ -15,6 +15,7 @@ import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
@@ -60,6 +61,19 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         requestedPage.generateContent( out );
     }
+
+    /**
+     * Not supported by default. Only implemented in sub classes
+     *
+     * @param requestedPage
+     * @param in
+     * @param length
+     */
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+        throw new BadRequestException(this);
+    }
+
+
 
 
 
