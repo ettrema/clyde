@@ -7,12 +7,18 @@ package com.bradmcevoy.web.manage.gui;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.manage.logging.JTableLogger;
+import com.ettrema.cache.Cache;
+import com.ettrema.context.RootContext;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.RequestEvent;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import org.jdesktop.application.Action;
 
 /**
  *
@@ -23,14 +29,23 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
     private static ClydeFrame theInstance;
     private final JTableLogger tableLogger;
     private final DefaultTableModel requestModel;
+    private final RootContext rootContext;
+    private List<Cache> caches;
 
     /** Creates new form ClydeFrame */
-    public ClydeFrame( EventManager eventManager ) {
+    public ClydeFrame( RootContext rootContext, EventManager eventManager ) {
+        this.rootContext = rootContext;
         initComponents();
         tableLogger = new JTableLogger( tblLogs );
         this.setVisible( true );
         requestModel = (DefaultTableModel) tblRequests.getModel();
         eventManager.registerEventListener( this, RequestEvent.class );
+        Executors.newScheduledThreadPool( 1 ).scheduleWithFixedDelay( new Runnable() {
+
+            public void run() {
+                updateScreen();
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS );
     }
 
     /** This method is called from within the constructor to
@@ -44,10 +59,13 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
 
         tabMain = new javax.swing.JTabbedPane();
         pnlSummary = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
         scrollLogs = new javax.swing.JScrollPane();
         tblLogs = new javax.swing.JTable();
         scrollRequests = new javax.swing.JScrollPane();
         tblRequests = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblStats = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,15 +73,30 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
 
         pnlSummary.setName("pnlSummary"); // NOI18N
 
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ClydeFrame.class, this);
+        jButton1.setAction(actionMap.get("doShutdown")); // NOI18N
+        jButton1.setText("Shutdown");
+        jButton1.setName("jButton1"); // NOI18N
+
         javax.swing.GroupLayout pnlSummaryLayout = new javax.swing.GroupLayout(pnlSummary);
         pnlSummary.setLayout(pnlSummaryLayout);
         pnlSummaryLayout.setHorizontalGroup(
             pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 395, Short.MAX_VALUE)
+            .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlSummaryLayout.createSequentialGroup()
+                    .addGap(0, 156, Short.MAX_VALUE)
+                    .addComponent(jButton1)
+                    .addGap(0, 156, Short.MAX_VALUE)))
         );
         pnlSummaryLayout.setVerticalGroup(
             pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 275, Short.MAX_VALUE)
+            .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlSummaryLayout.createSequentialGroup()
+                    .addGap(0, 126, Short.MAX_VALUE)
+                    .addComponent(jButton1)
+                    .addGap(0, 126, Short.MAX_VALUE)))
         );
 
         tabMain.addTab("Summary", pnlSummary);
@@ -109,17 +142,38 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
 
         tabMain.addTab("Requests", scrollRequests);
 
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        tblStats.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Name", "Value"
+            }
+        ));
+        tblStats.setName("tblStats"); // NOI18N
+        jScrollPane1.setViewportView(tblStats);
+
+        tabMain.addTab("Stats", jScrollPane1);
+
         getContentPane().add(tabMain, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel pnlSummary;
     private javax.swing.JScrollPane scrollLogs;
     private javax.swing.JScrollPane scrollRequests;
     private javax.swing.JTabbedPane tabMain;
     private javax.swing.JTable tblLogs;
     private javax.swing.JTable tblRequests;
+    private javax.swing.JTable tblStats;
     // End of variables declaration//GEN-END:variables
 
     public JTable getTblLogs() {
@@ -151,4 +205,33 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
             requestModel.fireTableRowsDeleted( 0, 0 );
         }
     }
+
+    private void updateScreen() {
+        if( caches == null ) {
+            return ;
+        }
+        DefaultTableModel model = (DefaultTableModel) tblStats.getModel();
+        model.setRowCount( 0 );
+        for(Cache cache : caches) {
+            model.addRow( new Object[] {cache.getName() + " Hits", cache.getHits()});
+            model.addRow( new Object[] {cache.getName() + " Misses", cache.getMisses()});
+        }
+        model.fireTableDataChanged();
+    }
+
+    public List<Cache> getCaches() {
+        return caches;
+    }
+
+    public void setCaches( List<Cache> caches ) {
+        this.caches = caches;
+    }
+
+    @Action
+    public void doShutdown() {
+        rootContext.shutdown();
+        System.exit( 1 );
+    }
+
+
 }
