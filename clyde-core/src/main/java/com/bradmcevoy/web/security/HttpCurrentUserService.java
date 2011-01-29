@@ -12,6 +12,9 @@ import com.bradmcevoy.web.IUser;
 public class HttpCurrentUserService implements CurrentUserService {
 
     public IUser getSecurityContextUser() {
+        if( HttpManager.request() == null ) {
+            return null;
+        }
         Auth auth = HttpManager.request().getAuthorization();
         if (auth == null) {
             return null;

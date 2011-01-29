@@ -1,9 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * ClydeFrame.java
  *
  * Created on 29/01/2011, 10:20:22 AM
@@ -14,6 +9,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.manage.logging.JTableLogger;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
+import com.ettrema.event.EventManager;
 import com.ettrema.event.RequestEvent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -29,11 +25,12 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
     private final DefaultTableModel requestModel;
 
     /** Creates new form ClydeFrame */
-    public ClydeFrame() {
+    public ClydeFrame( EventManager eventManager ) {
         initComponents();
         tableLogger = new JTableLogger( tblLogs );
         this.setVisible( true );
         requestModel = (DefaultTableModel) tblRequests.getModel();
+        eventManager.registerEventListener( this, RequestEvent.class );
     }
 
     /** This method is called from within the constructor to
@@ -106,6 +103,9 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
         });
         tblRequests.setName("tblRequests"); // NOI18N
         scrollRequests.setViewportView(tblRequests);
+        tblRequests.getColumnModel().getColumn(0).setPreferredWidth(100);
+        tblRequests.getColumnModel().getColumn(1).setPreferredWidth(100);
+        tblRequests.getColumnModel().getColumn(2).setPreferredWidth(100);
 
         tabMain.addTab("Requests", scrollRequests);
 
@@ -137,12 +137,12 @@ public class ClydeFrame extends javax.swing.JFrame implements EventListener {
         Object[] arr = new Object[4];
         arr[0] = request.getMethod();
         arr[1] = request.getHostHeader();
-        arr[2] = request.getAbsolutePath();
         if( request.getAuthorization() != null ) {
-            arr[3] = request.getAuthorization().getUser();
+            arr[2] = request.getAuthorization().getUser();
         } else {
-            arr[3] = "";
+            arr[2] = "";
         }
+        arr[3] = request.getAbsolutePath();
         requestModel.addRow( arr );
         int newRow = requestModel.getRowCount() - 1;
         requestModel.fireTableRowsInserted( newRow, newRow );

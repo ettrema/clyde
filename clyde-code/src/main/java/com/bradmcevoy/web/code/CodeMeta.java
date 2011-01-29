@@ -29,7 +29,7 @@ import org.jdom.output.MyXmlOutputter;
  *
  * @author brad
  */
-public class CodeMeta extends AbstractCodeResource<Resource> implements GetableResource, ReplaceableResource {
+public class CodeMeta extends AbstractCodeResource<Resource> implements GetableResource, ReplaceableResource, DeletableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeMeta.class );
     public static final Namespace NS = Namespace.getNamespace( "c", "http://clyde.ettrema.com/ns/core" );
@@ -127,7 +127,7 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
         }
     }
 
-    private void delete() {
+    public void delete() {
         if( wrapped instanceof DeletableResource ) {
             try {
                 ( (DeletableResource) wrapped ).delete();
