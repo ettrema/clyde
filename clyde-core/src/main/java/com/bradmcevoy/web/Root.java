@@ -1,16 +1,19 @@
 
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.DeleteCommand;
 import com.bradmcevoy.web.component.HtmlDef;
 import com.bradmcevoy.web.component.HtmlInput;
 import com.bradmcevoy.web.component.SaveCommand;
+import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Root extends Template {
+public class Root extends CommonTemplated implements ITemplate {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Root.class);
-    public static final String HTML_TEMPLATE = "$rc.doBody()";
+    public static final String HTML_TEMPLATE = "$rc.docTypeDec\n$rc.doBody()";
     
     private static final long serialVersionUID = 1L;
     
@@ -19,14 +22,23 @@ public class Root extends Template {
     public static synchronized Root getInstance(Folder templates) {
         Root r = cache.get(templates);
         if( r == null ) {
-            r = new Root(templates);
+            r = new Root("root",templates);
             cache.put(templates, r);
         }
         return r;
     }
+
+    private final String name;
+
+    private final ComponentDefMap componentDefs = new ComponentDefMap();
+
+    private final Folder templates;
+
     
-    private Root(Folder templates) {
-        super(templates, "root");
+    private Root(String name, Folder templates) {
+        this.name = name;
+        this.templates = templates;
+
               
         HtmlInput root = new HtmlInput(this, "root");
         root.cols = 80;
@@ -43,4 +55,77 @@ public class Root extends Template {
         HtmlDef body = new HtmlDef(this, "body");
         this.getComponentDefs().add(body);
     }
+
+
+    public Folder createFolderFromTemplate(Folder location, String name) {
+        return new Folder(location, name);
+    }
+
+    public BaseResource createPageFromTemplate(Folder location, String name, InputStream in, Long length) {
+        BaseResource res = createPageFromTemplate(location, name);
+        res.save();
+        res.setContent(in);
+        return res;
+    }
+
+    public BaseResource createPageFromTemplate(Folder location, String name) {
+        return new Page(location, name);
+    }
+
+    @Override
+    public ComponentDefMap getComponentDefs() {
+        return componentDefs;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public CommonTemplated getParent() {
+        return templates;
+    }
+
+    @Override
+    public String getDefaultContentType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getUniqueId() {
+        return null;
+    }
+
+    public String getRealm() {
+        return templates.getRealm();
+    }
+
+    public Date getModifiedDate() {
+        return null;
+    }
+
+    public Date getCreateDate() {
+        return null;
+    }
+
+    public ComponentDef getComponentDef(String name) {
+        return componentDefs.get(name);
+    }
+
+    public boolean represents(String type) {
+        return false;
+    }
+
+    public boolean canCreateFolder() {
+        return true;
+    }
+
+    public void onAfterSave(BaseResource aThis) {
+
+    }
+
+    public DocType getDocType() {
+        return null;
+    }
+
 }

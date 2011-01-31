@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.utils.GroovyUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.component.Addressable;
@@ -25,6 +26,7 @@ public class Template extends Page implements ITemplate {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Template.class);
     private static final long serialVersionUID = 1L;
+    private DocType docType;
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
     private String afterCreateScript;
@@ -62,6 +64,8 @@ public class Template extends Page implements ITemplate {
             afterSaveScript = elScript.getText();
             log.trace("loadFromXml: afterSaveScript: " + afterSaveScript);
         }
+        String dt = InitUtils.getValue(el, "docType");
+        docType = dt == null ? null : DocType.valueOf(dt);
 
     }
 
@@ -81,6 +85,8 @@ public class Template extends Page implements ITemplate {
             e2.addContent(elScript);
             log.trace("populateXml: afterSaveScript: " + afterSaveScript);
         }
+        String dt = getDocType() == null ? null : getDocType().name();
+        InitUtils.set(e2, "docType", dt);
 
     }
 
@@ -333,5 +339,13 @@ public class Template extends Page implements ITemplate {
 
     public void setAfterSaveScript(String afterSaveScript) {
         this.afterSaveScript = afterSaveScript;
+    }
+
+    public DocType getDocType() {
+        return docType;
+    }
+
+    public void setDocType(DocType docType) {
+        this.docType = docType;
     }
 }

@@ -259,7 +259,7 @@ public class WrappedTemplate implements ITemplate {
         physicalTemplate.onAfterSave( aThis );
     }
 
-
-
-
+    public DocType getDocType() {
+        return physicalTemplate.getDocType();
+    }
 }

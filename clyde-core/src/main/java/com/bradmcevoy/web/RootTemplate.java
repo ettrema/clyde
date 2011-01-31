@@ -1,8 +1,12 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.HtmlDef;
-import com.bradmcevoy.web.component.TemplateSelect;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This template is pretty bogus. Go with root instead
@@ -11,7 +15,7 @@ import com.bradmcevoy.web.component.TemplateSelect;
  * @deprecated
  */
 @Deprecated
-public class RootTemplate extends Template {
+public final class RootTemplate extends CommonTemplated implements ITemplate {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( RootTemplate.class );
     public static final String HTML_TEMPLATE = ""
@@ -30,12 +34,27 @@ public class RootTemplate extends Template {
         + "</html>";
     private static final long serialVersionUID = 1L;
 
-    public RootTemplate( Folder templates ) {
-        super( templates, "rootTemplate.html" );
-        TemplateSelect sel = new TemplateSelect( this, "template" );
-        this.getComponents().add( sel );
-        sel.setValue( "root" );
+    private static final Map<Folder,RootTemplate> cache = new HashMap<Folder,RootTemplate>();
 
+    public static synchronized RootTemplate getInstance(Folder templates) {
+        RootTemplate r = cache.get(templates);
+        if( r == null ) {
+            r = new RootTemplate("rootTemplate.html",templates);
+            cache.put(templates, r);
+        }
+        return r;
+    }
+
+
+    private final String name;
+
+    private final ComponentDefMap componentDefs = new ComponentDefMap();
+
+    private final Folder templates;
+
+    private RootTemplate( String name, Folder templates ) {
+        this.name = name;
+        this.templates = templates;
         ComponentValue cv = new ComponentValue( "body", this );
         cv.init( this );
         cv.setValue( HTML_TEMPLATE );
@@ -48,4 +67,76 @@ public class RootTemplate extends Template {
         body.getCols().setValue( 80 );
         this.getComponentDefs().add( body );
     }
+
+    public Folder createFolderFromTemplate(Folder location, String name) {
+        return new Folder(location, name);
+    }
+
+    public BaseResource createPageFromTemplate(Folder location, String name, InputStream in, Long length) {
+        BaseResource res = createPageFromTemplate(location, name);
+        res.save();
+        res.setContent(in);
+        return res;
+    }
+
+    public BaseResource createPageFromTemplate(Folder location, String name) {
+        return new Page(location, name);
+    }
+
+    @Override
+    public ComponentDefMap getComponentDefs() {
+        return componentDefs;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public CommonTemplated getParent() {
+        return templates;
+    }
+
+    @Override
+    public String getDefaultContentType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getUniqueId() {
+        return null;
+    }
+
+    public String getRealm() {
+        return templates.getRealm();
+    }
+
+    public Date getModifiedDate() {
+        return null;
+    }
+
+    public Date getCreateDate() {
+        return null;
+    }
+
+    public ComponentDef getComponentDef(String name) {
+        return componentDefs.get(name);
+    }
+
+    public boolean represents(String type) {
+        return false;
+    }
+
+    public boolean canCreateFolder() {
+        return true;
+    }
+
+    public void onAfterSave(BaseResource aThis) {
+        
+    }
+
+    public DocType getDocType() {
+        return null;
+    }
+
 }

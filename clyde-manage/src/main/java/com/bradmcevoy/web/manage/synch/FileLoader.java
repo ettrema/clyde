@@ -1,5 +1,8 @@
 package com.bradmcevoy.web.manage.synch;
 
+import com.bradmcevoy.common.ContentTypeUtils;
+import com.bradmcevoy.http.http11.PutHelper;
+import com.bradmcevoy.http.ReplaceableResource;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.MakeCollectionableResource;
@@ -8,7 +11,6 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.Replaceable;
 import com.bradmcevoy.web.code.CodeResourceFactory;
 import com.ettrema.vfs.VfsSession;
 import java.io.File;
@@ -25,56 +27,60 @@ import static com.ettrema.context.RequestContext._;
  */
 public class FileLoader {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FileLoader.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileLoader.class);
     private String hostName = "test.ppod.com";  // todo: fix config to use localhost
     //private String hostName = "127.0.0.1";
     private final File root;
     private final CodeResourceFactory resourceFactory;
     private final ErrorReporter errorReporter;
+    private final PutHelper putHelper = new PutHelper();
 
-    public FileLoader( File root, CodeResourceFactory resourceFactory, ErrorReporter errorReporter ) {
+    public FileLoader(File root, CodeResourceFactory resourceFactory, ErrorReporter errorReporter) {
         this.root = root;
         this.resourceFactory = resourceFactory;
         this.errorReporter = errorReporter;
     }
 
-    public void onNewFile( File f ) {
+    public void onNewFile(File f) {
         try {
-            upload( f );
-            _( VfsSession.class ).commit();
-        } catch( Exception ex ) {
-            _( VfsSession.class ).rollback();
-            errorReporter.onError( f, ex );
+            upload(f);
+            log.trace("commit new file");
+            _(VfsSession.class).commit();
+        } catch (Exception ex) {
+            _(VfsSession.class).rollback();
+            errorReporter.onError(f, ex);
         }
     }
 
-    public void onDeleted( File f ) {
+    public void onDeleted(File f) {
         try {
-            delete( f );
-            _( VfsSession.class ).commit();
-        } catch( Exception ex ) {
-            _( VfsSession.class ).rollback();
-            errorReporter.onError( f, ex );
+            delete(f);
+            log.trace("commit deleted file");
+            _(VfsSession.class).commit();
+        } catch (Exception ex) {
+            _(VfsSession.class).rollback();
+            errorReporter.onError(f, ex);
         }
     }
 
-    public void onModified( File f ) {
+    public void onModified(File f) {
         try {
-            upload( f );
-            _( VfsSession.class ).commit();
-        } catch( Exception ex ) {
-            _( VfsSession.class ).rollback();
-            errorReporter.onError( f, ex );
+            upload(f);
+            log.trace("commit modified file");
+            _(VfsSession.class).commit();
+        } catch (Exception ex) {
+            _(VfsSession.class).rollback();
+            errorReporter.onError(f, ex);
         }
 
     }
 
-    public void onRenamed( File f ) {
+    public void onRenamed(File f) {
     }
 
-    public boolean exists( File f ) {
-        f = toMetaFile( f );
-        Resource r = resourceFactory.getResource( hostName, toUrl( f ) );
+    public boolean exists(File f) {
+        f = toMetaFile(f);
+        Resource r = resourceFactory.getResource(hostName, toUrl(f));
         return r != null;
     }
 
@@ -82,7 +88,7 @@ public class FileLoader {
         return hostName;
     }
 
-    public void setHostName( String hostName ) {
+    public void setHostName(String hostName) {
         this.hostName = hostName;
     }
 
@@ -90,30 +96,30 @@ public class FileLoader {
         return resourceFactory;
     }
 
-    private File toContentFile( File f ) {
-        if( f.getName().endsWith( ".meta.xml" ) ) {
-            String contentName = f.getName().replace( ".meta.xml", "" );
-            return new File( f.getParentFile(), contentName );
+    private File toContentFile(File f) {
+        if (f.getName().endsWith(".meta.xml")) {
+            String contentName = f.getName().replace(".meta.xml", "");
+            return new File(f.getParentFile(), contentName);
         } else {
             return f;
         }
     }
 
-    private File toMetaFile( File f ) {
-        if( f.getName().endsWith( ".meta.xml" ) ) {
+    private File toMetaFile(File f) {
+        if (f.getName().endsWith(".meta.xml")) {
             return f;
         } else {
             String metaName = f.getName() + ".meta.xml";
-            return new File( f.getParentFile(), metaName );
+            return new File(f.getParentFile(), metaName);
 
         }
     }
 
-    private String toUrl( File f ) {
+    private String toUrl(File f) {
         String s = f.getAbsolutePath();
-        if( s.startsWith( root.getAbsolutePath() ) ) {
-            s = s.replace( root.getAbsolutePath(), "" );
-            s = s.replace( "\\", "/" );
+        if (s.startsWith(root.getAbsolutePath())) {
+            s = s.replace(root.getAbsolutePath(), "");
+            s = s.replace("\\", "/");
             s = "/_code" + s;
             return s;
         } else {
@@ -121,16 +127,16 @@ public class FileLoader {
         }
     }
 
-    private void upload( File f ) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        log.trace( "upload: " + f.getAbsolutePath() );
-        File fMeta = toMetaFile( f );
-        if( fMeta.exists() ) {
-            put( fMeta );
+    private void upload(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+        log.trace("upload: " + f.getAbsolutePath());
+        File fMeta = toMetaFile(f);
+        if (fMeta.exists()) {
+            put(fMeta);
         }
-        File fContent = toContentFile( f );
-        if( fContent.exists() ) {
-            if( fContent.isFile() ) {
-                put( fContent );
+        File fContent = toContentFile(f);
+        if (fContent.exists()) {
+            if (fContent.isFile()) {
+                put(fContent);
             }
         }
 
@@ -141,78 +147,86 @@ public class FileLoader {
      * No name transformations
      * @param f
      */
-    private void put( File f ) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        CollectionResource colParent = findCollection( f.getParentFile() );
-        Resource rExisting = colParent.child( f.getName() );
+    private void put(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+        log.trace("put: " + f.getAbsolutePath());
+        CollectionResource colParent = findCollection(f.getParentFile());
+        Resource rExisting = colParent.child(f.getName());
         FileInputStream fin = null;
-        if( rExisting instanceof Replaceable ) {
-            Replaceable replaceable = (Replaceable) rExisting;
+        if (rExisting instanceof ReplaceableResource) {
+            log.trace("replace content");
+            ReplaceableResource replaceable = (ReplaceableResource) rExisting;
             try {
-                fin = new FileInputStream( f );
-                replaceable.replaceContent( fin, f.length() );
-            } catch( FileNotFoundException ex ) {
-                throw new RuntimeException( ex );
+                fin = new FileInputStream(f);
+                replaceable.replaceContent(fin, f.length());
+            } catch (FileNotFoundException ex) {
+                throw new RuntimeException(ex);
             } finally {
-                IOUtils.closeQuietly( fin );
+                IOUtils.closeQuietly(fin);
             }
         } else {
-            if( colParent instanceof PutableResource ) {
+            if (rExisting != null) {
+                log.trace("resource found, but is not replaceable. create new resource: " + rExisting.getClass());
+            } else {
+                log.trace("no resource found, create new resource");
+            }
+            if (colParent instanceof PutableResource) {
                 PutableResource putable = (PutableResource) colParent;
                 try {
-                    fin = new FileInputStream( f );
-                    putable.createNew( f.getName(), fin, f.length(), null );
-                } catch( FileNotFoundException ex ) {
-                    throw new RuntimeException( ex );
+                    fin = new FileInputStream(f);
+                    String ct = ContentTypeUtils.findContentTypes(f);
+                    putable.createNew(f.getName(), fin, f.length(), ct);
+                } catch (FileNotFoundException ex) {
+                    throw new RuntimeException(ex);
                 } finally {
-                    IOUtils.closeQuietly( fin );
+                    IOUtils.closeQuietly(fin);
                 }
-
+            } else {
+                throw new RuntimeException("Can't upload, parent folder doesnt support PUT: " + colParent.getName() + " - " + colParent.getClass());
             }
         }
     }
 
-    private CollectionResource findCollection( File f ) throws NotAuthorizedException, ConflictException, BadRequestException {
-        log.trace( "findCollection: " + f.getAbsolutePath() );
-        String url = toUrl( f );
-        if( url == null ) {
+    private CollectionResource findCollection(File f) throws NotAuthorizedException, ConflictException, BadRequestException {
+        String url = toUrl(f);
+        if (url == null) {
             return null;
         }
-        Resource r = resourceFactory.getResource( hostName, url );
+        Resource r = resourceFactory.getResource(hostName, url);
         CollectionResource col;
-        if( r == null ) {
-            log.trace( "not found: " + url );
-            Resource rParent = findCollection( f.getParentFile() );
-            if( rParent == null ) {
-                throw new RuntimeException( "Couldnt get parent: " + f.getAbsolutePath() );
-            } else if( rParent instanceof MakeCollectionableResource ) {
+        if (r == null) {
+            log.trace("not found: " + url);
+            Resource rParent = findCollection(f.getParentFile());
+            if (rParent == null) {
+                throw new RuntimeException("Couldnt get parent: " + f.getAbsolutePath());
+            } else if (rParent instanceof MakeCollectionableResource) {
                 MakeCollectionableResource mkcol = (MakeCollectionableResource) rParent;
-                col = mkcol.createCollection( f.getName() );
+                col = mkcol.createCollection(f.getName());
                 return col;
             } else {
-                throw new RuntimeException( "Cant create " + f.getAbsolutePath() + " parent doesnt support MKCOL" );
+                throw new RuntimeException("Cant create " + f.getAbsolutePath() + " parent doesnt support MKCOL");
             }
         } else {
-            if( r instanceof CollectionResource ) {
+            if (r instanceof CollectionResource) {
                 return (CollectionResource) r;
             } else {
-                throw new RuntimeException( "Found resource but its not a collection: " + f.getAbsolutePath() );
+                throw new RuntimeException("Found resource but its not a collection: " + f.getAbsolutePath());
             }
         }
 
 
     }
 
-    private void delete( File f ) throws NotAuthorizedException, ConflictException, BadRequestException {
-        log.trace( "delete: " + f.getAbsolutePath() );
-        File fMeta = toMetaFile( f );
-        Resource r = resourceFactory.getResource( hostName, toUrl( fMeta ) );
-        if( r == null ) {
-            log.trace( "not found to delete" );
-        } else if( r instanceof DeletableResource ) {
+    private void delete(File f) throws NotAuthorizedException, ConflictException, BadRequestException {
+        log.trace("delete: " + f.getAbsolutePath());
+        File fMeta = toMetaFile(f);
+        Resource r = resourceFactory.getResource(hostName, toUrl(fMeta));
+        if (r == null) {
+            log.trace("not found to delete");
+        } else if (r instanceof DeletableResource) {
             DeletableResource dr = (DeletableResource) r;
             dr.delete();
         } else {
-            throw new RuntimeException( "Cannot delete " + f.getAbsolutePath() + " is a : " + r.getClass() );
+            throw new RuntimeException("Cannot delete " + f.getAbsolutePath() + " is a : " + r.getClass());
         }
 
     }

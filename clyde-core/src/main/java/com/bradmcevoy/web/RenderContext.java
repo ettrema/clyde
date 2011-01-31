@@ -93,6 +93,36 @@ public class RenderContext implements Map<String, Component> {
         return template;
     }
 
+    public String getDocTypeDec() {
+        if( child == null || child.page == null ) {
+            return "";
+        }
+        ITemplate.DocType dt;
+        if( child.page instanceof ITemplate ) {
+            Template t = (Template) child.page;
+            dt = t.getDocType();
+        } else {
+            return "";
+        }
+
+        if( dt == null ) {
+            return "";
+        }
+        switch( dt ) {
+            case STRICT:
+                return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">";
+            case TRANSITIIONAL:
+                return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">";
+            case XSTRICT:
+                return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
+            case XTRANSITIONAL:
+                return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+            default:
+                throw new RuntimeException("Unsupported doc type");                        
+        }
+
+    }
+
     public String getTemplateHost() {
         return template.getHost().getName();
     }

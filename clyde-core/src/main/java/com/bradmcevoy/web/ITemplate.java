@@ -9,6 +9,13 @@ import java.io.InputStream;
  */
 public interface ITemplate extends Templatable{
 
+    public enum DocType {
+        STRICT,
+        TRANSITIIONAL,
+        XSTRICT,
+        XTRANSITIONAL
+    }
+
     Folder createFolderFromTemplate( Folder location, String name );
 
     BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length );
@@ -63,6 +70,13 @@ public interface ITemplate extends Templatable{
      * @param aThis
      */
     void onAfterSave( BaseResource aThis );
+
+    /**
+     * The type of HTML document this will produce
+     *
+     * @return
+     */
+    public DocType getDocType();
 
 
 }

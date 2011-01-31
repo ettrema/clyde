@@ -351,7 +351,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public class MyEntityResolver implements EntityResolver2 {
 
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            System.out.println("resolveEntity: " + publicId + " - " + systemId);
+//            System.out.println("resolveEntity: " + publicId + " - " + systemId);
 //            return new InputSource( new ByteArrayInputStream( "".getBytes()));
             return null;
         }

@@ -84,7 +84,6 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
         }
         List<? extends Resource> list = thisFolder.getWeb().getTemplates().getChildren();
         List<Template> list2 = new ArrayList<Template>();
-        list2.add( new RootTemplate( templatesFolder ) );
         for( Resource r : list ) {
             if( r instanceof Template ) {
                 list2.add( (Template) r );

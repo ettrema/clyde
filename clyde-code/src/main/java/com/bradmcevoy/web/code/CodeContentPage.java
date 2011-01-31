@@ -66,6 +66,8 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
         if( cth != null ) {
             cth.replaceContent( in, l, wrapped );
             CodeUtils.commit();
+        } else {
+            log.warn("Couldnt get a content type handler!!! " + wrapped.getClass());
         }
     }
 

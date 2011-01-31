@@ -7,7 +7,6 @@ import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.Template;
 import com.bradmcevoy.web.code.ContentTypeHandler;
 import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,6 +61,7 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
         }
 
         if( "root".equals( template.getTemplateName() ) ) {
+            log.trace("has a root template, so use entire content as the body parameter");
             // parse the doc, and use the entire root element (inclusive) as content
             // of the body param
             XmlUtils2 xmlUtils2 = new XmlUtils2();
@@ -76,6 +76,7 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
             CodeUtils.saveValue( template, "body", content );
             template.save();
         } else {
+            log.trace("parent is not root, so parse content for body and title");
             pageContentTypeHandler.replaceContent( in, contentLength, wrapped );
         }
     }

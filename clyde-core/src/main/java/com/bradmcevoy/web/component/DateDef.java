@@ -99,7 +99,7 @@ public class DateDef extends TextDef {
             + "inputField     :    '${path}',   // id of the input field\n"
             + "ifFormat       :    '%d/%m/%Y %H:%M',       // format of the input field\n"
             + "showsTime      :    ${def.showTime},\n"
-            + "timeFormat     :    '24',\n"
+            + "timeFormat     :    '24'"
             + "});"
             + "</script>\n";
         template = template + "#if($cv.validationMessage)";

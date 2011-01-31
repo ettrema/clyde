@@ -55,20 +55,10 @@ public final class CodeResourceFactory implements ResourceFactory {
 
     public Resource getResource(String host, String path) {
         Resource r = find(host, path);
-        if (log.isTraceEnabled()) {
-            if (r == null) {
-                log.trace("not found: " + path);
-            } else {
-                log.trace("found: " + r.getClass() + " at: " + path);
-            }
-        }
         return r;
     }
 
     private Resource find(String host, String path) {
-        if (log.isTraceEnabled()) {
-            log.trace("getResource: " + path);
-        }
         Path p = Path.path(path);
         String first = p.getFirst();
         if (root.equals(first)) {
