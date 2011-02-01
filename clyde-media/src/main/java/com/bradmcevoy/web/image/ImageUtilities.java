@@ -77,7 +77,6 @@ public class ImageUtilities {
      */
     public static BufferedImage getScaleImage(BufferedImage source,double xscale, double yscale) {
         //assert(source != null && width > 0 && height > 0);
-        System.out.println("scaling: " + xscale + " - " + yscale);
         return getScaleImage(source,(int)(source.getWidth() * xscale), (int)(source.getHeight() * yscale));
     }
     
@@ -149,7 +148,6 @@ public class ImageUtilities {
             String format = name.substring(name.lastIndexOf('.')+1).toLowerCase();
             write(image,fileOutputStream,format);
         } catch (IOException ex) {
-            System.out.println("throwing exception");
             throw new UnrecoverableException(ex);
         } finally {
             if( fileOutputStream != null ) {
@@ -167,7 +165,6 @@ public class ImageUtilities {
             BufferedOutputStream buffOut = new BufferedOutputStream(out);            
             ImageIO.write(image, format, buffOut);
         } catch (IOException ex) {
-            System.out.println("throwing exception");
             throw new UnrecoverableException(ex);
         }
     }    

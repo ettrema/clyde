@@ -701,27 +701,38 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         this.templateSpecs = TemplateSpecs.parse(s);
     }
 
+    public List<String> getAllowedTemplateNames() {
+        List<Template> templates = getAllowedTemplates();
+        List<String> names = new ArrayList<String>();
+        if( templates != null ) {
+            for(Template t : templates) {
+                names.add(t.getName());
+            }
+        }
+        return names;
+    }
+
     public List<Template> getAllowedTemplates() {
-        log.debug("getAllowedTemplates");
+        log.debug("getAllowedTemplates: " + this.getName());
         if (templateSpecs == null || templateSpecs.size() == 0) {
-            log.debug("..looking for component");
             Component c = this.getComponent("allowedTemplates");
             if (c != null) {
                 if (c instanceof Text) {
+                    log.trace("templates defined by template");
                     Text t = (Text) c;
                     String s = t.getValue();
-                    log.debug("..got from component: " + s);
+                    log.trace("got from template: " + s);
                     TemplateSpecs specs = TemplateSpecs.parse(s);
                     List<Template> list = specs.findAllowedDirect(this);
+                    log.trace("allowed template size: " + list.size());
                     return list;
                 } else {
                     log.warn("not a compatible component: " + c.getClass());
                 }
-            } else {
-                log.debug("..no component");
             }
             return getParent().getAllowedTemplates();
         } else {
+            log.trace("templates defined directly on this instance");
             return templateSpecs.findAllowed(this);
         }
     }

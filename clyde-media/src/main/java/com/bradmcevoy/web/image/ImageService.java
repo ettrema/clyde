@@ -192,7 +192,7 @@ public class ImageService {
         h = img.getHeight();
 
         do {
-            System.out.println( "loop: " + w + " - " + h + " target:" + targetWidth + " - " + targetHeight );
+            //System.out.println( "loop: " + w + " - " + h + " target:" + targetWidth + " - " + targetHeight );
             if( w > targetWidth ) {
                 w /= 2;
                 if( w < targetWidth ) {
@@ -318,7 +318,6 @@ public class ImageService {
             String format = name.substring( name.lastIndexOf( '.' ) + 1 ).toLowerCase();
             write( image, fileOutputStream, format );
         } catch( IOException ex ) {
-            System.out.println( "throwing exception" );
             throw new UnrecoverableException( ex );
         } finally {
             if( fileOutputStream != null ) {

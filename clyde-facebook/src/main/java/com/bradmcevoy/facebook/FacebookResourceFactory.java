@@ -96,8 +96,6 @@ public class FacebookResourceFactory implements ResourceFactory {
             String pair = pairs[i];
             if( !( pair.contains( "sig=" ) ) ) {
                 payload.append( pair );
-            } else {
-                System.out.println( "sig: " + pair );
             }
             String[] nv = pair.split( "=" );
             map.put( nv[0], nv[1] );

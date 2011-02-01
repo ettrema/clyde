@@ -39,4 +39,9 @@ public final class JTableLogger implements com.ettrema.logging.NotifyingAppender
         table.scrollRectToVisible( rect );
 
     }
+
+    public void clearAll() {
+        model.setRowCount(0);
+        model.fireTableDataChanged();
+    }
 }
