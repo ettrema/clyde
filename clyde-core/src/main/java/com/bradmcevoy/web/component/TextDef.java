@@ -196,8 +196,9 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     protected String editChildTemplate() {
         String template = "";
+        String reqClass = required ? "class='required'" : "";
         if( choices != null && choices.size() > 0 ) {
-            StringBuilder sb = new StringBuilder( "<select id='${path}' name='${path}' >" );
+            StringBuilder sb = new StringBuilder( "<select id='${path}' name='${path}' " + reqClass + " >" );
             sb.append( "#foreach($choice in $def.choices)" );
             sb.append( "<option #if($value==$choice)selected #end>$choice</option>" );
             sb.append( "#end" );
@@ -205,9 +206,9 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
             template = sb.toString();
         } else {
             if( rows == null || rows.getValue() == null || rows.getValue() == 1 ) {
-                template = "<input type='text' name='${path}' value=\"${val.formattedValue}\" size='${def.cols}' id='${path}' />";
+                template = "<input type='text' name='${path}' " + reqClass + " value=\"${val.formattedValue}\" size='${def.cols}' id='${path}' />";
             } else {
-                template = "<textarea id='${path}' name='${path}' rows='${def.rows}' cols='${def.cols}'>${val.formattedValue}</textarea>";
+                template = "<textarea id='${path}' name='${path}' " + reqClass + " rows='${def.rows}' cols='${def.cols}'>${val.formattedValue}</textarea>";
                 //template = "<div id='${path}' class='editDiv' onclick='enableEdit(this)'>${value}</div>";
             }
         }
@@ -347,6 +348,10 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
         public Object getDef() {
             return TextDef.this;
+        }
+
+        public boolean isRequired() {
+            return TextDef.this.required;
         }
 
         public String getChecked() {

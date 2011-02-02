@@ -576,7 +576,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 //            log.debug( "render: no template, so try to use root parameter" );
             Component cRoot = this.getParams().get("root");
             if (cRoot == null) {
-                log.warn("render: no template " + this.getTemplateName() + " and no root component for template: " + this.getHref());
+                log.warn("render: no template " + this.getTemplateName() + " and no root or body component for template: " + this.getHref());
                 return "";
             } else {
 //                log.debug( "render: rendering from root component");
@@ -676,8 +676,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                     t = this.getTemplate();
                     if (t != null) {
                         def = t.getComponentDef(name);
-                        if( def != null ) {
-                            val = def.parseValue(cv, t, (String)val);
+                        if (def != null) {
+                            val = def.parseValue(cv, t, (String) val);
                         } else {
                             log.warn("no component def found: " + name + " in template: " + t.getName());
                         }

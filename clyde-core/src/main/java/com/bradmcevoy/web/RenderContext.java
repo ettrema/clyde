@@ -99,7 +99,7 @@ public class RenderContext implements Map<String, Component> {
         }
         ITemplate.DocType dt;
         if( child.page instanceof ITemplate ) {
-            Template t = (Template) child.page;
+            ITemplate t = (ITemplate) child.page;
             dt = t.getDocType();
         } else {
             return "";

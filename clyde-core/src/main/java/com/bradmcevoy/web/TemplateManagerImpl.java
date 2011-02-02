@@ -21,39 +21,37 @@ public class TemplateManagerImpl implements TemplateManager {
         if (templateName.equals("root")) {
             return Root.getInstance(templates);
         }
-        if (templateName.equals("rootTemplate.html")) {           
-            return RootTemplate.getInstance(templates);
-        } else {
-            Template template = null;
-            BaseResource res = templates.childRes(templateName);  // note: do not call .child(..) here since that will check for components, and possibly result in infinite loop
-            if (res != null && !(res instanceof Template)) {
-                log.warn("not a Template: " + res.getPath() + " is a: " + res.getClass() + " ---------");
-                return null;
-            }
-            template = (Template) res;
-            if (template == null) {
-                log.debug("..not found1");
-                Web parentWeb = web.getParentWeb();
-                if (parentWeb != null && parentWeb != web) {
-                    ITemplate t = lookup(templateName, parentWeb);
-                    if (t != null) {
-                        log.debug("got wrapped template");
-                        return new WrappedTemplate(t, web);
-                    } else {
-                        log.debug("..not found3");
-                        return null;
-                    }
+
+        Template template = null;
+        BaseResource res = templates.childRes(templateName);  // note: do not call .child(..) here since that will check for components, and possibly result in infinite loop
+        if (res != null && !(res instanceof Template)) {
+            log.warn("not a Template: " + res.getPath() + " is a: " + res.getClass() + " ---------");
+            return null;
+        }
+        template = (Template) res;
+        if (template == null) {
+            log.debug("..not found1");
+            Web parentWeb = web.getParentWeb();
+            if (parentWeb != null && parentWeb != web) {
+                ITemplate t = lookup(templateName, parentWeb);
+                if (t != null) {
+                    log.debug("got wrapped template");
+                    return new WrappedTemplate(t, web);
                 } else {
-                    log.debug("..not found4");
+                    log.debug("..not found3");
                     return null;
                 }
             } else {
-                if (template.getWeb() != web) {
-                    return new WrappedTemplate(template, web);
-                } else {
-                    return template;
-                }
+                log.debug("..not found4");
+                return null;
+            }
+        } else {
+            if (template.getWeb() != web) {
+                return new WrappedTemplate(template, web);
+            } else {
+                return template;
             }
         }
+
     }
 }

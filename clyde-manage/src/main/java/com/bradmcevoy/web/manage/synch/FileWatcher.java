@@ -103,12 +103,19 @@ public class FileWatcher implements JNotifyListener {
     }
 
     private void scan( File root ) {
+        // First process files, then directories, for breadth then depth
+        for( File f : root.listFiles() ) {
+            if( !isIgnored( f ) ) {
+                if( f.isFile() ) {
+                    processFile( f );
+                }
+            }
+        }
+
         for( File f : root.listFiles() ) {
             if( !isIgnored( f ) ) {
                 if( f.isDirectory() ) {
                     scan( f );
-                } else {
-                    processFile( f );
                 }
             }
         }

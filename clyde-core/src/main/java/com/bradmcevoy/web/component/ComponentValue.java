@@ -176,7 +176,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         try {
             CommonTemplated ct = (CommonTemplated) this.getContainer();
             if (ct != null) {
-                RenderContext rc = new RenderContext(ct.getTemplate(), ct, null, true);
+                RenderContext rc = new RenderContext(ct.getTemplate(), ct, null, false);
                 String s = this.render(rc);
                 return s;
             } else {
@@ -187,8 +187,25 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             log.error("exception rendering componentvalue: " + this.getName(), e);
             return "ERR: " + this.getName() + ": " + e.getMessage();
         }
-
     }
+
+    public String getEdit() {
+        try {
+            CommonTemplated ct = (CommonTemplated) this.getContainer();
+            if (ct != null) {
+                RenderContext rc = new RenderContext(ct.getTemplate(), ct, null, true);
+                String s = this.renderEdit(rc);
+                return s;
+            } else {
+                Object o = this.getValue();
+                return o == null ? "" : o.toString();
+            }
+        } catch (Exception e) {
+            log.error("exception rendering componentvalue: " + this.getName(), e);
+            return "ERR: " + this.getName() + ": " + e.getMessage();
+        }
+    }
+
 
     @Override
     public String getName() {

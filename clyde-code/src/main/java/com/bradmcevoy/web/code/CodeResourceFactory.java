@@ -7,6 +7,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.code.content.BinaryContentTypeHandler;
+import com.bradmcevoy.web.code.content.CsvPageContentTypeHandler;
 import com.bradmcevoy.web.code.content.PageContentTypeHandler;
 import com.bradmcevoy.web.code.content.TemplateContentTypeHandler;
 import com.bradmcevoy.web.code.content.TextFileContentHandler;
@@ -48,7 +49,8 @@ public final class CodeResourceFactory implements ResourceFactory {
         PageContentTypeHandler pageContentTypeHandler = new PageContentTypeHandler();
         TemplateContentTypeHandler templateContentTypeHandler = new TemplateContentTypeHandler(pageContentTypeHandler);
         TextFileContentHandler textFileContentHandler = new TextFileContentHandler();
-        setContentTypeHandlers(Arrays.asList(templateContentTypeHandler, pageContentTypeHandler, textFileContentHandler, new BinaryContentTypeHandler()));
+        CsvPageContentTypeHandler csvPageContentTypeHandler = new CsvPageContentTypeHandler();
+        setContentTypeHandlers(Arrays.asList(csvPageContentTypeHandler, templateContentTypeHandler, pageContentTypeHandler, textFileContentHandler, new BinaryContentTypeHandler()));
         initMetaHandlers();
         this.metaParser = new MetaParser(this);
     }

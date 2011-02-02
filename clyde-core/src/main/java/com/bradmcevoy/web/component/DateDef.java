@@ -93,7 +93,8 @@ public class DateDef extends TextDef {
 
     @Override
     protected String editChildTemplate() {
-        String template = "<input autocomplete='off' type='text' name='${path}' id='${path}' value='${val.formattedValue}' />\n"
+        String reqClass = this.isRequired() ? "class='required'" : "";
+        String template = "<input autocomplete='off' type='text' " + reqClass + " name='${path}' id='${path}' value='${val.formattedValue}' />\n"
             + "<script type='text/javascript'>\n"
             + "Calendar.setup({\n"
             + "inputField     :    '${path}',   // id of the input field\n"

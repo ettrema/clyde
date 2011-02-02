@@ -324,15 +324,27 @@ public class Export extends AbstractConsoleCommand {
         void doPut() throws Exception {
             log.warn( "put: " + this.getRemotePath() );
             com.ettrema.httpclient.Folder parent = remoteHost.getOrCreateFolder( destFolder, true );
+            com.ettrema.httpclient.Resource remote = parent.child(res.getName());
+            try {
+                if( remote != null ) {
+                    log.warn( " - delete existing remote resource: " + remote.name);
+                    remote.delete();
+                }
+            } catch(Exception e) {
+                throw new Exception("Couldnt delete: " + remote.href());
+            }
             try {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ContentSender cs = new ContentSender();
                 cs.send( out, res );
 
                 InputStream in = new ByteArrayInputStream( out.toByteArray() );
-                parent.upload( res.getName() + ".source", in, (long) out.size() );
+                String name = res.getName() + ".source";
+                log.warn(" - upload source: " + name);
+                parent.upload( name, in, (long) out.size() );
 
                 if( res instanceof BinaryFile ) {
+                    log.warn(" - upload binary content: " + res.getName());
                     BinaryFile bf = (BinaryFile) res;
                     InputStream inContent = null;
                     try {
@@ -342,6 +354,7 @@ public class Export extends AbstractConsoleCommand {
                         IOUtils.closeQuietly( in );
                     }
                 } else if( res instanceof TextFile ) {
+                    log.warn(" - upload text content: " + res.getName());
                     TextFile tf = (TextFile) res;
                     InputStream inContent = null;
                     try {

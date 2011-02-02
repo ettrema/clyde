@@ -229,25 +229,29 @@ public class AjaxResourceFactory implements ResourceFactory {
             }
         }
 
-        public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
-            log.info("process form");
+        public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {            
             CommonTemplated res = accessor.get(parameters);
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext(lTemplate, res, rcChild, false);
 
+            boolean componentFound = false;
             for (String paramName : parameters.keySet()) {
                 Path path = Path.path(paramName);
                 Component c = rc.findComponent(path);
                 if (c != null) {
+                    log.info("process component: " + c);
                     String redirect = c.onProcess(rc, parameters, files);
                     if (redirect != null) {
                         // ignore redirects, but redirects cause processing to stop
+                        componentFound = true;
                         break;
                     }
-                } else {
                 }
             }
 
+            if( !componentFound ) {
+                log.warn("form post occurred, but did not process any components. Check that you have sent a component identified");
+            }
             return null;
         }
 

@@ -184,10 +184,11 @@ public final class GroupEmailCommand2 extends Command {
         log.debug("send");
         List<User> recipList = getTo(rc);
         MailServer mailServer = requestContext().get(MailServer.class);
+        boolean didSend = false;
         for (User user : recipList) {
             MailboxAddress address = getAddress(user);
             if (address != null) {
-
+                log.info("send email to: " + address + " ...");
                 StandardMessage sm = new StandardMessageImpl();
                 sm.setText(EvalUtils.evalToString(bodyText, rc, container));
                 sm.setHtml(EvalUtils.evalToString(bodyHtml, rc, container));
@@ -196,9 +197,15 @@ public final class GroupEmailCommand2 extends Command {
                 sm.setFrom(getFrom(rc));
                 sm.setReplyTo(getReplyTo(rc));
                 mailServer.getMailSender().sendMail(sm);
+                didSend = true;
+                log.info("sent email ok: " + address);
             } else {
                 log.warn("no external email address for: " + user.getUrl());
             }
+        }
+        if( !didSend ) {
+            Group group = getGroup(rc);
+            log.warn("No recipients (or none valid) in group: " + group.getHref());
         }
     }
 
