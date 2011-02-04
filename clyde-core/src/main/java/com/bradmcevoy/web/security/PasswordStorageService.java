@@ -38,6 +38,11 @@ public class PasswordStorageService {
     }
 
     public boolean checkPasswordMD5( User user, byte[] passwordHash ) {
+        if( user.isAccountDisabled()) {
+            log.info("account is disabled: " + user.getHref());
+            return false;
+        }
+
         try {
             String s = getPasswordValue( user );
             MessageDigest digest = java.security.MessageDigest.getInstance( "MD5" );
@@ -49,6 +54,10 @@ public class PasswordStorageService {
     }
 
     public boolean checkPassword( User user, String password ) {
+        if( user.isAccountDisabled()) {
+            log.info("account is disabled: " + user.getHref());
+            return false;
+        }
         String actualPassword = getPasswordValue( user );
         boolean b = actualPassword.equals( password );
         if( !b ) {
@@ -71,6 +80,11 @@ public class PasswordStorageService {
     }
 
     public boolean checkPassword( User user, DigestResponse digestRequest ) {
+        if( user.isAccountDisabled()) {
+            log.info("account is disabled: " + user.getHref());
+            return false;
+        }
+
         String actualPassword = getPasswordValue( user );
 
         DigestGenerator digestGenerator = new DigestGenerator();

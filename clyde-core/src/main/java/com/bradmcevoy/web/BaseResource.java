@@ -77,6 +77,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected transient RelationalNameNode nameNode;
     private transient User creator;
     private transient boolean isNew;
+    private transient boolean isSaved;
     
     /**
      * Just a transient map variable holding logic to access relations through
@@ -126,10 +127,23 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     }
 
+    /**
+     * A true value indicates that this instance has been created within this
+     * transaction. Note that the object may have been saved, as it can
+     * be saved multiple times within a transaction.
+     *
+     * See isSaved to determine whether the record has been saved
+     *
+     * @return
+     */
     public boolean isNew() {
         return isNew;
 //        log.warn( "isNew: " + nameNode.isNew() + " - "+ nameNode.getClass() );
 //        return nameNode.isNew();
+    }
+
+    public boolean isSaved() {
+        return isSaved;
     }
 
     @Override
@@ -468,6 +482,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     public void save(boolean isTrashed) {
+        isSaved = true;
+        
         preSave();
 
         fireEvent(new PreSaveEvent(this));

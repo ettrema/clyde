@@ -45,6 +45,7 @@ public class User extends Folder implements IUser {
     
     private Text password;
     private boolean emailDisabled;
+    private boolean accountDisabled;
     private List<String> accessKeys;
 
     public User( Folder parentFolder, String name ) {
@@ -372,6 +373,9 @@ public class User extends Folder implements IUser {
      *
      */
     public void login() {
+        if( accountDisabled ) {
+            log.info("Cant login with a disabled account");
+        }
         log.trace( "do login" );
         Request req = _( CurrentRequestService.class ).request();
         _( CookieAuthenticationHandler.class ).setLoginCookies( this, req );
@@ -445,5 +449,13 @@ public class User extends Folder implements IUser {
     public void copyPasswordFrom(User user ) {
         String pwd = _(PasswordStorageService.class).getPasswordValue(user);
         user.setPassword(pwd);
+    }
+
+    public boolean isAccountDisabled() {
+        return accountDisabled;
+    }
+
+    public void setAccountDisabled(boolean accountDisabled) {
+        this.accountDisabled = accountDisabled;
     }
 }
