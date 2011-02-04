@@ -36,7 +36,12 @@ public class DeleteCommand extends Command {
     
     @Override
     public String render(RenderContext rc) {
-        return "<button type='submit' name='" + name + "' value='" + name + "' onclick=\"return confirm('Are you sure you want to delete " + rc.getTargetPage().getName() + "?')\" />" + name + "</button>";
+        if( rc == null || rc.getTargetPage() == null ) {
+            log.trace("context or target page is null");
+            return "";
+        }
+        String pageName = rc.getTargetPage().getName();
+        return "<button type='submit' name='" + name + "' value='" + name + "' onclick=\"return confirm('Are you sure you want to delete " + pageName + "?')\" />" + name + "</button>";
     }
     
     @Override

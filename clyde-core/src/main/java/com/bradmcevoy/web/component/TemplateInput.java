@@ -5,7 +5,7 @@ import org.mvel.TemplateInterpreter;
 import org.jdom.Element;
 
 /**
- * A text component which renders its output using velocity
+ * A text component which renders its output using MVEL
  *
  * @author brad
  */

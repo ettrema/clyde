@@ -13,18 +13,18 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ClydePropertySource implements PropertySource{
+public class ClydePropertySource implements PropertySource {
 
-    private static final Logger log = LoggerFactory.getLogger( ClydePropertySource.class );
+    private static final Logger log = LoggerFactory.getLogger(ClydePropertySource.class);
 
     public Object getProperty(QName name, Resource r) {
-        if( r instanceof Templatable ) {
-            if( isClydeNs(name)) {
+        if (r instanceof Templatable) {
+            if (isClydeNs(name)) {
                 Templatable t = (Templatable) r;
                 ComponentValue v = t.getValues().get(name.getLocalPart());
-                if( v == null ) {
-                    log.trace("not found: " + name.getLocalPart());
-                    return null;
+                if (v == null) {
+                    log.trace("no value found: " + name.getLocalPart() + "  will look for component..");
+                    return getComponent(name.getLocalPart(), t);
                 } else {
                     log.trace("found: " + name.getLocalPart());
                     return v.getValue();
@@ -40,15 +40,15 @@ public class ClydePropertySource implements PropertySource{
     public void setProperty(QName name, Object value, Resource r) {
         ITemplate template;
         ComponentDef def;
-        if( r instanceof Templatable ) {
-            if( isClydeNs(name)) {
+        if (r instanceof Templatable) {
+            if (isClydeNs(name)) {
                 Templatable t = (Templatable) r;
                 ComponentValue v = t.getValues().get(name.getLocalPart());
-                if( v == null ) {
+                if (v == null) {
                     template = t.getTemplate();
-                    if( template != null ) {
+                    if (template != null) {
                         def = template.getComponentDef(name.getLocalPart());
-                        if( def != null ) {
+                        if (def != null) {
                             v = def.createComponentValue(t);
                             t.getValues().add(v);
                             v.setValue(value);
@@ -70,19 +70,27 @@ public class ClydePropertySource implements PropertySource{
     }
 
     public PropertyMetaData getPropertyMetaData(QName name, Resource r) {
-        if( r instanceof Templatable ) {
+        Component c;
+        if (r instanceof Templatable) {
             Templatable t = (Templatable) r;
             ITemplate template = t.getTemplate();
-            if( isClydeNs(name)) {
-                if( template != null ) {
+            if (isClydeNs(name)) {
+                if (template != null) {
                     ComponentDef def = template.getComponentDef(name.getLocalPart());
-                    if( def != null ) {
+                    if (def != null) {
                         return new PropertyMetaData(PropertyAccessibility.WRITABLE, def.getValueClass());
                     } else {
-                        return PropertyMetaData.UNKNOWN;
+                        c = t.getComponent(name.getLocalPart(), false);
+                        if (c != null) {
+                            // Because we can't get an actual value of a component, all we can do
+                            // is make it render. So will always be readonly string
+                            return new PropertyMetaData(PropertyAccessibility.READ_ONLY, String.class);
+                        } else {
+                            return PropertyMetaData.UNKNOWN;
+                        }
                     }
                 } else {
-                    log.debug("couldnt find template when resolving property meta data. TemplateName: " + t.getTemplateName() );
+                    log.debug("couldnt find template when resolving property meta data. TemplateName: " + t.getTemplateName());
                     return PropertyMetaData.UNKNOWN;
                 }
             } else {
@@ -94,7 +102,7 @@ public class ClydePropertySource implements PropertySource{
     }
 
     public void clearProperty(QName name, Resource r) {
-        if( r instanceof Templatable ) {
+        if (r instanceof Templatable) {
             Templatable t = (Templatable) r;
         } else {
             throw new RuntimeException("Unsupported type: " + r.getClass());
@@ -102,12 +110,12 @@ public class ClydePropertySource implements PropertySource{
     }
 
     public List<QName> getAllPropertyNames(Resource r) {
-        if( r instanceof Templatable ) {
+        if (r instanceof Templatable) {
             Templatable t = (Templatable) r;
             ITemplate template = t.getTemplate();
             List<QName> list = new ArrayList<QName>();
-            if( template != null ) {
-                for( ComponentDef def : template.getComponentDefs().values()) {
+            if (template != null) {
+                for (ComponentDef def : template.getComponentDefs().values()) {
                     QName qname = new QName("clyde", def.getName());
                     list.add(qname);
                 }
@@ -122,4 +130,13 @@ public class ClydePropertySource implements PropertySource{
         return name.getNamespaceURI() != null && name.getNamespaceURI().equals("clyde");
     }
 
+    private Object getComponent(String localPart, Templatable t) {
+        Component c = t.getComponent(localPart, false);
+        if (c == null) {
+            return null;
+        } else {
+            RenderContext rc = new RenderContext(t.getTemplate(), t, null, false);
+            return c.render(rc);
+        }
+    }
 }

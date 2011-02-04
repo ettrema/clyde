@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import java.util.Collection;
+import java.util.Set;
 import com.bradmcevoy.event.LogicalDeleteEvent;
 import com.bradmcevoy.event.PhysicalDeleteEvent;
 import com.bradmcevoy.event.PostSaveEvent;
@@ -75,6 +77,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     protected transient RelationalNameNode nameNode;
     private transient User creator;
     private transient boolean isNew;
+    
+    /**
+     * Just a transient map variable holding logic to access relations through
+     * the map syntax
+     */
+    private transient Relations relations;
 
     protected abstract BaseResource newInstance(Folder parent, String newName);
 
@@ -981,6 +989,90 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         @Override
         public String toString() {
             return "Grant " + role.name() + " on " + systemUserGroupName;
+        }
+    }
+
+    public Relations getRelations() {
+        if( relations == null ) {
+            relations = new Relations();
+        }
+        return relations;
+    }
+
+
+
+    /**
+     * This doesnt hold any data, it just permits access to relations (ie from
+     * this instanceo to another) using map syntax
+     *
+     */
+    public class Relations implements Map<String, BaseResource> {
+
+        @Override
+        public int size() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean isEmpty() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean containsKey(Object key) {
+            if (key instanceof String) {
+                BaseResource c = get((String) key);
+                return c != null;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean containsValue(Object value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BaseResource get(Object key) {
+            BaseResource rel = BaseResource.this.getRelation(key.toString());
+            return rel;
+        }
+
+        @Override
+        public BaseResource put(String key, BaseResource value) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public BaseResource remove(Object key) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void putAll(Map<? extends String, ? extends BaseResource> m) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void clear() {
+
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Set<String> keySet() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Collection<BaseResource> values() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Set<Entry<String, BaseResource>> entrySet() {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 }

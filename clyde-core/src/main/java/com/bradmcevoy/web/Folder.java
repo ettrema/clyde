@@ -570,7 +570,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     /**
      * Create a resource from a template
      *
-     * Does not commit
+     * Does a save, but does not commit
      * 
      * @param name - the name of the resource to create. May be null, which will cause
      * a unique name to be generated

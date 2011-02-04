@@ -11,8 +11,10 @@ import com.bradmcevoy.web.IUser;
  */
 public class HttpCurrentUserService implements CurrentUserService {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HttpCurrentUserService.class);
+
     public IUser getSecurityContextUser() {
-        if( HttpManager.request() == null ) {
+        if (HttpManager.request() == null) {
             return null;
         }
         Auth auth = HttpManager.request().getAuthorization();
@@ -33,5 +35,17 @@ public class HttpCurrentUserService implements CurrentUserService {
 
     public IUser getOnBehalfOf() {
         return getSecurityContextUser();
+    }
+
+    public void setOnBehalfOf(IUser user) {
+        if (log.isTraceEnabled()) {
+            if (user == null) {
+                log.trace("setOnBehalfOf: " + null);
+            } else {
+                log.trace("setOnBehalfOf: " + user.getName());
+            }
+        }
+        Auth auth = new Auth(user.getName(), user);
+        HttpManager.request().setAuthorization(auth);
     }
 }

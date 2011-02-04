@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.ettrema.context.RequestContext._;
+
 /**
  *
  * @author brad
@@ -113,7 +115,10 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
                         return null;
                     } else {
                         DataNode dn = node.getData();
-                        if( dn instanceof User ) {
+                        if( dn == null ) {
+                            log.info("got a node with no data; " + id);
+                            return null;
+                        } else if( dn instanceof User ) {
                             User u = (User) dn;
                             if( log.isDebugEnabled() ) {
                                 log.debug( "found user: " + u.getHref() );
@@ -129,6 +134,15 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
         }
     }
 
+    /**
+     * Sets cookies to make the given user the currently logged in user for any
+     * subsequent requests.
+     *
+     * And also makes that user the current on-behalf-of user in CurrentUserService
+     *
+     * @param user
+     * @param request
+     */
     public void setLoginCookies( User user, Request request ) {
         String authId = generateAuthId( request );
         request.getAttributes().put( requestParamName, authId );
@@ -136,6 +150,10 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
         String userUrl = user.getHref();
         Response response = HttpManager.response();
         setCookieValue( response, authId, userUrl );
+
+        // Need to make this the current user
+        _(CurrentUserService.class).setOnBehalfOf(user);
+
         if( eventHandlers != null ) {
             log.debug( "process handlers" );
             for( CookieAuthEventHandler h : eventHandlers ) {

@@ -441,4 +441,9 @@ public class User extends Folder implements IUser {
     public void setPasswordComponent( Text text ) {
         this.password = text;
     }
+
+    public void copyPasswordFrom(User user ) {
+        String pwd = _(PasswordStorageService.class).getPasswordValue(user);
+        user.setPassword(pwd);
+    }
 }

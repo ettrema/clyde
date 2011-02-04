@@ -219,7 +219,9 @@ formatter - the standard formatter
     useToken (true|false) #IMPLIED
     recaptcha CDATA #IMPLIED
   >
-  
+
+
+<!--- Maps to a TemplateInput, which will evaluate MVEL templates -->
 <!ELEMENT c:eval (#PCDATA)>
 <!ATTLIST c:eval
     name CDATA #REQUIRED

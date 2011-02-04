@@ -45,4 +45,11 @@ public interface CurrentUserService {
      */
     IUser getOnBehalfOf();
 
+    /**
+     * Makes the given user the subject of the current operation.
+     *
+     * @param user - the user to make current
+     */
+    void setOnBehalfOf(IUser user);
+
 }

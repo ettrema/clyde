@@ -77,6 +77,9 @@ public class RenderContext implements Map<String, Component> {
     final Map<String, Object> attributes = new HashMap<String, Object>();
 
     public RenderContext(ITemplate template, Templatable page, RenderContext child, boolean editMode) {
+        if( page == null ) {
+            throw new IllegalArgumentException("page cannot be null");
+        }
         this.template = template;
         this.page = page;
         this.child = child;
@@ -497,6 +500,9 @@ public class RenderContext implements Map<String, Component> {
     }
 
     private boolean isNew(RenderContext child) {
+        if( child == null ) {
+            return false;
+        }
         Templatable target = child.getTargetPage();
         if (target == null) {
             return true;
