@@ -1,4 +1,3 @@
-
 package com.bradmcevoy.utils;
 
 import com.bradmcevoy.web.Formatter;
@@ -16,14 +15,18 @@ import static com.ettrema.context.RequestContext._;
  * @author brad
  */
 public class GroovyUtils {
-    public static Object exec(Templatable aThis, Map map, String script) {
+
+    public static Object exec(Templatable res, Map map, String script) {
         Binding binding = new Binding();
         IUser user = _(CurrentUserService.class).getOnBehalfOf();
-        binding.setVariable("targetPage", aThis);
+        binding.setVariable("targetPage", res);
         binding.setVariable("user", user);
         binding.setVariable("formatter", Formatter.getInstance());
         GroovyShell shell = new GroovyShell(binding);
-
-        return shell.evaluate(script);
+        try {
+            return shell.evaluate(script);
+        } catch (Throwable e) {
+            throw new RuntimeException("Exception in groovy script: " + script + " in resource: " + res.getHref(), e);
+        }
     }
 }

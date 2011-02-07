@@ -205,7 +205,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
 
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
     
     @Override

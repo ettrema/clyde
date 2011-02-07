@@ -218,6 +218,10 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     @Override
     public Object getValue() {
+        if( value instanceof ComponentValue) {
+            ComponentValue cvInner = (ComponentValue) value;
+            log.warn("This ComponentValue somehow has a componentValue as its value??! my name: " + name + " other: " + cvInner.getName());
+        }
         return value;
 //        if( parent == null ) {
 //            log.warn( "no parent set. Value might not be typed correctly");
@@ -243,6 +247,11 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     public void setValue(Object value) {
+        // If we've been given another componentvalue just copy its value
+        if(value instanceof ComponentValue) {
+            ComponentValue other = (ComponentValue) value;
+            value = other.getValue();
+        }
         if (this.value != null && !this.value.equals(value)) {
             RequestParams cur = RequestParams.current();
             String userName = null;

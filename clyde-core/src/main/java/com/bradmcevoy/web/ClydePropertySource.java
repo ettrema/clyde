@@ -24,10 +24,16 @@ public class ClydePropertySource implements PropertySource {
                 ComponentValue v = t.getValues().get(name.getLocalPart());
                 if (v == null) {
                     log.trace("no value found: " + name.getLocalPart() + "  will look for component..");
-                    return getComponent(name.getLocalPart(), t);
+                    Object comp = getComponent(name.getLocalPart(), t);
+                    return comp;
                 } else {
                     log.trace("found: " + name.getLocalPart());
-                    return v.getValue();
+                    Object val = v.getValue();
+                    if(val instanceof ComponentValue) {
+                        log.warn("got a ComponentValue as a value, which doesnt make sense. Ignoring. name:" + v.getName() + " resource:" + t.getHref());
+                        return null;
+                    }
+                    return val;
                 }
             } else {
                 return null;

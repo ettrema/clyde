@@ -256,6 +256,9 @@ public class User extends Folder implements IUser {
 
     @Override
     public boolean is( String type ) {
+        if( "user".equals(type)) {
+            return true;
+        }
         if( isInGroup( type ) ) {
             return true;
         }

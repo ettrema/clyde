@@ -704,8 +704,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public List<String> getAllowedTemplateNames() {
         List<Template> templates = getAllowedTemplates();
         List<String> names = new ArrayList<String>();
-        if( templates != null ) {
-            for(Template t : templates) {
+        if (templates != null) {
+            for (Template t : templates) {
                 names.add(t.getName());
             }
         }
@@ -730,7 +730,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                     log.warn("not a compatible component: " + c.getClass());
                 }
             }
-            return getParent().getAllowedTemplates();
+            Folder parent = getParent();
+            if (parent != null) {
+                return getParent().getAllowedTemplates();
+            } else {
+                return null;
+            }
         } else {
             log.trace("templates defined directly on this instance");
             return templateSpecs.findAllowed(this);
