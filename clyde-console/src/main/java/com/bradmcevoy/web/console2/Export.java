@@ -326,7 +326,7 @@ public class Export extends AbstractConsoleCommand {
             com.ettrema.httpclient.Folder parent = remoteHost.getOrCreateFolder( destFolder, true );
             com.ettrema.httpclient.Resource remote = parent.child(res.getName());
             try {
-                if( remote != null ) {
+                if( remote != null && !(remote instanceof com.ettrema.httpclient.Folder) ) {
                     log.warn( " - delete existing remote resource: " + remote.name);
                     remote.delete();
                 }
