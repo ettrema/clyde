@@ -493,6 +493,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         fireEvent(new PostSaveEvent(this));
 
         afterSave();
+        
     }
 
     protected void fireEvent(ResourceEvent e) {

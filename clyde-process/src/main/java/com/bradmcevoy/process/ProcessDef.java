@@ -186,7 +186,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         BaseResource newRes = (BaseResource) tr;
         TokenValue t = startProcess(newRes);
         t.getVariables().put(VAR_RES_ID, newRes.getId());
-        ComponentValue cv = new ComponentValue(getName(), t);
+        ComponentValue cv = new ComponentValue(getName(), tr);
         cv.setValue( t );
         t.setComponentValue(cv);
         return cv;

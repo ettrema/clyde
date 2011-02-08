@@ -47,6 +47,8 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
      */
     public void setComponentValue( ComponentValue cv ) {
         this.cv = cv;
+        BaseResource parent = (BaseResource) cv.getContainer();
+        log.debug("parent: " + parent.getHref());
     }
 
     ProcessDef getProcess() {
@@ -170,9 +172,10 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
     }
 
     public boolean afterSave() {
-        return false;
-//        log.debug("afterSave");
-//        BaseResource res = (BaseResource) cv.getContainer();
-//        return ProcessDef.scan(cv, res);
+//        return false;
+        log.debug("afterSave: cv class - " + cv.getClass() +  " cv name: " + cv.getName());
+        log.debug("cv container: " + cv.getContainer().getName() + " - " + cv.getClass());
+        BaseResource res = (BaseResource) cv.getContainer();
+        return ProcessDef.scan(cv, res);
     }
 }

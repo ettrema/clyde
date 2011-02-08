@@ -31,6 +31,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public ComponentValue(String name, Addressable container) {
         this.name = name;
         this.parent = container;
+        if (parent instanceof ComponentValue) {
+            throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + this.getName() + " parent: " + parent.getName());
+        }
         this.oldValues = new ArrayList<OldValue>();
     }
 
@@ -38,6 +41,10 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         this.name = el.getAttributeValue("name");
         this.oldValues = new ArrayList<OldValue>();
         this.parent = container;
+        if (parent instanceof ComponentValue) {
+            throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + this.getName() + " parent: " + parent.getName());
+        }
+
         log.debug("created: " + this.name);
         String sVal = InitUtils.getValue(el);
         ComponentDef def = getDef(container);
@@ -52,10 +59,10 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     public boolean isEmpty() {
         Object v = this.getValue();
-        if( v == null ) {
+        if (v == null) {
             return true;
         } else {
-            if( v instanceof String ) {
+            if (v instanceof String) {
                 String s = (String) v;
                 return StringUtils.isBlank(s);
             } else {
@@ -63,8 +70,6 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             }
         }
     }
-
-
 
     public List<OldValue> getOldValues() {
         if (oldValues == null) {
@@ -108,6 +113,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     @Override
     public void init(Addressable parent) {
+        if (parent instanceof ComponentValue) {
+            throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + this.getName() + " parent: " + parent.getName());
+        }
         this.parent = parent;
     }
 
@@ -170,7 +178,6 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         return e2;
     }
 
-
     @Override
     public String toString() {
         try {
@@ -206,7 +213,6 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
     }
 
-
     @Override
     public String getName() {
         return name;
@@ -218,7 +224,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     @Override
     public Object getValue() {
-        if( value instanceof ComponentValue) {
+        if (value instanceof ComponentValue) {
             ComponentValue cvInner = (ComponentValue) value;
             log.warn("This ComponentValue somehow has a componentValue as its value??! my name: " + name + " other: " + cvInner.getName());
         }
@@ -248,7 +254,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     public void setValue(Object value) {
         // If we've been given another componentvalue just copy its value
-        if(value instanceof ComponentValue) {
+        if (value instanceof ComponentValue) {
             ComponentValue other = (ComponentValue) value;
             value = other.getValue();
         }
@@ -312,6 +318,10 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
         if (this.parent == null) {
             this.parent = rc.page;
+            if (parent instanceof ComponentValue) {
+                throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + this.getName() + " parent: " + parent.getName());
+            }
+
         }
         if (log.isTraceEnabled()) {
             log.trace("render CV: " + name + " ::: " + this.getValue());
@@ -327,6 +337,10 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         }
         if (this.parent == null) {
             this.parent = rc.page;
+            if (parent instanceof ComponentValue) {
+                throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + this.getName() + " parent: " + parent.getName());
+            }
+
         }
         return def.renderEdit(this, rc);
     }

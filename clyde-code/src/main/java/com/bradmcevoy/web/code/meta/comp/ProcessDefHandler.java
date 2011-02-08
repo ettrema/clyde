@@ -59,7 +59,7 @@ public class ProcessDefHandler implements ComponentDefHandler {
 
     public void fromXml(Element el, ProcessDef def) {
         subPageHandler.fromXml(def, el);
-        ProcessImpl process = new ProcessImpl(el);
+        ProcessImpl process = def.getProcess();
         process.loadXml(el);
     }
 
