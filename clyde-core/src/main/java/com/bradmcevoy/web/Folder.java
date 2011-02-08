@@ -581,6 +581,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if (name == null) {
             name = ClydeUtils.getDateAsNameUnique(this);
         }
+        if( this.childExists(name)) {
+            throw new RuntimeException("A file already exists called: " + name);
+        }
         ITemplate t = getTemplate(templateName);
         if (t == null) {
             throw new RuntimeException("No such template: " + templateName);

@@ -738,7 +738,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void createRelationship(String relationName, BaseResource to) {
         removeRelationship(relationName);
-        this.nameNode.makeRelation(to.nameNode, relationName);
+        Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
+        to.nameNode.onNewRelationship(r);
     }
 
     public void removeRelationship(String relationName) {
