@@ -142,7 +142,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         return nm;
     }
 
-    Resource wrapMeta(Resource r, CollectionResource parent) {
+    public CodeMeta wrapMeta(Resource r, CollectionResource parent) {
         if (isIgnoredResource(r)) {
             return null;
         }
@@ -153,11 +153,11 @@ public final class CodeResourceFactory implements ResourceFactory {
         return new CodeMeta(this, mh, r.getName() + metaSuffix, r, parent);
     }
 
-    Resource wrapContent(GetableResource r) {
+    public CodeContentPage wrapContent(GetableResource r) {
         return new CodeContentPage(this, r.getName(), r);
     }
 
-    Resource wrapCollection(CollectionResource col) {
+    public CodeFolder wrapCollection(CollectionResource col) {
         if (isIgnoredResource(col)) {
             return null;
         }

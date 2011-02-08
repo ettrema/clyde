@@ -31,6 +31,11 @@ public class Template extends Page implements ITemplate {
 //    private transient Component addParam;
     private String afterCreateScript;
     private String afterSaveScript;
+    
+    /**
+     * true indicates that content items of this type will not be exported
+     */
+    private boolean disableExport;
 
     public Template(Folder parent, String name) {
         super(parent, name);
@@ -348,4 +353,14 @@ public class Template extends Page implements ITemplate {
     public void setDocType(DocType docType) {
         this.docType = docType;
     }
+
+    public boolean isDisableExport() {
+        return disableExport;
+    }
+
+    public void setDisableExport(boolean disableExport) {
+        this.disableExport = disableExport;
+    }
+
+    
 }

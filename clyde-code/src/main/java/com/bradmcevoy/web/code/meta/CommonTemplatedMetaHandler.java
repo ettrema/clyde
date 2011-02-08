@@ -17,6 +17,7 @@ import com.bradmcevoy.web.code.meta.comp.ForgottenPasswordComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.GroovyCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupSelectHandler;
+import com.bradmcevoy.web.code.meta.comp.HtmlInputHandler;
 import com.bradmcevoy.web.code.meta.comp.NumberInputHandler;
 import com.bradmcevoy.web.code.meta.comp.PayPalIpnComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.ReCaptchaComponentHandler;
@@ -57,6 +58,7 @@ public class CommonTemplatedMetaHandler {
         GroupEmailCommandHandler groupEmailCommandHandler = new GroupEmailCommandHandler(commandHandler);
         TextHandler textHandler = new TextHandler(abstractInputHandler);
         TemplateInputHandler templateInputHandler = new TemplateInputHandler(textHandler);
+        HtmlInputHandler htmlInputHandler = new HtmlInputHandler(textHandler);
         NumberInputHandler numberInputHandler = new NumberInputHandler(abstractInputHandler);
         GroupSelectHandler groupSelectHandler = new GroupSelectHandler();
         ForgottenPasswordComponentHandler forgottenPasswordComponentHandler = new ForgottenPasswordComponentHandler();
@@ -78,6 +80,7 @@ public class CommonTemplatedMetaHandler {
         add(groupSelectHandler);
         add(numberInputHandler);
         add(templateInputHandler);
+        add(htmlInputHandler);
         add(groupEmailCommandHandler);
         add(textHandler);
         add(viewSubPageHandler);

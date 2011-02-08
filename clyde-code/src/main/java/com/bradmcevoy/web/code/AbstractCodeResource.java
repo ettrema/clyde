@@ -76,5 +76,7 @@ public class AbstractCodeResource<T extends Resource> implements Resource, Diges
         }
     }
 
-
+    public T getWrapped() {
+        return wrapped;
+    }
 }
