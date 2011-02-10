@@ -3,6 +3,7 @@ package com.bradmcevoy.utils;
 import com.bradmcevoy.xml.XmlHelper;
 import java.util.ArrayList;
 import java.util.List;
+import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -105,10 +106,27 @@ public class JDomUtils {
         return XmlHelper.toString( el );
     }
 
+    /**
+     * Used for values which are not necessarily xml structures, so might contain
+     * invalid xml data. So wraps in a CDATA element.
+     *
+     * Eg might produce
+     *
+     * <script><![CDATA[
+     * if( a && b > x ) {
+     * }
+     * ]]></script>
+     *
+     * @param el
+     * @param childName
+     * @param val
+     * @param ns
+     */
     public static void setChildText( Element el, String childName, String val, Namespace ns ) {
         if( val != null ) {
             Element elScript = new Element( childName, ns );
-            elScript.setText( val );
+            CDATA cdata = new CDATA( val );
+            elScript.addContent( cdata );
             el.addContent( elScript );
         }
     }
