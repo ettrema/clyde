@@ -61,7 +61,7 @@ public class PasswordStorageService {
         String actualPassword = getPasswordValue( user );
         boolean b = actualPassword.equals( password );
         if( !b ) {
-            log.info( "passwords don't match" );
+            log.trace( "passwords don't match" );
         } else {
             return b;
         }

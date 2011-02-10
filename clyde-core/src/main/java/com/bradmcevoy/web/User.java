@@ -140,6 +140,9 @@ public class User extends Folder implements IUser {
     
 
     /**
+     *         // note that this can cause an error sometimes, eg if the user name
+        // has a space in it
+
      * 
      * @return - the email address for this user on this domain. NOT their specified
      *  external email

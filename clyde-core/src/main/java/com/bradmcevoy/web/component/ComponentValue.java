@@ -258,21 +258,23 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             ComponentValue other = (ComponentValue) value;
             value = other.getValue();
         }
-        if (this.value != null && !this.value.equals(value)) {
-            RequestParams cur = RequestParams.current();
-            String userName = null;
-            if (cur != null && cur.getAuth() != null) {
-                User user = (User) cur.getAuth().getTag();
-                if (user != null) {
-                    userName = user.getEmailAddress().toString();
-                }
-            }
-            OldValue old = new OldValue(value, new Date(), userName);
-            if (oldValues == null) {
-                oldValues = new ArrayList<OldValue>();
-            }
-            oldValues.add(old);
-        }
+        // note that this can cause an error sometimes, eg if the user name
+        // has a space in it
+//        if (this.value != null && !this.value.equals(value)) {
+//            RequestParams cur = RequestParams.current();
+//            String userName = null;
+//            if (cur != null && cur.getAuth() != null) {
+//                User user = (User) cur.getAuth().getTag();
+//                if (user != null) {
+//                    userName = user.getEmailAddress().toString();
+//                }
+//            }
+//            OldValue old = new OldValue(value, new Date(), userName);
+//            if (oldValues == null) {
+//                oldValues = new ArrayList<OldValue>();
+//            }
+//            oldValues.add(old);
+//        }
         this.value = value;
     }
 

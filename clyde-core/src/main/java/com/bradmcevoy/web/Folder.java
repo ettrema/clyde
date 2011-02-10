@@ -41,6 +41,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 
+
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
  *
@@ -552,6 +553,34 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
+    public Folder getOrCreateFolder(ComponentValue cv) throws ConflictException, NotAuthorizedException, BadRequestException {
+        return getOrCreateFolder(cv.getValue().toString());
+
+    }
+
+    /**
+     * Return a folder if one exists with the given name. Otherwise, and if
+     * not resource exists, create a generic folder.
+     * 
+     * If a resource does exist which is not a folder it will throw a ConflictException
+     * 
+     * @param name
+     * @return
+     */
+    public Folder getOrCreateFolder(String name) throws ConflictException, NotAuthorizedException, BadRequestException {
+        Resource res = this.child(name);
+        if (res == null) {
+            return (Folder) createCollection(name, false); // will commit elsewhere
+        } else {
+            if (res instanceof Folder) {
+                return (Folder) res;
+            } else {
+                log.error("Couldnt create folder, because a resource exists with the same name but is not a folder: " + res.getName() + " - " + res.getClass());
+                throw new ConflictException(res);
+            }
+        }
+    }
+
     public Templatable createPage(String name, String template) {
         ITemplate t = this.getTemplate(template);
         return t.createPageFromTemplate(this, name);
@@ -581,7 +610,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         if (name == null) {
             name = ClydeUtils.getDateAsNameUnique(this);
         }
-        if( this.childExists(name)) {
+        if (this.childExists(name)) {
             throw new RuntimeException("A file already exists called: " + name);
         }
         ITemplate t = getTemplate(templateName);

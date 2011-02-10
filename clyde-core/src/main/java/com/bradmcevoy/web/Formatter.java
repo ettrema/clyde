@@ -105,27 +105,33 @@ public class Formatter {
         return toLong(oLimit, false);
     }
 
-    public Long toLong(Object oLimit, boolean withNulls) {
+    public Long toLong(Object oVal, boolean withNulls) {
         Long limit;
-        if (oLimit == null) {
+        if (oVal == null) {
             limit = withNulls ? null : 0l;
-        } else if (oLimit instanceof Long) {
-            limit = (Long) oLimit;
-        } else if (oLimit instanceof Integer) {
-            int i = (Integer) oLimit;
+        } else if (oVal instanceof Long) {
+            limit = (Long) oVal;
+        } else if (oVal instanceof Integer) {
+            int i = (Integer) oVal;
             limit = (long) i;
-        } else if (oLimit instanceof String) {
-            String s = (String) oLimit;
+        } else if(oVal instanceof Double) {
+            Double d = (Double) oVal;
+            return d.longValue();
+        } else if(oVal instanceof Float) {
+            Float d = (Float) oVal;
+            return d.longValue();
+        } else if (oVal instanceof String) {
+            String s = (String) oVal;
             if (s.length() == 0) {
                 limit = withNulls ? null : 0l;
             } else {
                 limit = Long.parseLong(s);
             }
-        } else if (oLimit instanceof ComponentValue) {
-            ComponentValue cv = (ComponentValue) oLimit;
+        } else if (oVal instanceof ComponentValue) {
+            ComponentValue cv = (ComponentValue) oVal;
             limit = toLong(cv.getValue());
         } else {
-            throw new RuntimeException("unsupported class: " + oLimit.getClass());
+            throw new RuntimeException("unsupported class: " + oVal.getClass());
         }
         return limit;
     }
