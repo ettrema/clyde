@@ -5,7 +5,6 @@ import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.HtmlInput;
 import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.component.TemplateInput;
 import org.jdom.Element;
 
 /**
@@ -25,7 +24,7 @@ public class HtmlInputHandler implements ComponentHandler{
     }
 
     public String getAlias() {
-        return "eval";
+        return "htmlInput";
     }
 
     public Element toXml( Component c ) {

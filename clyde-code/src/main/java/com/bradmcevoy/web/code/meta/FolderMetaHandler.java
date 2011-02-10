@@ -7,7 +7,6 @@ import com.bradmcevoy.web.TemplateSpecs;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.component.InitUtils;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**
@@ -60,7 +59,7 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
             templateSpecs = new TemplateSpecs( "" );
         }
         InitUtils.set( elRoot, "allowedTemplates", templateSpecs.format());
-        baseResourceMetaHandler.populateXml( elRoot, folder );
+        baseResourceMetaHandler.populateXml( elRoot, folder, true );
 
     }
 

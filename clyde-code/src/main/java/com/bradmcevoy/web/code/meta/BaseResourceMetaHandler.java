@@ -33,6 +33,11 @@ public class BaseResourceMetaHandler {
     }
 
     public void populateXml( Element e2, BaseResource res ) {
+        // do not include content fields (title,body) because they will be in the content file
+        populateXml(e2, res, false);
+    }
+
+    public void populateXml( Element e2, BaseResource res, boolean includeContentValues ) {
         log.trace( "populateXml" );
         InitUtils.setString( e2, "redirect", res.getRedirect() );
         Element elPerms = null;
@@ -110,7 +115,7 @@ public class BaseResourceMetaHandler {
 //                }
 //            }
 //        }
-        commonTemplatedMetaHandler.populateXml( e2, res, false ); // do not include content fields (title,body) because they will be in the content file
+        commonTemplatedMetaHandler.populateXml( e2, res, includeContentValues );
     }
 
     void updateFromXml( BaseResource res, Element el ) {
