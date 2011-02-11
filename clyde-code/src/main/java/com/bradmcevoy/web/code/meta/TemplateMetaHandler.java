@@ -112,6 +112,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
     private void populateXml(Element el, Template template) {
         JDomUtils.setChildText(el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS);
+
+//        System.out.println(template.getAfterSaveScript());
+
         JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
         String cn = template.getClassToCreate();
         if (!StringUtils.isEmpty(cn)) {
@@ -177,7 +180,11 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         template.setDisableExport( InitUtils.getBoolean(el, "disableExport") );
 
         template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));
-        template.setAfterSaveScript(JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS));
+        String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
+
+        //System.out.println(afterSave);
+        
+        template.setAfterSaveScript(afterSave);
 
         template.setClassToCreate(instanceType);
 
