@@ -158,6 +158,12 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
         return s;
     }
 
+    public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
+        return null;
+    }
+
+
+
     @Override
     public Class getValueClass() {
         return String.class;

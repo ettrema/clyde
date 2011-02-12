@@ -25,6 +25,10 @@ public final class QaXmlUtils {
         }
         Document doc = new XmlUtils2().getJDomDocument( xml );
         Element elRoot = doc.getRootElement();
+        return parse(elRoot);
+    }
+    
+    public static Object parse( Element elRoot ) throws JDOMException {
         if( !elRoot.getName().equals( "multiplechoiceqa" ) ) {
             log.warn( "root is not correct type. Should be multiplechoiceqa" );
             return null;
@@ -36,6 +40,7 @@ public final class QaXmlUtils {
             } else {
                 String questionHtml = JDomUtils.getInnerXmlOf( elQuestion, "html" );
                 String comment = JDomUtils.getInnerXmlOf( elQuestion, "comment" );
+                //System.out.println("comment: " + comment);
                 String sCorrect = elQuestion.getAttributeValue( "correct" );
                 Integer correct = null;
                 if( StringUtils.isBlank( sCorrect ) ) {

@@ -3,6 +3,7 @@ package com.bradmcevoy.web.component;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.web.*;
 import java.util.Map;
+import org.jdom.Element;
 
 public interface ComponentDef extends Component {
 
@@ -18,8 +19,26 @@ public interface ComponentDef extends Component {
     void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files);
 
     ComponentValue createComponentValue(Templatable newRes);
-    
+
+    /**
+     * Parse the given textual representation of the value
+     *
+     * @param cv
+     * @param ct
+     * @param s
+     * @return
+     */
     Object parseValue(ComponentValue cv, Templatable ct, String s);
+
+    /**
+     * Parse the given XML representation of the value
+     *
+     * @param cv
+     * @param ct
+     * @param elValue
+     * @return
+     */
+    Object parseValue(ComponentValue cv, Templatable ct, Element elValue);
 
     /**
      * Used for persistence to xml. Symmmetrical with parseValue

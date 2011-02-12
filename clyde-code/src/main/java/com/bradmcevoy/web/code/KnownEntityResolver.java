@@ -21,6 +21,7 @@ public class KnownEntityResolver implements EntityResolver {
         
     @Override
     public InputSource resolveEntity( String publicId, String systemId ) throws SAXException, IOException {
+        System.out.println("KnownEntityResolver.resolveEntity - " + publicId);
         Path p = Path.path( systemId );
         if( knownSystemIds.contains( p.getName() ) ) {
             return new InputSource( this.getClass().getResourceAsStream( "/" + p.getName() ) );

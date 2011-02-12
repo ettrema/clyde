@@ -106,6 +106,12 @@ public class FaceBookDef implements ComponentDef, Serializable {
         return parse(s);
     }
 
+    public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
+        String sVal = InitUtils.getValue( elValue );
+        return parse(sVal);
+    }
+
+
     public Class getValueClass() {
         return FaceBookSession.class;
     }

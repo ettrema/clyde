@@ -201,6 +201,13 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         return tv;
     }
 
+    public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
+        String sVal = InitUtils.getValue( elValue );
+        // TODO: should parse xml directly
+        return parseValue(cv, ct, sVal);
+    }
+
+
     public Class getValueClass() {
         return TokenValue.class;
     }

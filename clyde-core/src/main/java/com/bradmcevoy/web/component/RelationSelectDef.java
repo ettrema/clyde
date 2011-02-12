@@ -218,6 +218,12 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         }
     }
 
+    public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
+        String sVal = InitUtils.getValue( elValue );
+        return sVal;
+    }
+
+
     @Override
     public Class getValueClass() {
         return UUID.class;

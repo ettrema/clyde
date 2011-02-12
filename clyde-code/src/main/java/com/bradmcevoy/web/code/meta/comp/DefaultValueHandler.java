@@ -49,12 +49,13 @@ public class DefaultValueHandler implements ValueHandler {
     }
 
     public void fromXml( Element eAtt, CommonTemplated res,  ComponentValue cv ) {
-        String sVal = InitUtils.getValue( eAtt );
+        //String sVal = InitUtils.getValue( eAtt );
         ComponentDef def = getDef( res, cv.getName() );
         if( def == null ) {
+            String sVal = InitUtils.getValue( eAtt );
             cv.setValue( sVal );
         } else {
-            cv.setValue( def.parseValue( cv, res, sVal ) );
+            cv.setValue( def.parseValue( cv, res, eAtt ) );
         }
     }
 

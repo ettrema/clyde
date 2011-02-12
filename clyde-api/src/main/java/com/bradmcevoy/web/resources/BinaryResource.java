@@ -23,46 +23,44 @@ import static com.ettrema.context.RequestContext._;
  */
 public class BinaryResource extends AbstractClydeResource implements BinaryContainer, Serializable {
 
-    private static final Logger log = LoggerFactory.getLogger( BinaryResource.class );
-
+    private static final Logger log = LoggerFactory.getLogger(BinaryResource.class);
     private static final long serialVersionUID = 1L;
-
     /**
      * Persist a CRC value of the binary data
      */
     private long localCrc;
-
     /**
      * Persist the content length
      */
     private long localContentLength;
-
     private String contentType;
 
-
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        InputStream in = _( ClydeBinaryService.class ).readInputStream( this, null );
-        if( in != null ) {
-            IOUtils.copy( in, out );
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        InputStream in = _(ClydeBinaryService.class).readInputStream(this, null);
+        if (in != null) {
+            long bytes = IOUtils.copyLarge(in, out);
+            if (log.isTraceEnabled()) {
+                log.trace("wrote bytes: " + bytes + " for resource " + this.getName());
+            }
         } else {
             log.warn("null inputstream returned");
         }
     }
 
     public void setContent(InputStream inputStream) {
-        localContentLength = _( ClydeBinaryService.class ).setContent( this, inputStream );
+        localContentLength = _(ClydeBinaryService.class).setContent(this, inputStream);
 
     }
 
-    public String getContentType( String accepts ) {
+    public String getContentType(String accepts) {
         return contentType;
     }
 
     public Long getContentLength() {
-        return _( ClydeBinaryService.class ).getContentLength( this, null );
+        return _(ClydeBinaryService.class).getContentLength(this, null);
     }
 
-    public void setLocalCrc( long crc ) {
+    public void setLocalCrc(long crc) {
         this.localCrc = crc;
     }
 

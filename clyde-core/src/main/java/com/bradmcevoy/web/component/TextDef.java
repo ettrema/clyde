@@ -291,6 +291,12 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
         return s;
     }
 
+    public Object parseValue( ComponentValue cv, Templatable ct, Element el ) {
+        String sVal = InitUtils.getValue( el );
+        return sVal;
+    }
+
+
     @Override
     public Class getValueClass() {
         return String.class;

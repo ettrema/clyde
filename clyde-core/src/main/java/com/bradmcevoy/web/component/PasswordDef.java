@@ -195,6 +195,13 @@ public class PasswordDef extends CommonComponent implements ComponentDef, Addres
         }
     }
 
+    public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
+        String sVal = InitUtils.getValue( elValue );
+        return sVal;
+    }
+
+
+
     @Override
     public Class getValueClass() {
         return String.class;

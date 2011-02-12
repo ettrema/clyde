@@ -111,11 +111,6 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     }
 
     private void populateXml(Element el, Template template) {
-        JDomUtils.setChildText(el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS);
-
-//        System.out.println(template.getAfterSaveScript());
-
-        JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
         String cn = template.getClassToCreate();
         if (!StringUtils.isEmpty(cn)) {
             try {
@@ -139,6 +134,10 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         populateThumbSpecs(el, template);
 
         pageMetaHandler.populateXml(el, template);
+
+        JDomUtils.setChildText(el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS);
+
+        JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
     }
 
     private void initComponentDefs(Element el, Template page) {
