@@ -6,7 +6,6 @@ import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.xml.XmlHelper;
 import java.util.List;
 import org.jdom.Element;
@@ -17,6 +16,8 @@ import org.jdom.Namespace;
  * @author brad
  */
 public class DefaultValueHandler implements ValueHandler {
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DefaultValueHandler.class);
 
     public static Namespace NS_HTML_DEFAULT = Namespace.getNamespace( "http://www.w3.org/1999/xhtml" );
 
@@ -52,8 +53,9 @@ public class DefaultValueHandler implements ValueHandler {
         //String sVal = InitUtils.getValue( eAtt );
         ComponentDef def = getDef( res, cv.getName() );
         if( def == null ) {
-            String sVal = InitUtils.getValue( eAtt );
-            cv.setValue( sVal );
+            throw new RuntimeException( "No definition for : " + cv.getName() + " in template: " + res.getTemplateName());
+//            String sVal = InitUtils.getValue( eAtt );
+//            cv.setValue( sVal );
         } else {
             cv.setValue( def.parseValue( cv, res, eAtt ) );
         }
@@ -62,6 +64,7 @@ public class DefaultValueHandler implements ValueHandler {
     public ComponentDef getDef( Templatable page, String name ) {
         ITemplate templatePage = page.getTemplate();
         if( templatePage == null ) {
+            log.warn("No template for: " + page.getName() + " template name: " + page.getTemplateName());
             return null;
         }
         ComponentDef def = templatePage.getComponentDef( name );

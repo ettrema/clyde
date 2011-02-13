@@ -358,6 +358,7 @@ public class Export extends AbstractConsoleCommand {
         }
     }
 
+    
     private void updateContentAndMeta(Path destFolder, BaseResource res) throws HttpException, IOException, NotAuthorizedException, BadRequestException {
         Path codeFolderPath = Path.path("/_code" + destFolder.toString());
         log.info("export to parent code path: " + codeFolderPath);

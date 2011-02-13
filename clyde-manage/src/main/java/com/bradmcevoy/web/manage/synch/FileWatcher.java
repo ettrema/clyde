@@ -4,6 +4,8 @@ import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContext;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
@@ -40,7 +42,7 @@ public class FileWatcher implements JNotifyListener {
         try {
             // add actual watch
             JNotify.addWatch( path, mask, watchSubtree, this );
-            log.info( "Now watching files in: " + path);
+            log.info( "Now watching files in: " + path );
         } catch( JNotifyException ex ) {
             log.error( "error watching: " + root.getAbsolutePath(), ex );
         }
@@ -79,7 +81,7 @@ public class FileWatcher implements JNotifyListener {
     }
 
     public void fileModified( int wd, String rootPath, String name ) {
-        log.trace( "fileModified: " + rootPath + " - " + name);
+        log.trace( "fileModified: " + rootPath + " - " + name );
         String path = rootPath + File.separator + name;
         final File f = new File( path );
         if( isIgnored( f ) ) {
@@ -103,21 +105,19 @@ public class FileWatcher implements JNotifyListener {
     }
 
     private void scan( File root ) {
-        // First process files, then directories, for breadth then depth
-        for( File f : root.listFiles() ) {
-            if( !isIgnored( f ) ) {
-                if( f.isFile() ) {
-                    processFile( f );
-                }
-            }
+        DirectoryListing listing = new DirectoryListing( root );
+        // First process the templates folder, if present.
+        if( listing.templates != null ) {
+            scan( listing.templates );
         }
 
-        for( File f : root.listFiles() ) {
-            if( !isIgnored( f ) ) {
-                if( f.isDirectory() ) {
-                    scan( f );
-                }
-            }
+        // Then process files, then directories, for breadth then depth
+        for( File f : listing.files ) {
+            processFile( f );
+        }
+
+        for( File f : listing.subdirs ) {
+            scan( f );
         }
     }
 
@@ -146,6 +146,30 @@ public class FileWatcher implements JNotifyListener {
             } else {
                 return isAnyParentHidden( f.getParentFile() );
             }
+        }
+    }
+
+    private class DirectoryListing {
+
+        File templates;
+        final List<File> files = new ArrayList<File>();
+        final List<File> subdirs = new ArrayList<File>();
+
+        public DirectoryListing( File parent ) {
+            for( File f : parent.listFiles() ) {
+                if( !isIgnored( f ) ) {
+                    if( f.isDirectory() ) {
+                        if( "templates".equals( f.getName() ) ) {
+                            this.templates = f;
+                        } else {
+                            this.subdirs.add( f );
+                        }
+                    } else {
+                        this.files.add( f );
+                    }
+                }
+            }
+
         }
     }
 }

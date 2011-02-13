@@ -204,15 +204,15 @@ public class CommonTemplatedMetaHandler {
 
     public void updateFromXml(CommonTemplated res, Element el, boolean includeContentVals) {
         log.trace("updateFromXml2");
-        updateValues(res, el, includeContentVals);
-        updateComponents(res, el);
-        // TODO: handle values for non body+title
-
         String templateName = InitUtils.getValue(el, "template");
         log.trace("templateName: " + templateName);
         res.setTemplateName(templateName);
         res.setContentType(InitUtils.getValue(el, "contentType"));
         res.setMaxAgeSecsThis(InitUtils.getInteger(el, "maxAge"));
+
+        updateValues(res, el, includeContentVals);
+        updateComponents(res, el);
+        // TODO: handle values for non body+title
     }
 
     private void updateValues(CommonTemplated res, Element el, boolean includeContentVals) {

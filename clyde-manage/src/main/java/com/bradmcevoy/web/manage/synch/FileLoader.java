@@ -128,7 +128,7 @@ public class FileLoader {
     }
 
     private void upload(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        log.trace("upload: " + f.getAbsolutePath());
+        log.info("upload: " + f.getAbsolutePath());
         File fMeta = toMetaFile(f);
         if (fMeta.exists()) {
             put(fMeta);

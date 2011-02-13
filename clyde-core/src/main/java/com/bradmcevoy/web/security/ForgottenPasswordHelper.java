@@ -7,6 +7,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
+import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
 import com.ettrema.context.RequestContext;
 import com.ettrema.mail.MailboxAddress;
@@ -57,8 +58,10 @@ public class ForgottenPasswordHelper {
         MailboxAddress to = parsedEmail;
         token = _(PasswordRecoveryService.class).createToken(foundUser);
         String currentPassword = _(PasswordStorageService.class).getPasswordValue(foundUser);
-        String text = evalTemplate((CommonTemplated) comp.getContainer(), comp.getBodyTemplate(), foundUser, token, currentPassword, parsedEmail.toPlainAddress());
-        String html = evalTemplate((CommonTemplated) comp.getContainer(), comp.getBodyTemplateHtml(), foundUser, token, currentPassword, parsedEmail.toPlainAddress());
+
+        Templatable target = rc.getTargetPage();
+        String text = evalTemplate(target, comp.getBodyTemplate(), foundUser, token, currentPassword, parsedEmail.toPlainAddress());
+        String html = evalTemplate(target, comp.getBodyTemplateHtml(), foundUser, token, currentPassword, parsedEmail.toPlainAddress());
         String rt = (comp.getReplyTo() == null) ? comp.getFromAdd() : comp.getReplyTo();
         if (StringUtils.isEmpty(comp.getFromAdd())) {
             throw new IllegalArgumentException("from address is null");
@@ -85,7 +88,7 @@ public class ForgottenPasswordHelper {
         return checkRedirect(comp.getThankyouPage());
     }
 
-    private String evalTemplate(CommonTemplated container, String template, User user, String token, String password, String email) {
+    private String evalTemplate(Templatable targetPage, String template, User user, String token, String password, String email) {
         if (template == null) {
             return null;
         }
@@ -95,7 +98,7 @@ public class ForgottenPasswordHelper {
             map.put("email", email);
             map.put("token", token);
             map.put("password", password);
-            map.put("targetPage", container);
+            map.put("targetPage", targetPage);
             String s = TemplateInterpreter.evalToString(template, map);
             return s;
         } catch (Throwable e) {
