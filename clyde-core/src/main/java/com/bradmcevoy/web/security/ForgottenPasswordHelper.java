@@ -115,6 +115,7 @@ public class ForgottenPasswordHelper {
      * @return
      */
     private boolean validateEmailRequest(ForgottenPasswordComponent comp, RenderContext rc, Map<String, String> parameters) {
+        // Look for a user matching the given email address. If none is found a validation message is set
         findUser(comp, parameters);
         if (foundUser != null) {
             if (StringUtils.isNotBlank(comp.getRecaptchaComponent())) {

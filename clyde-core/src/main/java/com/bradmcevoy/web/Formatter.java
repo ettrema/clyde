@@ -267,4 +267,50 @@ public class Formatter {
         }
         return FileUtils.stripExtension(s);
     }
+
+    /**
+     * True if val1 is greater then val2
+     *
+     * will do string conversions
+     *
+     * @param val1
+     * @param val2
+     * @return
+     */
+    public boolean gt(Object val1, Object val2) {
+        if( val1 == null ) {
+            return false;
+        }
+        if( val2 == null ) {
+            return true;
+        }
+        Double d1 = toDouble(val1);
+        Double d2 = toDouble(val2);
+        return d1.doubleValue() > d2.doubleValue();
+    }
+
+    public boolean lt(Object val1, Object val2) {
+        if( val1 == null ) {
+            return false;
+        }
+        if( val2 == null ) {
+            return true;
+        }
+        Double d1 = toDouble(val1);
+        Double d2 = toDouble(val2);
+        return d1.doubleValue() < d2.doubleValue();
+    }
+
+    public boolean eq(Object val1, Object val2) {
+        if( val1 == null ) {
+            return (val2 == null);
+        }
+        if( val2 == null ) {
+            return false;
+        }
+        Double d1 = toDouble(val1);
+        Double d2 = toDouble(val2);
+        return d1.doubleValue() == d2.doubleValue();
+    }
+
 }

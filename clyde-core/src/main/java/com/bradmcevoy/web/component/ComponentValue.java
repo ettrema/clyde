@@ -390,6 +390,18 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         return Formatter.getInstance().getMonth(getValue());
     }
 
+    public boolean gt(Object val2) {
+        return Formatter.getInstance().gt(this.getValue(), val2);
+    }
+
+    public boolean lt(Object val1, Object val2) {
+        return Formatter.getInstance().lt(this.getValue(), val2);
+    }
+
+    public boolean eq(Object val1, Object val2) {
+        return Formatter.getInstance().eq(this.getValue(), val2);
+    }
+
     public class MyEntityResolver implements EntityResolver2 {
 
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {

@@ -737,10 +737,21 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return resList;
     }
 
+    /**
+     * Create a relationship. Relationships should generaly be one-to-many,
+     * and should be made from the many side to the parent.
+     *
+     * Eg if an invoice relates to a customer, you should call createRelationship
+     * on the invoice, providing the customer as the To object
+     *
+     * @param relationName
+     * @param to
+     */
     public void createRelationship(String relationName, BaseResource to) {
         removeRelationship(relationName);
         Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
         to.nameNode.onNewRelationship(r);
+        System.out.println("created relationship : " + r.toString() + " from " + getName());
     }
 
     public void removeRelationship(String relationName) {
