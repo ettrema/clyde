@@ -8,6 +8,7 @@ package com.bradmcevoy.web.manage.gui;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;
 import com.bradmcevoy.web.manage.logging.JTableLogger;
+import com.bradmcevoy.web.manage.synch.FileWatcher;
 import com.ettrema.cache.Cache;
 import com.ettrema.context.RootContext;
 import com.ettrema.event.EventManager;
@@ -29,16 +30,19 @@ public class ClydeFrame extends javax.swing.JFrame {
     private final JTableLogger tableLogger;
     private final RequestsTableModel requestModel;
     private final RootContext rootContext;
+    private final FileWatcher fileWatcher;
     private List<Cache> caches;
 
     /** Creates new form ClydeFrame */
-    public ClydeFrame(RootContext rootContext, EventManager eventManager) {
+    public ClydeFrame(RootContext rootContext, EventManager eventManager, FileWatcher fileWatcher) {
         this.rootContext = rootContext;
         initComponents();
         tableLogger = new JTableLogger(tblLogs);
         this.setVisible(true);
         requestModel = new RequestsTableModel(eventManager);
         tblRequests.setModel(requestModel);
+        this.fileWatcher = fileWatcher;
+
         Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(new Runnable() {
 
             public void run() {
@@ -58,7 +62,8 @@ public class ClydeFrame extends javax.swing.JFrame {
 
         tabMain = new javax.swing.JTabbedPane();
         pnlSummary = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        btnShutdown = new javax.swing.JButton();
+        btnScan = new javax.swing.JButton();
         scrollLogs = new javax.swing.JScrollPane();
         tblLogs = new javax.swing.JTable();
         scrollRequests = new javax.swing.JScrollPane();
@@ -76,32 +81,36 @@ public class ClydeFrame extends javax.swing.JFrame {
         pnlSummary.setName("pnlSummary"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ClydeFrame.class, this);
-        jButton1.setAction(actionMap.get("doShutdown")); // NOI18N
-        jButton1.setText("Shutdown");
-        jButton1.setName("jButton1"); // NOI18N
+        btnShutdown.setAction(actionMap.get("doShutdown")); // NOI18N
+        btnShutdown.setText("Shutdown");
+        btnShutdown.setName("btnShutdown"); // NOI18N
+
+        btnScan.setAction(actionMap.get("doScan")); // NOI18N
+        btnScan.setText("Scan files");
+        btnScan.setName("btnScan"); // NOI18N
 
         javax.swing.GroupLayout pnlSummaryLayout = new javax.swing.GroupLayout(pnlSummary);
         pnlSummary.setLayout(pnlSummaryLayout);
         pnlSummaryLayout.setHorizontalGroup(
             pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 395, Short.MAX_VALUE)
-            .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(pnlSummaryLayout.createSequentialGroup()
-                    .addGap(0, 144, Short.MAX_VALUE)
-                    .addComponent(jButton1)
-                    .addGap(0, 145, Short.MAX_VALUE)))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSummaryLayout.createSequentialGroup()
+                .addContainerGap(148, Short.MAX_VALUE)
+                .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnScan)
+                    .addComponent(btnShutdown))
+                .addGap(141, 141, 141))
         );
         pnlSummaryLayout.setVerticalGroup(
             pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 252, Short.MAX_VALUE)
-            .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(pnlSummaryLayout.createSequentialGroup()
-                    .addGap(0, 114, Short.MAX_VALUE)
-                    .addComponent(jButton1)
-                    .addGap(0, 113, Short.MAX_VALUE)))
+            .addGroup(pnlSummaryLayout.createSequentialGroup()
+                .addGap(97, 97, 97)
+                .addComponent(btnShutdown)
+                .addGap(18, 18, 18)
+                .addComponent(btnScan)
+                .addContainerGap(87, Short.MAX_VALUE))
         );
 
-        tabMain.addTab("Summary", pnlSummary);
+        tabMain.addTab("Control", pnlSummary);
 
         scrollLogs.setName("scrollLogs"); // NOI18N
 
@@ -110,7 +119,7 @@ public class ClydeFrame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Source", "Priority", "Line", "Message"
+                "Priority", "Source", "Message"
             }
         ));
         tblLogs.setName("tblLogs"); // NOI18N
@@ -175,7 +184,6 @@ public class ClydeFrame extends javax.swing.JFrame {
         mnuTools.setName("mnuTools"); // NOI18N
 
         jMenuItem1.setAction(actionMap.get("doClear")); // NOI18N
-        jMenuItem1.setText("Clear");
         jMenuItem1.setName("jMenuItem1"); // NOI18N
         mnuTools.add(jMenuItem1);
 
@@ -207,7 +215,8 @@ public class ClydeFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_tblRequestsMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnScan;
+    private javax.swing.JButton btnShutdown;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -259,6 +268,18 @@ public class ClydeFrame extends javax.swing.JFrame {
             public void run() {
                 requestModel.clearAll();
                 tableLogger.clearAll();
+            }
+        });
+    }
+
+    @Action
+    public void doScan() {
+        System.out.println("doScan");
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                System.out.println("beginning scan");
+                fileWatcher.initialScan();
             }
         });
     }

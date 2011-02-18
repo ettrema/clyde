@@ -29,9 +29,8 @@ public final class JTableLogger implements com.ettrema.logging.NotifyingAppender
         }
         Object[] row = new Object[4];
         row[0] = event.getLevel().toString();
-        row[1] = event.getLoggerName();
-        row[2] = event.getLocationInformation().getMethodName() + ":" + event.getLocationInformation().getLineNumber();
-        row[3] = event.getMessage();
+        row[1] = event.getLoggerName() + "::" + event.getLocationInformation().getMethodName() + ":" + event.getLocationInformation().getLineNumber();
+        row[2] = event.getMessage();
         model.addRow( row );
         int newRow = model.getRowCount() - 1;
         model.fireTableRowsInserted( newRow, newRow );

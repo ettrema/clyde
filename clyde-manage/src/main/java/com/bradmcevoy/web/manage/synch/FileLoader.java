@@ -1,7 +1,8 @@
 package com.bradmcevoy.web.manage.synch;
 
+import java.util.Date;
+import java.io.FileOutputStream;
 import com.bradmcevoy.common.ContentTypeUtils;
-import com.bradmcevoy.http.http11.PutHelper;
 import com.bradmcevoy.http.ReplaceableResource;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
@@ -33,7 +34,6 @@ public class FileLoader {
     private final File root;
     private final CodeResourceFactory resourceFactory;
     private final ErrorReporter errorReporter;
-    private final PutHelper putHelper = new PutHelper();
 
     public FileLoader(File root, CodeResourceFactory resourceFactory, ErrorReporter errorReporter) {
         this.root = root;
@@ -43,7 +43,7 @@ public class FileLoader {
 
     public void onNewFile(File f) {
         try {
-            upload(f);
+            check(f);
             log.trace("commit new file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
@@ -54,7 +54,7 @@ public class FileLoader {
 
     public void onDeleted(File f) {
         try {
-            delete(f);
+            check(f);
             log.trace("commit deleted file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
@@ -65,14 +65,59 @@ public class FileLoader {
 
     public void onModified(File f) {
         try {
-            upload(f);
+            check(f);
             log.trace("commit modified file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
             _(VfsSession.class).rollback();
             errorReporter.onError(f, ex);
         }
+    }
 
+    private void check(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+        boolean done = false;
+        try {
+            while (!done) {
+                Thread.sleep(300);
+                if (f.exists()) {
+                    if (isFileOpen(f)) {
+                        log.warn("waiting for file to be unlocked: " + f.getAbsolutePath());
+                        Thread.sleep(1000);
+                    } else {
+                        done = true;
+                        upload(f);
+                        log.info("done upload: " + f.getAbsolutePath());
+                    }
+                } else {
+                    done = true;
+                    delete(f);
+                    log.info("done delete:" + f.getAbsolutePath());
+                }
+            }
+        } catch (InterruptedException ex) {
+            log.error("interrupted", ex);
+        }
+
+    }
+
+    private boolean isFileOpen(File file) {
+        log.info("is file open? " + file.getAbsolutePath());
+        FileOutputStream fout = null;
+        try {
+            try {
+                fout = new FileOutputStream(file, true);
+                log.trace("not lockled");
+                return false;
+            } catch (FileNotFoundException ex) {
+                log.info("file doesnt exist: " + file.getAbsolutePath());
+                return false;
+            }
+        } catch (Exception e) {
+            log.info("exception occured, so presume file is locked: " + file.getAbsolutePath() + " - " + e.getMessage());
+            return true;
+        } finally {
+            IOUtils.closeQuietly(fout);
+        }
     }
 
     public void onRenamed(File f) {
@@ -82,6 +127,17 @@ public class FileLoader {
         f = toMetaFile(f);
         Resource r = resourceFactory.getResource(hostName, toUrl(f));
         return r != null;
+    }
+
+    public boolean isNewOrUpdated(File f) {
+        f = toMetaFile(f);
+        Resource r = resourceFactory.getResource(hostName, toUrl(f));
+        if (r == null || r.getModifiedDate() == null) {
+            return true;
+        } else {
+            Date fileModDate = new Date(f.lastModified());
+            return fileModDate.after(r.getModifiedDate());
+        }
     }
 
     public String getHostName() {

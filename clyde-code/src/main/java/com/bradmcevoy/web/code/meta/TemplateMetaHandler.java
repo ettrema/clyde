@@ -180,8 +180,6 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
         template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));
         String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
-
-        //System.out.println(afterSave);
         
         template.setAfterSaveScript(afterSave);
 

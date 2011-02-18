@@ -11,6 +11,7 @@ import com.bradmcevoy.web.component.InitUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -32,9 +33,9 @@ public class PageContentTypeHandler implements ContentTypeHandler {
     public void generateContent( OutputStream out, GetableResource wrapped ) throws IOException {
         Page page = (Page) wrapped;
         // <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-        //DocType dt = new DocType( "html", "-//W3C//DTD XHTML 1.0 Strict//EN", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" );
+        DocType dt = new DocType( "html", "-//W3C//DTD XHTML 1.0 Strict//EN", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" );
         Element elRoot = new Element( "html" );
-        org.jdom.Document doc = new Document( elRoot ); //, dt );
+        org.jdom.Document doc = new Document( elRoot , dt );
         ComponentValue body = page.getValues().get( "body" );
         ComponentValue title = page.getValues().get( "title" );
         Element elHead = new Element( "head" );

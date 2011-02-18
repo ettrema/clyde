@@ -655,12 +655,19 @@ public class RenderContext implements Map<String, Component> {
         BrowserList list = new BrowserList();
         // Eg: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13
         String browser = _(CurrentRequestService.class).request().getUserAgentHeader();
+        String x =  _(CurrentRequestService.class).request().getParams().get("BrowserGrade");
+        if( x != null ) {
+            browser = x;
+        }
+
+        boolean isGradeA = true;
         String family;
         String version = null;
         if (browser.contains("MSIE")) {
             family = "ie";
             if (browser.contains("MSIE 6")) {
                 version = "ie6";
+                isGradeA = false;
             } else if (browser.contains("MSIE 7")) {
                 version = "ie7";
             } else if (browser.contains("MSIE 8")) {
@@ -674,16 +681,16 @@ public class RenderContext implements Map<String, Component> {
             family = "safari";
         } else {
             family = "unknownBrowser";
+            // assume grade a because it might be standards compliant
         }
         list.add(family);
-        if( !family.equals("ie")) {
-            list.add("nonie");
+        if( isGradeA ) {
+            list.add("grade-a");
+        } else {
+            list.add("grade-b");
         }
         if (version != null) {
             list.add(version);
-            if( !version.equals("ie6")) {
-                list.add("nonie6");
-            }
         }
         return list;
     }

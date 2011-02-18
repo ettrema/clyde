@@ -438,12 +438,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             this.getComponents().remove(MAXAGE_COMP_NAME);
         } else {
             Component c = this.getComponents().get(MAXAGE_COMP_NAME);
-            NumberInput n;
-            if (c == null) {
+            NumberInput n = null;
+            if (c instanceof NumberInput) {
+                n = (NumberInput) c;
+            }
+
+            if (n == null) {
                 n = new NumberInput(this, MAXAGE_COMP_NAME);
                 this.getComponents().add(n);
-            } else {
-                n = (NumberInput) c;
             }
             if (l == null) {
                 n.setValue(null);
@@ -888,6 +890,20 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         } else {
             return !cv.isEmpty();
         }
+    }
+
+    public boolean isInTemplates() {
+        Folder parent = this.getParentFolder();
+        if (parent == null) {
+            return false;
+        } else {
+            if (parent.getName().equals("templates")) {
+                return true;
+            } else {
+                return parent.isInTemplates();
+            }
+        }
+
     }
 
     public class Params implements Map<String, Component> {

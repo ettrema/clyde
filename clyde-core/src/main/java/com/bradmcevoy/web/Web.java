@@ -63,6 +63,13 @@ public class Web extends Folder {
         }
     }
 
+    @Override
+    final public boolean isInTemplates() {
+        return false;
+    }
+
+
+
     public Folder getRecentFolder() {
         return getRecentFolder( false );
     }

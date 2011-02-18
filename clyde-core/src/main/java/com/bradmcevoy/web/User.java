@@ -37,59 +37,58 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
-@BeanPropertyResource( "clyde" )
+@BeanPropertyResource("clyde")
 public class User extends Folder implements IUser {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( User.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(User.class);
     private static final long serialVersionUID = 1L;
-    
     private Text password;
     private boolean emailDisabled;
     private boolean accountDisabled;
     private List<String> accessKeys;
 
-    public User( Folder parentFolder, String name ) {
-        this( parentFolder, name, null );
+    public User(Folder parentFolder, String name) {
+        this(parentFolder, name, null);
     }
 
-    public User( Folder parentFolder, String name, String password ) {
-        super( parentFolder, name );
+    public User(Folder parentFolder, String name, String password) {
+        super(parentFolder, name);
     }
 
     @Override
-    protected BaseResource copyInstance( Folder parent, String newName ) {
-        User uNew = (User) super.copyInstance( parent, newName );
+    protected BaseResource copyInstance(Folder parent, String newName) {
+        User uNew = (User) super.copyInstance(parent, newName);
         return uNew;
     }
 
     @Override
-    protected BaseResource newInstance( Folder parent, String newName ) {
-        return new User( parent, newName );
+    protected BaseResource newInstance(Folder parent, String newName) {
+        return new User(parent, newName);
     }
 
     @Override
-    public void populateXml( Element e2 ) {
-        super.populateXml( e2 );
-        InitUtils.setBoolean( e2, "emailDisabled", emailDisabled );
+    public void populateXml(Element e2) {
+        super.populateXml(e2);
+        InitUtils.setBoolean(e2, "emailDisabled", emailDisabled);
 
-        Element elEmail = new Element( "email" );
-        elEmail.setText( getExternalEmailText() );
-        e2.addContent( elEmail );
+        Element elEmail = new Element("email");
+        elEmail.setText(getExternalEmailText());
+        e2.addContent(elEmail);
     }
 
     @Override
-    public void loadFromXml( Element el ) {
-        super.loadFromXml( el );
-        password = (Text) this.componentMap.get( "password" );
+    public void loadFromXml(Element el) {
+        super.loadFromXml(el);
+        password = (Text) this.componentMap.get("password");
 
         // TODO: ??
-        String s = el.getAttributeValue( "groupNames" );
+        String s = el.getAttributeValue("groupNames");
 
-        this.emailDisabled = InitUtils.getBoolean( el, "emailDisabled" );
-        Element elEmail = el.getChild( "email" );
-        if( elEmail != null ) {
+        this.emailDisabled = InitUtils.getBoolean(el, "emailDisabled");
+        Element elEmail = el.getChild("email");
+        if (elEmail != null) {
             String newEmail = elEmail.getText();
-            setExternalEmailText( newEmail );
+            setExternalEmailText(newEmail);
         }
     }
 
@@ -98,21 +97,19 @@ public class User extends Folder implements IUser {
         return emailDisabled;
     }
 
-    public void setEmailDisabled( boolean emailDisabled ) {
+    public void setEmailDisabled(boolean emailDisabled) {
         this.emailDisabled = emailDisabled;
     }
 
-
     @Override
-    public boolean authenticate( String password ) {
-        return _(PasswordStorageService.class).checkPassword( this, password );
+    public boolean authenticate(String password) {
+        return _(PasswordStorageService.class).checkPassword(this, password);
     }
 
     @Override
-    public boolean authenticateMD5( byte[] passwordHash ) {
-        return _(PasswordStorageService.class).checkPasswordMD5( this, passwordHash );
+    public boolean authenticateMD5(byte[] passwordHash) {
+        return _(PasswordStorageService.class).checkPasswordMD5(this, passwordHash);
     }
-
 
     /**
      * Always returns a blank. Just used to make password a bean property, but
@@ -124,24 +121,21 @@ public class User extends Folder implements IUser {
         return "";
     }
 
-    public void setPassword( String newPassword ) {
-        _(PasswordStorageService.class).setPasswordValue( this, newPassword );
+    public void setPassword(String newPassword) {
+        _(PasswordStorageService.class).setPasswordValue(this, newPassword);
     }
 
-    public boolean checkPassword( String password ) {
-        return _(PasswordStorageService.class).checkPassword( this, password );
+    public boolean checkPassword(String password) {
+        return _(PasswordStorageService.class).checkPassword(this, password);
     }
 
-    public boolean checkPassword( DigestResponse digestRequest ) {
-        return _(PasswordStorageService.class).checkPassword( this, digestRequest );
+    public boolean checkPassword(DigestResponse digestRequest) {
+        return _(PasswordStorageService.class).checkPassword(this, digestRequest);
     }
-
-
-    
 
     /**
      *         // note that this can cause an error sometimes, eg if the user name
-        // has a space in it
+    // has a space in it
 
      * 
      * @return - the email address for this user on this domain. NOT their specified
@@ -152,55 +146,55 @@ public class User extends Folder implements IUser {
         String s = this.getName() + "@" + h.getName();
         Address add;
         try {
-            add = new InternetAddress( s );
-        } catch( AddressException ex ) {
-            throw new RuntimeException( ex );
+            add = new InternetAddress(s);
+        } catch (AddressException ex) {
+            throw new RuntimeException(ex);
         }
         return add;
     }
 
     @Override
     public MessageFolder getInbox() {
-        log.debug( "getInbox" );
+        log.debug("getInbox");
         Folder f = getEmailFolder();
-        if( f == null ) {
-            log.warn( "no inbox for: " + this.getName() );
+        if (f == null) {
+            log.warn("no inbox for: " + this.getName());
             return null;
         }
-        return new ClydeMessageFolder( f );
+        return new ClydeMessageFolder(f);
     }
 
     public Folder getEmailFolder() {
-        return getEmailFolder( false );
+        return getEmailFolder(false);
     }
 
-    public Folder getEmailFolder( boolean create ) {
+    public Folder getEmailFolder(boolean create) {
         String emailFolderName = "inbox";
-        Folder emailFolder = getMailFolder( emailFolderName, create );
+        Folder emailFolder = getMailFolder(emailFolderName, create);
         return emailFolder;
     }
 
     @Override
-    public MessageFolder getMailFolder( String name ) {
-        Folder f = getMailFolder( name, false );
-        if( f == null ) {
+    public MessageFolder getMailFolder(String name) {
+        Folder f = getMailFolder(name, false);
+        if (f == null) {
             return null;
         }
-        return new ClydeMessageFolder( f );
+        return new ClydeMessageFolder(f);
     }
 
-    public Folder getMailFolder( String name, boolean create ) {
+    public Folder getMailFolder(String name, boolean create) {
         String emailFolderName = "email_" + name;
-        Folder emailFolder = getSubFolder( emailFolderName );
-        if( emailFolder == null && create ) {
+        Folder emailFolder = getSubFolder(emailFolderName);
+        if (emailFolder == null && create) {
             try {
-                emailFolder = (Folder) createCollection( emailFolderName, false );
-            } catch( ConflictException ex ) {
-                throw new RuntimeException( ex );
-            } catch( NotAuthorizedException ex ) {
-                throw new RuntimeException( ex );
-            } catch( BadRequestException ex ) {
-                throw new RuntimeException( ex );
+                emailFolder = (Folder) createCollection(emailFolderName, false);
+            } catch (ConflictException ex) {
+                throw new RuntimeException(ex);
+            } catch (NotAuthorizedException ex) {
+                throw new RuntimeException(ex);
+            } catch (BadRequestException ex) {
+                throw new RuntimeException(ex);
             }
         }
         return emailFolder;
@@ -208,91 +202,91 @@ public class User extends Folder implements IUser {
     }
 
     @Override
-    public void storeMail( MimeMessage mm ) {
-        MailProcessor mailProc = requestContext().get( MailProcessor.class );
-        if( mailProc == null )
-            throw new RuntimeException( "No " + MailProcessor.class.getCanonicalName() + " is configured. Check catalog.xml" );
+    public void storeMail(MimeMessage mm) {
+        MailProcessor mailProc = requestContext().get(MailProcessor.class);
+        if (mailProc == null) {
+            throw new RuntimeException("No " + MailProcessor.class.getCanonicalName() + " is configured. Check catalog.xml");
+        }
         String emailRecip = getExternalEmailText();
-        if( emailRecip == null ) {
-            Folder destFolder = getEmailFolder( true );
-            mailProc.persistEmail( mm, destFolder, requestContext() );
+        if (emailRecip == null) {
+            Folder destFolder = getEmailFolder(true);
+            mailProc.persistEmail(mm, destFolder, requestContext());
             this.commit();
         } else {
-            mailProc.forwardEmail( mm, emailRecip, requestContext() );
+            mailProc.forwardEmail(mm, emailRecip, requestContext());
         }
     }
-
 
     /**
      * 
      * @return - the user's specified external email address as a string. Null if not specified
      */
     public String getExternalEmailText() {
-        String s = getExternalEmailTextV2( "default" );
-        if( s != null ) {
+        String s = getExternalEmailTextV2("default");
+        if (s != null) {
             return s;
         } else {
-            ComponentValue cvEmail = this.getValues().get( "email" );
-            if( cvEmail == null || cvEmail.getValue() == null ) {
+            ComponentValue cvEmail = this.getValues().get("email");
+            if (cvEmail == null || cvEmail.getValue() == null) {
                 return null;
             }
             s = cvEmail.getValue().toString();
-            if( s.trim().length() == 0 ) {
+            if (s.trim().length() == 0) {
                 return null;
             }
             return s;
         }
     }
 
-    public void setExternalEmailText( String email ) {
-        ComponentValue cvEmail = this.getValues().get( "email" );
-        if( cvEmail == null ) {
-            cvEmail = new ComponentValue( "email", this );
-            cvEmail.init( this );
-            cvEmail.setValue( email );
-            this.getValues().add( cvEmail );
+    public void setExternalEmailText(String email) {
+        ComponentValue cvEmail = this.getValues().get("email");
+        if (cvEmail == null) {
+            cvEmail = new ComponentValue("email", this);
+            cvEmail.init(this);
+            cvEmail.setValue(email);
+            this.getValues().add(cvEmail);
         } else {
-            cvEmail.setValue( email );
+            cvEmail.setValue(email);
         }
-        setExternalEmailTextV2( "default", email );
+        setExternalEmailTextV2("default", email);
     }
 
     @Override
-    public boolean is( String type ) {
-        if( "user".equals(type)) {
+    public boolean is(String type) {
+        if ("user".equals(type)) {
             return true;
         }
-        if( isInGroup( type ) ) {
+        if (isInGroup(type)) {
             return true;
         }
-        return super.is( type );
+        return super.is(type);
     }
 
-    public boolean isInGroup( String groupName ) {
-        UserGroup group = _( GroupService.class ).getGroup( this, groupName );
-        if( group != null ) {
-            boolean b = group.isInGroup( this );
-            if( log.isTraceEnabled() ) {
-                log.trace( "isInGroup: " + groupName + " = " + b );
+    public boolean isInGroup(String groupName) {
+        UserGroup group = _(GroupService.class).getGroup(this, groupName);
+        if (group != null) {
+            boolean b = group.isInGroup(this);
+            if (log.isTraceEnabled()) {
+                log.trace("isInGroup: " + groupName + " = " + b);
             }
             return b;
         } else {
-            log.warn( "group not found: " + groupName );
+            log.warn("group not found: " + groupName);
             return false;
         }
     }
 
-    public boolean isInGroup( Group g ) {
-        return g.isInGroup( this );
+    public boolean isInGroup(Group g) {
+        return g.isInGroup(this);
     }
 
     public String getMobileNumber() {
-        ComponentValue cvMobile = this.getValues().get( "mobile" );
-        if( cvMobile == null || cvMobile.getValue() == null ) {
+        ComponentValue cvMobile = this.getValues().get("mobile");
+        if (cvMobile == null || cvMobile.getValue() == null) {
             return null;
         }
         String s = cvMobile.getValue().toString();
-        if( s.trim().length() == 0 ) {
+        if (s.trim().length() == 0) {
             return null;
         }
         return s;
@@ -302,58 +296,58 @@ public class User extends Folder implements IUser {
         return getName();
     }
 
-    public void addToGroup( String groupName ) {
-        Group g = (Group) _( RelationalGroupHelper.class ).getGroup( this, groupName );
-        if( g == null ) {
-            throw new RuntimeException( "Group not found: " + groupName );
+    public void addToGroup(String groupName) {
+        Group g = (Group) _(RelationalGroupHelper.class).getGroup(this, groupName);
+        if (g == null) {
+            throw new RuntimeException("Group not found: " + groupName);
         }
-        addToGroup( g );
+        addToGroup(g);
     }
 
-    public void addToGroup( Group g ) {
-        _( RelationalGroupHelper.class ).addToGroup( this, g );
+    public void addToGroup(Group g) {
+        _(RelationalGroupHelper.class).addToGroup(this, g);
     }
 
-    public void removeFromGroup( String groupName ) {
-        if( groupName == null || groupName.length() == 0 ) {
-            throw new IllegalArgumentException( "Group name is empty or null" );
+    public void removeFromGroup(String groupName) {
+        if (groupName == null || groupName.length() == 0) {
+            throw new IllegalArgumentException("Group name is empty or null");
         }
-        RelationalGroupHelper groupService = _( RelationalGroupHelper.class );
-        UserGroup userGroup = groupService.getGroup( this, groupName );
-        if( userGroup == null ) {
-            throw new NullPointerException( "Group not found: " + groupName );
-        } else if( userGroup instanceof Group ) {
-            removeFromGroup( (Group) userGroup );
+        RelationalGroupHelper groupService = _(RelationalGroupHelper.class);
+        UserGroup userGroup = groupService.getGroup(this, groupName);
+        if (userGroup == null) {
+            throw new NullPointerException("Group not found: " + groupName);
+        } else if (userGroup instanceof Group) {
+            removeFromGroup((Group) userGroup);
         } else {
-            throw new RuntimeException( "Cant remove group type: " + userGroup.getClass() );
+            throw new RuntimeException("Cant remove group type: " + userGroup.getClass());
         }
     }
 
-    public void removeFromGroup( Group group ) {
-        RelationalGroupHelper groupService = _( RelationalGroupHelper.class );
-        if( group.isInGroup( this ) ) {
-            groupService.removeFromGroup( this, group );
+    public void removeFromGroup(Group group) {
+        RelationalGroupHelper groupService = _(RelationalGroupHelper.class);
+        if (group.isInGroup(this)) {
+            groupService.removeFromGroup(this, group);
         }
     }
 
     public List<WallItem> getWall() {
-        log.warn( "getWall" );
-        Wall wall = _( WallService.class ).getUserWall( this, false );
-        if( wall == null ) {
+        log.warn("getWall");
+        Wall wall = _(WallService.class).getUserWall(this, false);
+        if (wall == null) {
             return Collections.emptyList();
         } else {
             List<WallItem> list = wall.getItems();
-            log.warn( "wall items: " + list.size() );
+            log.warn("wall items: " + list.size());
             return list;
         }
     }
 
-    @BeanPropertyAccess( false )
+    @BeanPropertyAccess(false)
     public List<String> getAccessKeys() {
-        if( accessKeys == null ) {
+        if (accessKeys == null) {
             return Collections.emptyList();
         } else {
-            return new ArrayList( accessKeys );
+            return new ArrayList(accessKeys);
         }
     }
 
@@ -364,10 +358,10 @@ public class User extends Folder implements IUser {
      */
     public String createNewAccessKey() {
         UUID newId = UUID.randomUUID();
-        if( accessKeys == null ) {
+        if (accessKeys == null) {
             accessKeys = new ArrayList<String>();
         }
-        accessKeys.add( newId.toString() );
+        accessKeys.add(newId.toString());
         return newId.toString();
     }
 
@@ -379,18 +373,18 @@ public class User extends Folder implements IUser {
      *
      */
     public void login() {
-        if( accountDisabled ) {
+        if (accountDisabled) {
             log.info("Cant login with a disabled account");
         }
-        log.trace( "do login" );
-        Request req = _( CurrentRequestService.class ).request();
-        _( CookieAuthenticationHandler.class ).setLoginCookies( this, req );
+        log.trace("do login");
+        Request req = _(CurrentRequestService.class).request();
+        _(CookieAuthenticationHandler.class).setLoginCookies(this, req);
     }
 
-    public boolean appliesTo( Subject user ) {
-        if( user instanceof User ) {
+    public boolean appliesTo(Subject user) {
+        if (user instanceof User) {
             User u = (User) user;
-            return u.getNameNodeId().equals( this.getNameNodeId() );
+            return u.getNameNodeId().equals(this.getNameNodeId());
         } else {
             return false;
         }
@@ -404,12 +398,12 @@ public class User extends Folder implements IUser {
      * @param iuser
      * @return
      */
-    public boolean is( IUser iuser ) {
-        return appliesTo( iuser );
+    public boolean is(IUser iuser) {
+        return appliesTo(iuser);
     }
 
     public boolean isSysAdmin() {
-        return _( PermissionChecker.class ).hasRole( Role.SYSADMIN, this, null );
+        return _(PermissionChecker.class).hasRole(Role.SYSADMIN, this, null);
     }
 
     /**
@@ -418,25 +412,25 @@ public class User extends Folder implements IUser {
      * @param r
      * @return
      */
-    public boolean canAuthor( Resource r ) {
+    public boolean canAuthor(Resource r) {
         Auth auth = null;
-        Request req = _( CurrentRequestService.class ).request();
-        if( req != null ) {
+        Request req = _(CurrentRequestService.class).request();
+        if (req != null) {
             auth = req.getAuthorization();
         }
-        boolean b = _( PermissionChecker.class ).hasRole( Role.AUTHOR, r, auth );
+        boolean b = _(PermissionChecker.class).hasRole(Role.AUTHOR, r, auth);
         return b;
     }
 
-    public boolean hasRole( String role, Resource res ) {
+    public boolean hasRole(String role, Resource res) {
         Role r = null;
         try {
-            r = Role.valueOf( role );
-        } catch( Exception e ) {
-            log.error( "invalid role: " + role, e );
+            r = Role.valueOf(role);
+        } catch (Exception e) {
+            log.error("invalid role: " + role, e);
             return false;
         }
-        return _( PermissionChecker.class ).hasRole( r, res, null );
+        return _(PermissionChecker.class).hasRole(r, res, null);
     }
 
     /**
@@ -448,13 +442,13 @@ public class User extends Folder implements IUser {
         return this.password;
     }
 
-    public void setPasswordComponent( Text text ) {
+    public void setPasswordComponent(Text text) {
         this.password = text;
     }
 
-    public void copyPasswordFrom(User user ) {
+    public void copyPasswordFrom(User user) {
         String pwd = _(PasswordStorageService.class).getPasswordValue(user);
-        user.setPassword(pwd);
+        setPassword(pwd);
     }
 
     public boolean isAccountDisabled() {
