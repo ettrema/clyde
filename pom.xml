@@ -8,7 +8,7 @@
     <name>Clyde Parent</name>
     <url>http://clyde.ettrema.com</url>
     <scm>
-        <connection>scm:svn:svn://www.ettrema.com/clyde/tags/clyde-1.0</connection>
+        <connection>scm:svn:svn://www.ettrema.com/clyde</connection>
     </scm>
     <properties>
         <milton.version>1.5.7</milton.version>
