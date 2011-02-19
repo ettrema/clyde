@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.ettrema</groupId>
         <artifactId>clyde</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
     </parent>
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-coreapi</artifactId>
@@ -14,7 +14,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>clyde-api</artifactId>
-            <version>[${project.version}]</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -54,12 +54,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>geroa-server</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>[${geroa.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>morton-api</artifactId>
-            <version>${project.version}</version>
+            <version>[${morton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-json</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>[${milton.version}]</version>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>

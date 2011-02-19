@@ -167,7 +167,7 @@ public class BaseResourceMetaHandler {
                         if( group != null ) {
                             res.permissions( true ).grant( role, group );
                         } else {
-                            throw new RuntimeException( "Group not found: " + groupName );
+                            log.error("Group not found: " + groupName);
                         }
                     } else if( type.equals( "userPerm" ) ) {
                         String userPath = elPerm.getAttributeValue( "path" );

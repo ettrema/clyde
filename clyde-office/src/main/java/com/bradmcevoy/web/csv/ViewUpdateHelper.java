@@ -36,7 +36,7 @@ public class ViewUpdateHelper {
                 log.trace("process line: " + line++ + " : " + lineParts);
                 List<String> lineList = new ArrayList<String>();
                 lineList.addAll(Arrays.asList(lineParts));
-                if( lineList.size() > 0 && lineList.get(0).length() > 0 ) {
+                if (lineList.size() > 0 && lineList.get(0).length() > 0) {
                     doProcess(rootSelect, lineList, fromFolder);
                 }
             }
@@ -74,8 +74,10 @@ public class ViewUpdateHelper {
     private void updateRecord(Resource child, Select select, List<String> lineList, int pos) {
         BaseResource childRes = (BaseResource) child;
         for (Field f : select.getFields()) {
-            String sVal = lineList.get(pos++);
-            childRes.setValue(f.getName(), sVal);
+            if (pos < lineList.size()) {
+                String sVal = lineList.get(pos++);
+                childRes.setValue(f.getName(), sVal);
+            }
         }
         childRes.save();
         if (select.getSubSelect() != null) {
@@ -83,7 +85,7 @@ public class ViewUpdateHelper {
                 Folder nextParentFolder = (Folder) child;
                 doProcess(select.getSubSelect(), nextParentFolder, lineList, pos);
             } else {
-                throw new RuntimeException("Not a folder: " + childRes.getHref() + " Is a: " + childRes.getClass() + " id: " + childRes.getNameNodeId() );
+                throw new RuntimeException("Not a folder: " + childRes.getHref() + " Is a: " + childRes.getClass() + " id: " + childRes.getNameNodeId());
             }
 
         }

@@ -100,7 +100,6 @@ public final class CodeResourceFactory implements ResourceFactory {
                 }
             }
         } else {
-            log.trace("not code path");
             return null;
         }
     }

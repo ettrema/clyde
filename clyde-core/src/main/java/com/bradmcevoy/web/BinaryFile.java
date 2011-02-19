@@ -405,4 +405,13 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public boolean isIndexable() {
         return true;
     }
+
+    @Override
+    public Long getMaxAgeSeconds(Auth auth) {
+        if( this.isInTemplates() ) {
+            return 60 * 60 *24 * 7 * 52l; // 1 year
+        } else {
+            return super.getMaxAgeSeconds(auth);
+        }
+    }
 }

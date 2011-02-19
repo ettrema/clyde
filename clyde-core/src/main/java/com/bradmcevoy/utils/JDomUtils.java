@@ -56,11 +56,11 @@ public class JDomUtils {
      *
      * @param el
      * @param name
-     * @param NS
+     * @param ns
      * @return
      */
-    public static String valueOf( Element el, String name, Namespace NS ) {
-        Element elChild = el.getChild( name, NS );
+    public static String valueOf( Element el, String name, Namespace ns ) {
+        Element elChild = el.getChild( name, ns );
         if( elChild == null ) {
             return null;
         } else {

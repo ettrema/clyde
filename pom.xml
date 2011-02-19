@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.ettrema</groupId>
-	<artifactId>clyde</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>Clyde Parent</name>
-	<url>http://clyde.ettrema.com</url>
-	<scm>
-		<connection>scm:svn:svn://www.ettrema.com/clyde/trunk</connection>
-	</scm>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.ettrema</groupId>
+    <artifactId>clyde</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>Clyde Parent</name>
+    <url>http://clyde.ettrema.com</url>
+    <scm>
+        <connection>scm:svn:svn://www.ettrema.com/clyde/tags/clyde-1.0b</connection>
+    </scm>
     <properties>
-        <milton.version>1.5.7-SNAPSHOT</milton.version>
-        <berry.version>1.2-SNAPSHOT</berry.version>
-        <endrick.version>1.4-SNAPSHOT</endrick.version>
+        <milton.version>1.5.7</milton.version>
+        <berry.version>1.2</berry.version>
+        <geroa.version>1.2</geroa.version>
+        <morton.version>1.0</morton.version>
+        <endrick.version>1.4</endrick.version>
+        <endrick.logging.version>1.0</endrick.logging.version>
     </properties>
     <distributionManagement>
         <repository>
@@ -27,17 +30,17 @@
         </snapshotRepository>
     </distributionManagement>
 
-	<developers>
-		<developer>
-			<name>Brad McEvoy</name>
-			<timezone>GMT+12</timezone>
-		</developer>
-	</developers>
-	<modules>
+    <developers>
+        <developer>
+            <name>Brad McEvoy</name>
+            <timezone>GMT+12</timezone>
+        </developer>
+    </developers>
+    <modules>
         <module>clyde-api</module>
         <module>clyde-ant</module>
         <module>clyde-console</module>
-		<module>clyde-core</module>
+        <module>clyde-core</module>
         <module>clyde-ecom</module>
         <module>clyde-media</module>
         <module>clyde-office</module>
@@ -45,36 +48,36 @@
         <module>clyde-process</module>
         <module>clyde-facebook</module>
         <module>clyde-code</module>
-    <module>clyde-manage</module>
-  </modules>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
-	<dependencies>
-	</dependencies>
+        <module>clyde-manage</module>
+    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+    </dependencies>
     <repositories>
         <repository>
-          <id>ettrema-repo</id>
-          <url>http://www.ettrema.com/maven2</url>
+            <id>ettrema-repo</id>
+            <url>http://www.ettrema.com/maven2</url>
         </repository>
         <repository>
             <!-- needed for java2html -->

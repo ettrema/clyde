@@ -7,4 +7,18 @@
                 <goal>deploy</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-release:prepare</actionName>
+            <displayName>release:prepare</displayName>
+            <goals>
+                <goal>release:prepare</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-release:rollback</actionName>
+            <displayName>release:rollback</displayName>
+            <goals>
+                <goal>release:rollback</goal>
+            </goals>
+        </action>
     </actions>
