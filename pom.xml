@@ -14,6 +14,7 @@
         <milton.version>1.5.7</milton.version>
         <berry.version>1.2</berry.version>
         <geroa.version>1.2</geroa.version>
+        <morton.version>1.0</morton.version>
         <endrick.version>1.4</endrick.version>
         <endrick.logging.version>1.0</endrick.logging.version>
     </properties>

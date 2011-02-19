@@ -59,7 +59,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>morton-api</artifactId>
-            <version>${project.version}</version>
+            <version>[${morton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
