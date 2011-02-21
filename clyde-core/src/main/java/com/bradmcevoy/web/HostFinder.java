@@ -30,7 +30,7 @@ public class HostFinder extends VfsCommon {
             }
         }
         List<NameNode> hosts = vfs().find( Host.class, hostName );
-        if( hosts == null || hosts.size() == 0 ) {
+        if( hosts == null || hosts.isEmpty() ) {
             log.warn( "host not found: " + hostName );
             return null;
         } else {
