@@ -61,7 +61,6 @@ public class PasswordStorageService {
         String actualPassword = getPasswordValue( user );
         boolean b = actualPassword.equals( password );
         if( !b ) {
-            System.out.println("actual: " + actualPassword + " != " + password);
             log.trace( "passwords don't match: " + user.getHref() );
         } else {
             return b;
