@@ -51,13 +51,13 @@ public class FileWatcher implements JNotifyListener, Service {
             log.error("error watching: " + root.getAbsolutePath(), ex);
         }
 
-        thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
-
-            public void run() {
-                initialScan();
-            }
-        });
-        thInitialScan.start();
+//        thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
+//
+//            public void run() {
+//                initialScan();
+//            }
+//        });
+//        thInitialScan.start();
     }
 
     public void stop() {

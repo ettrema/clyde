@@ -85,8 +85,10 @@ public class FileLoader {
                         Thread.sleep(1000);
                     } else {
                         done = true;
+                        long t = System.currentTimeMillis();
                         upload(f);
-                        log.info("done upload: " + f.getAbsolutePath());
+                        t = System.currentTimeMillis() - t;
+                        log.info("done upload: " + f.getAbsolutePath() + " in " + t/1000 + "secs");
                     }
                 } else {
                     done = true;
@@ -101,12 +103,11 @@ public class FileLoader {
     }
 
     private boolean isFileOpen(File file) {
-        log.info("is file open? " + file.getAbsolutePath());
         FileOutputStream fout = null;
         try {
             try {
                 fout = new FileOutputStream(file, true);
-                log.trace("not lockled");
+                log.trace("not locked");
                 return false;
             } catch (FileNotFoundException ex) {
                 log.info("file doesnt exist: " + file.getAbsolutePath());

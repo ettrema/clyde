@@ -64,6 +64,8 @@ public class ClydeFrame extends javax.swing.JFrame {
         pnlSummary = new javax.swing.JPanel();
         btnShutdown = new javax.swing.JButton();
         btnScan = new javax.swing.JButton();
+        btnClearCaches = new javax.swing.JButton();
+        btnGc = new javax.swing.JButton();
         scrollLogs = new javax.swing.JScrollPane();
         tblLogs = new javax.swing.JTable();
         scrollRequests = new javax.swing.JScrollPane();
@@ -72,7 +74,7 @@ public class ClydeFrame extends javax.swing.JFrame {
         tblStats = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuTools = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        mnuClear = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -86,18 +88,28 @@ public class ClydeFrame extends javax.swing.JFrame {
         btnShutdown.setName("btnShutdown"); // NOI18N
 
         btnScan.setAction(actionMap.get("doScan")); // NOI18N
-        btnScan.setText("Scan files");
+        btnScan.setText("Scan");
         btnScan.setName("btnScan"); // NOI18N
+
+        btnClearCaches.setAction(actionMap.get("doClearCache")); // NOI18N
+        btnClearCaches.setText("Clear caches");
+        btnClearCaches.setName("btnClearCaches"); // NOI18N
+
+        btnGc.setAction(actionMap.get("doGc")); // NOI18N
+        btnGc.setText("GC");
+        btnGc.setName("btnGc"); // NOI18N
 
         javax.swing.GroupLayout pnlSummaryLayout = new javax.swing.GroupLayout(pnlSummary);
         pnlSummary.setLayout(pnlSummaryLayout);
         pnlSummaryLayout.setHorizontalGroup(
             pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSummaryLayout.createSequentialGroup()
-                .addContainerGap(148, Short.MAX_VALUE)
-                .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnScan)
-                    .addComponent(btnShutdown))
+                .addContainerGap(130, Short.MAX_VALUE)
+                .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(btnGc, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnClearCaches, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnScan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnShutdown, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(141, 141, 141))
         );
         pnlSummaryLayout.setVerticalGroup(
@@ -107,7 +119,11 @@ public class ClydeFrame extends javax.swing.JFrame {
                 .addComponent(btnShutdown)
                 .addGap(18, 18, 18)
                 .addComponent(btnScan)
-                .addContainerGap(87, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnClearCaches)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnGc)
+                .addContainerGap(30, Short.MAX_VALUE))
         );
 
         tabMain.addTab("Control", pnlSummary);
@@ -183,9 +199,9 @@ public class ClydeFrame extends javax.swing.JFrame {
         mnuTools.setText("Tools");
         mnuTools.setName("mnuTools"); // NOI18N
 
-        jMenuItem1.setAction(actionMap.get("doClear")); // NOI18N
-        jMenuItem1.setName("jMenuItem1"); // NOI18N
-        mnuTools.add(jMenuItem1);
+        mnuClear.setAction(actionMap.get("doClear")); // NOI18N
+        mnuClear.setName("mnuClear"); // NOI18N
+        mnuTools.add(mnuClear);
 
         jMenuBar1.add(mnuTools);
 
@@ -215,11 +231,13 @@ public class ClydeFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_tblRequestsMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnClearCaches;
+    private javax.swing.JButton btnGc;
     private javax.swing.JButton btnScan;
     private javax.swing.JButton btnShutdown;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JMenuItem mnuClear;
     private javax.swing.JMenu mnuTools;
     private javax.swing.JPanel pnlSummary;
     private javax.swing.JScrollPane scrollLogs;
@@ -243,6 +261,7 @@ public class ClydeFrame extends javax.swing.JFrame {
         for (Cache cache : caches) {
             model.addRow(new Object[]{cache.getName() + " Hits", cache.getHits()});
             model.addRow(new Object[]{cache.getName() + " Misses", cache.getMisses()});
+            model.addRow(new Object[]{cache.getName() + " Size", cache.getSize() });
         }
         model.fireTableDataChanged();
     }
@@ -282,5 +301,17 @@ public class ClydeFrame extends javax.swing.JFrame {
                 fileWatcher.initialScan();
             }
         });
+    }
+
+    @Action
+    public void doClearCache() {
+        for(Cache c : caches) {
+            c.flush();
+        }
+    }
+
+    @Action
+    public void doGc() {
+        System.gc();
     }
 }
