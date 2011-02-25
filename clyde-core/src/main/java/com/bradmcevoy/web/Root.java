@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class Root extends CommonTemplated implements ITemplate {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Root.class);
@@ -17,15 +18,17 @@ public class Root extends CommonTemplated implements ITemplate {
     
     private static final long serialVersionUID = 1L;
     
-    private static final Map<Folder,Root> cache = new HashMap<Folder,Root>();
+    //private static final Map<Folder,Root> cache = new HashMap<Folder,Root>();
+    //private static final Map<Folder,Root> cache = new WeakHashMap<Folder, Root>();
     
     public static synchronized Root getInstance(Folder templates) {
-        Root r = cache.get(templates);
-        if( r == null ) {
-            r = new Root("root",templates);
-            cache.put(templates, r);
-        }
-        return r;
+        return new Root("root",templates);
+//        Root r = cache.get(templates);
+//        if( r == null ) {
+//            r = new Root("root",templates);
+//            cache.put(templates, r);
+//        }
+//        return r;
     }
 
     private final String name;

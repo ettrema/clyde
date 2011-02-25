@@ -67,5 +67,6 @@ public class ClydeApp implements EventListener {
     @Override
     public void onProcessResourceFinish( Request request, Response response, Resource resource, long duration ) {
         RequestParams.setCurrent( null );
+        AbstractClydeResourceFactory.tlAliasedHost.remove();
     }
 }

@@ -64,6 +64,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return tlTargetContainer.get();
     }
 
+    public static void clearThrealocals() {
+        tlTargetPage.remove();
+        tlTargetContainer.remove();
+    }
+
     @Override
     public abstract String getName();
 
@@ -600,7 +605,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (log.isTraceEnabled()) {
             log.trace("sendContent: " + this.getHref());
         }
-        tlTargetPage.set(this);
+        //tlTargetPage.set(this);
+        RequestParams.current().attributes.put("targetPage", this);
         String s = null;
         try {
             s = render(null);
@@ -609,11 +615,17 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             HtmlExceptionFormatter formatter = new HtmlExceptionFormatter();
             s = formatter.formatExceptionAsHtml(e);
         }
-        out.write(s.getBytes());
+        try {
+            out.write(s.getBytes());
+        } catch (Exception e) {
+            log.error("Exception sending error page", e);
+            throw new RuntimeException("Exception sending error page", e);
+        }
     }
 
     public CommonTemplated getRequestPage() {
-        return tlTargetPage.get();
+        //return tlTargetPage.get();
+        return (CommonTemplated) RequestParams.current().attributes.get("targetPage");
     }
 
     public void setTemplate(Page template) {

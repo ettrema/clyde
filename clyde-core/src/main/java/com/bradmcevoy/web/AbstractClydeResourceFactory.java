@@ -19,9 +19,9 @@ public abstract class AbstractClydeResourceFactory extends VfsCommon implements 
         tlAliasedHost.set(null);
         List<NameNode> hosts = vfs().find(Host.class,host);
         
-        if( hosts == null || hosts.size() == 0 ) {            
+        if( hosts == null || hosts.isEmpty() ) {
             hosts = vfs().find(Host.class,"www." + host); // we accept host.com as well as www.host.com
-            if( hosts == null || hosts.size() == 0 ) {            
+            if( hosts == null || hosts.isEmpty() ) {
                 log.warn("host not found: " + host);
                 return null;
             }
