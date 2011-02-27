@@ -7,7 +7,6 @@ import com.ettrema.context.RootContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
@@ -124,38 +123,46 @@ public class FileWatcher implements JNotifyListener, Service {
     public void fileRenamed(int i, String string, String string1, String string2) {
     }
 
+    public void forceReload() {
+        initialScan(true);
+    }
+
     public void initialScan() {
+        initialScan(false);
+    }
+
+    public void initialScan(boolean forceReload) {
         long t = System.currentTimeMillis();
         log.info("begin full scan");
-        scan(this.root);
+        scan(this.root, forceReload);
         log.info("------------------------------------");
         log.info("Completed full scan in " + (System.currentTimeMillis()-t)/1000 + "secs");
         log.info("------------------------------------");
     }
 
-    private void scan(File root) {
+    private void scan(File root, boolean forceReload) {
         log.info("scan files in " + root.getAbsolutePath());
         DirectoryListing listing = new DirectoryListing( root );
         // First process the templates folder, if present.
         if( listing.templates != null ) {
-            scan( listing.templates );
+            scan( listing.templates, forceReload );
         }
 
         // Then process files, then directories, for breadth then depth
         for( File f : listing.files ) {
-            processFile( f );
+            processFile( f, forceReload );
         }
 
         for( File f : listing.subdirs ) {
-            scan( f );
+            scan( f, forceReload);
         }
     }
 
-    private void processFile(final File f) {
+    private void processFile(final File f, final boolean forceReload) {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                if (fileLoader.isNewOrUpdated(f)) {
+                if (forceReload || fileLoader.isNewOrUpdated(f)) {
                     fileLoader.onNewFile(f);
                 }
 
@@ -180,6 +187,7 @@ public class FileWatcher implements JNotifyListener, Service {
             }
         }
     }
+
 
     private class DirectoryListing {
 

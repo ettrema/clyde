@@ -61,17 +61,18 @@ public class ClydeFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         tabMain = new javax.swing.JTabbedPane();
-        pnlSummary = new javax.swing.JPanel();
-        btnShutdown = new javax.swing.JButton();
-        btnScan = new javax.swing.JButton();
-        btnClearCaches = new javax.swing.JButton();
-        btnGc = new javax.swing.JButton();
         scrollLogs = new javax.swing.JScrollPane();
         tblLogs = new javax.swing.JTable();
         scrollRequests = new javax.swing.JScrollPane();
         tblRequests = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblStats = new javax.swing.JTable();
+        pnlSummary = new javax.swing.JPanel();
+        btnShutdown = new javax.swing.JButton();
+        btnScan = new javax.swing.JButton();
+        btnClearCaches = new javax.swing.JButton();
+        btnGc = new javax.swing.JButton();
+        btnScan1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuTools = new javax.swing.JMenu();
         mnuClear = new javax.swing.JMenuItem();
@@ -79,54 +80,6 @@ public class ClydeFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         tabMain.setName("tabMain"); // NOI18N
-
-        pnlSummary.setName("pnlSummary"); // NOI18N
-
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ClydeFrame.class, this);
-        btnShutdown.setAction(actionMap.get("doShutdown")); // NOI18N
-        btnShutdown.setText("Shutdown");
-        btnShutdown.setName("btnShutdown"); // NOI18N
-
-        btnScan.setAction(actionMap.get("doScan")); // NOI18N
-        btnScan.setText("Scan");
-        btnScan.setName("btnScan"); // NOI18N
-
-        btnClearCaches.setAction(actionMap.get("doClearCache")); // NOI18N
-        btnClearCaches.setText("Clear caches");
-        btnClearCaches.setName("btnClearCaches"); // NOI18N
-
-        btnGc.setAction(actionMap.get("doGc")); // NOI18N
-        btnGc.setText("GC");
-        btnGc.setName("btnGc"); // NOI18N
-
-        javax.swing.GroupLayout pnlSummaryLayout = new javax.swing.GroupLayout(pnlSummary);
-        pnlSummary.setLayout(pnlSummaryLayout);
-        pnlSummaryLayout.setHorizontalGroup(
-            pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSummaryLayout.createSequentialGroup()
-                .addContainerGap(130, Short.MAX_VALUE)
-                .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnGc, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnClearCaches, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnScan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnShutdown, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(141, 141, 141))
-        );
-        pnlSummaryLayout.setVerticalGroup(
-            pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlSummaryLayout.createSequentialGroup()
-                .addGap(97, 97, 97)
-                .addComponent(btnShutdown)
-                .addGap(18, 18, 18)
-                .addComponent(btnScan)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnClearCaches)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnGc)
-                .addContainerGap(30, Short.MAX_VALUE))
-        );
-
-        tabMain.addTab("Control", pnlSummary);
 
         scrollLogs.setName("scrollLogs"); // NOI18N
 
@@ -192,6 +145,61 @@ public class ClydeFrame extends javax.swing.JFrame {
 
         tabMain.addTab("Stats", jScrollPane1);
 
+        pnlSummary.setName("pnlSummary"); // NOI18N
+
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(ClydeFrame.class, this);
+        btnShutdown.setAction(actionMap.get("doShutdown")); // NOI18N
+        btnShutdown.setText("Shutdown");
+        btnShutdown.setName("btnShutdown"); // NOI18N
+
+        btnScan.setAction(actionMap.get("doScan")); // NOI18N
+        btnScan.setText("Scan for new files");
+        btnScan.setName("btnScan"); // NOI18N
+
+        btnClearCaches.setAction(actionMap.get("doClearCache")); // NOI18N
+        btnClearCaches.setText("Clear Caches");
+        btnClearCaches.setName("btnClearCaches"); // NOI18N
+
+        btnGc.setAction(actionMap.get("doGc")); // NOI18N
+        btnGc.setText("GC (compact memory)");
+        btnGc.setName("btnGc"); // NOI18N
+
+        btnScan1.setAction(actionMap.get("doReload")); // NOI18N
+        btnScan1.setText("Reload all files");
+        btnScan1.setName("btnScan1"); // NOI18N
+
+        javax.swing.GroupLayout pnlSummaryLayout = new javax.swing.GroupLayout(pnlSummary);
+        pnlSummary.setLayout(pnlSummaryLayout);
+        pnlSummaryLayout.setHorizontalGroup(
+            pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlSummaryLayout.createSequentialGroup()
+                .addGap(98, 98, 98)
+                .addGroup(pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnShutdown, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                    .addComponent(btnGc, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                    .addComponent(btnClearCaches, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                    .addComponent(btnScan1, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
+                    .addComponent(btnScan, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE))
+                .addGap(111, 111, 111))
+        );
+        pnlSummaryLayout.setVerticalGroup(
+            pnlSummaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlSummaryLayout.createSequentialGroup()
+                .addGap(76, 76, 76)
+                .addComponent(btnShutdown)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnScan)
+                .addGap(11, 11, 11)
+                .addComponent(btnScan1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnClearCaches)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnGc)
+                .addContainerGap(76, Short.MAX_VALUE))
+        );
+
+        tabMain.addTab("Control", pnlSummary);
+
         getContentPane().add(tabMain, java.awt.BorderLayout.CENTER);
 
         jMenuBar1.setName("jMenuBar1"); // NOI18N
@@ -234,6 +242,7 @@ public class ClydeFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnClearCaches;
     private javax.swing.JButton btnGc;
     private javax.swing.JButton btnScan;
+    private javax.swing.JButton btnScan1;
     private javax.swing.JButton btnShutdown;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -256,14 +265,39 @@ public class ClydeFrame extends javax.swing.JFrame {
         if (caches == null) {
             return;
         }
-        DefaultTableModel model = (DefaultTableModel) tblStats.getModel();
-        model.setRowCount(0);
-        for (Cache cache : caches) {
-            model.addRow(new Object[]{cache.getName() + " Hits", cache.getHits()});
-            model.addRow(new Object[]{cache.getName() + " Misses", cache.getMisses()});
-            model.addRow(new Object[]{cache.getName() + " Size", cache.getSize() });
+        try {
+            DefaultTableModel model = (DefaultTableModel) tblStats.getModel();
+            model.setRowCount(0);
+            for (Cache cache : caches) {
+                model.addRow(new Object[]{cache.getName() + " Hits", cache.getHits()});
+                model.addRow(new Object[]{cache.getName() + " Misses", cache.getMisses()});
+                model.addRow(new Object[]{cache.getName() + " Size", cache.getSize()});
+            }
+            long freeMem = Runtime.getRuntime().freeMemory();
+            long maxMem = Runtime.getRuntime().maxMemory();
+            long totalMem = Runtime.getRuntime().totalMemory();
+            model.addRow(new Object[]{"Free mem", formatBytes(freeMem)});
+            model.addRow(new Object[]{"Max mem", formatBytes(maxMem)});
+            model.addRow(new Object[]{"Total mem", formatBytes(totalMem)});
+            model.fireTableDataChanged();
+        } catch (Throwable e) {
+            System.out.println("error processing caches");
+            e.printStackTrace();
         }
-        model.fireTableDataChanged();
+    }
+
+    public static String formatBytes( Long n ) {
+        if( n == null ) {
+            return "Unknown";
+        } else if( n < 1000 ) {
+            return n + " bytes";
+        } else if( n < 1000000 ) {
+            return n / 1000 + "KB";
+        } else if( n < 1000000000 ) {
+            return n / 1000000 + "MB";
+        } else {
+            return n / 1000000000 + "GB";
+        }
     }
 
     public List<Cache> getCaches() {
@@ -294,18 +328,19 @@ public class ClydeFrame extends javax.swing.JFrame {
     @Action
     public void doScan() {
         System.out.println("doScan");
-        SwingUtilities.invokeLater(new Runnable() {
+        Thread t = new Thread(new Runnable() {
 
             public void run() {
                 System.out.println("beginning scan");
                 fileWatcher.initialScan();
             }
         });
+        t.start();
     }
 
     @Action
     public void doClearCache() {
-        for(Cache c : caches) {
+        for (Cache c : caches) {
             c.flush();
         }
     }
@@ -313,5 +348,18 @@ public class ClydeFrame extends javax.swing.JFrame {
     @Action
     public void doGc() {
         System.gc();
+    }
+
+    @Action
+    public void doReload() {
+        System.out.println("doScan");
+        Thread t = new Thread(new Runnable() {
+
+            public void run() {
+                System.out.println("beginning scan");
+                fileWatcher.forceReload();
+            }
+        });
+        t.start();
     }
 }

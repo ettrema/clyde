@@ -19,37 +19,37 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-api</artifactId>
-            <version>${milton.version}</version>
+            <version>[${milton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-ftp</artifactId>
-            <version>${milton.version}</version>
+            <version>[${milton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-console</artifactId>
-            <version>${milton.version}</version>
+            <version>[${milton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-context</artifactId>
-            <version>${endrick.version}</version>
+            <version>[${endrick.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-aws</artifactId>
-            <version>${endrick.version}</version>
+            <version>[${endrick.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>geroa-server</artifactId>
-            <version>1.2</version>
+            <version>[${geroa.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>morton-api</artifactId>
-            <version>1.0</version>
+            <version>[${morton.version}]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
