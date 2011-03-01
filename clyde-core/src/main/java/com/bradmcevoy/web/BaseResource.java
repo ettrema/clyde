@@ -661,6 +661,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * Does nothing. Place holder. Called immediately before saving the node
      */
     protected void preSave() {
+        ITemplate template = this.getTemplate();
+        if (template != null) {
+            template.onBeforeSave(this);
+        } else {
+            log.debug("no template, so can't run afterSave");
+        }
     }
 
     /**
