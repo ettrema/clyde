@@ -255,6 +255,10 @@ public class WrappedTemplate implements ITemplate {
         return physicalTemplate.canCreateFolder();
     }
 
+    public void onBeforeSave( BaseResource aThis ) {
+        physicalTemplate.onBeforeSave( aThis );
+    }
+
     public void onAfterSave( BaseResource aThis ) {
         physicalTemplate.onAfterSave( aThis );
     }

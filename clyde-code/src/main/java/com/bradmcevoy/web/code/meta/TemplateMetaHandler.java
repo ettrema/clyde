@@ -137,6 +137,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
         JDomUtils.setChildText(el, "afterCreateScript", template.getAfterCreateScript(), CodeMeta.NS);
 
+        JDomUtils.setChildText(el, "beforeSaveScript", template.getBeforeSaveScript(), CodeMeta.NS);
+
         JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
     }
 
@@ -178,9 +180,12 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
         template.setDisableExport( InitUtils.getBoolean(el, "disableExport") );
 
-        template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));
-        String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
+        template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));        
         
+        String beforeSave = JDomUtils.valueOf(el, "beforeSaveScript", CodeMeta.NS);
+        template.setBeforeSaveScript(beforeSave);
+
+        String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
         template.setAfterSaveScript(afterSave);
 
         template.setClassToCreate(instanceType);
