@@ -7,6 +7,7 @@ import com.ettrema.context.RootContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyException;
 import net.contentobjects.jnotify.JNotifyListener;
@@ -22,6 +23,8 @@ public class FileWatcher implements JNotifyListener, Service {
     private final File root;
     private final FileLoader fileLoader;
     private int watchId = 0;
+    private boolean watchFiles = true;
+    private boolean initialScan = false;
     Thread thInitialScan;
 
     public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
@@ -31,32 +34,36 @@ public class FileWatcher implements JNotifyListener, Service {
     }
 
     public void start() {
-        String path = root.getAbsolutePath();
+        if (watchFiles) {
+            String path = root.getAbsolutePath();
 
-        // watch mask, specify events you care about,
-        // or JNotify.FILE_ANY for all events.
-        int mask = JNotify.FILE_CREATED
-                | JNotify.FILE_DELETED
-                | JNotify.FILE_MODIFIED
-                | JNotify.FILE_RENAMED;
+            // watch mask, specify events you care about,
+            // or JNotify.FILE_ANY for all events.
+            int mask = JNotify.FILE_CREATED
+                    | JNotify.FILE_DELETED
+                    | JNotify.FILE_MODIFIED
+                    | JNotify.FILE_RENAMED;
 
-        // watch subtree?
-        boolean watchSubtree = true;
-        try {
-            // add actual watch
-            watchId = JNotify.addWatch(path, mask, watchSubtree, this);
-            log.info("Now watching files in: " + path);
-        } catch (JNotifyException ex) {
-            log.error("error watching: " + root.getAbsolutePath(), ex);
+            // watch subtree?
+            boolean watchSubtree = true;
+            try {
+                // add actual watch
+                watchId = JNotify.addWatch(path, mask, watchSubtree, this);
+                log.info("Now watching files in: " + path);
+            } catch (JNotifyException ex) {
+                log.error("error watching: " + root.getAbsolutePath(), ex);
+            }
         }
 
-//        thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
-//
-//            public void run() {
-//                initialScan();
-//            }
-//        });
-//        thInitialScan.start();
+        if (initialScan) {
+            thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
+
+                public void run() {
+                    initialScan();
+                }
+            });
+            thInitialScan.start();
+        }
     }
 
     public void stop() {
@@ -136,25 +143,25 @@ public class FileWatcher implements JNotifyListener, Service {
         log.info("begin full scan");
         scan(this.root, forceReload);
         log.info("------------------------------------");
-        log.info("Completed full scan in " + (System.currentTimeMillis()-t)/1000 + "secs");
+        log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
         log.info("------------------------------------");
     }
 
     private void scan(File root, boolean forceReload) {
         log.info("scan files in " + root.getAbsolutePath());
-        DirectoryListing listing = new DirectoryListing( root );
+        DirectoryListing listing = new DirectoryListing(root);
         // First process the templates folder, if present.
-        if( listing.templates != null ) {
-            scan( listing.templates, forceReload );
+        if (listing.templates != null) {
+            scan(listing.templates, forceReload);
         }
 
         // Then process files, then directories, for breadth then depth
-        for( File f : listing.files ) {
-            processFile( f, forceReload );
+        for (File f : listing.files) {
+            processFile(f, forceReload);
         }
 
-        for( File f : listing.subdirs ) {
-            scan( f, forceReload);
+        for (File f : listing.subdirs) {
+            scan(f, forceReload);
         }
     }
 
@@ -169,8 +176,6 @@ public class FileWatcher implements JNotifyListener, Service {
             }
         });
     }
-
-
 
     private boolean isIgnored(File f) {
         return isAnyParentHidden(f);
@@ -188,28 +193,43 @@ public class FileWatcher implements JNotifyListener, Service {
         }
     }
 
-
     private class DirectoryListing {
 
         File templates;
         final List<File> files = new ArrayList<File>();
         final List<File> subdirs = new ArrayList<File>();
 
-        public DirectoryListing( File parent ) {
-            for( File f : parent.listFiles() ) {
-                if( !isIgnored( f ) ) {
-                    if( f.isDirectory() ) {
-                        if( "templates".equals( f.getName() ) ) {
+        public DirectoryListing(File parent) {
+            for (File f : parent.listFiles()) {
+                if (!isIgnored(f)) {
+                    if (f.isDirectory()) {
+                        if ("templates".equals(f.getName())) {
                             this.templates = f;
                         } else {
-                            this.subdirs.add( f );
+                            this.subdirs.add(f);
                         }
                     } else {
-                        this.files.add( f );
+                        this.files.add(f);
                     }
                 }
             }
 
         }
+    }
+
+    public boolean isWatchFiles() {
+        return watchFiles;
+    }
+
+    public void setWatchFiles(boolean watchFiles) {
+        this.watchFiles = watchFiles;
+    }
+
+    public boolean isInitialScan() {
+        return initialScan;
+    }
+
+    public void setInitialScan(boolean initialScan) {
+        this.initialScan = initialScan;
     }
 }

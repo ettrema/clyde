@@ -39,7 +39,7 @@ public class SimpleEditPage implements GetableResource, PostableResource {
         pw.print(editable.getContent());
         pw.println("</textarea>");
         pw.println("<br/>");
-        pw.println("<input type='submit' value='save'>");
+        pw.println("<input type='submit' name='Save' value='save'>");
         pw.println("</form>");
         pw.println("</body>");
         pw.println("</html>");
@@ -49,9 +49,11 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) {
-        editable.setContent(parameters.get("text"));
-        editable.save();
-        editable.commit();
+        if (parameters.containsKey("Save")) {
+            editable.setContent(parameters.get("text"));
+            editable.save();
+            editable.commit();
+        }
         return null;
     }
 
@@ -115,8 +117,8 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     public static interface SimpleEditable {
 
-        String getUniqueId(); 
-        
+        String getUniqueId();
+
         void setContent(String content);
 
         String getContent();
@@ -136,5 +138,3 @@ public class SimpleEditPage implements GetableResource, PostableResource {
         void commit();
     }
 }
-
-
