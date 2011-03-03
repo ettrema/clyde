@@ -8,9 +8,6 @@ import com.bradmcevoy.web.component.HtmlInput;
 import com.bradmcevoy.web.component.SaveCommand;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 public class Root extends CommonTemplated implements ITemplate {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Root.class);
@@ -122,6 +119,12 @@ public class Root extends CommonTemplated implements ITemplate {
     public boolean canCreateFolder() {
         return true;
     }
+
+    public void onBeforeSave(BaseResource aThis) {
+   
+    }
+
+    
 
     public void onAfterSave(BaseResource aThis) {
 

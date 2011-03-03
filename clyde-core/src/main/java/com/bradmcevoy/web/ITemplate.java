@@ -9,6 +9,8 @@ import java.io.InputStream;
  */
 public interface ITemplate extends Templatable{
 
+
+
     public enum DocType {
         STRICT,
         TRANSITIIONAL,
@@ -63,6 +65,13 @@ public interface ITemplate extends Templatable{
      * @return
      */
     boolean canCreateFolder();
+
+    /**
+     * Called by the resource just before save is called
+     * 
+     * @param aThis
+     */
+    void onBeforeSave(BaseResource aThis);
 
     /**
      * Called by the resource immediately after it has been saved

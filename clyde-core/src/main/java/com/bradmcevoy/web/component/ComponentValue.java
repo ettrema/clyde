@@ -253,6 +253,9 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     public void setValue(Object value) {
+        if (log.isTraceEnabled()) {
+            log.trace("setValue: name: " + name + " value: " + value);
+        }
         // If we've been given another componentvalue just copy its value
         if (value instanceof ComponentValue) {
             ComponentValue other = (ComponentValue) value;

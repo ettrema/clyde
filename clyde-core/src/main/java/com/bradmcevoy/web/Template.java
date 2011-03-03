@@ -30,6 +30,7 @@ public class Template extends Page implements ITemplate {
     private final ComponentDefMap componentDefs = new ComponentDefMap();
 //    private transient Component addParam;
     private String afterCreateScript;
+    private String beforeSaveScript;
     private String afterSaveScript;
     
     /**
@@ -295,6 +296,18 @@ public class Template extends Page implements ITemplate {
         log.debug("done execAfterScript");
     }
 
+    public void onBeforeSave(BaseResource aThis) {
+        if (beforeSaveScript != null) {
+            if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
+                log.trace("onAfterSave: run script");
+                Map map = new HashMap();
+                GroovyUtils.exec(aThis, map, beforeSaveScript);
+            }
+        }
+    }
+
+
+
     public void onAfterSave(BaseResource aThis) {
         if (afterSaveScript != null) {
             if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
@@ -337,6 +350,15 @@ public class Template extends Page implements ITemplate {
     public void setAfterCreateScript(String afterCreateScript) {
         this.afterCreateScript = afterCreateScript;
     }
+
+    public String getBeforeSaveScript() {
+        return beforeSaveScript;
+    }
+
+    public void setBeforeSaveScript(String beforeSaveScript) {
+        this.beforeSaveScript = beforeSaveScript;
+    }
+
 
     public String getAfterSaveScript() {
         return afterSaveScript;

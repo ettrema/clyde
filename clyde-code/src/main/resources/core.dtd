@@ -28,7 +28,7 @@
   >
 
  <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:page (c:attributes?,c:components?,c:afterSaveScript?)*>
+<!ELEMENT c:page (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?)*>
 <!ATTLIST c:page
     contentType CDATA #IMPLIED
     template CDATA #IMPLIED
@@ -40,6 +40,7 @@ targetPage - the resource being saved
 user - the current user
 formatter - the standard formatter
 -->
+<!ELEMENT c:beforeSaveScript (#PCDATA)>
 <!ELEMENT c:afterSaveScript (#PCDATA)>
 
 
@@ -82,7 +83,7 @@ formatter - the standard formatter
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:folder (c:attributes?,c:components?,c:afterSaveScript?,c:permissions?)*>
+<!ELEMENT c:folder (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?)*>
 <!ATTLIST c:folder
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
@@ -109,7 +110,7 @@ formatter - the standard formatter
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:afterSaveScript?,c:permissions?)>
+<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?)>
 <!ATTLIST c:template
     template CDATA #IMPLIED
     maxAge CDATA #IMPLIED

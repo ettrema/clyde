@@ -69,6 +69,7 @@ public class User extends Folder implements IUser {
     @Override
     public void populateXml(Element e2) {
         super.populateXml(e2);
+        InitUtils.setBoolean(e2, "accountDisabled", accountDisabled);
         InitUtils.setBoolean(e2, "emailDisabled", emailDisabled);
 
         Element elEmail = new Element("email");
@@ -85,6 +86,7 @@ public class User extends Folder implements IUser {
         String s = el.getAttributeValue("groupNames");
 
         this.emailDisabled = InitUtils.getBoolean(el, "emailDisabled");
+        this.accountDisabled = InitUtils.getBoolean(el, "accountDisabled");
         Element elEmail = el.getChild("email");
         if (elEmail != null) {
             String newEmail = elEmail.getText();
@@ -456,6 +458,7 @@ public class User extends Folder implements IUser {
     }
 
     public void setAccountDisabled(boolean accountDisabled) {
+        System.out.println("accountDisabled: " + accountDisabled);
         this.accountDisabled = accountDisabled;
     }
 }
