@@ -1,6 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.utils.FileUtils;
+import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.DateVal;
 import java.math.BigDecimal;
@@ -313,4 +314,12 @@ public class Formatter {
         return d1.doubleValue() == d2.doubleValue();
     }
 
+    public String htmlEncode(String s) {
+        return ComponentUtils.encodeHTML(s);
+    }
+
+    public String htmlEncode(ComponentValue cv) {
+        String s = cv.toString();
+        return htmlEncode(s);
+    }
 }

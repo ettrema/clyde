@@ -304,6 +304,7 @@ public class TextDef extends CommonComponent implements ComponentDef, Addressabl
 
     @Override
     public String formatValue( Object v ) {
+        System.out.println("formatValue: " + v + " - for: " + name);
         if( v == null ) {
             return "";
         }

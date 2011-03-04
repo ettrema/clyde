@@ -254,6 +254,7 @@ public class ComponentUtils {
      * @return
      */
     public static String encodeHTML( String s ) {
+        s = s.replace("& ", "&amp; ");
         StringBuilder out = new StringBuilder();
         for( int i = 0; i < s.length(); i++ ) {
             char c = s.charAt( i );
