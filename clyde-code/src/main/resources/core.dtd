@@ -155,11 +155,20 @@ formatter - the standard formatter
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable)*>
+
+<!--- Component which wraps an evaluatable element -->
+<!ELEMENT c:evaluatable (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)>
+<!ATTLIST c:evaluatable
+        name CDATA #REQUIRED
+  >
 
 <!--- The text of a groovy command is a script to execute. Like most commands is executed on a form POST when there is a request
  variable present with the same name as the command -->
 <!ELEMENT c:groovy (#PCDATA)>
+<!ATTLIST c:groovy
+        name CDATA #REQUIRED
+  >
 
 <!--- Intended for single email recipients, but the to expression can return a list, but not a group -->
 <!ELEMENT c:singleEmail (c:bodyText|c:bodyHtml|c:from|c:to|c:subject|c:replyTo|c:confirmationUrl)*>
@@ -172,19 +181,22 @@ formatter - the standard formatter
         name CDATA #REQUIRED
   >
 
-<!ELEMENT c:bodyText (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:bodyHtml (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:from (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:toGroup (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:to (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:subject (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:replyTo (c:const|c:ref|c:mvel|c:velocity) >
-<!ELEMENT c:confirmationUrl  (c:const|c:ref|c:mvel|c:velocity) >
+<!ELEMENT c:bodyText (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:bodyHtml (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:from (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:toGroup (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:to (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:subject (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:replyTo (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:confirmationUrl  (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
 
 <!ELEMENT c:const ANY >
 <!ELEMENT c:ref (#PCDATA) >
 <!ELEMENT c:mvel (#PCDATA) >
 <!ELEMENT c:velocity ANY >
+<!ELEMENT c:and (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)* >
+<!ELEMENT c:or (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)* >
+<!ELEMENT c:not (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
 
 
 <!--- Put your DTDDoc comment here. -->

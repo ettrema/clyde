@@ -26,8 +26,6 @@ public class ComponentReference implements Evaluatable, Serializable{
     public ComponentReference() {
     }
 
-
-
     public Object evaluate(RenderContext rc, Addressable from) {
         Component target = ComponentUtils.findComponent( path, (Templatable) from);
         if( target == null ) {
@@ -42,6 +40,22 @@ public class ComponentReference implements Evaluatable, Serializable{
             }
         }
     }
+
+    public Object evaluate(Object from) {
+        Component target = ComponentUtils.findComponent( path, (Templatable) from);
+        if( target == null ) {
+            return null;
+        } else {
+            if( target instanceof Expression) {
+                Expression expr = (Expression) target;
+                return expr.calc((Templatable) from);
+            } else {
+                return target;
+            }
+        }
+    }
+
+
 
     public void pleaseImplementSerializable() {
     }

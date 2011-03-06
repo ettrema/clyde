@@ -56,15 +56,15 @@ public class ViewSubPage extends SubPage implements Replaceable {
     }
 
     @Override
-    public void populateXml(Element e2) {
-        super.populateXml(e2);
-        InitUtils.set(e2, "sourceFolder", sourceFolder);
-        populateFieldsInXml(e2);
+    public void populateXml(Element el) {
+        super.populateXml(el);
+        InitUtils.set(el, "sourceFolder", sourceFolder);
+        populateFieldsInXml(el);
 
     }
 
-    public void populateFieldsInXml(Element e2) {
-        populateSelect(e2, rootSelect);
+    public void populateFieldsInXml(Element el) {
+        populateSelect(el, rootSelect);
     }
 
     private void populateSelect(Element elParent, Select select) {

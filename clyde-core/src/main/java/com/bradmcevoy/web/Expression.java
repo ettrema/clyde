@@ -38,24 +38,34 @@ public class Expression implements Component, WrappableComponent {
             if (map == null) {
                 map = new HashMap();
             }
-            IUser user = _(CurrentUserService.class).getOnBehalfOf();
-            if (user != null) {
-                map.put("user", user);
-            }
             if (targetPage != null) {
                 map.put("targetPage", targetPage);
-                map.put( "folder", targetPage.getParent() );
-                map.put( "web", targetPage.getWeb() );
+                map.put("folder", targetPage.getParent());
+                map.put("web", targetPage.getWeb());
             }
-            map.put("formatter", Formatter.getInstance());
-            RequestParams requestParams = RequestParams.current();
-            map.put("request", requestParams);
 
-            Object o = org.mvel.MVEL.eval(expr, ct, map);
+            Object o = doCalc(ct, map, expr);
             return o;
         } catch (Exception e) {
             throw new RuntimeException("Exception evaluating expression: " + expr + " in page: " + ct.getName(), e);
         }
+
+    }
+
+    public static Object doCalc(Object ct, Map map, String expr) {
+        if (map == null) {
+            map = new HashMap();
+        }
+        IUser user = _(CurrentUserService.class).getOnBehalfOf();
+        if (user != null) {
+            map.put("user", user);
+        }
+        map.put("formatter", Formatter.getInstance());
+        RequestParams requestParams = RequestParams.current();
+        map.put("request", requestParams);
+
+        Object o = org.mvel.MVEL.eval(expr, ct, map);
+        return o;
 
     }
     protected Addressable container;

@@ -36,6 +36,14 @@ public class VelocityEvaluatable implements Evaluatable, Serializable {
         return _render(template, vc);
     }
 
+    public Object evaluate(Object from) {
+        IUser user = _(CurrentUserService.class).getOnBehalfOf();
+        VelocityContext vc = CommonComponent.velocityContext(null, from, null, user);
+        return _render(template, vc);
+    }
+
+
+
     private String _render(String template, VelocityContext vc) {
         try {
             return VelocityInterpreter.evalToString(template, vc);

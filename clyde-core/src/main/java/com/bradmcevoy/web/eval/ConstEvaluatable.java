@@ -24,6 +24,12 @@ public class ConstEvaluatable implements Evaluatable, Serializable{
         return value;
     }
 
+    public Object evaluate(Object from) {
+        return value;
+    }
+
+
+
     public Object getValue() {
         return value;
     }

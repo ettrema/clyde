@@ -152,8 +152,13 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
             throw new RuntimeException(ex);
         }
         return newHref;
-
     }
+
+    public Object evaluate(Object from) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
 
     @Override
     public void populateXml(Element e2) {

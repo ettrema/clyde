@@ -13,6 +13,7 @@ import com.bradmcevoy.web.code.meta.comp.DefaultValueHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailInputHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailValHandler;
+import com.bradmcevoy.web.code.meta.comp.EvaluatableComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.ForgottenPasswordComponentHandler;
 import com.bradmcevoy.web.code.meta.comp.GroovyCommandHandler;
 import com.bradmcevoy.web.code.meta.comp.GroupEmailCommandHandler;
@@ -70,7 +71,9 @@ public class CommonTemplatedMetaHandler {
         ReCaptchaComponentHandler reCaptchaComponentHandler = new ReCaptchaComponentHandler();
         PayPalIpnComponentHandler payPalIpnComponentHandler = new PayPalIpnComponentHandler();
         GroovyCommandHandler groovyCommandHandler = new GroovyCommandHandler();
+        EvaluatableComponentHandler evaluatableComponentHandler = new EvaluatableComponentHandler();
 
+        add(evaluatableComponentHandler);
         add(groovyCommandHandler);
         add(payPalIpnComponentHandler);
         add(reCaptchaComponentHandler);

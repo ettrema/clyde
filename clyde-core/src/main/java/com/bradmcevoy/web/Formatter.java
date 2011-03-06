@@ -7,6 +7,7 @@ import com.bradmcevoy.web.component.DateVal;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +38,27 @@ public class Formatter {
 
     public static Formatter getInstance() {
         return theInstance;
+    }
+
+    public Boolean toBool(Object o) {
+        if (o == null) {
+            return null;
+        } else if (o instanceof Boolean) {
+            return (Boolean) o;
+        } else if (o instanceof Integer) {
+            Integer i = (Integer) o;
+            return i.intValue() == 0;
+        } else if (o instanceof String) {
+            String s = (String) o;
+            s = s.toLowerCase();
+            return s.equals("true") || s.equals("yes");
+        } else if (o instanceof ComponentValue) {
+            ComponentValue cv = (ComponentValue) o;
+            return toBool(cv.getValue());
+        } else {
+            throw new RuntimeException("Unsupported boolean type: " + o.getClass());
+        }
+
     }
 
     public BigDecimal toDecimal(Object o, int places) {
@@ -115,10 +137,10 @@ public class Formatter {
         } else if (oVal instanceof Integer) {
             int i = (Integer) oVal;
             limit = (long) i;
-        } else if(oVal instanceof Double) {
+        } else if (oVal instanceof Double) {
             Double d = (Double) oVal;
             return d.longValue();
-        } else if(oVal instanceof Float) {
+        } else if (oVal instanceof Float) {
             Float d = (Float) oVal;
             return d.longValue();
         } else if (oVal instanceof String) {
@@ -203,6 +225,17 @@ public class Formatter {
     public org.joda.time.DateTime getDateTime(Object o) {
         if (o == null) {
             return null;
+        } else if (o instanceof String) {
+            if (o.toString().length() == 0) {
+                return null;
+            } else {
+                try {
+                    Date dt = tlSdfUkShort.get().parse(o.toString());
+                    return new DateTime(dt.getTime());
+                } catch (ParseException ex) {
+                    throw new RuntimeException("Couldnt convert to date: " + o, ex);
+                }
+            }
         }
         return new DateTime(o);
     }
@@ -279,10 +312,10 @@ public class Formatter {
      * @return
      */
     public boolean gt(Object val1, Object val2) {
-        if( val1 == null ) {
+        if (val1 == null) {
             return false;
         }
-        if( val2 == null ) {
+        if (val2 == null) {
             return true;
         }
         Double d1 = toDouble(val1);
@@ -291,10 +324,10 @@ public class Formatter {
     }
 
     public boolean lt(Object val1, Object val2) {
-        if( val1 == null ) {
+        if (val1 == null) {
             return false;
         }
-        if( val2 == null ) {
+        if (val2 == null) {
             return true;
         }
         Double d1 = toDouble(val1);
@@ -303,10 +336,10 @@ public class Formatter {
     }
 
     public boolean eq(Object val1, Object val2) {
-        if( val1 == null ) {
+        if (val1 == null) {
             return (val2 == null);
         }
-        if( val2 == null ) {
+        if (val2 == null) {
             return false;
         }
         Double d1 = toDouble(val1);
@@ -321,5 +354,35 @@ public class Formatter {
     public String htmlEncode(ComponentValue cv) {
         String s = cv.toString();
         return htmlEncode(s);
+    }
+
+    /**
+     * Returns true if the given value is between the start and finish dates,
+     * or the respective values are null. Ie if start date is null and finish
+     * date is given it will only check that the value is less then the finish
+     * date
+     *
+     * Values are converted using the joda time converters
+     *
+     * @param oVal
+     * @param oStart
+     * @param oFinish
+     * @return
+     */
+    public boolean between(Object oVal, Object oStart, Object oFinish) {
+        DateTime val = getDateTime(oVal);
+        DateTime start = getDateTime(oStart);
+        DateTime finish = getDateTime(oFinish);
+        if (start != null) {
+            if (val.isBefore(start)) {
+                return false;
+            }
+        }
+        if (finish != null) {
+            if (val.isAfter(finish)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

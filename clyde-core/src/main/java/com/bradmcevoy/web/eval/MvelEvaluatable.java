@@ -32,8 +32,13 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
         return Expression.doCalc((Templatable) from, null, expr, parent);
     }
 
+    public Object evaluate(Object from) {
+        return Expression.doCalc(from, null, expr);
+    }
+
+
+
     public void pleaseImplementSerializable() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private Templatable getTemplatable(Addressable from) {

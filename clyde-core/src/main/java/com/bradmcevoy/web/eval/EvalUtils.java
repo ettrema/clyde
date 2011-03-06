@@ -1,11 +1,13 @@
 package com.bradmcevoy.web.eval;
 
-import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.query.QueryEvaluatableToXml;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -15,6 +17,7 @@ import org.jdom.Namespace;
  * @author brad
  */
 public class EvalUtils {
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EvalUtils.class);
     private static final Map<String, EvaluatableToXml> parsersByName = new HashMap<String, EvaluatableToXml>();
     private static final Map<Class, EvaluatableToXml> parsersByClass = new HashMap<Class, EvaluatableToXml>();
@@ -24,6 +27,12 @@ public class EvalUtils {
         add(new ComponentReferenceToXml());
         add(new MvelEvaluatableToXml());
         add(new VelocityEvaluatableToXml());
+
+        add(new AndEvaluatableToXml());
+        add(new OrEvaluatableToXml());
+        add(new NotEvaluatableToXml());
+
+        add(new QueryEvaluatableToXml());
     }
 
     private static void add(EvaluatableToXml parser) {
@@ -67,6 +76,7 @@ public class EvalUtils {
     /**
      * Will never return null
      *
+     *
      * @param elParent
      * @param name
      * @param ns
@@ -74,6 +84,17 @@ public class EvalUtils {
      */
     public static Evaluatable getEval(Element elParent, String name, Namespace ns) {
         Element el = InitUtils.getChildElement(elParent, name, ns);
+        return getEvalDirect(el, ns);
+    }
+
+    /**
+     * Looks for a single child, and parses it to return an Evaultate
+     *
+     * @param el
+     * @param ns
+     * @return
+     */
+    public static Evaluatable getEvalDirect(Element el, Namespace ns) {
         EvaluatableToXml parser;
         if (el == null) {
             return new ConstEvaluatable();
@@ -93,11 +114,33 @@ public class EvalUtils {
                 if (parser == null) {
                     throw new RuntimeException("Unsupported evaulatable type: " + n);
                 } else {
-                    Evaluatable eval = parser.fromXml(elChild);
+                    Evaluatable eval = parser.fromXml(elChild, ns);
                     return eval;
                 }
             }
         }
+    }
+
+    public static List<Evaluatable> getEvalDirectList(Element el, Namespace ns) {
+        List<Evaluatable> list = new ArrayList<Evaluatable>();
+        EvaluatableToXml parser;
+        if (el != null) {
+            Element elChild = null;
+            for (Object o : el.getChildren()) {
+                if (o instanceof Element) {
+                    elChild = (Element) o;
+                    String n = elChild.getName();
+                    parser = parsersByName.get(n);
+                    if (parser == null) {
+                        throw new RuntimeException("Unsupported evaulatable type: " + n);
+                    } else {
+                        Evaluatable eval = parser.fromXml(elChild, ns);
+                        list.add(eval);
+                    }
+                }
+            }
+        }
+        return list;
     }
 
     public static void setEval(Element elParent, String name, Evaluatable eval, Namespace ns) {
@@ -116,112 +159,45 @@ public class EvalUtils {
             elParent.addContent(el);
             Element elChild = new Element(parser.getLocalName(), ns);
             el.addContent(elChild);
-            parser.populateXml(elChild, eval);
+            parser.populateXml(elChild, eval, ns);
         }
     }
 
-    private static interface EvaluatableToXml<T extends Evaluatable> {
-
-        String getLocalName();
-
-        void populateXml(Element elEval, T target);
-
-        T fromXml(Element elEval);
-
-        Class<T> getEvalClass();
-    }
-
-    private static class ConstEvaluatableToXml implements EvaluatableToXml<ConstEvaluatable> {
-
-        public String getLocalName() {
-            return "const";
+    public static void setEvalDirect(Element elParent, Evaluatable eval, Namespace ns) {
+        if (eval == null) {
+            return;
         }
-
-        public void populateXml(Element elEval, ConstEvaluatable target) {
-            String s = null;
-            if (target.getValue() != null) {
-                s = target.getValue().toString();
+        EvaluatableToXml parser = parsersByClass.get(eval.getClass());
+        if (parser == null) {
+            log.warn("listing supported classes");
+            for (Class c : parsersByClass.keySet()) {
+                log.warn(" supported class: " + c);
             }
-            elEval.setText(s);
-        }
-
-        public ConstEvaluatable fromXml(Element elEval) {
-            String s = elEval.getText();
-            return new ConstEvaluatable(s);
-        }
-
-        public Class getEvalClass() {
-            return ConstEvaluatable.class;
+            throw new RuntimeException("Unsupported evaulablte type: " + eval.getClass());
+        } else {
+            Element elChild = new Element(parser.getLocalName(), ns);
+            elParent.addContent(elChild);
+            parser.populateXml(elChild, eval, ns);
         }
     }
 
-    private static class ComponentReferenceToXml implements EvaluatableToXml<ComponentReference> {
-
-        public String getLocalName() {
-            return "ref";
+    public static void setEvalDirectList(Element elParent, List<Evaluatable> list, Namespace ns) {
+        if (list == null || list.isEmpty()) {
+            return;
         }
-
-        public void populateXml(Element elEval, ComponentReference target) {
-            if (target.getPath() != null) {
-                elEval.setText(target.getPath().toString());
+        for (Evaluatable eval  : list) {
+            EvaluatableToXml parser = parsersByClass.get(eval.getClass());
+            if (parser == null) {
+                log.warn("listing supported classes");
+                for (Class c : parsersByClass.keySet()) {
+                    log.warn(" supported class: " + c);
+                }
+                throw new RuntimeException("Unsupported evaulablte type: " + eval.getClass());
+            } else {
+                Element elChild = new Element(parser.getLocalName(), ns);
+                elParent.addContent(elChild);
+                parser.populateXml(elChild, eval, ns);
             }
-        }
-
-        public ComponentReference fromXml(Element elEval) {
-            String s = elEval.getText();
-            return new ComponentReference(s);
-        }
-
-        public Class getEvalClass() {
-            return ComponentReference.class;
-        }
-    }
-
-    private static class MvelEvaluatableToXml implements EvaluatableToXml<MvelEvaluatable> {
-
-        public String getLocalName() {
-            return "mvel";
-        }
-
-        public void populateXml(Element elEval, MvelEvaluatable target) {
-            String s = null;
-            if (target.getExpr() != null) {
-                s = target.getExpr();
-            }
-            elEval.setText(s);
-        }
-
-        public MvelEvaluatable fromXml(Element elEval) {
-            String s = elEval.getText();
-            return new MvelEvaluatable(s);
-        }
-
-        public Class getEvalClass() {
-            return MvelEvaluatable.class;
-        }
-    }
-
-    private static class VelocityEvaluatableToXml implements EvaluatableToXml<VelocityEvaluatable> {
-
-        public String getLocalName() {
-            return "velocity";
-        }
-
-        public void populateXml(Element elEval, VelocityEvaluatable target) {
-            String s = null;
-            if (target.getTemplate() != null) {
-                s = target.getTemplate();
-            }
-            JDomUtils.setInnerXml(elEval, s);
-        }
-
-        public VelocityEvaluatable fromXml(Element elEval) {
-            String s = JDomUtils.getInnerXml(elEval);
-            return new VelocityEvaluatable(s);
-        }
-
-        public Class getEvalClass() {
-            return VelocityEvaluatable.class;
         }
     }
 }
