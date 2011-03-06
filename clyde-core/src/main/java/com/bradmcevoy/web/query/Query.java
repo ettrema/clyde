@@ -6,9 +6,12 @@ import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.eval.Evaluatable;
+import com.bradmcevoy.web.query.OrderByField.Direction;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +26,15 @@ import java.util.Map;
  *
  * @author brad
  */
-public class Query implements Selectable, Evaluatable, Serializable {
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Query.class );
-    private static final long serialVersionUID = 1L;
+public class Query implements Selectable, Evaluatable, Serializable, Comparator<FieldSource> {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Query.class);
+    private static final long serialVersionUID = 1L;
     private List<Field> selectFields;
-    private Map<String,Field> groupFields;
+    private Map<String, Field> groupFields;
     private Selectable from;
     private Evaluatable where;
+    private List<OrderByField> orderByFields;
 
     public List<Field> getSelectFields() {
         return selectFields;
@@ -40,7 +44,13 @@ public class Query implements Selectable, Evaluatable, Serializable {
         this.selectFields = selectFields;
     }
 
+    public List<OrderByField> getOrderByFields() {
+        return orderByFields;
+    }
 
+    public void setOrderByFields(List<OrderByField> orderByFields) {
+        this.orderByFields = orderByFields;
+    }
 
     public Map<String, Field> getGroupFields() {
         return groupFields;
@@ -50,8 +60,6 @@ public class Query implements Selectable, Evaluatable, Serializable {
         this.groupFields = groupFields;
     }
 
-
-
     public Selectable getFrom() {
         return from;
     }
@@ -59,8 +67,6 @@ public class Query implements Selectable, Evaluatable, Serializable {
     public void setFrom(Selectable from) {
         this.from = from;
     }
-
-
 
     public Evaluatable getWhere() {
         return where;
@@ -70,13 +76,9 @@ public class Query implements Selectable, Evaluatable, Serializable {
         this.where = where;
     }
 
-    
-
-    
-
     public Object evaluate(RenderContext rc, Addressable from) {
         CommonTemplated relativeTo = (CommonTemplated) from;
-        if( !(relativeTo instanceof Folder) ) {
+        if (!(relativeTo instanceof Folder)) {
             relativeTo = relativeTo.getParentFolder();
 
         }
@@ -87,7 +89,6 @@ public class Query implements Selectable, Evaluatable, Serializable {
         Folder relativeTo = (Folder) from;
         return getRows(relativeTo);
     }
-
 
     public List<FieldSource> getRows(Folder relativeTo) {
         log.trace("getRows: " + relativeTo.getHref());
@@ -100,23 +101,17 @@ public class Query implements Selectable, Evaluatable, Serializable {
                     output.add(row);
                 }
             }
-            return output;
+            return sort(output);
         } else {
             log.trace("aggregating query");
             Map<Row, Row> output = new HashMap<Row, Row>();
             for (FieldSource fs : from.getRows(relativeTo)) {
                 if (isWhereTrue(fs)) {
-//                    log.trace("true result");
                     addAggregatedResult(fs, output);
-                } else {
-  //                  log.trace("false result");
                 }
             }
             calcAggegatedFields(output);
-            List<FieldSource> list = new ArrayList<FieldSource>();
-            list.addAll(output.values());
-            log.trace("results size: " + list.size());
-            return list;
+            return sort(output.values());
         }
     }
 
@@ -163,14 +158,14 @@ public class Query implements Selectable, Evaluatable, Serializable {
 
     private void calcAggegatedFields(Map<Row, Row> output) {
         log.trace("calcAggegatedFields: " + output.size());
-        for (Row keyRow : output.keySet() ) {
+        for (Row keyRow : output.keySet()) {
             Row valueRow = output.get(keyRow);
             for (Field f : selectFields) {
                 if (groupFields.containsKey(f.getName())) {
                     Object groupByValue = keyRow.get(f.getName());
                     valueRow.getMap().put(f.getName(), groupByValue);
                 } else {
-                    Object o = evaluate(f, valueRow );
+                    Object o = evaluate(f, valueRow);
                     valueRow.getMap().put(f.getName(), o);
                 }
             }
@@ -184,8 +179,65 @@ public class Query implements Selectable, Evaluatable, Serializable {
         }
     }
 
-
     public void pleaseImplementSerializable() {
+    }
 
+    private List<FieldSource> sort(List<FieldSource> output) {
+        Collections.sort(output, this);
+        return output;
+    }
+
+    private List<FieldSource> sort(Collection<Row> values) {
+        List<FieldSource> list = new ArrayList<FieldSource>();
+        list.addAll(values);
+        return sort(list);
+    }
+
+    public int compare(FieldSource o1, FieldSource o2) {
+        if (orderByFields == null || orderByFields.isEmpty()) {
+            if (o1.hashCode() < o2.hashCode()) {
+                return -1;
+            } else if (o1.hashCode() > o2.hashCode()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        for (OrderByField f : orderByFields) {
+            Object val1 = evaluateOrderBy(f, o1);
+            Object val2 = evaluateOrderBy(f, o2);
+            int c = compareValues(val1, val2);
+            if (c != 0) {
+                if(f.getDirection().equals(Direction.ascending)) {
+                    return c;
+                } else {
+                    return c * -1;
+                }
+            }
+        }
+        // The fieldsource's are identical, sorting-wise
+        return 0;
+    }
+
+    private Object evaluateOrderBy(Field f, FieldSource row) {
+        if( f.getEvaluatable() == null ) {
+            return row.get(f.getName());
+        } else {
+            return evaluate(f, row);
+        }
+    }
+
+    private int compareValues(Object val1, Object val2) {
+        if (val1 instanceof Comparable) {
+            if (val2 instanceof Comparable) {
+                Comparable c1 = (Comparable) val1;
+                Comparable c2 = (Comparable) val2;
+                return c1.compareTo(c2);
+            }
+        }
+        // Values arent directly comparable, so convert to string and compare
+        String s1 = Formatter.getInstance().toString(val1);
+        String s2 = Formatter.getInstance().toString(val2);
+        return s1.compareTo(s2);
     }
 }

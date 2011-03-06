@@ -40,6 +40,20 @@ public class Formatter {
         return theInstance;
     }
 
+    /**
+     * Null safe method, returns empty string if the value is null
+     * 
+     * @param o
+     * @return
+     */
+    public String toString(Object o) {
+        if( o == null ) {
+            return "";
+        } else {
+            return o.toString();
+        }
+    }
+
     public Boolean toBool(Object o) {
         if (o == null) {
             return null;

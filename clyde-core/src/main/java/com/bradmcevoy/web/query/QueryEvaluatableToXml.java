@@ -5,6 +5,7 @@ import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.eval.EvaluatableToXml;
+import com.bradmcevoy.web.query.OrderByField.Direction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,11 @@ import org.jdom.Namespace;
  *                          <mvel>templateName=='pharmacist'</mvel>
  *                      </or>
  *               </where>
+ *              <orderby>
+ *                  <orderfield name="numMembers" order="ascending">
+ *                  <orderfield name="bannerGroup"/>
+ *                  <orderfield name="pharmacy"/>
+ *              </orderby>
  *           </query>
  *
  * @author brad
@@ -51,6 +57,7 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         populateGroupBy(elEval, target.getGroupFields(), ns);
         populateFrom(elEval, target.getFrom(), ns);
         populateWhere(elEval, target.getWhere(), ns);
+        populateOrderBy(elEval, target.getOrderByFields(), ns);
     }
 
     public Query fromXml(Element elEval, Namespace ns) {
@@ -59,6 +66,7 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         updateGroupBy(query, elEval, ns);
         updateFrom(query, elEval, ns);
         updateWhere(query, elEval, ns);
+        updateOrderBy(query, elEval, ns);
         return query;
     }
 
@@ -152,8 +160,39 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         query.setWhere(where);
     }
 
+    private void populateOrderBy(Element elEval, List<OrderByField> orderByFields, Namespace ns) {
+        if (orderByFields == null || orderByFields.isEmpty()) {
+            return;
+        }
+        Element elGroupBy = new Element("orderby", ns);
+        elEval.addContent(elGroupBy);
+        for (OrderByField f : orderByFields) {
+            Element elField = new Element("orderfield", ns);
+            elField.setAttribute("name", f.getName());
+            elField.setAttribute("direction", f.getDirection().toString() );
+            elGroupBy.addContent(elField);
+            EvalUtils.setEvalDirect(elField, f.getEvaluatable(), ns);
+        }
+    }
 
-
-
-
+    private void updateOrderBy(Query query, Element elEval, Namespace ns) {
+        System.out.println("updateOrderBy");
+        List<OrderByField> list = new ArrayList<OrderByField>();
+        query.setOrderByFields(list);
+        for( Element elField : JDomUtils.childrenOf(elEval, "orderby", ns)) {
+            OrderByField f = new OrderByField();
+            list.add(f);
+            String nm = elField.getAttributeValue("name");
+            
+            f.setName(nm);
+            String sDir = elField.getAttributeValue("direction");
+            Direction dir = Direction.ascending; 
+            if( sDir != null ) {
+                dir = Direction.valueOf(sDir);
+            }
+            f.setDirection(dir);
+            f.setEvaluatable( EvalUtils.getEvalDirect(elField, ns, false) );
+            System.out.println("updateOrderBy: " + f.getName());
+        }
+    }
 }

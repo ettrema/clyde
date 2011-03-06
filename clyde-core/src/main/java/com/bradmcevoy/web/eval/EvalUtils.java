@@ -95,6 +95,9 @@ public class EvalUtils {
      * @return
      */
     public static Evaluatable getEvalDirect(Element el, Namespace ns) {
+        return getEvalDirect(el, ns, true);
+    }
+    public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull) {
         EvaluatableToXml parser;
         if (el == null) {
             return new ConstEvaluatable();
@@ -107,7 +110,11 @@ public class EvalUtils {
                 }
             }
             if (elChild == null) {
-                return new ConstEvaluatable();
+                if( defaultIfNull ) {
+                    return new ConstEvaluatable();
+                } else {
+                    return null;
+                }
             } else {
                 String n = elChild.getName();
                 parser = parsersByName.get(n);
