@@ -77,6 +77,7 @@ public class User extends Folder implements IUser {
         e2.addContent(elEmail);
     }
 
+
     @Override
     public void loadFromXml(Element el) {
         super.loadFromXml(el);

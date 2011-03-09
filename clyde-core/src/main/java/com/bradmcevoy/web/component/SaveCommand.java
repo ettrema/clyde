@@ -88,6 +88,7 @@ public class SaveCommand extends Command {
     }
 
     protected Templatable doProcess( RenderContext rc, Map<String, String> parameters ) {
+        System.out.println("doProcess");
         RenderContext rcTarget = rc.getTarget();
         Set<BaseResource> pages = new HashSet<BaseResource>();
         if( rcTarget.page instanceof BaseResource ) {
@@ -105,7 +106,7 @@ public class SaveCommand extends Command {
                         pages.add( res );
                     }
                     if( !c.validate( rc ) ) {
-                        log.trace("not valid: " + c.getName());
+                        log.info("not valid: " + c.getName());
                         valid = false;
                     } else {
                         log.trace("is valid: " + c.getName());
@@ -119,17 +120,18 @@ public class SaveCommand extends Command {
         }
 
         if( valid ) {
-            log.debug( "valid, save pages and commit" );
+            log.info( "valid, save pages and commit" );
             for( BaseResource page : pages ) {
                 execAfterScript( page, rc );
             }
             for( BaseResource page : pages ) {
+                System.out.println("save: " + page.getHref());
                 page.save();
             }
             commit();
             return rcTarget.page;
         } else {
-            log.debug( "not valid, not saving" );
+            log.info( "not valid, not saving" );
             return null;
         }
     }

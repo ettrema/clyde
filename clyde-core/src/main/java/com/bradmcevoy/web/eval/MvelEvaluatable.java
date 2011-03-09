@@ -24,6 +24,12 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
     public MvelEvaluatable() {
     }
 
+    /**
+     *
+     * @param rc
+     * @param from - the root of the expression evaluation
+     * @return
+     */
     public Object evaluate(RenderContext rc, Addressable from) {
         if (log.isTraceEnabled()) {
             log.trace("evaluate: " + expr);

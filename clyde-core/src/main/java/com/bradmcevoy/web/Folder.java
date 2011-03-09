@@ -41,7 +41,6 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 
-
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
  *
@@ -181,21 +180,21 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     @Override
     public String getTitle() {
-        ComponentValue cv = this.getValues().get("title");
-        if (cv != null) {
-            Object o = cv.getValue();
-            if (o != null) {
-                return o.toString();
+        String s = getTitleNoName();
+        if (s == null) {
+            CommonTemplated page = (CommonTemplated) this.getIndexPage();
+            if (page != null) {
+                if (!(page instanceof SubPage)) { // subpages generally dont add information, they will use the parent folder's info
+                    s = page.getTitle();
+                } else {
+                    s = getName();
+                }
+            } else {
+                s = this.getName();
             }
         }
 
-        CommonTemplated page = (CommonTemplated) this.getIndexPage();
-        if (page != null) {
-            if (!(page instanceof SubPage)) { // subpages generally dont add information, they will use the parent folder's info
-                return page.getTitle();
-            }
-        }
-        return this.getName();
+        return s;
     }
 
     @Override

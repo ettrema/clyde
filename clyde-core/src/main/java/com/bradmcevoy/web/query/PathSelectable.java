@@ -14,7 +14,8 @@ import java.util.List;
  * @author brad
  */
 public class PathSelectable implements Selectable, Serializable {
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PathSelectable.class );
+
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PathSelectable.class);
     private static final long serialVersionUID = 1L;
     private Path path;
 
@@ -27,14 +28,16 @@ public class PathSelectable implements Selectable, Serializable {
     }
 
     public List<FieldSource> getRows(Folder from) {
-        log.trace("getRows: " + from.getHref());
+        if (log.isTraceEnabled()) {
+            log.trace("getRows: from: " + from.getHref() + " path: " + path);
+        }
         final List<FieldSource> rows = new ArrayList<FieldSource>();
         ResourceQueryProcessor resourceQueryProcessor = new ResourceQueryProcessor();
         resourceQueryProcessor.find(path, from, new ResourceQueryProcessor.ResourceConsumer() {
 
             public void onResource(Resource res) {
 //                log.trace("matched resource: " + res.getName());
-                if (res instanceof CommonTemplated ) {
+                if (res instanceof CommonTemplated) {
                     CommonTemplated tres = (CommonTemplated) res;
                     rows.add(new CommonTemplatedFieldSource(tres));
                 }
@@ -65,7 +68,5 @@ public class PathSelectable implements Selectable, Serializable {
         public Object getData() {
             return resource;
         }
-
-
     }
 }

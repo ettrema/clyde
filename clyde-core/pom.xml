@@ -24,17 +24,22 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-api</artifactId>
-            <version>[${milton.version}]</version>
+            <version>[${milton.version},]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-ftp</artifactId>
-            <version>[${milton.version}]</version>
+            <version>[${milton.version},]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-console</artifactId>
-            <version>[${milton.version}]</version>
+            <version>[${milton.version},]</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>milton-json</artifactId>
+            <version>[${milton.version},]</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -94,11 +99,7 @@
             <artifactId>lucene-core</artifactId>
             <version>3.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>milton-json</artifactId>
-            <version>[${milton.version}]</version>
-        </dependency>
+
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
