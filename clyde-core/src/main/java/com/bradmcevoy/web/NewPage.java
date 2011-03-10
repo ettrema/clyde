@@ -145,19 +145,19 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             String s = renderSelectTemplate();
             out.write( s.getBytes() );
         } else {
-            ITemplate template = getTemplate( params );
-            if( templateName == null ) {
-                throw new RuntimeException( "Template not found: " + templateName );
+            ITemplate t = getTemplate( params );
+            if( t == null ) {
+                throw new RuntimeException( "Template not found: " + template );
             }
             if( editee == null ) {
-                editee = template.createPageFromTemplate( folder, newName );
+                editee = t.createPageFromTemplate( folder, newName );
             }
             if( editee instanceof EditableResource ) {
                 EditableResource er = (EditableResource) editee;
                 er.getEditPage().sendContent( out, range, params, null );
             } else {
-                RenderContext rc = new RenderContext( template, editee, null, true );
-                String s = template.render( rc );
+                RenderContext rc = new RenderContext( t, editee, null, true );
+                String s = t.render( rc );
                 if( s == null ) {
                     log.warn( "Got null content for editee: " + editee.getHref() );
                     return;

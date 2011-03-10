@@ -169,7 +169,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             BaseResource page = (BaseResource) c.getContainer();
             BaseResource dest = page.getRelation( relationName );
             StringBuilder sb = new StringBuilder();
-            sb.append( "<select name='" ).append( name ).append( "'>" );
+            sb.append("<select id='").append(name).append( "' name='").append( name ).append( "'>" );
             Folder fSelectFrom = (Folder) selectFrom;
             log.debug( "selectFrom: " + fSelectFrom.getHref() + " - " + selectTemplate );
             for( Templatable ct : fSelectFrom.getChildren( selectTemplate ) ) {

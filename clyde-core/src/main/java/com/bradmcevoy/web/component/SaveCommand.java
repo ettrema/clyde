@@ -88,7 +88,6 @@ public class SaveCommand extends Command {
     }
 
     protected Templatable doProcess( RenderContext rc, Map<String, String> parameters ) {
-        System.out.println("doProcess");
         RenderContext rcTarget = rc.getTarget();
         Set<BaseResource> pages = new HashSet<BaseResource>();
         if( rcTarget.page instanceof BaseResource ) {
@@ -125,7 +124,6 @@ public class SaveCommand extends Command {
                 execAfterScript( page, rc );
             }
             for( BaseResource page : pages ) {
-                System.out.println("save: " + page.getHref());
                 page.save();
             }
             commit();
