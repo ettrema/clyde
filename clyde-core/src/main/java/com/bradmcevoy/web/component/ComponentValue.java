@@ -176,9 +176,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     @Override
     public String toString() {
+        if (log.isTraceEnabled()) {
+            log.trace("toString: " + this.getName() + " - " + this.value);
+        }
         try {
             CommonTemplated ct = (CommonTemplated) this.getContainer();
-            if (ct != null) {
+            if (ct != null) {                
                 RenderContext rc = new RenderContext(ct.getTemplate(), ct, null, false);
                 String s = this.render(rc);
                 return s;

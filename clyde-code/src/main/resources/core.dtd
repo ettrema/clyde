@@ -119,7 +119,7 @@ formatter - the standard formatter
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef)*>
+<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef|c:boolean)*>
 
 <!ELEMENT c:numberDef ANY>
 <!ATTLIST c:numberDef
@@ -133,6 +133,13 @@ formatter - the standard formatter
     description CDATA #IMPLIED
   >
 
+<!ELEMENT c:boolean ANY>
+<!ATTLIST c:boolean
+    name CDATA #REQUIRED
+    required (true|false) #IMPLIED
+    description CDATA #IMPLIED
+    customValidationMessage CDATA #IMPLIED
+>
 
 
 <!--- Put your DTDDoc comment here. -->
@@ -210,11 +217,13 @@ formatter - the standard formatter
     cols CDATA #IMPLIED
     rows CDATA #IMPLIED
     description CDATA #IMPLIED
+    customValidationMessage CDATA #IMPLIED
   >
 
 <!ELEMENT c:password (#PCDATA)>
 <!ATTLIST c:password
     name CDATA #REQUIRED
+    customValidationMessage CDATA #IMPLIED
   >
 
 <!ELEMENT c:recaptcha (#PCDATA)*>

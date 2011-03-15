@@ -128,7 +128,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     public boolean isSecureRead() {
         if (log.isTraceEnabled()) {
-            log.trace("isSecureRead: " + this.getName() + " - " + secureRead);
+            log.trace("isSecureRead: " + this.getName() + " - secureRead:" + secureRead + " - secureRead2" + secureRead2);
         }
         if (secureRead) {
             return true;

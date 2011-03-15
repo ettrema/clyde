@@ -41,6 +41,8 @@ public class TextDefHandler implements ComponentDefHandler {
         InitUtils.set(el, "description", text.getDescription());
         InitUtils.set(el, "disAllowTemplating", text.isDisAllowTemplating());
         InitUtils.setList(el, "choices", text.getChoices());
+        InitUtils.set(el, "customValidationMessage", text.getCustomValidationMessage());
+
     }
 
     public Class getDefClass() {
@@ -54,5 +56,6 @@ public class TextDefHandler implements ComponentDefHandler {
         def.setDescription(InitUtils.getValue(el, "description"));
         def.setDisAllowTemplating(InitUtils.getBoolean(el, "disAllowTemplating"));
         def.setChoices(InitUtils.getList(el, "choices"));
+        def.setCustomValidationMessage(InitUtils.getValue(el, "customValidationMessage"));
     }
 }

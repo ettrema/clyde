@@ -144,6 +144,15 @@ public class EditPage implements PostableResource, DigestResource {
 
     @Override
     public String checkRedirect( Request request ) {
-        return null;
+        //return null;
+        if( editee instanceof ISubPage) {
+            String s = editee.getParent().getHref();
+            if( !s.endsWith("/")) s += "/";
+            s =  s + ".edit";
+            System.out.println("redirect: " + s);
+            return s;
+        } else {
+            return null;
+        }
     }
 }
