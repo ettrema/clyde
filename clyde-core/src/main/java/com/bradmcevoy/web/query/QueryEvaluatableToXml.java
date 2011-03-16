@@ -176,7 +176,6 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
     }
 
     private void updateOrderBy(Query query, Element elEval, Namespace ns) {
-        System.out.println("updateOrderBy");
         List<OrderByField> list = new ArrayList<OrderByField>();
         query.setOrderByFields(list);
         for( Element elField : JDomUtils.childrenOf(elEval, "orderby", ns)) {
@@ -192,7 +191,6 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
             }
             f.setDirection(dir);
             f.setEvaluatable( EvalUtils.getEvalDirect(elField, ns, false) );
-            System.out.println("updateOrderBy: " + f.getName());
         }
     }
 }

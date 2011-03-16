@@ -8,26 +8,32 @@ import com.bradmcevoy.http.Resource;
  * @author brad
  */
 public class ResourceQueryProcessor {
-    
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ResourceQueryProcessor.class );
 
-    public void find(Path path, Templatable startFrom,  ResourceConsumer consumer) {
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ResourceQueryProcessor.class);
+
+    public void find(Path path, Templatable startFrom, ResourceConsumer consumer) {
+        if (log.isTraceEnabled()) {
+            log.trace("find: " + path);
+        }
         String[] parts = path.getParts();
+        if (!path.isRelative()) {
+            startFrom = startFrom.getHost();
+        }
         process(parts, 0, startFrom, consumer);
     }
 
     private void process(String[] parts, int i, Templatable current, ResourceConsumer consumer) {
-        boolean isTerminal = (i >= parts.length-1);
+        boolean isTerminal = (i >= parts.length - 1);
         String part = parts[i];
-        log.trace("process: current: " + current.getHref() + " part: " + part + " - isTerminal: " + isTerminal );
+        log.trace("process: current: " + current.getHref() + " part: " + part + " - isTerminal: " + isTerminal);
         if (part.equals(".")) {
-            if( isTerminal ) {
+            if (isTerminal) {
                 consumer.onResource(current);
             }
 
         } else if (part.equals("..")) {
             current = current.getParent();
-            if( isTerminal ) {
+            if (isTerminal) {
                 consumer.onResource(current);
             }
 
@@ -42,11 +48,11 @@ public class ResourceQueryProcessor {
             if (current instanceof Folder) {
                 Folder currentFolder = (Folder) current;
                 current = currentFolder.childRes(part);
-                if( current != null ) {
-                    if( isTerminal ) {
+                if (current != null) {
+                    if (isTerminal) {
                         consumer.onResource(current);
                     } else {
-                        process(parts, i+1, current, consumer);
+                        process(parts, i + 1, current, consumer);
                     }
                 }
             }
@@ -57,12 +63,13 @@ public class ResourceQueryProcessor {
     private void processChildren(Templatable current, String[] parts, int i, boolean recurse, ResourceConsumer consumer) {
         log.trace("processChildren: " + current.getName() + " - recurse: " + recurse);
         if (current instanceof Folder) {
-            boolean isTerminal = (i >= parts.length-1);
+            boolean isTerminal = (i >= parts.length - 1);
             Folder currentFolder = (Folder) current;
             for (Resource r : currentFolder.getChildren()) {
                 if (r instanceof Templatable) {
                     Templatable next = (Templatable) r;
-                    if( isTerminal) {
+                    if (isTerminal) {
+                        log.trace("matched resource: " + r.getName());
                         consumer.onResource(r);
                     } else {
                         process(parts, i + 1, next, consumer);
@@ -76,8 +83,6 @@ public class ResourceQueryProcessor {
             log.trace(" - not a folder");
         }
     }
-
-
 
     public interface ResourceConsumer {
 

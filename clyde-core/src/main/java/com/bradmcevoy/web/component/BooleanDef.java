@@ -31,8 +31,25 @@ public class BooleanDef extends TextDef {
         this.type = type;
     }
 
+    /**
+     * If required, this means that the value must be true
+     *
+     * @param c
+     * @param rc
+     * @return
+     */
     @Override
     public boolean validate(ComponentValue c, RenderContext rc) {
+        if (isRequired()) {
+            Boolean bVal = parse(c);
+            if( bVal == null ) {
+                setValidationMessage(c,"A value is required");
+                return false;
+            } else if( !bVal.booleanValue() ) {
+                setValidationMessage(c,"Must be checked");
+                return false;
+            }
+        }
         return true;
     }
 

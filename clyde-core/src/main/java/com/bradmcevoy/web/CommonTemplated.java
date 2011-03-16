@@ -118,6 +118,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String getTitle() {
+        String s = getTitleNoName();
+        if (s == null) {
+            s = this.getName();
+        }
+        return s;
+    }
+
+    public String getTitleNoName() {
         ComponentValue cv = this.getValues().get("title");
         if (cv != null) {
             Object o = cv.getValue();
@@ -125,7 +133,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 return o.toString();
             }
         }
-        return this.getName();
+        Component c = this.getComponent("title", false);
+        if (c != null) {
+            String s = c.render(new RenderContext(getTemplate(), this, null, false));
+            System.out.println("getTitleNoName: " + this.getName() + " = " + s);
+            return s;
+        }
+        return null;
     }
 
     public String getBrief() {

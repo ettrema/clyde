@@ -66,11 +66,21 @@ public class BaseResourceList extends ArrayList<Templatable> {
             Templatable e = (Templatable) o;
             map.remove( e.getName() );
         }
-        return super.remove( o );
+        int i = super.indexOf(o);
+        Object removed = super.remove( i );
+        return (removed != null);
     }
 
     public Templatable getFirst() {
         return this.get( 0 );
+    }
+
+    public Templatable getLast() {
+        if( this.size() > 0 ) {
+            return this.get( this.size()-1 );
+        } else {
+            return null;
+        }
     }
 
     public Templatable first( String type ) {

@@ -18,6 +18,8 @@ public class VelocityInterpreter {
         try {
             Velocity.setProperty("resource.loader", "file,yadboro");
             Velocity.setProperty("yadboro.resource.loader.class", YadboroVelocityResourceLoader.class.getName());
+            Velocity.setProperty("input.encoding","UTF-8");
+            Velocity.setProperty("output.encoding","UTF-8");
             Velocity.init();
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,7 +46,8 @@ public class VelocityInterpreter {
             StringWriter sw = new StringWriter();
 
             template.merge(vc, sw);
-            return sw.toString();
+            String result = sw.toString();
+            return result;
         } catch (ResourceNotFoundException ex) {
             throw new RuntimeException(ex);
         } catch (ParseErrorException ex) {

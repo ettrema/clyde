@@ -68,7 +68,8 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
                 log.debug( "supports: found authId: " + authId );
                 return true;
             } else {
-                log.debug( "supports: false, auth id not in map");
+                log.debug( "supports: false, auth id given but not in map. Clear the cookie");
+                clearCookieValue(HttpManager.response());
                 return false;
             }
         } else {

@@ -3,19 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ettrema</groupId>
     <artifactId>clyde</artifactId>
-    <version>1.1.4-SNAPSHOT</version>
+    <version>1.1.4</version>
     <packaging>pom</packaging>
     <name>Clyde Parent</name>
     <url>http://clyde.ettrema.com</url>
     <scm>
-        <connection>scm:svn:svn://www.ettrema.com/clyde/trunk</connection>
+        <connection>scm:svn:svn://www.ettrema.com/clyde/tags/clyde-1.1.4</connection>
     </scm>
     <properties>
-        <milton.version>1.5.8</milton.version>
+        <milton.version>1.5.9</milton.version>
         <berry.version>1.3</berry.version>
         <geroa.version>1.2</geroa.version>
         <morton.version>1.1</morton.version>
-        <endrick.version>1.5</endrick.version>
+        <endrick.version>1.6</endrick.version>
         <endrick.logging.version>1.0</endrick.logging.version>
     </properties>
     <distributionManagement>

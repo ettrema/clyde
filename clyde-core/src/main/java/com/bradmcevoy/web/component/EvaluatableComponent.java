@@ -2,6 +2,7 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
@@ -45,11 +46,13 @@ public class EvaluatableComponent extends CommonComponent{
     }
 
     public String render(RenderContext rc) {
-        return "";
+        Object o = eval(rc);
+        return Formatter.getInstance().toString(o);
     }
 
     public String renderEdit(RenderContext rc) {
-        return "";
+        Object o = eval(rc);
+        return Formatter.getInstance().toString(o);
     }
 
     public String getName() {
@@ -85,7 +88,8 @@ public class EvaluatableComponent extends CommonComponent{
     }
 
     public Object eval(RenderContext rc) {
-        Object result = evaluatable.evaluate(rc, container);
+        //Object result = evaluatable.evaluate(rc, container);
+        Object result = EvalUtils.eval(evaluatable, rc, rc.getTargetPage());
         return result;
     }
 }
