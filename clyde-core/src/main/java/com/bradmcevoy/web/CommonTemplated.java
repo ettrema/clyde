@@ -26,6 +26,8 @@ import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.component.NumberInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.error.HtmlExceptionFormatter;
+import com.bradmcevoy.web.eval.EvalUtils;
+import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.search.FolderSearcher;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
@@ -1022,6 +1024,17 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         @Override
         public Set<Entry<String, Component>> entrySet() {
             throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
+
+    public Object eval(String name) {
+        Component c = this.getComponent(name);
+        RenderContext rc = new RenderContext(getTemplate(), this, null, false);
+        if( c instanceof Evaluatable) {
+            Evaluatable eval = (Evaluatable) c;
+            return EvalUtils.eval(eval, rc, this);
+        } else {
+            return c.render(rc);
         }
     }
 }

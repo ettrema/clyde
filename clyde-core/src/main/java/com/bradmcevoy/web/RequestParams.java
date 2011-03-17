@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Request;
@@ -90,5 +91,9 @@ public class RequestParams {
 
     public boolean isNotPermitted() {
         return "notPermitted".equals(getAuthReason());
+    }
+
+    public Path getPath() {
+        return Path.path(href);
     }
 }

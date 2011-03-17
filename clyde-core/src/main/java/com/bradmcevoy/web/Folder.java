@@ -716,7 +716,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return nameNode.add(newName, baseResource);
     }
 
-    boolean hasChild(String name) {
+    public boolean hasChild(String name) {
         return (child(name) != null);
     }
 

@@ -3,6 +3,7 @@ package com.bradmcevoy.web;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
+import com.bradmcevoy.web.component.DateDef;
 import com.bradmcevoy.web.component.DateVal;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,6 +20,7 @@ import org.joda.time.DateTime;
  * @author brad
  */
 public class Formatter {
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Formatter.class );
 
     private static final Formatter theInstance = new Formatter();
     public static ThreadLocal<DateFormat> tlSdfUkShort = new ThreadLocal<DateFormat>() {
@@ -78,6 +80,9 @@ public class Formatter {
     public BigDecimal toDecimal(Object o, int places) {
         if (o == null) {
             return BigDecimal.ZERO;
+        } else if( o instanceof BigDecimal) {
+            BigDecimal bd = (BigDecimal) o;
+            return bd;
         } else if (o instanceof Double) {
             Double d = (Double) o;
             return BigDecimal.valueOf(d).setScale(places, RoundingMode.HALF_UP);
@@ -130,6 +135,9 @@ public class Formatter {
         } else if (o instanceof Float) {
             Float f = (Float) o;
             return f.doubleValue();
+        } else if( o instanceof BigDecimal) {
+            BigDecimal bd = (BigDecimal) o;
+            return bd.doubleValue();
         } else if (o instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) o;
             return toDouble(cv.getValue());
@@ -157,12 +165,20 @@ public class Formatter {
         } else if (oVal instanceof Float) {
             Float d = (Float) oVal;
             return d.longValue();
+        } else if( oVal instanceof BigDecimal) {
+            BigDecimal bd = (BigDecimal) oVal;
+            return bd.longValue();
         } else if (oVal instanceof String) {
             String s = (String) oVal;
             if (s.length() == 0) {
                 limit = withNulls ? null : 0l;
             } else {
-                limit = Long.parseLong(s);
+                if( s.contains(".")) {
+                    Double d = toDouble(s);
+                    limit = d.longValue();
+                } else {
+                    limit = Long.parseLong(s);
+                }
             }
         } else if (oVal instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) oVal;
@@ -239,6 +255,9 @@ public class Formatter {
     public org.joda.time.DateTime getDateTime(Object o) {
         if (o == null) {
             return null;
+        } else if( o instanceof ComponentValue ) {
+            ComponentValue cv = (ComponentValue) o;
+            return getDateTime(cv.getValue());
         } else if (o instanceof String) {
             if (o.toString().length() == 0) {
                 return null;
@@ -385,6 +404,10 @@ public class Formatter {
      */
     public boolean between(Object oVal, Object oStart, Object oFinish) {
         DateTime val = getDateTime(oVal);
+        if( val == null ) {
+            log.warn("null date value");
+            return false;
+        }
         DateTime start = getDateTime(oStart);
         DateTime finish = getDateTime(oFinish);
         if (start != null) {
@@ -398,5 +421,32 @@ public class Formatter {
             }
         }
         return true;
+    }
+
+    public Date toDate(Object oVal) {
+        if (oVal == null) {
+            return null;
+        } else if (oVal instanceof Date) {
+            return (Date) oVal;
+        } else if( oVal instanceof ComponentValue ) {
+            ComponentValue cv = (ComponentValue) oVal;
+            return toDate(cv.getValue());
+        } else {
+            if (oVal instanceof String) {
+                String s = (String) oVal;
+                return DateDef.parseValue(s);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public org.joda.time.DateTime toJodaDate(Object oVal) {
+        Date dt = toDate(oVal);
+        if( dt != null ) {
+            return new DateTime(dt.getTime());
+        } else {
+            return null;
+        }
     }
 }

@@ -13,8 +13,6 @@ import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.eval.Evaluatable;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jdom.Element;
 
 public abstract class Command extends VfsCommon implements Component, Addressable, ActionHandler, Evaluatable {

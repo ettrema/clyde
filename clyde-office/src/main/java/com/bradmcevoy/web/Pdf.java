@@ -48,6 +48,11 @@ public class Pdf extends BinaryFile {
         }
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         Map<String, String> params = new HashMap<String, String>();
+        RequestParams rp = RequestParams.current();
+        if( rp != null ) {
+            rp.attributes.put("generator", "pdf");
+            rp.parameters.put("generator", "pdf");
+        }
         try {
             ct.sendContent( outContent, null, params, null );
         } catch( BadRequestException e ) {

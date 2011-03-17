@@ -165,7 +165,7 @@ formatter - the standard formatter
 <!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable)*>
 
 <!--- Component which wraps an evaluatable element -->
-<!ELEMENT c:evaluatable (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)>
+<!ELEMENT c:evaluatable (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query|c:groovyEval)>
 <!ATTLIST c:evaluatable
         name CDATA #REQUIRED
   >

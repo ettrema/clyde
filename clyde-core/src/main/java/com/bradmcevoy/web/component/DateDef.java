@@ -28,6 +28,20 @@ public class DateDef extends TextDef {
         }
     };
 
+    public static Date parseValue( String s ) {
+        if( s == null || s.trim().length() == 0 ) {
+            return null;
+        }
+        try {
+            Date dt = sdf(true).parse( s );
+            return dt;
+        } catch( ParseException ex ) {
+            log.warn( "couldnt parse date", ex );
+            return null;
+//            throw new RuntimeException(ex);
+        }
+    }
+
     public DateDef( Addressable container, String name ) {
         super( container, name );
     }

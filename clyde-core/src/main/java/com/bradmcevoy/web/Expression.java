@@ -134,12 +134,16 @@ public class Expression implements Component, WrappableComponent {
     public Element toXml(Addressable container, Element el) {
         Element e2 = new Element("component");
         el.addContent(e2);
-        e2.setAttribute("name", name);
         e2.setAttribute("class", this.getClass().getName());
-        InitUtils.set(e2, "decimals", decimals);
-        InitUtils.setString(el, "dateformat", sDateFormat);
-        e2.setText(expr);
+        populateXml(e2);
         return e2;
+    }
+
+    public void populateXml(Element e2) {
+        e2.setAttribute("name", name);
+        InitUtils.set(e2, "decimals", decimals);
+        InitUtils.setString(e2, "dateformat", sDateFormat);
+        e2.setText(expr);
     }
 
     /**
@@ -158,7 +162,7 @@ public class Expression implements Component, WrappableComponent {
         return doCalc(ct, map, expr, targetContainer);
     }
 
-    private void fromXml(Element el) {
+    public void fromXml(Element el) {
         this.name = InitUtils.getValue(el, "name");
         this.expr = el.getText();
         this.decimals = InitUtils.getInt(el, "decimals");

@@ -51,6 +51,9 @@ public class ViewUpdateHelper {
     private void doProcess(Select select, Folder folder, List<String> lineList, int pos) {
         log.trace("doProcess: " + pos);
         String name = lineList.get(pos++);
+        if( name == null || name.length() == 0 ) {
+            throw new RuntimeException("Cant save record with an empty name: column" + pos);
+        }
         Resource child = folder.child(name);
         if (child == null) {
             log.trace("Create child called: " + name);

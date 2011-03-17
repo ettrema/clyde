@@ -2,6 +2,7 @@ package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.DateUtils;
+import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.XmlWriter;
@@ -97,7 +98,7 @@ public class Export extends AbstractConsoleCommand {
         RemoteResource remote = new RemoteResource(path, res);
         Date destDate = remote.getModifiedDate();
 
-        if (destDate == null || localDate.after(destDate)) {
+        if (isDateApplicalble(destDate, localDate, arguments)) {
             if (arguments.dryRun) {
                 arguments.uploaded(res, destDate);
                 return;
@@ -114,6 +115,17 @@ public class Export extends AbstractConsoleCommand {
             arguments.skipped(res, destDate, "Remote file is newer");
             log.debug("not uploading: " + res.getHref() + " because of modified dates: local: " + localDate + " remote:" + destDate);
         }
+    }
+
+    private boolean isDateApplicalble(Date destDate, Date localDate,  Arguments arguments) {
+        log.trace("isDateApplicalble: local: " + localDate + " dest: " + destDate + " since: " + arguments.sinceDate);
+        if( arguments.sinceDate != null && localDate.before(arguments.sinceDate)) {
+            log.trace(" - not since");
+            return false;
+        }
+        boolean  b= (destDate == null || localDate.after(destDate));
+        log.trace(" - " + b);
+        return b;
     }
 
     private boolean isImportable(BaseResource ct, Arguments arguments) {
@@ -169,6 +181,7 @@ public class Export extends AbstractConsoleCommand {
         boolean recursive;
         boolean stopAtHosts;
         boolean noUser;
+        Date sinceDate;
         final List<FileExportStatus> statuses = new ArrayList<FileExportStatus>();
 
         public Arguments(List<String> args) throws Exception {
@@ -196,7 +209,7 @@ public class Export extends AbstractConsoleCommand {
             log.trace("host: " + destHost + " destPath: " + destPassword + " user: " + destUser);
         }
 
-        private void processOption(String s) {
+        private void processOption(String s) throws DateParseException {
             if (s.equals("-dry")) {
                 dryRun = true;
             } else if (s.equals("-r")) {
@@ -205,6 +218,12 @@ public class Export extends AbstractConsoleCommand {
                 stopAtHosts = true;
             } else if (s.equals("-nouser")) {
                 noUser = true;
+            } else if( s.startsWith("-since|")) {
+                String[] arr = s.split("[|]");
+                String sDate = arr[1];
+                System.out.println("sincedate:" + sDate);
+                sinceDate = DateUtils.parseWebDavDate(sDate);
+                log.warn("Ignoring local resources modified before: " + sinceDate);
             }
         }
 

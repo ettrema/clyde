@@ -49,11 +49,17 @@ public class CreateCommand extends Command {
     @Override
     public void fromXml(Element el) {
         super.fromXml(el);
-        this.autoName = InitUtils.getBoolean( el, "autoname");
+        fromLocalXml(el);
+    }
+
+    public void fromLocalXml(Element el) {
+        this.autoName = InitUtils.getBoolean(el, "autoname");
         ComponentMap components = new ComponentMap();
         components._fromXml(this, el);
         fromXml(components);
     }
+
+
 
     protected void fromXml(ComponentMap map) {
         Component c = consume(map, "newName");
@@ -268,18 +274,22 @@ public class CreateCommand extends Command {
     @Override
     public void populateXml(Element e2) {
         super.populateXml(e2);
+
+        populateLocalXml( e2);
+    }
+
+    public void populateLocalXml(Element e2) {
         newName.toXml(container, e2);
         templateName.toXml(container, e2);
         afterCreateScript.toXml(container, e2);
         folder.toXml(container, e2);
-        if( captcha != null ) {
-            captcha.toXml(container, e2 );
+        if (captcha != null) {
+            captcha.toXml(container, e2);
         }
-        if( nextPageScript != null) {
-            nextPageScript.toXml( container, e2 );
+        if (nextPageScript != null) {
+            nextPageScript.toXml(container, e2);
         }
-
-        InitUtils.setBoolean( e2, "autoname", autoName);
+        InitUtils.setBoolean(e2, "autoname", autoName);
     }
 
     protected void setNameAutomagically( RenderContext rc, Folder folderToCreateIn ) {

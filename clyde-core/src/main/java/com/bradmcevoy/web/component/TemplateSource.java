@@ -51,6 +51,15 @@ public class TemplateSource {
         }
     }
 
+    /**
+     * Alias for getPage
+     * 
+     * @return
+     */
+    public Templatable getTargetPage() {
+        return getPage();
+    }
+
     public Auth getAuth() {
         return RequestParams.current().getAuth();
     }

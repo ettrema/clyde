@@ -26,6 +26,7 @@ public class EvalUtils {
         add(new ConstEvaluatableToXml());
         add(new ComponentReferenceToXml());
         add(new MvelEvaluatableToXml());
+        add(new GroovyEvaluatableToXml());
         add(new VelocityEvaluatableToXml());
 
         add(new AndEvaluatableToXml());

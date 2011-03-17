@@ -14,6 +14,7 @@ import com.bradmcevoy.web.code.meta.comp.BooleanDefHandler;
 import com.bradmcevoy.web.code.meta.comp.ComponentDefHandler;
 import com.bradmcevoy.web.code.meta.comp.DateDefHandler;
 import com.bradmcevoy.web.code.meta.comp.EmailDefHandler;
+import com.bradmcevoy.web.code.meta.comp.GroupsDefHandler;
 import com.bradmcevoy.web.code.meta.comp.HtmlDefHandler;
 import com.bradmcevoy.web.code.meta.comp.MultipleChoiceQaDefHandler;
 import com.bradmcevoy.web.code.meta.comp.NumberDefHandler;
@@ -68,8 +69,10 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         MultipleChoiceQaDefHandler multipleChoiceQaDefHandler = new MultipleChoiceQaDefHandler();
         PasswordDefHandler passwordDefHandler = new PasswordDefHandler();
         ProcessDefHandler processDefHandler = new ProcessDefHandler(subPageHandler);
+        GroupsDefHandler groupsDefHandler = new GroupsDefHandler(textDefHandler);
 
         add(processDefHandler);
+        add(groupsDefHandler);
         add(passwordDefHandler);
         add(multipleChoiceQaDefHandler);
         add(relationSelectDefHandler);

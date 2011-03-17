@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.calc;
 
 import com.bradmcevoy.web.BaseResourceList;
+import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.ValueHolder;
@@ -72,6 +73,9 @@ public class Calc {
         } else if( o instanceof Float) {
             Float ff = (Float) o;
             return new BigDecimal(ff);
+        } else if( o instanceof String ) {
+            Double dd = Formatter.getInstance().toDouble(o);
+            return toBigDecimal(dd, decimals);
         } else {
             log.warn("unhandled type: " + o.getClass());
             return null;

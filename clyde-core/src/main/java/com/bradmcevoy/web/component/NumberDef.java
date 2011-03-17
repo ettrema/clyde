@@ -33,6 +33,7 @@ public class NumberDef extends TextDef {
         if( s == null ) return null;
         s = s.trim();
         if( s.length() == 0 ) return null;
+        s = s.replace(",", "");
         return Double.parseDouble( s );
     }
 

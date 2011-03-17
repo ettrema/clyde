@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.web.*;
 import com.bradmcevoy.xml.XmlHelper;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -106,6 +107,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             return false;
         }
     }
+
+    public Addressable getParent() {
+        return parent;
+    }
+
+    
 
     @Override
     public void init(Addressable parent) {
@@ -239,7 +246,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 //        }
     }
 
-    public Object typedValue(Page page) {
+    public Object typedValue(Templatable page) {
         Object val = this.value;
         if (val == null) {
             return null;
@@ -406,6 +413,14 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
 
     public String getHtml() {
         return Formatter.getInstance().htmlEncode(this);
+    }
+    
+    public Boolean toBoolean() {
+        return Formatter.getInstance().toBool(getValue());
+    }
+
+    public BigDecimal toDecimal(int places) {
+        return Formatter.getInstance().toDecimal(getValue(), places);
     }
 
     public static class OldValue implements Serializable {
