@@ -221,7 +221,6 @@ public class Export extends AbstractConsoleCommand {
             } else if( s.startsWith("-since|")) {
                 String[] arr = s.split("[|]");
                 String sDate = arr[1];
-                System.out.println("sincedate:" + sDate);
                 sinceDate = DateUtils.parseWebDavDate(sDate);
                 log.warn("Ignoring local resources modified before: " + sinceDate);
             }

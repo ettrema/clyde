@@ -82,7 +82,7 @@ public class Formatter {
             return BigDecimal.ZERO;
         } else if( o instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) o;
-            return bd;
+            return bd.setScale(places, RoundingMode.HALF_UP);
         } else if (o instanceof Double) {
             Double d = (Double) o;
             return BigDecimal.valueOf(d).setScale(places, RoundingMode.HALF_UP);

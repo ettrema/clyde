@@ -96,4 +96,8 @@ public class RequestParams {
     public Path getPath() {
         return Path.path(href);
     }
+
+    public Resource getResource() {
+        return resource;
+    }
 }
