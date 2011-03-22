@@ -26,6 +26,7 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
     public static TemplateSpecs getSpecsToUse( Folder thisFolder ) {
         log.trace( "getSpecsToUse" );
         TemplateSpecs specs = getFromResourceOrTemplate( thisFolder );
+        Folder parent;
         if( thisFolder instanceof Host ) {
             if( log.isTraceEnabled() ) {
                 log.trace( "return template specs from: " + thisFolder.getName() );
@@ -33,7 +34,12 @@ public class TemplateSpecs extends ArrayList<TemplateSpec> implements Serializab
             return specs;
         } else {
             if( specs == null || specs.isEmpty() ) {
-                return getSpecsToUse( thisFolder.getParent() );
+                parent = thisFolder.getParent();
+                if(  parent == null ) {
+                    return null;
+                } else {
+                    return getSpecsToUse( thisFolder.getParent() );
+                }
             } else {
                 if( log.isTraceEnabled() ) {
                     log.trace( "return template specs from: " + thisFolder.getName() );
