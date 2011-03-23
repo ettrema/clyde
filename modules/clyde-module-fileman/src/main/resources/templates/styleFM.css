@@ -1,0 +1,502 @@
+/****************************  File Manager ******************************/
+/*************************************************************************/
+/*************************************************************************/
+/*************************************************************************/
+/*************************************************************************/
+/*************************************************************************/
+/*************************************************************************/
+
+html, body {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+html, body {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+input, textarea, button {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size: 13px;
+}
+input, button, textarea {
+	border: solid gray 1px;
+}
+legend {
+    display: none;
+}
+fieldset {
+    border: none;
+}
+#loginModal label {
+    width: 60px;
+    display: block;
+}
+a {
+	color: #3E4D54;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+.layout {
+	height: 100%;
+	background-color:#FFFFFF;
+}
+.north {
+	height:27px;
+	background-image:url(images/ml/fileManager/framework/headerTile.jpg);
+	background-repeat:repeat-x;
+}
+.center {
+	position:relative;
+	border-left: 1px solid rgb(210, 210, 210);
+	display: inline-block;
+	padding: 0px 0px 0px 0px;
+	margin:0px 0xp 0px 0px;
+	background-color:#efefef;
+	width:100%;
+	height:70%;
+}
+.west {
+	width: 280px;
+	text-align: center;
+	display: inline-block;
+	padding: 0px 0px 12px 0px;
+}
+.west #tree {
+	padding: 6px 6px 6px 6px;
+
+}
+.south {
+	border-top: 1px solid rgb(210, 210, 210);
+	height: 30%;
+	padding:10px 0px 0px 10px;
+	background-image:url(images/ml/fileManager/framework/southTile.jpg);
+	background-repeat:repeat-x;
+	background-color:#FFFFFF;
+}
+/** These styles are to create custom resize handles. */
+
+.ui-resizable-w {
+	left: -8px;
+	width: 8px;
+}
+.ui-resizable-e {
+	right: -8px;
+	width: 8px;
+}
+.ui-resizable-n {
+	top: -8px;
+	height: 8px;
+}
+.ui-resizable-s {
+	bottom: -8px;
+	height: 8px;
+}
+/** These are the handle icons. */
+
+.grabberV {
+	position:absolute;
+	background-image:url(images/ml/fileManager/framework/grabberVerticle.gif);
+	background-repeat:no-repeat;
+	width:6px;
+	height:31px;
+	top:48%;
+	left:0px;
+}
+.grabberH {
+	position:absolute;
+	background-image:url(images/ml/fileManager/framework/grabberHorizontal.gif);
+	background-repeat:no-repeat;
+	width:31px;
+	height:6px;
+	top:-7px;
+	left:55%;
+}
+/***************************** Navigation ********************************/
+/*************************************************************************/
+/*************************************************************************/
+
+.north ul {
+	position:relative;
+	padding:0px;
+	margin:0px;
+}
+.north ul li {
+	list-style:none;
+	padding: 0px 20px 0px 20px;
+	line-height:25px;
+}
+.north .left {
+	background-image:url(images/ml/fileManager/framework/navigationLine.gif);
+	background-repeat:no-repeat;
+	background-position:right;
+	float:left;
+	height:27px;
+}
+.north .left .icon {
+	position:relative;
+	padding-right:10px;
+	top:1px;
+}
+.north .right {
+	background-image:url(images/ml/fileManager/framework/navigationLine.gif);
+	background-repeat:no-repeat;
+	background-position:left;
+	float:right;
+	height:27px;
+}
+.north ul li a {
+	display:block;
+	font-size:11px;
+	color:#FFFFFF;
+	text-decoration:none;
+}
+/***************************** Sub Navigation ********************************/
+
+.center .subNavigation {
+	position:relative;
+	display:table;
+	height:auto;
+	width:100%;
+	border-bottom: 1px solid #e6e6e6;
+	background-color:#f9f9f9;
+	background-image:url(images/ml/fileManager/framework/subNavShade.jpg);
+	background-repeat:repeat-x;
+	padding:2px;
+}
+/***************************** Drop Down Menu  ********************************/
+
+.menuDropDown {
+	position:absolute;
+	width:300px;
+	height:auto;
+	top:38px;
+	left:328px;
+	background-color:#FFFFFF;
+	padding:15px 15px 18px 15px;
+	border:solid 1px #c3c3c3;
+	background-image:url(images/ml/fileManager/framework/popupShade.jpg);
+	background-repeat:repeat-x;
+	background-position:bottom;
+	z-index:999;
+}
+.menuDropDown table {
+	position:relative;
+	border-bottom:solid 1px #dcdcdc;
+	padding: 0px 0px 0px 0px;
+}
+.menuDropDown td {
+	position:relative;
+	padding: 4px 0px 4px 5px;
+	border-top:solid 1px #dcdcdc;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	font-weight:normal;
+	color:#454545;
+}
+.menuDropDown .input {
+	position:relative;
+	width:140px;
+	left:-5px;
+	padding: 5px 5px 5px 5px;
+	border:solid 1px #dcdcdc;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	font-weight:normal;
+	color:#454545;
+}
+/***************************** Buttons ********************************/
+/*************************************************************************/
+/*************************************************************************/
+
+
+/***************************** Button Grey  ********************************/
+
+.clear { /* generic container (i.e. div) for floating buttons */
+	overflow: hidden;
+	width: 100%;
+}
+a.buttonGrey {
+	background: transparent url('images/framework/buttons/buttonGrey/bg_button_a.gif') no-repeat scroll top right;
+	color: #ffffff;
+	display: block;
+	float: left;
+	font: normal 10px arial, sans-serif;
+	height: 17px;
+	margin-right: 6px;
+	padding-right: 10px; /* sliding doors padding */
+	text-decoration: none;
+}
+a.buttonGrey span {
+	background: transparent url('images/framework/buttons/buttonGrey/bg_button_span.gif') no-repeat;
+	display: block;
+	line-height: 7px;
+	padding: 5px 0 5px 10px;
+}
+a.buttonGrey:active {
+	background-position: bottom right;
+	color: #ffffff;
+	outline: none; /* hide dotted outline in Firefox */
+}
+a.buttonGrey:active span {
+	background-position: bottom left;
+	padding: 6px 0 4px 10px; /* push text down 1px */
+}
+/***************************** Button Grey 2 (Main Navigation)  ********************************/
+
+.clear { /* generic container (i.e. div) for floating buttons */
+	overflow: hidden;
+	width: 100%;
+}
+.subNavigation > a {
+	background: transparent url('images/framework/buttons/buttonGrey2/bg_button_a.gif') no-repeat scroll top right;
+	color: #444;
+	display: block;
+	float: left;
+	font: normal 11px arial, sans-serif;
+	height: 31px;
+	margin-right: 6px;
+	padding-right: 18px; /* sliding doors padding */
+	text-decoration: none;
+}
+.subNavigation > a > span {
+	background: transparent url('images/framework/buttons/buttonGrey2/bg_button_span.gif') no-repeat;
+	display: block;
+	line-height: 21px;
+	padding: 5px 0 5px 18px;
+}
+.subNavigation a:active {
+	background-position: bottom right;
+	color: #000;
+	outline: none; /* hide dotted outline in Firefox */
+}
+.subNavigation a:active span {
+	background-position: bottom left;
+	padding: 5px 0 5px 18px;
+}
+.subNavigation a .subIcon {
+	position:relative;
+	left:-7px;
+	top:1px;
+	float:left;
+}
+.subNavigation a .subIconDrop {
+	position:relative;
+	float:right;
+	right:-15px;
+	top:-3px;
+}
+/***************************** Button Green  ********************************/
+
+
+
+.clear { /* generic container (i.e. div) for floating buttons */
+	overflow: hidden;
+	width: 100%;
+}
+a.buttonGreen {
+	background: transparent url('images/framework/buttons/buttonGreen2/bg_button_a.gif') no-repeat scroll top right;
+	color: #ffffff;
+	display: block;
+	float: left;
+	font: normal 11px arial, sans-serif;
+	height: 22px;
+	margin-right: 6px;
+	padding-right: 14px; /* sliding doors padding */
+	text-decoration: none;
+}
+a.buttonGreen span {
+	background: transparent url('images/framework/buttons/buttonGreen2/bg_button_span.gif') no-repeat;
+	display: block;
+	line-height: 12px;
+	padding: 5px 0 5px 14px;
+}
+a.buttonGreen:active {
+	background-position: bottom right;
+	color: #ffffff;
+	outline: none; /* hide dotted outline in Firefox */
+}
+a.buttonGreen:active span {
+	background-position: bottom left;
+	padding: 6px 0 4px 14px; /* push text down 1px */
+}
+/***************************** Preview Area ********************************/
+
+.preview {
+	position:relative;
+	width:100%;
+	height:82%;
+}
+.image {
+	position:relative;
+	max-height:100%;
+	border: 1px solid #e6e6e6;
+	background-color:#FFFFFF;
+	padding:8px;
+	margin-top:10px;
+	
+}
+.previewPrevious {
+	position:absolute;
+	width:44px;
+	height:44px;
+	background-image:url(images/ml/fileManager/preview/buttonLHSoff.gif);
+	left:10px;
+	top:46%;
+}
+.previewPrevious:hover {
+	background-image:url(images/ml/fileManager/preview/buttonLHSon.gif);
+}
+.previewNext {
+	position:absolute;
+	width:44px;
+	height:44px;
+	background-image:url(images/ml/fileManager/preview/buttonRHSoff.gif);
+	right:10px;
+	top:46%;
+}
+.previewNext:hover {
+	background-image:url(images/ml/fileManager/preview/buttonRHSon.gif);
+}
+/*************************** File info **********************************/
+
+.preview .file {
+	display: table;
+	width: auto;
+	height: auto;
+	background-color:#FFFFFF;
+	border: 1px solid #e6e6e6;
+	padding: 25px;
+	margin-top:40px;
+	text-align: left;
+}
+.preview .file a {
+	position:relative;
+	font-family:Arial, Helvetica, sans-serif;
+	font:Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	padding: 0px 0px 5px 0px;
+	margin: 0px 0px 0px 0px;
+	border-bottom:solid 1px #CCCCCC;
+}
+.preview .file p {
+	font-family:Arial, Helvetica, sans-serif;
+	font:Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	padding: 2px 0px 0px 0px;
+}
+.preview .file img {
+	margin-right: 20px;
+	border: none;
+	float: left;
+}
+/***************************** Thumbnails ********************************/
+
+
+.fullSize {
+	width: 100%;
+	height: 100%;
+}
+#thumbs > div {
+	width: 104px;
+	height: 78px;
+	font-size: 10px;
+	text-align: center;
+	overflow: hidden;
+}
+.thumbContainer {
+	position:relative;
+	height:100%;
+	width:100%;
+	overflow:auto;
+	padding:0px;
+	margin:0px;
+}
+.thumbPhoto {
+	position:relative;
+	float:left;
+	margin: 0px 10px 10px 0px;
+	background-color:#ffffff;
+	border: 1px solid #e6e6e6;
+	padding:3px 3px 3px 3px;
+}
+.thumbPhoto:hover {
+	background-color:#d6d6d6;
+}
+.thumbPhoto img {
+	vertical-align:top;
+}
+.thumbFile {
+	position:relative;
+	float:left;
+	width:132px;
+	height:77px;
+	margin: 0px 10px 10px 0px;
+	border: 1px solid transparent;
+	padding:3px 3px 3px 3px;
+	text-align:center;
+	overflow:hidden;
+}
+.thumbFile:hover {
+	background-color:#ffffff;
+	background-image:url(images/ml/fileManager/thumbnails/thumbBgShade.jpg);
+	background-repeat:repeat-x;
+	background-position:bottom;
+	border: 1px solid #d4e4c1;
+}
+.thumbFile .icon {
+	position:relative;
+	top:10px;
+}
+.thumbFile .text {
+	position:relative;
+	top:15px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#333333;
+}
+/***************************** Tooltip ********************************/
+#tooltip {
+	position:absolute;
+	border:1px solid #d2d2d2;
+	background:#ffffff;
+	padding:10px;
+	color:#333;
+	display:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#404040;
+	z-index:1000;
+}
+/***************************** Fonts ********************************/
+
+h1 {
+	position:relative;
+	font-family:Tahoma;
+	font-size:20px;
+	font-weight:normal;
+	color:#92c73e;
+	padding:0px 0px 15px 0px;
+	margin:0px;
+	z-index:100;
+}
+/**********   VIDEO *****************/
+
+#flowplayerholder {
+	height: 300px;
+	width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+}
+#inviteForm textarea {
+	width: 500px;
+	height: 100px;
+}
+/****************  TREE   ********************/
+.jstree {
+	overflow: auto !important;
+}
