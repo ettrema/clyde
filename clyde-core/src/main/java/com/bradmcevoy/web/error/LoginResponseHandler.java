@@ -11,6 +11,7 @@ import com.bradmcevoy.http.Response;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.webdav.WebDavResponseHandler;
+import com.bradmcevoy.web.ajax.AjaxResourceFactory.AjaxPostResource;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,6 +42,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
      */
     @Override
     public void respondUnauthorised( Resource resource, Response response, Request request ) {
+        log.trace("respondUnauthorised");
         String ctHeader = request.getContentTypeHeader();
         if( isPage( resource, ctHeader ) && !excluded( request ) && isGetOrPost( request ) ) {
             Resource rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
@@ -71,6 +73,9 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
                     throw new RuntimeException( ex );
                 }
             }
+        } else if ( resource instanceof AjaxPostResource && !excluded( request ) && isGetOrPost( request )) {
+            log.trace("ajax post resource, so suppress login prompt");
+            wrapped.respondForbidden( resource, response, request );
         } else {
             log.trace( "respond with normal 401" );
             wrapped.respondUnauthorised( resource, response, request );
