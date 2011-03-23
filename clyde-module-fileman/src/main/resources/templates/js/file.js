@@ -362,7 +362,7 @@ function buildThumbFrame(file, i, thumbsDiv) {
 }
 
 
-
+// see clyde-modules-common/common.js
 function endsWith(str, suffix) {
     return str.match(suffix+"$")==suffix;
 }
