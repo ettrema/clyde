@@ -1,0 +1,136 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Media Lounge - File manager</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <link type="text/css" href="../templates/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
+        <link type="text/css" href="../templates/basic.css" rel="stylesheet" />
+
+        <!-- IE 6 "fixes" -->
+        <!--[if lt IE 7]>
+                <link type='text/css' href='css/basic_ie.css' rel='stylesheet' media='screen' />
+                <![endif]-->
+
+        <script type="text/javascript" src="../templates/js/jquery.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.cookie.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery-ui-1.7.2.custom.min.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.metadata.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.sizes.js"></script>
+        <script type="text/javascript" src="../templates/js/jlayout.border.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.jlayout.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.jstree.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.simplemodal.js"></script>
+        <script type="text/javascript" src="../templates/js/toolTip.js"></script>
+        <script type="text/javascript" src="../templates/js/panels.js"></script>
+        <script type="text/javascript" src="../templates/js/user.js"></script>
+        <script type="text/javascript" src="../templates/js/file.js"></script>
+        <script type="text/javascript" src="../templates/js/types.js"></script>
+        <script type="text/javascript" src="../templates/js/jquery.dropshadow.js"></script>
+        <script type="text/javascript" src="../templates/js/tree.init.js"></script>
+        <script type="text/javascript" src="../templates/js/flowplayer-3.2.2.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+
+        <script type="text/javascript">
+            jQuery(function($) {
+                if( initUser() ) {
+                    initTree();
+                    initFileManPanels();
+                } else {
+                    $("#loginModal").modal({
+                        height:200,
+                        width: 450
+                    });
+                }
+            });
+            //This should give the Blog dropdown a shadow but needs looking into
+            //window.onload = function()
+            //	{
+            // $(".subNavigation .menuDropDown").dropShadow({left: 0.4, top: 2, opacity: 2, blur: 5});
+            //	}
+	  
+            //This handles the Blog Dropdown
+            function ShowHide1(){
+                $(".menuDropDown").animate({"height": "toggle"}, { duration: 150 });
+            }
+
+        </script>
+        <link href="../templates/styleFM.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <div class="layout">
+            <!-- Header -->
+            <div class="north">
+                <ul>
+                    <li class="left"> <a href="index.html"> <img src="../images/ml/fileManager/navigation/navHomeIcon.gif" alt=" " border="0" class="icon" /> Home </a> </li>
+                    <!--<li class="right"><a href="">Support</a></li>-->
+                    <li class="right"><a href="javascript:doLogout()">Logout</a></li>
+                    <li class="right"><a href="accounts.html">My Account</a></li>
+                </ul>
+            </div>
+            <!-- End Header -->
+            <!-- Preview Area -->
+            <div class="center">
+                <!-- Sub Navigation -->
+                <div class="subNavigation"> 
+                    <a onclick="window.open(thumbs[currentThumbId].href,'_blank'); return false;" href="#" class="tooltip" title="Enlarge your current photo">
+                        <span>
+                            <img src="../images/framework/buttons/buttonGrey2/iconMglass.png" alt=" " border="0" class="subIcon" />
+                            Enlarge
+                        </span>
+                    </a>
+                </div>
+                <!-- End Sub Navigation -->
+                <!-- Image Preview -->
+
+                <div id="preview" class="preview" align="center"> </div>
+
+                <div class="previewPrevious" onclick="selectThumb(currentThumbId-1)"></div>
+                <div class="previewNext" onclick="selectThumb(currentThumbId+1)"></div>
+                <!-- -->
+                <!-- File Loading -->
+                <table id="filesLoading" width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" style="display: none">
+                    <tr>
+                        <td valign="middle" height="100%" align="center"><img src="../images/ml/fileManager/loadingFileWarning.png" alt="File Loading" /></td>
+                    </tr>
+                </table>
+                <!-- End File Loading -->
+                <div class="grabberV"></div>
+            </div>
+            <!-- End Preview Area -->
+            <!-- Tree view -->
+            <div class="west">
+                <!-- This is the container for the tree view - VERY important -->
+                <div id="tree"></div>
+            </div>
+            <!-- End Tree view -->
+            <!-- Footer -->
+            <div class="south">
+                <div class="grabberH"></div>
+                <div class="thumbContainer" id="thumbs"> </div>
+            </div>
+            <!-- End Footer -->
+        </div>
+
+        <div id="loginModal">
+            <form method="post" id="signin" action="" onsubmit="doLogin( $('#loginModal') ); return false;">
+                <fieldset>
+                    <legend>Login</legend>
+                    <label>Email</label>
+                    <input id="username" name="_loginUserName" title="username" tabindex="1" type="text" value=""/>
+                    <br/>
+                    <br/>
+                    <label>Password</label>
+                    <input id="password" name="_loginPassword" title="password" tabindex="2" type="password" value=""/>
+                    <br/><br/>
+                    <input id="signin_submit" value="Sign in" tabindex="3" type="submit"/>
+
+                    <p class="forgot">
+                        <a href="/forgotten_password.html" id="resend_password_link">Forgot your password?</a>
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+    </body>
+</html>
