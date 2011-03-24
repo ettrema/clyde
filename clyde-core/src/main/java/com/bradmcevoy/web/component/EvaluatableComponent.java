@@ -6,6 +6,7 @@ import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
+import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -14,9 +15,11 @@ import org.jdom.Namespace;
  *
  * @author brad
  */
-public class EvaluatableComponent extends CommonComponent{
+public class EvaluatableComponent extends CommonComponent implements Serializable{
 
     public static final Namespace NS = Namespace.getNamespace( "c", "http://clyde.ettrema.com/ns/core" );
+
+    private static final long serialVersionUID = 1L;
 
     private Addressable container;
     private String name;
@@ -30,7 +33,7 @@ public class EvaluatableComponent extends CommonComponent{
     public EvaluatableComponent(Addressable container, Element el) {
         this.container = container;
         name = el.getAttributeValue("name");
-        evaluatable = EvalUtils.getEvalDirect(el, NS);
+        evaluatable = EvalUtils.getEvalDirect(el, NS, container);
     }
 
     public void init(Addressable container) {
@@ -92,4 +95,10 @@ public class EvaluatableComponent extends CommonComponent{
         Object result = EvalUtils.eval(evaluatable, rc, rc.getTargetPage());
         return result;
     }
+
+    public Evaluatable getEvaluatable() {
+        return evaluatable;
+    }
+
+    
 }

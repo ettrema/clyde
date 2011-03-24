@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.eval;
 
 import com.bradmcevoy.utils.JDomUtils;
+import com.bradmcevoy.web.component.Addressable;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -18,7 +19,7 @@ class VelocityEvaluatableToXml implements EvaluatableToXml<VelocityEvaluatable> 
         JDomUtils.setInnerXml(elEval, s);
     }
 
-    public VelocityEvaluatable fromXml(Element elEval, Namespace ns) {
+    public VelocityEvaluatable fromXml(Element elEval, Namespace ns, Addressable container) {
         String s = JDomUtils.getInnerXml(elEval);
         return new VelocityEvaluatable(s);
     }

@@ -36,6 +36,14 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     private Evaluatable where;
     private List<OrderByField> orderByFields;
 
+    public List<String> getFieldNames() {
+        ArrayList<String> list = new ArrayList<String>();
+        for (Field f : selectFields) {
+            list.add(f.getName());
+        }
+        return list;
+    }
+
     public List<Field> getSelectFields() {
         return selectFields;
     }
@@ -91,27 +99,31 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     public List<FieldSource> getRows(Folder relativeTo) {
-        log.trace("getRows: " + relativeTo.getHref());
-        if (groupFields == null || groupFields.isEmpty()) {
-            log.trace("non aggregating query");
-            List<FieldSource> output = new ArrayList<FieldSource>();
-            for (FieldSource fs : from.getRows(relativeTo)) {
-                if (isWhereTrue(fs)) {
-                    Row row = buildRow(fs, selectFields);
-                    output.add(row);
+        try {
+            log.trace("getRows: " + relativeTo.getHref());
+            if (groupFields == null || groupFields.isEmpty()) {
+                log.trace("non aggregating query");
+                List<FieldSource> output = new ArrayList<FieldSource>();
+                for (FieldSource fs : from.getRows(relativeTo)) {
+                    if (isWhereTrue(fs)) {
+                        Row row = buildRow(fs, selectFields, output.size());
+                        output.add(row);
+                    }
                 }
-            }
-            return sort(output);
-        } else {
-            log.trace("aggregating query");
-            Map<Row, Row> output = new HashMap<Row, Row>();
-            for (FieldSource fs : from.getRows(relativeTo)) {
-                if (isWhereTrue(fs)) {
-                    addAggregatedResult(fs, output);
+                return sort(output);
+            } else {
+                log.trace("aggregating query");
+                Map<Row, Row> output = new HashMap<Row, Row>();
+                for (FieldSource fs : from.getRows(relativeTo)) {
+                    if (isWhereTrue(fs)) {
+                        addAggregatedResult(fs, output);
+                    }
                 }
+                calcAggegatedFields(output);
+                return sort(output.values());
             }
-            calcAggegatedFields(output);
-            return sort(output.values());
+        } finally {
+
         }
     }
 
@@ -120,7 +132,12 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
             return true;
         } else {
             Object oVal = where.evaluate(fs.getData());
-            return Formatter.getInstance().toBool(oVal);
+            Boolean bb = Formatter.getInstance().toBool(oVal);
+            if (bb == null) {
+                return true;
+            } else {
+                return bb.booleanValue();
+            }
         }
     }
 
@@ -132,26 +149,28 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
      * @param output
      */
     private void addAggregatedResult(FieldSource fs, Map<Row, Row> output) {
-        Row groupByKey = buildRow(fs, groupFields.values());
+        Row groupByKey = buildRow(fs, groupFields.values(), -1);
         Row outputRow = output.get(groupByKey);
         if (outputRow == null) {
-            outputRow = new Row();
+            outputRow = new Row(output.size());
             output.put(groupByKey, outputRow);
         }
         // Note that fields are calculated for each row in a second phase, after rows are accumulated
         outputRow.getSubRows().add(fs);
     }
 
-    private Row buildRow(FieldSource fs, Collection<Field> fields) {
-        Row row = new Row();
+    private Row buildRow(FieldSource fs, Collection<Field> fields, int rowNum) {
+        Row row = new Row(rowNum);
         populateRow(row, fs, fields);
         return row;
     }
 
     private Object evaluate(Field f, FieldSource fs) {
         if (f.getEvaluatable() == null) {
-            return fs.get(f.getName());
+            Object o = fs.get(f.getName());
+            return o;
         } else {
+            //return f.getEvaluatable().evaluate(fs);
             return f.getEvaluatable().evaluate(fs.getData());
         }
     }
@@ -208,7 +227,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
             Object val2 = evaluateOrderBy(f, o2);
             int c = compareValues(val1, val2);
             if (c != 0) {
-                if(f.getDirection().equals(Direction.ascending)) {
+                if (f.getDirection().equals(Direction.ascending)) {
                     return c;
                 } else {
                     return c * -1;
@@ -220,7 +239,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     private Object evaluateOrderBy(Field f, FieldSource row) {
-        if( f.getEvaluatable() == null ) {
+        if (f.getEvaluatable() == null) {
             return row.get(f.getName());
         } else {
             return evaluate(f, row);

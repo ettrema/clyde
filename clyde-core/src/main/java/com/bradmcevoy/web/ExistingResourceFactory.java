@@ -61,7 +61,12 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     }
 
     public static Resource findChild( Resource parent, Path path ) {
-        return findChild( parent, path.getParts(), 0 );
+        if( path.isRelative()) {
+            return findChild( parent, path.getParts(), 0 );
+        } else {
+            Host host = ((Templatable)parent).getHost();
+            return findChild( host, path.getParts(), 0 );
+        }
     }
 
     public static Resource findChild( Resource parent, String childSpec ) {

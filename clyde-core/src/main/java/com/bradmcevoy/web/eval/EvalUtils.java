@@ -83,9 +83,9 @@ public class EvalUtils {
      * @param ns
      * @return
      */
-    public static Evaluatable getEval(Element elParent, String name, Namespace ns) {
+    public static Evaluatable getEval(Element elParent, String name, Namespace ns, Addressable container) {
         Element el = InitUtils.getChildElement(elParent, name, ns);
-        return getEvalDirect(el, ns);
+        return getEvalDirect(el, ns, container);
     }
 
     /**
@@ -95,10 +95,10 @@ public class EvalUtils {
      * @param ns
      * @return
      */
-    public static Evaluatable getEvalDirect(Element el, Namespace ns) {
-        return getEvalDirect(el, ns, true);
+    public static Evaluatable getEvalDirect(Element el, Namespace ns, Addressable container) {
+        return getEvalDirect(el, ns, true, container);
     }
-    public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull) {
+    public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull, Addressable container) {
         EvaluatableToXml parser;
         if (el == null) {
             return new ConstEvaluatable();
@@ -122,14 +122,14 @@ public class EvalUtils {
                 if (parser == null) {
                     throw new RuntimeException("Unsupported evaulatable type: " + n);
                 } else {
-                    Evaluatable eval = parser.fromXml(elChild, ns);
+                    Evaluatable eval = parser.fromXml(elChild, ns, container);
                     return eval;
                 }
             }
         }
     }
 
-    public static List<Evaluatable> getEvalDirectList(Element el, Namespace ns) {
+    public static List<Evaluatable> getEvalDirectList(Element el, Namespace ns, Addressable container) {
         List<Evaluatable> list = new ArrayList<Evaluatable>();
         EvaluatableToXml parser;
         if (el != null) {
@@ -142,7 +142,7 @@ public class EvalUtils {
                     if (parser == null) {
                         throw new RuntimeException("Unsupported evaulatable type: " + n);
                     } else {
-                        Evaluatable eval = parser.fromXml(elChild, ns);
+                        Evaluatable eval = parser.fromXml(elChild, ns, container);
                         list.add(eval);
                     }
                 }

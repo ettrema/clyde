@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.eval;
 
+import com.bradmcevoy.web.component.Addressable;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -17,7 +18,7 @@ class ConstEvaluatableToXml implements EvaluatableToXml<ConstEvaluatable> {
         elEval.setText(s);
     }
 
-    public ConstEvaluatable fromXml(Element elEval, Namespace ns) {
+    public ConstEvaluatable fromXml(Element elEval, Namespace ns, Addressable container) {
         String s = elEval.getText();
         return new ConstEvaluatable(s);
     }

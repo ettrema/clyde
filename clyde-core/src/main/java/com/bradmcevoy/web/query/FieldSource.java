@@ -1,5 +1,7 @@
 package com.bradmcevoy.web.query;
 
+import java.util.Set;
+
 /**
  *
  * @author brad
@@ -21,4 +23,7 @@ public interface FieldSource {
      * @return
      */
     Object getData();
+
+    Set<String> getKeys();
+
 }

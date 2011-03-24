@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.eval;
 
+import com.bradmcevoy.web.component.Addressable;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -13,9 +14,9 @@ class AndEvaluatableToXml implements EvaluatableToXml<AndEvaluatable> {
         EvalUtils.setEvalDirectList(elEval, target.getExpressions(), ns);
     }
 
-    public AndEvaluatable fromXml(Element elEval, Namespace ns) {
+    public AndEvaluatable fromXml(Element elEval, Namespace ns, Addressable container) {
         AndEvaluatable and = new AndEvaluatable();
-        and.setExpressions(EvalUtils.getEvalDirectList(elEval, ns));
+        and.setExpressions(EvalUtils.getEvalDirectList(elEval, ns, container));
         return and;
     }
 

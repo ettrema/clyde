@@ -8,5 +8,6 @@ import java.util.List;
  * @author brad
  */
 public interface Selectable {
+    List<String> getFieldNames();
     List<FieldSource> getRows(Folder from);
 }

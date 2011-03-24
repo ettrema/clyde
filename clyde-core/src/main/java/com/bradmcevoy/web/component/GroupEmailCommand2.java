@@ -51,13 +51,13 @@ public final class GroupEmailCommand2 extends Command {
     }
 
     public void parseXml(Element el) {
-        bodyText = EvalUtils.getEval(el, "bodyText", NS);
-        bodyHtml = EvalUtils.getEval(el, "bodyHtml", NS);
-        from = EvalUtils.getEval(el, "from", NS);
-        toGroup = EvalUtils.getEval(el, "toGroup", NS);
-        subject = EvalUtils.getEval(el, "subject", NS);
-        replyTo = EvalUtils.getEval(el, "replyTo", NS);
-        confirmationUrl = EvalUtils.getEval(el, "confirmationUrl", NS);
+        bodyText = EvalUtils.getEval(el, "bodyText", NS, container);
+        bodyHtml = EvalUtils.getEval(el, "bodyHtml", NS, container);
+        from = EvalUtils.getEval(el, "from", NS, container);
+        toGroup = EvalUtils.getEval(el, "toGroup", NS, container);
+        subject = EvalUtils.getEval(el, "subject", NS, container);
+        replyTo = EvalUtils.getEval(el, "replyTo", NS, container);
+        confirmationUrl = EvalUtils.getEval(el, "confirmationUrl", NS, container);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.eval;
 
+import com.bradmcevoy.web.component.Addressable;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -17,7 +18,7 @@ class GroovyEvaluatableToXml implements EvaluatableToXml<GroovyEvaluatable> {
         elEval.setText(s);
     }
 
-    public GroovyEvaluatable fromXml(Element elEval, Namespace ns) {
+    public GroovyEvaluatable fromXml(Element elEval, Namespace ns, Addressable container) {
         String s = elEval.getText();
         return new GroovyEvaluatable(s);
     }

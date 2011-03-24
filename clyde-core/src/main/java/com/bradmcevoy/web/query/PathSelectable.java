@@ -8,6 +8,7 @@ import com.bradmcevoy.web.ResourceQueryProcessor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -26,6 +27,11 @@ public class PathSelectable implements Selectable, Serializable {
     public void setPath(Path path) {
         this.path = path;
     }
+
+    public List<String> getFieldNames() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
 
     public List<FieldSource> getRows(Folder from) {
         if (log.isTraceEnabled()) {
@@ -58,7 +64,8 @@ public class PathSelectable implements Selectable, Serializable {
         }
 
         public Object get(String name) {
-            return resource.getValues().get(name);
+            Object o = resource.getValues().get(name);
+            return o;
         }
 
         public CommonTemplated getResource() {
@@ -67,6 +74,10 @@ public class PathSelectable implements Selectable, Serializable {
 
         public Object getData() {
             return resource;
+        }
+
+        public Set<String> getKeys() {
+            return resource.getTemplate().getComponentDefs().keySet();
         }
     }
 }

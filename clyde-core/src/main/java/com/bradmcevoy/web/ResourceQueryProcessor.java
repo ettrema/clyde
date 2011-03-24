@@ -15,6 +15,11 @@ public class ResourceQueryProcessor {
         if (log.isTraceEnabled()) {
             log.trace("find: " + path);
         }
+        if( path == null ) {
+            log.warn("path is null: startFrom: " + startFrom.getHref());
+            consumer.onResource(startFrom);
+            return ;
+        }
         String[] parts = path.getParts();
         if (!path.isRelative()) {
             startFrom = startFrom.getHost();

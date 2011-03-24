@@ -2,6 +2,8 @@ package com.bradmcevoy.web.query;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.utils.JDomUtils;
+import com.bradmcevoy.web.Templatable;
+import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.eval.EvaluatableToXml;
@@ -60,13 +62,19 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         populateOrderBy(elEval, target.getOrderByFields(), ns);
     }
 
-    public Query fromXml(Element elEval, Namespace ns) {
+    public Query fromXml(Element elEval, Namespace ns, Addressable container) {
         Query query = new Query();
-        updateSelect(query, elEval, ns);
-        updateGroupBy(query, elEval, ns);
-        updateFrom(query, elEval, ns);
-        updateWhere(query, elEval, ns);
-        updateOrderBy(query, elEval, ns);
+        updateSelect(query, elEval, ns, container);
+        updateGroupBy(query, elEval, ns, container);
+        if (container == null) {
+            throw new RuntimeException("Container is null");
+        } else if (container instanceof Templatable) {
+            updateFrom(query, elEval, ns, (Templatable) container);
+        } else {
+            throw new RuntimeException("Container: " + container.getName() + " is not a Templatable. Is a: " + container.getClass());
+        }
+        updateWhere(query, elEval, ns, container);
+        updateOrderBy(query, elEval, ns, container);
         return query;
     }
 
@@ -85,14 +93,12 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         }
     }
 
-    private void updateSelect(Query query, Element elEval, Namespace ns) {
+    private void updateSelect(Query query, Element elEval, Namespace ns, Addressable container) {
         List<Field> list = new ArrayList<Field>();
         query.setSelectFields(list);
-        for( Element elField : JDomUtils.childrenOf(elEval, "select", ns)) {
-            Field f = new Field();
+        for (Element elField : JDomUtils.childrenOf(elEval, "select", ns)) {
+            Field f = Field.fromXml(elField,container, ns);
             list.add(f);
-            f.setName(elField.getAttributeValue("name"));
-            f.setEvaluatable( EvalUtils.getEvalDirect(elField, ns) );
         }
     }
 
@@ -110,13 +116,13 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         }
     }
 
-    private void updateGroupBy(Query query, Element elEval, Namespace ns) {
-        Map<String,Field> map = new HashMap<String,Field>();
+    private void updateGroupBy(Query query, Element elEval, Namespace ns, Addressable container) {
+        Map<String, Field> map = new HashMap<String, Field>();
         query.setGroupFields(map);
-        for( Element elField : JDomUtils.childrenOf(elEval, "groupby", ns)) {
+        for (Element elField : JDomUtils.childrenOf(elEval, "groupby", ns)) {
             Field f = new Field();
             f.setName(elField.getAttributeValue("name"));
-            f.setEvaluatable( EvalUtils.getEvalDirect(elField, ns) );
+            f.setEvaluatable(EvalUtils.getEvalDirect(elField, ns, container));
             map.put(f.getName(), f);
         }
     }
@@ -124,39 +130,44 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
     private void populateFrom(Element elEval, Selectable from, Namespace ns) {
         Element elFrom = new Element("from", ns);
         elEval.addContent(elFrom);
-        if( from instanceof PathSelectable) {
+        if (from instanceof PathSelectable) {
             PathSelectable ps = (PathSelectable) from;
             elFrom.setAttribute("path", ps.getPath().toString());
-        } else if( from instanceof Query) {
+        } else if (from instanceof Query) {
             Query subQuery = (Query) from;
             populateXml(elFrom, subQuery, ns);
         }
     }
 
-    private void updateFrom(Query query, Element elEval, Namespace ns) {
+    private void updateFrom(Query query, Element elEval, Namespace ns, Templatable container) {
         Element elFrom = elEval.getChild("from", ns);
         Selectable selectable;
-        if( elFrom == null ) {
+        if (elFrom == null) {
             PathSelectable ps = new PathSelectable();
             selectable = ps;
-        } else if( elFrom.getAttribute("path") != null ) {
+        } else if (elFrom.getAttribute("ref") != null) {
+            String componentName = elFrom.getAttributeValue("ref");
+            selectable = new QueryRef(componentName, container);
+        } else if (elFrom.getAttribute("path") != null) {
             PathSelectable ps = new PathSelectable();
             ps.setPath(Path.path(elFrom.getAttributeValue("path")));
             selectable = ps;
         } else {
-            Query subQuery = (Query) EvalUtils.getEvalDirect(elFrom, ns);
+            Query subQuery = (Query) EvalUtils.getEvalDirect(elFrom, ns, false, container);
+            if (subQuery == null) {
+                throw new RuntimeException("No valid from clause for query: " + query.toString());
+            }
             selectable = subQuery;
         }
         query.setFrom(selectable);
     }
 
-
     private void populateWhere(Element elEval, Evaluatable where, Namespace ns) {
         EvalUtils.setEval(elEval, "where", where, ns);
     }
 
-    private void updateWhere(Query query, Element elEval, Namespace ns) {
-        Evaluatable where = EvalUtils.getEval(elEval,"where", ns);
+    private void updateWhere(Query query, Element elEval, Namespace ns, Addressable container) {
+        Evaluatable where = EvalUtils.getEval(elEval, "where", ns, container);
         query.setWhere(where);
     }
 
@@ -169,28 +180,28 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         for (OrderByField f : orderByFields) {
             Element elField = new Element("orderfield", ns);
             elField.setAttribute("name", f.getName());
-            elField.setAttribute("direction", f.getDirection().toString() );
+            elField.setAttribute("direction", f.getDirection().toString());
             elGroupBy.addContent(elField);
             EvalUtils.setEvalDirect(elField, f.getEvaluatable(), ns);
         }
     }
 
-    private void updateOrderBy(Query query, Element elEval, Namespace ns) {
+    private void updateOrderBy(Query query, Element elEval, Namespace ns, Addressable container) {
         List<OrderByField> list = new ArrayList<OrderByField>();
         query.setOrderByFields(list);
-        for( Element elField : JDomUtils.childrenOf(elEval, "orderby", ns)) {
+        for (Element elField : JDomUtils.childrenOf(elEval, "orderby", ns)) {
             OrderByField f = new OrderByField();
             list.add(f);
             String nm = elField.getAttributeValue("name");
-            
+
             f.setName(nm);
             String sDir = elField.getAttributeValue("direction");
-            Direction dir = Direction.ascending; 
-            if( sDir != null ) {
+            Direction dir = Direction.ascending;
+            if (sDir != null) {
                 dir = Direction.valueOf(sDir);
             }
             f.setDirection(dir);
-            f.setEvaluatable( EvalUtils.getEvalDirect(elField, ns, false) );
+            f.setEvaluatable(EvalUtils.getEvalDirect(elField, ns, false, container));
         }
     }
 }

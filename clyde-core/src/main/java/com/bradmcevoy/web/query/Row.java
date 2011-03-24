@@ -5,16 +5,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
+ * This Row class supports aggregation with
+ *   - being a list of FieldSource, so it can accumulate other rows
+ *   - built in functions to aggregate those rows
  *
  * @author brad
  */
-public class Row implements FieldSource {
+public class Row extends ArrayList<FieldSource> implements FieldSource {
 
     private Map<String, Object> map = new HashMap<String, Object>();
-    private List<FieldSource> subRows;
 
+    private final int rowNum;
+
+    public Row(int rowNum) {
+        this.rowNum = rowNum;
+    }
+
+    public int getRowNum() {
+        return rowNum;
+    }
+        
     @Override
     public String toString() {
         String ss = "";
@@ -25,7 +38,7 @@ public class Row implements FieldSource {
     }
 
     public Object getData() {
-        return subRows;
+        return this;
     }
 
     public Object get(String name) {
@@ -37,16 +50,14 @@ public class Row implements FieldSource {
     }
 
     public List<FieldSource> getSubRows() {
-        if (subRows == null) {
-            subRows = new AggregatingList();
-        }
-        return subRows;
+        return this;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 73 * hash + (this.map != null ? this.map.hashCode() : 0);
+        String contents = toString();
+        hash = 73 * hash + contents.hashCode();
         return hash;
     }
 
@@ -59,38 +70,36 @@ public class Row implements FieldSource {
             return false;
         }
         final Row other = (Row) obj;
-        if (this.map != other.map && (this.map == null || !this.map.equals(other.map))) {
-            return false;
-        }
-        return true;
+        return toString().equals( other.toString() );
     }
 
-    public class AggregatingList extends ArrayList<FieldSource> {
-
-        public long sum(String name) {
-            if (isEmpty()) {
-                return 0;
-            }
-            long cnt = 0;
-            for (FieldSource row : this) {
-                Object o = row.get(name);
-                Long l = Formatter.getInstance().toLong(o);
-                cnt += l;
-            }
-            return cnt;
+    public long sum(String name) {
+        if (isEmpty()) {
+            return 0;
         }
-
-        public Long average(String name) {
-            long cnt = getCount();
-            if (cnt == 0) {
-                return null;
-            } else {
-                return sum(name) / cnt;
-            }
+        long cnt = 0;
+        for (FieldSource row : this) {
+            Object o = row.get(name);
+            Long l = Formatter.getInstance().toLong(o);
+            cnt += l;
         }
+        return cnt;
+    }
 
-        public long getCount() {
-            return size();
+    public Long average(String name) {
+        long cnt = getCount();
+        if (cnt == 0) {
+            return null;
+        } else {
+            return sum(name) / cnt;
         }
+    }
+
+    public long getCount() {
+        return size();
+    }
+
+    public Set<String> getKeys() {
+        return map.keySet();
     }
 }

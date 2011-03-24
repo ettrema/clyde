@@ -314,7 +314,7 @@ public class Formatter {
         } else if (o instanceof Date) {
             return formatDate(o);
         } else {
-            return o.toString();
+            return o.toString().trim();
         }
     }
 
