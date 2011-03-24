@@ -204,6 +204,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
     private void updateDefsFromXml(Template res, Element el) {
         log.trace("updateDefsFromXml: " + el.getName());
+        res.getComponentDefs().clear();
         for (Element eAtt : JDomUtils.childrenOf(el, "fields", CodeMeta.NS)) {
             ComponentDefHandler h = mapOfHandlersByAlias.get(eAtt.getName());
             if (h == null) {
