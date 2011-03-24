@@ -76,3 +76,75 @@ function toFileSize(num) {
 function toDisplayDateNoTime(dt) {
     return (dt.day+1) + "/" + (dt.month+1) + "/" + (dt.year+1900);
 }
+
+function doLogout() {
+    $.ajax({
+        type: 'POST',
+        url: "/index.html",
+        data: "_clydelogout=true",
+        dataType: "text",
+        success: function() {
+            window.location = "/index.html";
+        },
+        error: function() {
+            alert('There was a problem logging you out');
+        }
+    });
+}
+
+
+function now() {
+    var dt = new Date();
+    return {
+        day: dt.getDay(),
+        month: dt.getMonth(),
+        year: dt.getYear()
+    };
+}
+
+
+
+function reverseDateOrd(post1,post2){
+    return dateOrd(post1,post2) * -1;
+}
+
+function dateOrd(post1,post2){
+    var n = post1.date;
+    var m = post2.date;
+
+    if( n.year < m.year ) {
+        return -1;
+    } else if( n.year > m.year ) {
+        return 1;
+    }
+    if( n.month < m.month ) {
+        return -1;
+    } else if( n.month > m.month ) {
+        return 1;
+    }
+    if( n.day < m.day ) {
+        return -1;
+    } else if( n.day > m.day ) {
+        return 1;
+    }
+    if( n.hours < m.hours ) {
+        return -1;
+    } else if( n.hours > m.hours ) {
+        return 1;
+    }
+    if( n.minutes < m.minutes ) {
+        return -1;
+    } else if( n.minutes> m.minutes ) {
+        return 1;
+    }
+    if( n.seconds < m.seconds ) {
+        return -1;
+    } else if( n.seconds> m.seconds ) {
+        return 1;
+    }
+    return 0;
+}
+
+function isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
