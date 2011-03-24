@@ -5,6 +5,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.query.Field;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

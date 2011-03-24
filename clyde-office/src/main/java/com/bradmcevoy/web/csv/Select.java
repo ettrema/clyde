@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.csv;
 
+import com.bradmcevoy.web.query.Field;
 import java.io.Serializable;
 import java.util.List;
 

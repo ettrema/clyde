@@ -40,7 +40,7 @@ public final class QaXmlUtils {
             } else {
                 String questionHtml = JDomUtils.getInnerXmlOf( elQuestion, "html" );
                 String comment = JDomUtils.getInnerXmlOf( elQuestion, "comment" );
-                //System.out.println("comment: " + comment);
+
                 String sCorrect = elQuestion.getAttributeValue( "correct" );
                 Integer correct = null;
                 if( StringUtils.isBlank( sCorrect ) ) {

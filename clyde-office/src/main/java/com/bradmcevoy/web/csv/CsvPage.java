@@ -1,33 +1,44 @@
 package com.bradmcevoy.web.csv;
 
 import com.bradmcevoy.utils.JDomUtils;
+import com.bradmcevoy.web.query.FieldSource;
 import java.util.ArrayList;
 import java.util.List;
 import com.bradmcevoy.web.*;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.web.component.ComponentUtils;
+import com.bradmcevoy.web.component.EvaluatableComponent;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.query.Field;
+import com.bradmcevoy.web.query.Selectable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import org.jdom.Element;
-
+import org.jdom.Namespace;
 
 public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CsvPage.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CsvPage.class);
     private static final long serialVersionUID = 1L;
+    public static final Namespace NS = Namespace.getNamespace("c", "http://clyde.ettrema.com/ns/core");
     public Path sourceFolder;
     private Select rootSelect;
+    /**
+     * The page will either use a selectable or the properties above
+     */
+    private Path selectablePath;
 
-    public CsvPage( String contentType, Folder parentFolder, String newName ) {
-        super( contentType, parentFolder, newName );
+
+    public CsvPage(String contentType, Folder parentFolder, String newName) {
+        super(contentType, parentFolder, newName);
     }
 
-    public CsvPage( Folder parentFolder, String newName ) {
-        this( "text/csv", parentFolder, newName );
+    public CsvPage(Folder parentFolder, String newName) {
+        this("text/csv", parentFolder, newName);
     }
 
     @Override
@@ -35,17 +46,19 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
         return "text/csv";
     }
 
-
     @Override
     public void populateXml(Element e2) {
         super.populateXml(e2);
-        InitUtils.set(e2, "sourceFolder", sourceFolder);
         populateFieldsInXml(e2);
 
     }
 
     public void populateFieldsInXml(Element e2) {
-        populateSelect(e2, rootSelect);
+        InitUtils.set(e2, "sourceFolder", sourceFolder);
+        InitUtils.set(e2, "selectablePath", selectablePath);
+        if (rootSelect != null) {
+            populateSelect(e2, rootSelect);
+        }
     }
 
     private void populateSelect(Element elParent, Select select) {
@@ -69,16 +82,16 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
     @Override
     public void loadFromXml(Element el) {
         super.loadFromXml(el);
-        String s = InitUtils.getValue(el, "sourceFolder", ".");
         loadFieldsFromXml(el);
     }
 
     public void loadFieldsFromXml(Element el) {
+        selectablePath = InitUtils.getPath(el, "selectablePath");
         Element elSelect = el.getChild("select");
         if (elSelect != null) {
             rootSelect = selectFromXml(elSelect);
         } else {
-            elSelect = null;
+            rootSelect = null;
         }
     }
 
@@ -86,11 +99,12 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
         String type = InitUtils.getValue(elSelect, "type");
         List<Field> fields = new ArrayList<Field>();
         for (Element elField : JDomUtils.childrenOf(elSelect, "viewfields")) {
-            fields.add(new Field(elField.getAttributeValue("name")));
+            Field f = Field.fromXml(elField,this, NS); 
+            fields.add(f);
         }
         Element elChildSelect = elSelect.getChild("select");
         Select subSelect;
-        if( elChildSelect != null) {
+        if (elChildSelect != null) {
             subSelect = selectFromXml(elChildSelect);
         } else {
             subSelect = null;
@@ -101,18 +115,40 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
     }
 
     @Override
-    protected BaseResource newInstance( Folder parent, String newName ) {
-        return new CsvPage( parent, newName );
+    protected BaseResource newInstance(Folder parent, String newName) {
+        return new CsvPage(parent, newName);
     }
 
     @Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException {
-        log.trace("sendContent: direct");
-        ViewRecord rootRec = ViewRecordHelper.getInstance().toRecords(rootSelect, getSourceFolder());
-        ViewOutputHelper.getInstance().toCsv(out, rootRec.getChildren());
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException {        
+        List<FieldSource> rows;
+        if (rootSelect != null) {
+            log.trace("sendContent: direct: using view");
+            ViewRecord rootRec = ViewRecordHelper.getInstance().toRecords(rootSelect, getSourceFolder());
+            ViewOutputHelper.getInstance().toCsv(out, rootRec.getChildren());
+        } else if(selectablePath != null) {
+            log.trace("sendContent: direct: using selectable: " + selectablePath);
+            Component c = ComponentUtils.findComponent(selectablePath, this);
+            if( c == null ) {
+                throw new RuntimeException("No component: " + selectablePath);
+            } else if( c instanceof EvaluatableComponent ) {
+                EvaluatableComponent ec = (EvaluatableComponent) c;
+                if( ec.getEvaluatable() == null ) {
+                    throw new RuntimeException("Evaluatable is empty");
+                } else if( ec.getEvaluatable() instanceof Selectable ) {
+                    Selectable selectable = (Selectable) ec.getEvaluatable();
+                    rows = selectable.getRows(this.getParent());
+                    ViewOutputHelper.getInstance().toCsv(out, selectable, rows );
+                }
+            } else {
+                throw new RuntimeException("component is not of type EvaluatableComponent, is a: " + c.getClass());
+            }
+        } else {
+            log.warn("Neither a rootSelect (view) not a selectablePath (query) are present");
+        }
     }
 
-    public void replaceContent( InputStream in, Long length ) {
+    public void replaceContent(InputStream in, Long length) {
         log.trace("replaceContent");
         Folder folder = getSourceFolder();
         try {
@@ -125,11 +161,11 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
     }
 
     private Folder getSourceFolder() {
-        if( sourceFolder == null ) {
+        if (sourceFolder == null) {
             throw new RuntimeException("sourceFolder is null");
         }
         Resource r = ExistingResourceFactory.findChild(this.getParentFolder(), sourceFolder);
-        if( r == null ) {
+        if (r == null) {
             throw new RuntimeException("From resource not found: path: " + sourceFolder);
         } else if (r instanceof Folder) {
             return (Folder) r;
@@ -143,7 +179,7 @@ public class CsvPage extends com.bradmcevoy.web.File implements Replaceable {
         return false;
     }
 
-    public void setSourceFolderPath( Path sourceFolder ) {
+    public void setSourceFolderPath(Path sourceFolder) {
         this.sourceFolder = sourceFolder;
     }
 
