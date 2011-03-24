@@ -387,7 +387,6 @@ public class Export extends AbstractConsoleCommand {
         byte[] arr = bytes.toByteArray();
         ByteArrayInputStream bin = new ByteArrayInputStream(arr);
         log.info("upload meta: " + codeMeta.getName() + " - " + codeMeta.getClass());
-        System.out.println(bytes.toString());
         codeParent.upload(codeMeta.getName(), bin, arr.length);
 
         // Now upload content, if not a folder
