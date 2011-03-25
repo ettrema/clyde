@@ -17,8 +17,9 @@ import java.util.Set;
 public class Row extends ArrayList<FieldSource> implements FieldSource {
 
     private Map<String, Object> map = new HashMap<String, Object>();
-
     private final int rowNum;
+    private String _toString;
+    private int _hash;
 
     public Row(int rowNum) {
         this.rowNum = rowNum;
@@ -27,14 +28,22 @@ public class Row extends ArrayList<FieldSource> implements FieldSource {
     public int getRowNum() {
         return rowNum;
     }
-        
+
+    /**
+     * IMPORTANT: this is only calculated once! Is held for performance
+     *
+     * @return
+     */
     @Override
     public String toString() {
-        String ss = "";
-        for (String s : map.keySet()) {
-            ss += s + "=" + map.get(s);
+        if (_toString == null) {
+            String ss = "";
+            for (String s : map.keySet()) {
+                ss += s + "=" + map.get(s);
+            }
+            _toString = "Row: " + ss;
         }
-        return "Row: " + ss;
+        return _toString;
     }
 
     public Object getData() {
@@ -55,10 +64,13 @@ public class Row extends ArrayList<FieldSource> implements FieldSource {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        String contents = toString();
-        hash = 73 * hash + contents.hashCode();
-        return hash;
+        if (_hash == 0) {
+            int hash = 7;
+            String contents = toString();
+            hash = 73 * hash + contents.hashCode();
+            _hash = hash;
+        }
+        return _hash;
     }
 
     @Override
@@ -70,7 +82,7 @@ public class Row extends ArrayList<FieldSource> implements FieldSource {
             return false;
         }
         final Row other = (Row) obj;
-        return toString().equals( other.toString() );
+        return toString().equals(other.toString());
     }
 
     public long sum(String name) {

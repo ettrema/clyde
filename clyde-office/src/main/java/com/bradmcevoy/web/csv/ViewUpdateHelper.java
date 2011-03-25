@@ -34,26 +34,29 @@ public class ViewUpdateHelper {
         int line = 0;
         while ((lineParts = reader.readNext()) != null) {
             if (lineParts.length > 0) {
-                log.trace("process line: " + line++ + " : " + lineParts);
+                line++;
+                if(log.isTraceEnabled()) {
+                    log.trace("process line: " + line + " : " + Arrays.toString(lineParts));
+                }
                 List<String> lineList = new ArrayList<String>();
                 lineList.addAll(Arrays.asList(lineParts));
                 if (lineList.size() > 0 && lineList.get(0).length() > 0) {
-                    doProcess(rootSelect, lineList, fromFolder);
+                    doProcess(rootSelect, lineList, fromFolder, line);
                 }
             }
         }
         // TODO: find all recs not updated and delete them
     }
 
-    private void doProcess(Select rootSelect, List<String> lineList, Folder folder) {
-        doProcess(rootSelect, folder, lineList, 0);
+    private void doProcess(Select rootSelect, List<String> lineList, Folder folder, int line) {
+        doProcess(rootSelect, folder, lineList, 0, line);
     }
 
-    private void doProcess(Select select, Folder folder, List<String> lineList, int pos) {
+    private void doProcess(Select select, Folder folder, List<String> lineList, int pos, int line) {
         log.trace("doProcess: " + pos);
         String name = lineList.get(pos++);
         if( name == null || name.length() == 0 ) {
-            throw new RuntimeException("Cant save record with an empty name: column" + pos);
+            throw new RuntimeException("Cant save record with an empty name: column" + pos + " line: " + line);
         }
         Resource child = folder.child(name);
         if (child == null) {
@@ -63,7 +66,7 @@ public class ViewUpdateHelper {
             log.trace("create new record with template: " + templateToCreate);
             ITemplate template = parentfolder.getTemplate(templateToCreate);
             if (template == null) {
-                log.warn("can't create child: " + name + " because template can't be found: " + select.getType());
+                log.warn("can't create child: " + name + " because template can't be found: " + select.getType() + " line: " + line);
                 return;
             } else {
                 child = template.createPageFromTemplate(parentfolder, name);
@@ -72,10 +75,10 @@ public class ViewUpdateHelper {
         } else {
             log.trace("found record to update: " + child.getName());
         }
-        updateRecord(child, select, lineList, pos);
+        updateRecord(child, select, lineList, pos, line);
     }
 
-    private void updateRecord(Resource child, Select select, List<String> lineList, int pos) {
+    private void updateRecord(Resource child, Select select, List<String> lineList, int pos, int line) {
         BaseResource childRes = (BaseResource) child;
         for (Field f : select.getFields()) {
             if (pos < lineList.size()) {
@@ -87,9 +90,9 @@ public class ViewUpdateHelper {
         if (select.getSubSelect() != null) {
             if (child instanceof Folder) {
                 Folder nextParentFolder = (Folder) child;
-                doProcess(select.getSubSelect(), nextParentFolder, lineList, pos);
+                doProcess(select.getSubSelect(), nextParentFolder, lineList, pos, line);
             } else {
-                throw new RuntimeException("Not a folder: " + childRes.getHref() + " Is a: " + childRes.getClass() + " id: " + childRes.getNameNodeId());
+                throw new RuntimeException("Not a folder: " + childRes.getHref() + " Is a: " + childRes.getClass() + " id: " + childRes.getNameNodeId() + " line: " + line);
             }
 
         }

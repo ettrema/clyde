@@ -99,17 +99,22 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     public List<FieldSource> getRows(Folder relativeTo) {
+        long t = System.currentTimeMillis();
+        List<FieldSource> sourceRows;
         try {
             log.trace("getRows: " + relativeTo.getHref());
             if (groupFields == null || groupFields.isEmpty()) {
                 log.trace("non aggregating query");
                 List<FieldSource> output = new ArrayList<FieldSource>();
-                for (FieldSource fs : from.getRows(relativeTo)) {
+                sourceRows = from.getRows(relativeTo);
+                log.trace("got source rows: " + sourceRows.size() + "  in " + (System.currentTimeMillis()-t) + "ms");
+                for (FieldSource fs : sourceRows) {
                     if (isWhereTrue(fs)) {
                         Row row = buildRow(fs, selectFields, output.size());
                         output.add(row);
                     }
                 }
+                log.trace("done non aggregating query in: " + (System.currentTimeMillis()-t) + "ms  rows: " + output.size());
                 return sort(output);
             } else {
                 log.trace("aggregating query");
@@ -123,7 +128,16 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
                 return sort(output.values());
             }
         } finally {
-
+            t = System.currentTimeMillis() - t;
+            if (t > 2000) {
+                log.warn("Very slow query: " + t + "ms");
+            } else if (t > 500) {
+                log.info("Slow query: " + t + "ms");
+            } else {
+                if (log.isTraceEnabled()) {
+                    log.trace("query time: " + t + "ms");
+                }
+            }
         }
     }
 
@@ -202,7 +216,10 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     private List<FieldSource> sort(List<FieldSource> output) {
+        long t = System.currentTimeMillis();
+        log.trace("sort...");
         Collections.sort(output, this);
+        log.trace("sorted: rows: " + output.size() + " in " + (System.currentTimeMillis()-t) + "ms");
         return output;
     }
 
