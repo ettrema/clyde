@@ -449,4 +449,25 @@ public class Formatter {
             return null;
         }
     }
+
+    public String toPlain(String html) {
+        if( html == null ) {
+            return null;
+        }
+        html = replaceTag("br", html, "", "\n");
+        html = replaceTag("p", html, "", "\n");
+        html = replaceTag("b", html, "", "");
+        html = replaceTag("i", html, "", "");
+        html = replaceTag("h1", html, "", "");
+        html = replaceTag("h2", html, "", "");
+        html = replaceTag("h3", html, "", "");
+        return html;
+    }
+
+    private String replaceTag(String tag, String html, String replaceWithOpening, String replaceWithClosing) {
+        html = html.replace("<" + tag + "/>", replaceWithClosing); // self closing
+        html = html.replace("<" + tag + ">", replaceWithOpening);  // opening tag
+        html = html.replace("</" + tag + ">", replaceWithClosing); // closing tag
+        return html;
+    }
 }

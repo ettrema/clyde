@@ -55,7 +55,7 @@ public class GroovyEvaluatable  implements Evaluatable, Serializable {
 
     private Templatable getTemplatable(Addressable from) {
         if (from instanceof Templatable) {
-            return (BaseResource) from;
+            return (Templatable) from;
         } else if (from == null) {
             return null;
         } else {

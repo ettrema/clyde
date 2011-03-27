@@ -183,7 +183,7 @@ formatter - the standard formatter
         name CDATA #REQUIRED
   >
 
-<!ELEMENT c:groupEmail (c:bodyText|c:bodyHtml|c:from|c:toGroup|c:subject|c:replyTo|c:confirmationUrl)*>
+<!ELEMENT c:groupEmail (c:bodyText|c:bodyHtml|c:from|c:toGroup|c:subject|c:replyTo|c:confirmationUrl|c:attachments)*>
 <!ATTLIST c:groupEmail
         name CDATA #REQUIRED
   >
@@ -196,6 +196,7 @@ formatter - the standard formatter
 <!ELEMENT c:subject (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
 <!ELEMENT c:replyTo (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
 <!ELEMENT c:confirmationUrl  (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+<!ELEMENT c:attachments  (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
 
 <!ELEMENT c:const ANY >
 <!ELEMENT c:ref (#PCDATA) >

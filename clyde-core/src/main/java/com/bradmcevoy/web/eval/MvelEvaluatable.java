@@ -1,6 +1,5 @@
 package com.bradmcevoy.web.eval;
 
-import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Expression;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
@@ -49,7 +48,7 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
 
     private Templatable getTemplatable(Addressable from) {
         if (from instanceof Templatable) {
-            return (BaseResource) from;
+            return (Templatable) from;
         } else if (from == null) {
             return null;
         } else {

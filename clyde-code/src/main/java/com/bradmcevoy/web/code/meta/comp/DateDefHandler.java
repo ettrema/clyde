@@ -44,6 +44,7 @@ public class DateDefHandler implements ComponentDefHandler{
     public ComponentDef fromXml( Template res, Element el ) {
         String name = el.getAttributeValue( "name");
         DateDef def = new DateDef( res, name );
+        def.setShowTime(InitUtils.getBoolean(el, "hasTime"));
         textDefHandler.fromXml( el, def );
         return def;
     }

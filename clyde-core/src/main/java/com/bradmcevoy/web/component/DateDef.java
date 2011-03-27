@@ -129,6 +129,10 @@ public class DateDef extends TextDef {
         return hasTime;
     }
 
+    public void setShowTime(boolean b) {
+        hasTime = b;
+    }
+
     @Override
     public ComponentValue createComponentValue( Templatable newPage ) {
         DateVal cv = new DateVal( name.getValue(), null );

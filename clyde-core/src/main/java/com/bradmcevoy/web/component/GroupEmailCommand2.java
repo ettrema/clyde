@@ -1,11 +1,18 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom.Namespace;
 import java.util.Arrays;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Group;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
+import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.UserGroup;
 import com.ettrema.mail.MailServer;
@@ -16,9 +23,11 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
@@ -40,6 +49,7 @@ public final class GroupEmailCommand2 extends Command {
     private Evaluatable subject;
     private Evaluatable replyTo;
     private Evaluatable confirmationUrl;
+    private Evaluatable attachments;
 
     public GroupEmailCommand2(Addressable container, String name) {
         super(container, name);
@@ -58,6 +68,7 @@ public final class GroupEmailCommand2 extends Command {
         subject = EvalUtils.getEval(el, "subject", NS, container);
         replyTo = EvalUtils.getEval(el, "replyTo", NS, container);
         confirmationUrl = EvalUtils.getEval(el, "confirmationUrl", NS, container);
+        attachments = EvalUtils.getEval(el, "attachments", NS, container);
     }
 
     @Override
@@ -74,6 +85,7 @@ public final class GroupEmailCommand2 extends Command {
         EvalUtils.setEval(e2, "subject", subject, NS);
         EvalUtils.setEval(e2, "replyTo", replyTo, NS);
         EvalUtils.setEval(e2, "confirmationUrl", confirmationUrl, NS);
+        EvalUtils.setEval(e2, "attachments", attachments, NS);
 
     }
 
@@ -196,6 +208,7 @@ public final class GroupEmailCommand2 extends Command {
                 sm.setTo(Arrays.asList(address));
                 sm.setFrom(getFrom(rc));
                 sm.setReplyTo(getReplyTo(rc));
+                addAttachments(sm, rc);
                 mailServer.getMailSender().sendMail(sm);
                 didSend = true;
                 log.info("sent email ok: " + address);
@@ -203,7 +216,7 @@ public final class GroupEmailCommand2 extends Command {
                 log.warn("no external email address for: " + user.getUrl());
             }
         }
-        if( !didSend ) {
+        if (!didSend) {
             Group group = getGroup(rc);
             log.warn("No recipients (or none valid) in group: " + group.getHref());
         }
@@ -212,5 +225,51 @@ public final class GroupEmailCommand2 extends Command {
     @Override
     public Path getPath() {
         return container.getPath().child(name);
+    }
+
+    private void addAttachments(StandardMessage sm, RenderContext rc) {
+        Object o = EvalUtils.eval(attachments, rc, container);
+        if (o == null) {
+            return;
+        } else if (o instanceof List) {
+            addAttachments(sm, (List) o);
+        } else if (o instanceof GetableResource) {
+            addAttachment(sm, (GetableResource) o);
+        } else {
+            throw new RuntimeException("Unsupported attachment type: " + o.getClass() + " Should be reference to resource, or a list of resources");
+        }
+    }
+
+    private void addAttachments(StandardMessage sm, List oList) {
+        for (Object o : oList) {
+            if (o == null) {
+                // skip
+            } else if (o instanceof GetableResource) {
+                addAttachment(sm, (GetableResource) o);
+            } else {
+                throw new RuntimeException("Unsupported attachment type: " + o.getClass() + " Should be reference to resource, or a list of resources");
+            }
+        }
+    }
+
+    private void addAttachment(StandardMessage sm, GetableResource r) {
+        try {
+            BufferingOutputStream bufOut = new BufferingOutputStream(50000);
+            r.sendContent( bufOut, null, null, null);
+            bufOut.close();
+            InputStream in = null;
+            try {
+                in = bufOut.getInputStream();
+                sm.addAttachment(r.getName(), r.getContentType(null), null, in);
+            } finally {
+                IOUtils.closeQuietly(in);
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } catch (NotAuthorizedException ex) {
+            throw new RuntimeException(ex);
+        } catch (BadRequestException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
