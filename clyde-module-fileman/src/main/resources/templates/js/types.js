@@ -1,39 +1,42 @@
 function findType(file) {
-    if( isDisplayableFile(file)) {
-        if( file.iscollection ) {
-            return "folder";
-        } else {
-            if( file.contentType ) {
-                if( file.contentType.indexOf("image") >= 0) {
-                    return "image";
-                } else if( file.contentType.indexOf("flv") >= 0 || file.contentType.indexOf("flash") >= 0 ) {
-                    return "flash";
-                } else if( file.contentType.indexOf("video") >= 0 ) {
-                    return "video";
-                } else if( file.contentType.indexOf("audio") >= 0) {
-                    return "audio";
-                } else if( file.contentType.indexOf("directory") >= 0) {
-                    return "folder";
-                } else {
-                    return "file";
-                }
-            } else {
-                var ex = getExt(file.name);
-                if( ex == "jpg" || ex == "jpeg" || ex == "png" || ex == "png") {
-                    return "image";
-                } else if( ex == "flv") {
-                    return "flv";
-                } else if( ex == "mp3") {
-                    return "audio";
-                }
-                return "file";
-            }
-        }
+    if( file.iscollection ) {
+        return "folder";
     } else {
-        return "hidden";
+        if( file.contentType ) {
+            if( file.contentType.indexOf("image") >= 0) {
+                return "image";
+            } else if (file.contentType.indexOf("html") >= 0) {
+                return "html";
+            } else if( file.contentType.indexOf("flv") >= 0 || file.contentType.indexOf("flash") >= 0 ) {
+                return "flash";
+            } else if( file.contentType.indexOf("video") >= 0 ) {
+                return "video";
+            } else if( file.contentType.indexOf("audio") >= 0) {
+                return "audio";
+            } else if( file.contentType.indexOf("directory") >= 0) {
+                return "folder";
+            } else {
+                return getFileTypeByExt(file);
+            }
+        } else {
+            return getFileTypeByExt(file);
+        }
     }
 }
 
+function getFileTypeByExt(file) {
+    var ex = getExt(file.name);
+    if( ex == "jpg" || ex == "jpeg" || ex == "png" || ex == "png") {
+        return "image";
+    } else if( ex == "flv") {
+        return "flv";
+    } else if( ex == "mp3") {
+        return "audio";
+    } else if( ex == "html") {
+        return "html";
+    }
+    return ex;
+}
 
 function findIcon(file) {
     if( isDisplayableFile(file)) {
@@ -55,6 +58,7 @@ function findIconByExt(filePath) {
 function getExt(fileName) {
     var ext = /^.+\.([^.]+)$/.exec(fileName);
     ext = (ext == null) ? "" : ext[1];
+    log('getExt', fileName, ext);
     return ext.toLowerCase();
 }
 
@@ -91,4 +95,63 @@ function isDisplayableFileHref(href) {
     if( startsWith(name, "_sys_")) return false;
     return true;
 }
+
+function getContextMenuItems(item) {
+    log("getContextMenuItems", item.allowedTemplateNames);
+    var arr = {};
+    arr["delete"] = {
+        label : "Delete",
+        "action" : function (node) {
+            log("action clicked", name, node.data('jstree'), node.data('jstree').href);
+            confirmDelete(node.data('jstree').href, node.data('jstree').name, new function() {
+                //log('callback to refresh');
+                //$("#tree").jstree( "refresh", node);
+                // need to get parent
+                });
+        }
+    };
+    arr["refresh"] = {
+        label : "Refresh",
+        "action" : function (node) {
+            log('refresh');
+            $("#tree").jstree( "refresh", node);
+        //$("#tree").jstree( "refresh" );
+        //node.jstree("refresh");
+        }
+    };
+    if(item.allowedTemplateNames) {
+        arr["Add file"] = {
+            label : "Add...",
+            "action" : function() {
+                doAddFile(item);
+            }
+        };
+
+//        for( i=0; i<item.allowedTemplateNames.length; i++) {
+//            var label = "addPage";
+//            var name = item.allowedTemplateNames[i];
+//            var url = currentFolderUrl + "_autoname.new?templateSelect=" + name;
+//        }
+    }
+    log('array', arr);
+    return arr;
+}
+
+function doAddFile(item) {
+    //alert('doAdd: ' + item.allowedTemplateNames);
+
+    // Need to use the modal to prompt user for template
+
+    $()
+    $("#addPageModal").html("");
+    ul = $("ul.templates", "#addPageModal");
+    $("#addPageModal").dialog({
+        modal: true,
+        width: "400px",
+        resizable: false,
+        dialogClass: "noTitle"
+    });
+}
+
+
 

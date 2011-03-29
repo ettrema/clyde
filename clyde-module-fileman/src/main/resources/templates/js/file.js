@@ -3,6 +3,8 @@ var currentFolderUrl;
 var currentThumbId;
 var thumbs;
 
+ 
+ 
 function initTree() {
     initUser();
 
@@ -13,7 +15,7 @@ function initTree() {
 
     $("#tree").jstree({
         // the list of plugins to include
-        "plugins" : [ "themes", "json_data", "search" ],
+        "plugins" : [ "themes", "json_data", "search", "contextmenu" ],
         // Plugin configuration
 
         // I usually configure the plugin that handles the data first - in this case JSON as it is most common
@@ -44,11 +46,14 @@ function initTree() {
                     // Add some properties, and drop first result
                     $.each(data, function(key, value) {
                         if( value.iscollection ) {
+                            log('tree item', value.href, value.templateName);
                             if( key > 0 && isDisplayableFileHref(value.href) ) {
                                 value.state = "closed"; // set the initial state
                                 value.data = value.name; // copy name to required property
+                                value.metadata = value;
                                 value.attr = {
-                                    id : createNodeId(value.href) // set the id attribute so we know its href
+                                    id : createNodeId(value.href), // set the id attribute so we know its href
+                                    "class" : value.templateName
                                 };
                                 newData[newData.length] = value;
                             }
@@ -67,6 +72,12 @@ function initTree() {
             "select_multiple_modifier" : "alt",
             "selected_parent_close" : "select_parent"
         },
+        contextmenu : {
+            items : function(node){
+                log("items", node);
+                return getContextMenuItems(node.data('jstree'));
+            }
+        },
 
         // Configuring the search plugin
         "search" : {
@@ -83,7 +94,7 @@ function initTree() {
                 }
             }
         }
-    })
+    });
 }
 
 
@@ -94,7 +105,6 @@ $("#tree li").live("click", function(e) {
 })
 
 $("#tree ins").live("click", function(e) {
-    //console.log('click ins', $(this).parent().attr("id"));
     return false;
 })
 
@@ -103,20 +113,15 @@ $("#tree ins").live("click", function(e) {
 //  Get the url for the folder associated with the given node, and
 // load its contents, and set the current folder to its url
 function clickedFolder(n) {
+    var template = n.data('jstree').templateName;
+    log('clickedFolder', template);
     var nodeId = "#" + $(n).attr("id");
     var url = toUrl(n);
     $("#tree").jstree("open_node", nodeId);
-    clickedFolderUrl(url);
+    loadFolder(url, template);
 }
 
-function clickedFolderUrl(url) {
-    loadFolder(url);
-}
-function selectFolder(n) {
-    var url = toUrl(n);
-    loadFolder(url);
-    return url;
-}
+
 
 // map of url's keyed by node id
 var nodeMap = new Array();
@@ -149,42 +154,35 @@ function createNodeId(href) {
 // path is a partial path, like Documents/folder1
 function toPropFindUrl(path) {
     var url;
-    if( jsonDev ) {
-        url = ".." + basePath() + path + "DAV/PROPFIND.txt?fields=name,clyde:streamingVideoHref,getcontenttype>contentType,clyde:thumbHref,href,iscollection,getlastmodified>modifiedDate,getcontentlength>contentLength&depth=1";
-    } else {
-        url = ".." + basePath() + path + "_DAV/PROPFIND?fields=name,clyde:streamingVideoHref,getcontenttype>contentType,clyde:thumbHref,href,iscollection,getlastmodified>modifiedDate,getcontentlength>contentLength&depth=1";
-    }
+    if( path == "") path = "/";
+    url = basePath() + path + "_DAV/PROPFIND?fields=name,clyde:allowedTemplateNames,clyde:streamingVideoHref,getcontenttype>contentType,clyde:thumbHref,href,iscollection,getlastmodified>modifiedDate,getcontentlength>contentLength,clyde:templateName&depth=1";
+    log("toPropFindUrl", url);
     return url;
 }
 
 
 function basePath() {
     // Note this is used to strip the path from raw hrefs
-    return accountRootPath() + "files/";
+    return "";
 }
 
 function accountRootPath() {
-    return accountRootPathNoSlash() + "/";
+    return "/";
 }
 
 function accountRootPathNoSlash() {
-    return "/sites/" + accountName;
+    return "";
+//return "/sites/" + accountName;
 }
 
-// Expand the tree node associated with the folder url, and load its contents
-// into the thumbs area
-function openAndLoadFolder(folderUrl) {
-    var nodeId = "#" + toNodeId(folderUrl);
-    $("#tree").jstree("open_node", nodeId);
-    loadFolder(folderUrl);
-}
 
 // Called when a folder is selected. Loads the thumbs for the folder and shows
 // the first preview
-function loadFolder(folderUrl) {
-    if( currentFolderUrl == folderUrl ) {
-        return;
-    }
+function loadFolder(folderUrl, template) {
+    log('loadFolder', folderUrl, "currentFolderUrl", currentFolderUrl, "template", template);
+    //    if( currentFolderUrl == folderUrl ) {
+    //        return;
+    //    }
 
     currentFolderUrl = folderUrl;
 
@@ -197,19 +195,54 @@ function loadFolder(folderUrl) {
 
 
     highLightFolder(folderUrl);
-    var url = toPropFindUrl(folderUrl);
 
+    selectFolder(folderUrl, template);
+}
+
+function highLightFolder(url) {
+    $(".jstree-clicked").removeClass("jstree-clicked");
+    var nodeId = toNodeId(url);
+    $("#" + nodeId + " > a").addClass("jstree-clicked");
+}
+
+
+
+function selectFolder(folderHref, template) {
+    log('selectFolder: ' + folderHref, "template", template);
+    if( template == null || template == "" || template == "folder") {
+        // if no template, just a plain folder so load files
+        loadFilesTable(folderHref);
+    } else {
+        // if has template, then assume there is a management page for it
+        loadFolderIntoIframe(folderHref);
+    }
+}
+
+function loadFolderIntoIframe(folderHref) {
+    var frame = "<iframe id='previewContent' src='" + folderHref + "index.html'></iframe>";
+    $("#preview").html(frame);
+}
+function loadIframe(href) {
+    var frame = "<iframe id='previewContent' src='" + href + "'></iframe>";
+    $("#preview").html(frame);
+}
+
+function loadFilesTable(folderUrl) {
     var thumbsDiv = $("#thumbs");
-    thumbsDiv.html(" <table width='100%' height='100%' border='0' cellspacing='0' cellpadding='0'><tr><td valign='middle' height='100%' align='center'><img class='ajaxLoading' src='../templates/images/framework/ajax/loading-icon.gif' /></td></tr></table>");
+    thumbsDiv.html(" <table width='100%' height='100%' border='0' cellspacing='0' cellpadding='0'><tr><td valign='middle' height='100%' align='center'><img class='ajaxLoading' src='../templates/images/loading-icon.gif' /></td></tr></table>");
 
     // load thumbs
+    var url = toPropFindUrl(folderUrl);
+    log('loadFilesTable', url);
     $.getJSON(url, function(response) {
+        log('got json response');
         thumbsDiv.html("");
         var allThumbs = response;
         thumbs = new Array(); // reset the array of displayable thumbs
         currentThumbId = 0;
         for( i=1; i<allThumbs.length; i++) { // i=1 because want to skip first which is current folder
             var file = allThumbs[i];
+            log('file', file.href);
             file.getType = function() {
                 return findType(this);
             };
@@ -221,296 +254,73 @@ function loadFolder(folderUrl) {
             };
             if( file.getType() != "hidden") {
                 thumbs[thumbs.length] = file;
+            } else {
+                log('is hidden');
             }
         }
         if( thumbs.length == 0 ) {
+            log('no thumbs');
             showNoThumbs();
         } else {
-            loadCurrentThumbs();
-            $("img").lazyload({
-                container: $("#thumbs")
-            });
-            selectFirstThumb();
+            log('load files');
+            loadCurrentFiles();
         }
     });
 }
 
-function loadCurrentThumbs() {
-    var thumbsDiv = $("#thumbs");
+function loadCurrentFiles() {
+    var thumbsDiv = $("#preview");
+    var table = $("<table class='filesList'><thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody></tbody></table>");
+    thumbsDiv.html("").append(table);
+    var tbody = $("tbody", table);
     for( i=0; i<thumbs.length; i++) {
         var file = thumbs[i];
-        buildThumbFrame(file, i, thumbsDiv);
+        buildThumbRow(file, i, tbody);
     }
+    var h = $("#preview").height() - 100;
+    $(table).dataTable({
+        "bJQueryUI": true,
+        "sScrollY": h + "px",
+        "bPaginate": false
+    });
 }
-
-function highLightFolder(url) {
-    $(".jstree-clicked").removeClass("jstree-clicked");
-    var nodeId = toNodeId(url);
-    $("#" + nodeId + " > a").addClass("jstree-clicked");
-}
-
 function showNoThumbs(thumbsDiv) {
     $("#facebookShare").hide();
-//    showPreviewHref("https://www.thebackupbusiness.com/templates/getting_started_panel.gif");
-//    var html = "<table width='100%' height='100%' border='0' cellspacing='0' cellpadding='0'><tr><td valign='middle' height='100%' align='center'><img src='../images/ml/fileManager/noFilesWarning.png' alt='No Files' /></td></tr></table>";
-//    thumbsDiv.html(html);
+    $("#preview").html("<h2>There are no files in this folder</h2>");
 }
+function buildThumbRow(file, i, thumbsTable) {
+    var row = $("<tr>");
+    thumbsTable.append(row);
+    row.append("<td>" + file.name + "</td>");
+    row.append("<td>" + file.getType() + "</td>");
+    row.append("<td>" + toFileSize(file.contentLength) + "</td>");
+    row.click(function() {
+        log("row click", file.href);
+        selectTableItem(file);
 
-function selectFirstThumb() {
-    $("#facebookShare").show();
-    for( i=0; i<thumbs.length; i++) {
-        if( selectThumb(i)) {
-            return;
-        }
-    }
-    $("#preview").html("");
-}
-
-function clickThumb(i) {
-    if( i < 0 || i >= thumbs.length) {
-        $("#preview").html("");
-        return false;
-    } else {
-        var file = thumbs[i];
-        var type = file.getType();
-        if( type == 'folder' ) {
-            var path = file.href.replace(basePath(),"");
-            openAndLoadFolder(path);
-            return false;
-        } else {
-            selectThumb(i);
-            return false;
-        }
-    }
-}
-
-function selectThumb(i) {
-    if( i >= thumbs.length) {
-        i = 0;
-    } else if( i < 0 ) {
-        i = thumbs.length-1;
-    }
-    var file = thumbs[i];
-    currentThumbId = i;
-    var type = file.getType();
-    if( type == 'image' ) {
-        var html = "<img src='" + file.getPreview() + "' alt='" + file.name +  "' class='image' />";
-        $("#preview").html(html);
-        return true;
-    } else if( type == 'video' ) {
-        if( file.streamingVideoHref ) {
-            var flashFile = basePath() + currentFolderUrl + "_sys_flashs/" + file.name + ".flv";
-            showVideo(file.name,  flashFile);
-            return true;
-        } else {
-            return false;
-        }
-    } else if( type == 'flash' ) {
-        showVideo(file.name, file.href)
-        return true;
-    } else {
-        var fileUrl = basePath() + currentFolderUrl + file.name;
-        var fileIconHtml = "<img src='../images/ml/fileManager/icons/" + file.getIcon() + "' />";
-        var fileHtml = "<a target='new' href='" + fileUrl + "'>" + fileIconHtml + "</a>";
-        fileHtml = fileHtml + "<a target='new' href='" + fileUrl + "'>" + file.name + "</a>";
-        fileHtml = fileHtml + "<p>Size: " + toFileSize(file.contentLength) +"</p>";
-        $("#preview").html("<div class='file'>" + fileHtml + "</div>");
-        return false;
-    }
-}
-
-// Display a video in the preview area
-function showVideo(title, streamingVideoHref) {
-    $("#preview").html("<div id='flowplayerholder'></div>");
-    flowplayer("flowplayerholder", {
-        src: "../templates/flowplayer-3.2.2.swf"
-    }, {
-        clip: {
-            url: streamingVideoHref,
-            autoPlay: true
-        },
-        play: {
-            label: title,
-            replayLabel: "click to play again"
-        }
-    } );
-}
-
-
-function buildThumbFrame(file, i, thumbsDiv) {
-    var type = file.getType();
-
-    var thumbFrame;
-    var thumbHref;
-    if( type == 'image' ) {
-        thumbHref = ".." + basePath() + currentFolderUrl + "_sys_thumbs/" + file.name;
-        thumbFrame = "<div class='thumbPhoto' onclick='clickThumb(" + i + ")'><img src='" + thumbHref + "' alt='" + file.name + "' /></div>";
-    } else if( type == 'flash' ) {
-        thumbHref = ".." + basePath() + currentFolderUrl + "_sys_thumbs/" + file.name + ".jpg";
-        thumbFrame = "<div class='thumbPhoto' onclick='clickThumb(" + i + ")'><img src='" + thumbHref + "' alt='" + file.name + "' /></div>";
-    } else if( type == 'video' ) {
-        thumbHref = ".." + basePath() + currentFolderUrl + "_sys_thumbs/" + file.name + ".jpg";
-        thumbFrame = "<div class='thumbPhoto' onclick='clickThumb(" + i + ")'><img src='" + thumbHref + "' alt='" + file.name + "' /></div>";
-    } else {
-        // audio, folder, or an office document, use the type variable as an icon
-        thumbFrame = "<div class='thumbFile' onclick='clickThumb(" + i + ")'><div class='icon'><img src='../images/ml/fileManager/icons/" + file.getIcon() + "' /></div><span class='text'>" + file.name + "</span></div>";
-    }
-    if( thumbFrame ) {
-        thumbsDiv.append(thumbFrame);
-    }
-
-}
-
-
-// see clyde-modules-common/common.js
-function endsWith(str, suffix) {
-    return str.match(suffix+"$")==suffix;
-}
-function startsWith(str, prefix) {
-    return str.indexOf(prefix) === 0;
-}
-
-
-
-
-$.extend({
-    URLEncode:function(c){
-        var o='';
-        var x=0;
-        c=c.toString();
-        var r=/(^[a-zA-Z0-9_.]*)/;
-        while(x<c.length){
-            var m=r.exec(c.substr(x));
-            if(m!=null && m.length>1 && m[1]!=''){
-                o+=m[1];
-                x+=m[1].length;
-            }else{
-                if(c[x]==' ')o+='+';
-                else{
-                    var d=c.charCodeAt(x);
-                    var h=d.toString(16);
-                    o+='%'+(h.length<2?'0':'')+h.toUpperCase();
-                }
-                x++;
-            }
-        }
-        return o;
-    },
-    URLDecode:function(s){
-        var o=s;
-        var binVal,t;
-        var r=/(%[^%]{2})/;
-        while((m=r.exec(o))!=null && m.length>1 && m[1]!=''){
-            b=parseInt(m[1].substr(1),16);
-            t=String.fromCharCode(b);
-            o=o.replace(m[1],t);
-        }
-        return o;
-    }
-});
-
-
-var isFileView = true;
-
-function showSlideshow() {
-    if( isFileView ) {
-        var flashvars = {
-            feed: "../sites/" + accountName + "/files/" + currentFolderUrl +  "media.xml"
-        };
-        var params = {
-            numRows : "2",
-            allowFullScreen: "true",
-            allowscriptaccess: "always"
-        };
-        swfobject.embedSWF("http://apps.cooliris.com/embed/cooliris.swf", "preview", "95%", "330", "9.0.0", "",flashvars, params);
-        isFileView = false;
-    } else {
-        $("#preview").replaceWith("<div id='preview' class='preview' align='center'> </div>");
-        clickThumb(0);
-        isFileView = true;
-    }
-
-}
-
-function fbLoad(file) {
-    var loadHref = ".." + basePath() + currentFolderUrl + "_sys_regs/" + file.name;
-    var url = loadHref + "/_sys_facebook";
-
-    $("#whizzyWhirly").show();
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: {
-            caption: "Loaded via http://shmego.com - Backup & Share your photos."
-        },
-        success: function() {
-            $("#whizzyWhirly").hide();
-        },
-        error:  function() {
-            alert('We were unable to share your photo with Facebook.  Please try again.');
-            $("#whizzyWhirly").hide();
-        },
-        dataType: "text"
     });
 }
-
-function showShareForm() {
-    $("inviteForm").show(); // make sure not hidden from previous
-    $("#folderShareModal").modal({
-        minHeight:400,
-        minWidth: 600
-    });
-    var folder = $.URLDecode(toDisplayFolder(currentFolderUrl));
-    $(".descriptionHighlight").html(folder);
-}
-
-function inviteSend() {
-    var inviteMessage = $("#inviteMessage").val();
-
-    var invites = $("#inviteeEmails").val();
-
-    if( invites == "" ) {
-        alert('please enter at least one email address');
-        return;
-    }
-
-    $("#inviteForm").hide();
-    $("#inviteWhizzyWhirly").show();
-
-    var url = basePath() + currentFolderUrl + 'invite';
-    
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: {
-            invite: "invite",
-            inviteeEmails: invites,
-            inviteMessage: inviteMessage
-        },
-        dataType: "text",
-        success: onDoneInvite,
-        error: onErrorInvite
-    });
-}
-
-function inviteCancel() {
-    closeModal();
-}
-
-function onDoneInvite(resp) {
-    $("#inviteWhizzyWhirly").hide();
-    if( resp == "ok" ) {
-        $("#inviteDoneOk").show();
+function selectTableItem(file) {
+    var t = file.getType();
+    if( t == "folder") {
+        var nodeId = "#" + toNodeId(file.href);
+        $("#tree").jstree("open_node", nodeId);
+        loadFolder(file.href, file.templateName);
+    } else if( t == "image") {
+        loadImage(file.href);
+    } else if( t == "flv") {
+        loadFlv(file.href);
     } else {
-        $("#inviteDoneErr").show();
-        $("#inviteForm").show();
+        loadIframe(file.href);
     }
 }
 
-function onErrorInvite(resp) {
-    $("#inviteWhizzyWhirly").hide();
-    $("#inviteDoneErr").show();
-    $("#inviteForm").show();
+/**
+ *  Called to invoke the edit page for a
+ */
+function doEdit() {
+    log("doEdit", currentFolderUrl);
+    loadIframe(currentFolderUrl + ".edit");
 }
 
 
@@ -526,10 +336,42 @@ function toDisplayFolder(href) {
     return s;
 }
 
-function toFileSize(num) {
-    if( num > 1000000 ) {
-      return Math.round(num/1000000) + 'Mb';
-    } else {
-      return Math.round(num/1000) + 'Kb';
+function confirmDelete(href, name, callback) {
+    if( confirm("Are you sure you want to delete " + name + "?")) {
+        deleteFile(href, callback);
     }
+}
+
+function deleteFile(href, callback) {
+    ajaxLoadingOn();
+    $.ajax({
+        type: 'DELETE',
+        url: href,
+        dataType: "json",
+        success: function(resp) {
+            log('deleted', href);
+            ajaxLoadingOff();
+            callback();
+        },
+        error: function(resp) {
+            log("failed", resp);
+            ajaxLoadingOff();
+            alert("Sorry, an error occured deleting a module status. Please check your internet connection");
+        }
+    });
+}
+
+function ajaxLoadingOn(sel) {
+    log('ajax ON', sel);
+    $("#ajaxLoading").dialog({
+        modal: true,
+        width: "400px",
+        resizable: false,
+        dialogClass: "noTitle"
+    });
+}
+
+function ajaxLoadingOff(sel) {
+    log('ajax OFF', sel);
+    $("#ajaxLoading").dialog('close');
 }

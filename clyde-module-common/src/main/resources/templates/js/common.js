@@ -148,3 +148,19 @@ function dateOrd(post1,post2){
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
+
+function ajaxLoadingOn(sel) {
+    log('ajax ON', sel);
+    $("#ajaxLoading").dialog({
+        modal: true,
+        width: "400px",
+        resizable: false,
+        dialogClass: "noTitle"
+    });
+}
+
+function ajaxLoadingOff(sel) {
+    log('ajax OFF', sel);
+    $("#ajaxLoading").dialog('close');
+}
+
