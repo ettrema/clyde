@@ -31,19 +31,17 @@ public class FileLoader {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileLoader.class);
     private String hostName = "test.ppod.com";  // todo: fix config to use localhost
     //private String hostName = "127.0.0.1";
-    private final File root;
     private final CodeResourceFactory resourceFactory;
     private final ErrorReporter errorReporter;
 
-    public FileLoader(File root, CodeResourceFactory resourceFactory, ErrorReporter errorReporter) {
-        this.root = root;
+    public FileLoader(CodeResourceFactory resourceFactory, ErrorReporter errorReporter) {
         this.resourceFactory = resourceFactory;
         this.errorReporter = errorReporter;
     }
 
-    public void onNewFile(File f) {
+    public void onNewFile(File f, File root) {
         try {
-            check(f);
+            check(f, root);
             log.trace("commit new file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
@@ -52,9 +50,9 @@ public class FileLoader {
         }
     }
 
-    public void onDeleted(File f) {
+    public void onDeleted(File f, File root) {
         try {
-            check(f);
+            check(f, root);
             log.trace("commit deleted file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
@@ -63,9 +61,9 @@ public class FileLoader {
         }
     }
 
-    public void onModified(File f) {
+    public void onModified(File f,File root) {
         try {
-            check(f);
+            check(f, root);
             log.trace("commit modified file");
             _(VfsSession.class).commit();
         } catch (Exception ex) {
@@ -74,7 +72,7 @@ public class FileLoader {
         }
     }
 
-    private void check(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+    private void check(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         boolean done = false;
         try {
             while (!done) {
@@ -86,13 +84,13 @@ public class FileLoader {
                     } else {
                         done = true;
                         long t = System.currentTimeMillis();
-                        upload(f);
+                        upload(f, root);
                         t = System.currentTimeMillis() - t;
                         log.info("done upload: " + f.getAbsolutePath() + " in " + t/1000 + "secs");
                     }
                 } else {
                     done = true;
-                    delete(f);
+                    delete(f, root);
                     log.info("done delete:" + f.getAbsolutePath());
                 }
             }
@@ -124,15 +122,15 @@ public class FileLoader {
     public void onRenamed(File f) {
     }
 
-    public boolean exists(File f) {
+    public boolean exists(File f, File root) {
         f = toMetaFile(f);
-        Resource r = resourceFactory.getResource(hostName, toUrl(f));
+        Resource r = resourceFactory.getResource(hostName, toUrl(f, root));
         return r != null;
     }
 
-    public boolean isNewOrUpdated(File f) {
+    public boolean isNewOrUpdated(File f, File root) {
         f = toMetaFile(f);
-        Resource r = resourceFactory.getResource(hostName, toUrl(f));
+        Resource r = resourceFactory.getResource(hostName, toUrl(f, root));
         if (r == null || r.getModifiedDate() == null) {
             return true;
         } else {
@@ -172,7 +170,7 @@ public class FileLoader {
         }
     }
 
-    private String toUrl(File f) {
+    private String toUrl(File f, File root) {
         String s = f.getAbsolutePath();
         if (s.startsWith(root.getAbsolutePath())) {
             s = s.replace(root.getAbsolutePath(), "");
@@ -180,20 +178,21 @@ public class FileLoader {
             s = "/_code" + s;
             return s;
         } else {
+            log.warn("File does not begin with the root path. File:" + f.getAbsolutePath() + " root: " + root.getAbsolutePath());
             return null;
         }
     }
 
-    private void upload(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+    private void upload(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.info("upload: " + f.getAbsolutePath());
         File fMeta = toMetaFile(f);
         if (fMeta.exists()) {
-            put(fMeta);
+            put(fMeta, root);
         }
         File fContent = toContentFile(f);
         if (fContent.exists()) {
             if (fContent.isFile()) {
-                put(fContent);
+                put(fContent, root);
             }
         }
 
@@ -204,9 +203,12 @@ public class FileLoader {
      * No name transformations
      * @param f
      */
-    private void put(File f) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
+    private void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.trace("put: " + f.getAbsolutePath());
-        CollectionResource colParent = findCollection(f.getParentFile());
+        CollectionResource colParent = findCollection(f.getParentFile(), root);
+        if( colParent == null ) {
+            throw new RuntimeException("Couldnt locate parent: " + f.getParentFile().getAbsolutePath() + " for root: " + root.getAbsolutePath());
+        }
         Resource rExisting = colParent.child(f.getName());
         FileInputStream fin = null;
         if (rExisting instanceof ReplaceableResource) {
@@ -243,16 +245,17 @@ public class FileLoader {
         }
     }
 
-    private CollectionResource findCollection(File f) throws NotAuthorizedException, ConflictException, BadRequestException {
-        String url = toUrl(f);
+    private CollectionResource findCollection(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
+        String url = toUrl(f, root);
         if (url == null) {
+            log.warn("Couldnt calculate url for: " + f.getAbsolutePath() + " from root: " + root.getAbsolutePath());
             return null;
         }
         Resource r = resourceFactory.getResource(hostName, url);
         CollectionResource col;
         if (r == null) {
             log.trace("not found: " + url);
-            Resource rParent = findCollection(f.getParentFile());
+            Resource rParent = findCollection(f.getParentFile(), root);
             if (rParent == null) {
                 throw new RuntimeException("Couldnt get parent: " + f.getAbsolutePath());
             } else if (rParent instanceof MakeCollectionableResource) {
@@ -273,10 +276,10 @@ public class FileLoader {
 
     }
 
-    private void delete(File f) throws NotAuthorizedException, ConflictException, BadRequestException {
+    private void delete(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
         log.trace("delete: " + f.getAbsolutePath());
         File fMeta = toMetaFile(f);
-        Resource r = resourceFactory.getResource(hostName, toUrl(fMeta));
+        Resource r = resourceFactory.getResource(hostName, toUrl(fMeta, root));
         if (r == null) {
             log.trace("not found to delete");
         } else if (r instanceof DeletableResource) {

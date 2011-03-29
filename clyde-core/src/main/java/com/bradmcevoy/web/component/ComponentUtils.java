@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,9 +24,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class ComponentUtils {
 
-    public static Path findPath( Component c ) {
-        Path p = findPath( c.getContainer() );
-        return p.child( c.getName() );
+    public static Path findPath(Component c) {
+        Path p = findPath(c.getContainer());
+        return p.child(c.getName());
     }
 
     /**
@@ -35,61 +36,61 @@ public class ComponentUtils {
      * @param container
      * @return - a path from the host to the container
      */
-    public static Path findPath( Addressable container ) {
+    public static Path findPath(Addressable container) {
         Addressable parent = container.getContainer();
         Path parentPath;
-        if( parent != null && !( parent instanceof Host ) ) {
-            parentPath = findPath( parent );
+        if (parent != null && !(parent instanceof Host)) {
+            parentPath = findPath(parent);
         } else {
             parentPath = Path.root();
         }
-        return parentPath.child( container.getName() );
+        return parentPath.child(container.getName());
     }
 
-    public static Templatable find( Templatable from, Path p ) {
+    public static Templatable find(Templatable from, Path p) {
         Templatable ct;
-        if( p == null ) {
-            throw new NullPointerException( "path is null" );
+        if (p == null) {
+            throw new NullPointerException("path is null");
         }
-        if( !p.isRelative() ) {
-            if( from == null ) {
-                throw new NullPointerException( "from is null" );
+        if (!p.isRelative()) {
+            if (from == null) {
+                throw new NullPointerException("from is null");
             }
-            ct = findPageWithRelativePath( p, from.getWeb() );
+            ct = findPageWithRelativePath(p, from.getWeb());
         } else {
-            ct = findPageWithRelativePath( p, from );
+            ct = findPageWithRelativePath(p, from);
         }
         return ct;
     }
 
-    public static Templatable findPageWithRelativePath( Path path, Templatable page ) {
-        if( path == null ) {
+    public static Templatable findPageWithRelativePath(Path path, Templatable page) {
+        if (path == null) {
             return page;
         }
-        Resource r = ExistingResourceFactory.findChild( page, path );
-        if( r instanceof Templatable ) {
+        Resource r = ExistingResourceFactory.findChild(page, path);
+        if (r instanceof Templatable) {
             return (Templatable) r;
         }
         return null;
     }
 
-    public static boolean validateComponents( Object target, RenderContext rc ) {
-        Map<String, Field> fields = InitUtils.componentFields( target );
+    public static boolean validateComponents(Object target, RenderContext rc) {
+        Map<String, Field> fields = InitUtils.componentFields(target);
         boolean b = true;
-        for( Field f : fields.values() ) {
-            Component c = InitUtils.getComponent( f, target );
-            b = b && c.validate( rc );
+        for (Field f : fields.values()) {
+            Component c = InitUtils.getComponent(f, target);
+            b = b && c.validate(rc);
         }
         return b;
     }
 
-    public static boolean validatePage( CommonTemplated page, RenderContext rc ) {
+    public static boolean validatePage(CommonTemplated page, RenderContext rc) {
         boolean ok = true;
-        for( Component v : page.allComponents() ) {
-            if( v instanceof Command ) {
+        for (Component v : page.allComponents()) {
+            if (v instanceof Command) {
                 // ignore
             } else {
-                ok = ok && v.validate( rc );
+                ok = ok && v.validate(rc);
             }
         }
         return ok;
@@ -102,40 +103,40 @@ public class ComponentUtils {
      * @param startFrom
      * @return
      */
-    public static Component findComponent( Path path, Templatable startFrom ) {
-        if( !path.isRelative() ) {
+    public static Component findComponent(Path path, Templatable startFrom) {
+        if (!path.isRelative()) {
             startFrom = startFrom.getWeb();
         }
-        ComponentContainer parent = findContainer( path.getParent(), startFrom );
-        if( parent == null ) {
+        ComponentContainer parent = findContainer(path.getParent(), startFrom);
+        if (parent == null) {
             return null;
         } else {
-            Component c = parent.getAnyComponent( path.getName() );
+            Component c = parent.getAnyComponent(path.getName());
             return c;
         }
     }
 
-    public static ComponentContainer findContainer( Path path, Templatable from ) {
-        if( path == null || path.isRoot() ) {
+    public static ComponentContainer findContainer(Path path, Templatable from) {
+        if (path == null || path.isRoot()) {
             return from;
         } else {
-            ComponentContainer parent = findContainer( path.getParent(), from );
-            if( parent == null ) {
+            ComponentContainer parent = findContainer(path.getParent(), from);
+            if (parent == null) {
                 return null;
             } else {
-                if( parent instanceof Resource ) {
+                if (parent instanceof Resource) {
                     Resource rParent = (Resource) parent;
-                    Resource child = ExistingResourceFactory.findChild( rParent, path.getName() );
-                    if( child != null ) {
-                        if( child instanceof ComponentContainer ) {
+                    Resource child = ExistingResourceFactory.findChild(rParent, path.getName());
+                    if (child != null) {
+                        if (child instanceof ComponentContainer) {
                             return (ComponentContainer) child;
                         } else {
                             return null;
                         }
                     }
                 }
-                Component c = parent.getAnyComponent( path.getName() );
-                if( c instanceof ComponentContainer ) {
+                Component c = parent.getAnyComponent(path.getName());
+                if (c instanceof ComponentContainer) {
                     return (ComponentContainer) c;
                 } else {
                     return null;
@@ -146,52 +147,52 @@ public class ComponentUtils {
         }
     }
 
-    public static List<Component> getAllComponents( Templatable page ) {
+    public static List<Component> getAllComponents(Templatable page) {
         List<Component> list = new ArrayList<Component>();
-        addComponents( page, list );
+        addComponents(page, list);
         return list;
     }
 
-    private static void addComponents( Templatable page, List<Component> list ) {
-        if( page == null ) {
+    private static void addComponents(Templatable page, List<Component> list) {
+        if (page == null) {
             return;
         }
-        for( Component c : page.getValues().values() ) {
-            list.add( c );
+        for (Component c : page.getValues().values()) {
+            list.add(c);
         }
-        for( Component c : page.getComponents().values() ) {
-            list.add( c );
+        for (Component c : page.getComponents().values()) {
+            list.add(c);
         }
-        addComponents( page.getTemplate(), list );
+        addComponents(page.getTemplate(), list);
     }
 
-    public static Collection<Component> allComponents( Templatable res ) {
+    public static Collection<Component> allComponents(Templatable res) {
         Map<String, Component> map = new HashMap<String, Component>();
         ITemplate parentTemplate = res.getTemplate();
-        if( parentTemplate != null ) {
-            addInheritedComponents( parentTemplate, map );
+        if (parentTemplate != null) {
+            addInheritedComponents(parentTemplate, map);
         }
-        for( ComponentValue cv : res.getValues().values() ) {
-            map.put( cv.getName(), cv );
+        for (ComponentValue cv : res.getValues().values()) {
+            map.put(cv.getName(), cv);
         }
-        for( Component c : res.getComponents().values() ) {
-            map.put( c.getName(), c );
+        for (Component c : res.getComponents().values()) {
+            map.put(c.getName(), c);
         }
-        Set set = new HashSet( map.values() );
+        Set set = new HashSet(map.values());
         List<Component> list = new ArrayList<Component>();
-        list.addAll( set );
-        Collections.sort( list, new com.bradmcevoy.web.ComponentComparator() );
+        list.addAll(set);
+        Collections.sort(list, new com.bradmcevoy.web.ComponentComparator());
         return list;
     }
 
-    private static void addInheritedComponents( Templatable res, Map<String, Component> map ) {
-        if( res == null ) {
+    private static void addInheritedComponents(Templatable res, Map<String, Component> map) {
+        if (res == null) {
             return;
         }
         ITemplate p = res.getTemplate();
-        addInheritedComponents( p, map );
-        for( Component c : res.getComponents().values() ) {
-            map.put( c.getName(), c );
+        addInheritedComponents(p, map);
+        for (Component c : res.getComponents().values()) {
+            map.put(c.getName(), c);
         }
     }
 
@@ -204,28 +205,28 @@ public class ComponentUtils {
      * @param includeValues
      * @return
      */
-    public static Component getComponent( Templatable res, String paramName, boolean includeValues ) {
+    public static Component getComponent(Templatable res, String paramName, boolean includeValues) {
         Component c;
-        if( includeValues ) {
-            c = res.getValues().get( paramName );
-            if( c != null ) {
+        if (includeValues) {
+            c = res.getValues().get(paramName);
+            if (c != null) {
                 return c;
             }
         }
-        c = res.getComponents().get( paramName );
-        if( c != null ) {
+        c = res.getComponents().get(paramName);
+        if (c != null) {
             return c;
         }
 
         ITemplate t = res.getTemplate();
-        if( t == null ) {
+        if (t == null) {
             return null;
         }
 
-        c = getComponent( t, paramName, includeValues );
-        if( c != null ) {
-            if( c instanceof WrappableComponent ) {
-                return new WrappedComponent( res, (WrappableComponent) c );
+        c = getComponent(t, paramName, includeValues);
+        if (c != null) {
+            if (c instanceof WrappableComponent) {
+                return new WrappedComponent(res, (WrappableComponent) c);
             } else {
                 return c;
             }
@@ -234,12 +235,12 @@ public class ComponentUtils {
         }
     }
 
-    public static boolean isEmpty( Object val ) {
-        if( val == null ) {
+    public static boolean isEmpty(Object val) {
+        if (val == null) {
             return true;
-        } else if( val instanceof String ) {
+        } else if (val instanceof String) {
             String s = (String) val;
-            return StringUtils.isBlank( s );
+            return StringUtils.isBlank(s);
         } else {
             return false;
         }
@@ -253,17 +254,80 @@ public class ComponentUtils {
      * @param s
      * @return
      */
-    public static String encodeHTML( String s ) {
-        s = s.replace("& ", "&amp; ");
-        StringBuilder out = new StringBuilder();
-        for( int i = 0; i < s.length(); i++ ) {
-            char c = s.charAt( i );
-            if( c > 127 || c == '"' || c == '<' || c == '>' ) {
-                out.append( "&#" + (int) c + ";" );
-            } else {
-                out.append( c );
+    public static String encodeHTML(String s) {
+//        s = s.replace("& ", "&amp; ");
+//        StringBuilder out = new StringBuilder();
+//        for (int i = 0; i < s.length(); i++) {
+//            char c = s.charAt(i);
+//            if (c > 127 || c == '"' || c == '<' || c == '>') {
+//                out.append("&#" + (int) c + ";");
+//            } else {
+//                out.append(c);
+//            }
+//        }
+//        return out.toString();
+        return encode(s, "\n");
+    }
+    private static HashMap<String, String> entityTableEncode = null;
+    private static final String[] ENTITIES = {
+        ">",
+        "&gt;",
+        "<",
+        "&lt;",
+        "&",
+        "&amp;",
+        "\"",
+        "&quot;",
+        "'",
+        "&#039;",
+        "\\",
+        "&#092;",
+        "\u00a9",
+        "&copy;",
+        "\u00ae",
+        "&reg;"};
+
+    protected static synchronized void buildEntityTables() {
+        entityTableEncode = new HashMap<String, String>(ENTITIES.length);
+
+        for (int i = 0; i < ENTITIES.length; i += 2) {
+            if (!entityTableEncode.containsKey(ENTITIES[i])) {
+                entityTableEncode.put(ENTITIES[i], ENTITIES[i + 1]);
             }
         }
-        return out.toString();
+    }
+
+    public static String encode(String s, String cr) {
+        if (entityTableEncode == null) {
+            buildEntityTables();
+        }
+        if (s == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(s.length() * 2);
+        char ch;
+        for (int i = 0; i < s.length(); ++i) {
+            ch = s.charAt(i);
+            if ((ch >= 63 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == ' ')) {
+                sb.append(ch);
+            } else if (ch == '\n') {
+                sb.append(cr);
+            } else {
+                String chEnc = encodeSingleChar(String.valueOf(ch));
+                if (chEnc != null) {
+                    sb.append(chEnc);
+                } else {
+                    // Not 7 Bit use the unicode system
+                    sb.append("&#");
+                    sb.append(new Integer(ch).toString());
+                    sb.append(';');
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String encodeSingleChar(String ch) {
+        return (String) entityTableEncode.get(ch);
     }
 }

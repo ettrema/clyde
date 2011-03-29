@@ -12,6 +12,7 @@ import com.bradmcevoy.web.manage.synch.FileWatcher;
 import com.ettrema.cache.Cache;
 import com.ettrema.context.RootContext;
 import com.ettrema.event.EventManager;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -30,18 +31,18 @@ public class ClydeFrame extends javax.swing.JFrame {
     private final JTableLogger tableLogger;
     private final RequestsTableModel requestModel;
     private final RootContext rootContext;
-    private final FileWatcher fileWatcher;
+    private final List<FileWatcher> fileWatchers;
     private List<Cache> caches;
 
     /** Creates new form ClydeFrame */
-    public ClydeFrame(RootContext rootContext, EventManager eventManager, FileWatcher fileWatcher) {
+    public ClydeFrame(RootContext rootContext, EventManager eventManager, List<FileWatcher> fileWatchers) {
         this.rootContext = rootContext;
         initComponents();
         tableLogger = new JTableLogger(tblLogs);
         this.setVisible(true);
         requestModel = new RequestsTableModel(eventManager);
         tblRequests.setModel(requestModel);
-        this.fileWatcher = fileWatcher;
+        this.fileWatchers = Collections.unmodifiableList(fileWatchers);
 
         Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(new Runnable() {
 
@@ -286,14 +287,14 @@ public class ClydeFrame extends javax.swing.JFrame {
         }
     }
 
-    public static String formatBytes( Long n ) {
-        if( n == null ) {
+    public static String formatBytes(Long n) {
+        if (n == null) {
             return "Unknown";
-        } else if( n < 1000 ) {
+        } else if (n < 1000) {
             return n + " bytes";
-        } else if( n < 1000000 ) {
+        } else if (n < 1000000) {
             return n / 1000 + "KB";
-        } else if( n < 1000000000 ) {
+        } else if (n < 1000000000) {
             return n / 1000000 + "MB";
         } else {
             return n / 1000000000 + "GB";
@@ -332,7 +333,9 @@ public class ClydeFrame extends javax.swing.JFrame {
 
             public void run() {
                 System.out.println("beginning scan");
-                fileWatcher.initialScan();
+                for (FileWatcher fileWatcher : fileWatchers) {
+                    fileWatcher.initialScan();
+                }
             }
         });
         t.start();
@@ -357,7 +360,9 @@ public class ClydeFrame extends javax.swing.JFrame {
 
             public void run() {
                 System.out.println("beginning scan");
-                fileWatcher.forceReload();
+                for (FileWatcher fileWatcher : fileWatchers) {
+                    fileWatcher.forceReload();
+                }
             }
         });
         t.start();

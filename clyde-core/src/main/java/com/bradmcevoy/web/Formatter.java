@@ -20,8 +20,8 @@ import org.joda.time.DateTime;
  * @author brad
  */
 public class Formatter {
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Formatter.class );
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Formatter.class);
     private static final Formatter theInstance = new Formatter();
     public static ThreadLocal<DateFormat> tlSdfUkShort = new ThreadLocal<DateFormat>() {
 
@@ -49,7 +49,7 @@ public class Formatter {
      * @return
      */
     public String toString(Object o) {
-        if( o == null ) {
+        if (o == null) {
             return "";
         } else {
             return o.toString();
@@ -80,7 +80,7 @@ public class Formatter {
     public BigDecimal toDecimal(Object o, int places) {
         if (o == null) {
             return BigDecimal.ZERO;
-        } else if( o instanceof BigDecimal) {
+        } else if (o instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) o;
             return bd.setScale(places, RoundingMode.HALF_UP);
         } else if (o instanceof Double) {
@@ -135,7 +135,7 @@ public class Formatter {
         } else if (o instanceof Float) {
             Float f = (Float) o;
             return f.doubleValue();
-        } else if( o instanceof BigDecimal) {
+        } else if (o instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) o;
             return bd.doubleValue();
         } else if (o instanceof ComponentValue) {
@@ -165,19 +165,27 @@ public class Formatter {
         } else if (oVal instanceof Float) {
             Float d = (Float) oVal;
             return d.longValue();
-        } else if( oVal instanceof BigDecimal) {
+        } else if (oVal instanceof BigDecimal) {
             BigDecimal bd = (BigDecimal) oVal;
             return bd.longValue();
+        } else if (oVal instanceof Boolean) {
+            Boolean bb = (Boolean) oVal;
+            return bb ? 1l : 0l;
         } else if (oVal instanceof String) {
             String s = (String) oVal;
             if (s.length() == 0) {
                 limit = withNulls ? null : 0l;
             } else {
-                if( s.contains(".")) {
-                    Double d = toDouble(s);
-                    limit = d.longValue();
+                if (s.equals("true") || s.equals("false")) {
+                    Boolean b = Boolean.parseBoolean(s);
+                    return toLong(b);
                 } else {
-                    limit = Long.parseLong(s);
+                    if (s.contains(".")) {
+                        Double d = toDouble(s);
+                        limit = d.longValue();
+                    } else {
+                        limit = Long.parseLong(s);
+                    }
                 }
             }
         } else if (oVal instanceof ComponentValue) {
@@ -255,7 +263,7 @@ public class Formatter {
     public org.joda.time.DateTime getDateTime(Object o) {
         if (o == null) {
             return null;
-        } else if( o instanceof ComponentValue ) {
+        } else if (o instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) o;
             return getDateTime(cv.getValue());
         } else if (o instanceof String) {
@@ -404,7 +412,7 @@ public class Formatter {
      */
     public boolean between(Object oVal, Object oStart, Object oFinish) {
         DateTime val = getDateTime(oVal);
-        if( val == null ) {
+        if (val == null) {
             log.warn("null date value");
             return false;
         }
@@ -428,7 +436,7 @@ public class Formatter {
             return null;
         } else if (oVal instanceof Date) {
             return (Date) oVal;
-        } else if( oVal instanceof ComponentValue ) {
+        } else if (oVal instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) oVal;
             return toDate(cv.getValue());
         } else {
@@ -443,7 +451,7 @@ public class Formatter {
 
     public org.joda.time.DateTime toJodaDate(Object oVal) {
         Date dt = toDate(oVal);
-        if( dt != null ) {
+        if (dt != null) {
             return new DateTime(dt.getTime());
         } else {
             return null;
@@ -451,7 +459,7 @@ public class Formatter {
     }
 
     public String toPlain(String html) {
-        if( html == null ) {
+        if (html == null) {
             return null;
         }
         html = replaceTag("br", html, "", "\n");

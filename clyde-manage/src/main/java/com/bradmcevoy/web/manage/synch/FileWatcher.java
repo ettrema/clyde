@@ -89,7 +89,7 @@ public class FileWatcher implements JNotifyListener, Service {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                fileLoader.onNewFile(f);
+                fileLoader.onNewFile(f, root);
             }
         });
 
@@ -105,7 +105,7 @@ public class FileWatcher implements JNotifyListener, Service {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                fileLoader.onDeleted(f);
+                fileLoader.onDeleted(f, root);
             }
         });
     }
@@ -121,7 +121,7 @@ public class FileWatcher implements JNotifyListener, Service {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                fileLoader.onModified(f);
+                fileLoader.onModified(f, root);
             }
         });
 
@@ -169,8 +169,8 @@ public class FileWatcher implements JNotifyListener, Service {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                if (forceReload || fileLoader.isNewOrUpdated(f)) {
-                    fileLoader.onNewFile(f);
+                if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
+                    fileLoader.onNewFile(f, root);
                 }
 
             }

@@ -51,6 +51,17 @@ public class ComponentUtilsTest {
     }
 
     @Test
+    public void testHtmlEncode() {
+
+        // Do change when followed by a space
+        assertEquals("&amp; ", ComponentUtils.encodeHTML("& "));
+
+        // Do change when not followed by a space
+        assertEquals("N&amp;D", ComponentUtils.encodeHTML("N&D"));
+
+    }
+
+    @Test
     public void testFindComponentWithRelativePath() {
         root = new MockWeb();
         folder = new MockTemplatable( "folder", root );
