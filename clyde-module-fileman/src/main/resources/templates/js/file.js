@@ -307,7 +307,7 @@ function selectTableItem(file) {
         $("#tree").jstree("open_node", nodeId);
         loadFolder(file.href, file.templateName);
     } else if( t == "image") {
-        loadImage(file.href);
+        loadIframe(file.href);
     } else if( t == "flv") {
         loadFlv(file.href);
     } else {
@@ -320,7 +320,17 @@ function selectTableItem(file) {
  */
 function doEdit() {
     log("doEdit", currentFolderUrl);
-    loadIframe(currentFolderUrl + ".edit");
+    var frame = $(".preview iframe");
+    if( frame.length == 0 ) {
+        loadIframe(currentFolderUrl + ".edit");
+    } else {
+        var src = frame.attr("src");
+        if( endsWith(src, ".edit")) {
+            alert("You are already on the edit page for this resource");
+        } else {
+            loadIframe(src + ".edit");
+        }
+    }
 }
 
 

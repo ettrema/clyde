@@ -127,11 +127,11 @@ function getContextMenuItems(item) {
             }
         };
 
-//        for( i=0; i<item.allowedTemplateNames.length; i++) {
-//            var label = "addPage";
-//            var name = item.allowedTemplateNames[i];
-//            var url = currentFolderUrl + "_autoname.new?templateSelect=" + name;
-//        }
+    //        for( i=0; i<item.allowedTemplateNames.length; i++) {
+    //            var label = "addPage";
+    //            var name = item.allowedTemplateNames[i];
+    //            var url = currentFolderUrl + "_autoname.new?templateSelect=" + name;
+    //        }
     }
     log('array', arr);
     return arr;
@@ -139,12 +139,16 @@ function getContextMenuItems(item) {
 
 function doAddFile(item) {
     //alert('doAdd: ' + item.allowedTemplateNames);
-
-    // Need to use the modal to prompt user for template
-
-    $()
-    $("#addPageModal").html("");
-    ul = $("ul.templates", "#addPageModal");
+    
+    ul = $("ul.templates", $("#addPageModal"));
+    ul.html("");
+    for( i=0; i<item.allowedTemplateNames.length; i++) {
+        var name = item.allowedTemplateNames[i];
+        var url = currentFolderUrl + "_autoname.new?templateSelect=" + name;
+        li = $("<li>");
+        li.html("<a href='#' onclick=\"showNewPage('" + name + "')\">" + name + "</a>");
+        ul.append(li);        
+    }
     $("#addPageModal").dialog({
         modal: true,
         width: "400px",
@@ -153,5 +157,10 @@ function doAddFile(item) {
     });
 }
 
+function showNewPage(templateName) {
+    var url = currentFolderUrl + "_autoname.new?templateSelect=" + templateName;
+    loadIframe(url);
+    $("#addPageModal").dialog("close");
+}
 
 
