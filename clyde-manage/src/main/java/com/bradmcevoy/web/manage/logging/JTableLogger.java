@@ -23,7 +23,7 @@ public final class JTableLogger implements com.ettrema.logging.NotifyingAppender
     }
 
     public void onEvent( LoggingEvent event ) {
-        if( model.getRowCount() > maxLength ) {
+        while( model.getRowCount() > maxLength ) {
             model.removeRow( 0 );
             model.fireTableRowsDeleted( 0, 0 );
         }

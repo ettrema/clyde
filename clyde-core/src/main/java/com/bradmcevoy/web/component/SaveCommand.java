@@ -114,6 +114,15 @@ public class SaveCommand extends Command {
                     log.trace("do not validate command: " + c.getName());
                 }
             } else {
+                if( paramName.equals("name")) {
+                    String newName = parameters.get(paramName);
+                    if( rcTarget.getPhysicalPage().getParentFolder().hasChild(newName)) {
+                        RequestParams params = RequestParams.current();
+                        params.attributes.put( paramName + "_validation", "The new name isnt valid, a file with that name already exists" );
+                    } else {
+                        rcTarget.getPhysicalPage().rename(newName);
+                    }
+                }
                 log.debug("Failed to find component: " + path);
             }
         }

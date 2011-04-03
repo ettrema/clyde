@@ -29,6 +29,11 @@ public class RenderMap implements Map<String, Object> {
     @Override
     public Object get( Object key ) {
         return rc.invoke( key.toString(), componentEdit );
+//        if( key.equals("name")) {
+//            if( componentEdit && rc.)
+//        } else {
+//            return rc.invoke( key.toString(), componentEdit );
+//        }
     }    
 
 

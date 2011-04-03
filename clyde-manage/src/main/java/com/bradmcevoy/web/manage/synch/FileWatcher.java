@@ -50,7 +50,7 @@ public class FileWatcher implements JNotifyListener, Service {
                 // add actual watch
                 watchId = JNotify.addWatch(path, mask, watchSubtree, this);
                 log.info("Now watching files in: " + path);
-            } catch (JNotifyException ex) {
+            } catch (Throwable ex) {
                 log.error("error watching: " + root.getAbsolutePath(), ex);
             }
         }
