@@ -1,5 +1,6 @@
 
 var currentFolderUrl;
+var currentFolderTemplate;
 var currentThumbId;
 var thumbs;
 
@@ -175,9 +176,13 @@ function accountRootPathNoSlash() {
 //return "/sites/" + accountName;
 }
 
+function refreshCurrentFolder() {
+    loadFolder(currentFolderUrl, currentFolderTemplate);
+
+}
 
 // Called when a folder is selected. Loads the thumbs for the folder and shows
-// the first preview
+// the first previewv
 function loadFolder(folderUrl, template) {
     log('loadFolder', folderUrl, "currentFolderUrl", currentFolderUrl, "template", template);
     //    if( currentFolderUrl == folderUrl ) {
@@ -185,6 +190,9 @@ function loadFolder(folderUrl, template) {
     //    }
 
     currentFolderUrl = folderUrl;
+    currentFolderTemplate = template;
+
+    initFolderUpload();
 
     var s = window.location.href;
     if( s.indexOf("#") >= 0 ) {
@@ -384,4 +392,24 @@ function ajaxLoadingOn(sel) {
 function ajaxLoadingOff(sel) {
     log('ajax OFF', sel);
     $("#ajaxLoading").dialog('close');
+}
+function initFolderUpload() {
+    var button = $('#filemanUpload');
+    log('initUploads', button);
+
+    new AjaxUpload(button,{
+        action: currentFolderUrl + '_DAV/PUT?_autoname=true',
+        name: 'upload',
+        autoSubmit: true,
+        responseType: 'json',
+        onSubmit : function(file, ext){
+            ajaxLoadingOn();
+            this.disable();
+        },
+        onComplete: function(file, response){
+            ajaxLoadingOff();
+            this.enable();
+            refreshCurrentFolder();
+        }
+    });
 }
