@@ -107,14 +107,14 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
                 log.trace("non aggregating query");
                 List<FieldSource> output = new ArrayList<FieldSource>();
                 sourceRows = from.getRows(relativeTo);
-                log.trace("got source rows: " + sourceRows.size() + "  in " + (System.currentTimeMillis()-t) + "ms");
+                log.trace("got source rows: " + sourceRows.size() + "  in " + (System.currentTimeMillis() - t) + "ms");
                 for (FieldSource fs : sourceRows) {
                     if (isWhereTrue(fs)) {
                         Row row = buildRow(fs, selectFields, output.size());
                         output.add(row);
                     }
                 }
-                log.trace("done non aggregating query in: " + (System.currentTimeMillis()-t) + "ms  rows: " + output.size());
+                log.trace("done non aggregating query in: " + (System.currentTimeMillis() - t) + "ms  rows: " + output.size());
                 return sort(output);
             } else {
                 log.trace("aggregating query");
@@ -180,12 +180,17 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     private Object evaluate(Field f, FieldSource fs) {
-        if (f.getEvaluatable() == null) {
-            Object o = fs.get(f.getName());
-            return o;
-        } else {
-            //return f.getEvaluatable().evaluate(fs);
-            return f.getEvaluatable().evaluate(fs.getData());
+        try {
+            if (f.getEvaluatable() == null) {
+                Object o = fs.get(f.getName());
+                return o;
+            } else {
+                //return f.getEvaluatable().evaluate(fs);
+                return f.getEvaluatable().evaluate(fs.getData());
+            }
+        } catch (Throwable e) {
+            log.error("Exception in evaluate. field: " + f.getName() + " from fieldSource: " + fs.toString(), e);
+            return "ERR";
         }
     }
 
@@ -219,7 +224,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         long t = System.currentTimeMillis();
         log.trace("sort...");
         Collections.sort(output, this);
-        log.trace("sorted: rows: " + output.size() + " in " + (System.currentTimeMillis()-t) + "ms");
+        log.trace("sorted: rows: " + output.size() + " in " + (System.currentTimeMillis() - t) + "ms");
         return output;
     }
 

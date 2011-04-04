@@ -64,5 +64,6 @@ public class UserMetaHandler implements MetaHandler<User> {
         String newEmail = JDomUtils.valueOf( el, "email", CodeMeta.NS );
         user.setExternalEmailText( newEmail );
         user.save();
+        folderMetaHandler.updateFromXml(user, el);
     }
 }

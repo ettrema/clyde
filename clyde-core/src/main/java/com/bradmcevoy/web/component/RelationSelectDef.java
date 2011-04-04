@@ -242,6 +242,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
      */
     @Override
     public void onPreProcess( ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
+        log.trace("onPreProcess");
         Path compPath = getPath( rc );
         String key = compPath.toString();
         if( !parameters.containsKey( key ) ) {
@@ -268,6 +269,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 res.removeRelationship( relationName );
             } else {
                 // already exists, do nothing
+                log.trace("relationship exists, so do nothing");
                 found = true;
             }
         } else {

@@ -147,7 +147,7 @@ public class Export extends AbstractConsoleCommand {
             if (ct instanceof Host) {
                 return !arguments.stopAtHosts;
             } else {
-                if( exportDisabled(ct.getTemplate())) {
+                if( exportDisabled(ct.getTemplate()) && !arguments.forceDisabled ) {
                     return false;
                 } else {
                     return true;
@@ -181,6 +181,7 @@ public class Export extends AbstractConsoleCommand {
         boolean recursive;
         boolean stopAtHosts;
         boolean noUser;
+        boolean forceDisabled; // force export disabled
         Date sinceDate;
         final List<FileExportStatus> statuses = new ArrayList<FileExportStatus>();
 
@@ -218,6 +219,8 @@ public class Export extends AbstractConsoleCommand {
                 stopAtHosts = true;
             } else if (s.equals("-nouser")) {
                 noUser = true;
+            } else if (s.equals("-force")) {
+                forceDisabled = true;
             } else if( s.startsWith("-since|")) {
                 String[] arr = s.split("[|]");
                 String sDate = arr[1];
@@ -362,10 +365,7 @@ public class Export extends AbstractConsoleCommand {
                 throw new Exception("Couldnt delete: " + remote.href());
             }
             try {
-
                 updateContentAndMeta(this.destFolder, this.res);
-
-
             } catch (Exception ex) {
                 throw new Exception("sourceUri:" + res.getHref(), ex);
             }
@@ -380,15 +380,17 @@ public class Export extends AbstractConsoleCommand {
     private void updateContentAndMeta(Path destFolder, BaseResource res) throws HttpException, IOException, NotAuthorizedException, BadRequestException {
         Path codeFolderPath = Path.path("/_code" + destFolder.toString());
         log.info("export to parent code path: " + codeFolderPath);
-        com.ettrema.httpclient.Folder codeParent = remoteHost.getOrCreateFolder(codeFolderPath, true);
-        CodeMeta codeMeta = codeResourceFactory.wrapMeta(res, res.getParent());
+
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        CodeMeta codeMeta = codeResourceFactory.wrapMeta(res, res.getParent());
         codeMeta.sendContent(bytes, null, null, null);
         byte[] arr = bytes.toByteArray();
         ByteArrayInputStream bin = new ByteArrayInputStream(arr);
-        log.info("upload meta: " + codeMeta.getName() + " - " + codeMeta.getClass());
-        codeParent.upload(codeMeta.getName(), bin, arr.length);
 
+        log.info("upload meta: " + codeMeta.getName() + " - " + codeMeta.getClass());
+        Path codeMetaPath = codeFolderPath.child(codeMeta.getName());
+        remoteHost.doPut(codeMetaPath, bin, (long)arr.length, "text/xml");
+       
         // Now upload content, if not a folder
         if( !(res instanceof Folder) ) {            
             CodeContentPage codeContent = codeResourceFactory.wrapContent(res);
@@ -397,7 +399,8 @@ public class Export extends AbstractConsoleCommand {
             arr = bytes.toByteArray();
             bin = new ByteArrayInputStream(arr);
             log.info("upload content: " + codeContent.getName());
-            codeParent.upload(codeContent.getName(), bin, arr.length);
+            Path codeContentPath = codeFolderPath.child(codeContent.getName());
+            remoteHost.doPut(codeContentPath, bin, (long)arr.length, codeContent.getContentType(null));
         }
     }
 }

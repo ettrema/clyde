@@ -132,7 +132,11 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         elEval.addContent(elFrom);
         if (from instanceof PathSelectable) {
             PathSelectable ps = (PathSelectable) from;
-            elFrom.setAttribute("path", ps.getPath().toString());
+            String sPath = "";
+            if( ps.getPath() != null ) {
+                sPath = ps.getPath().toString();
+            }
+            elFrom.setAttribute("path", sPath);
         } else if (from instanceof Query) {
             Query subQuery = (Query) from;
             populateXml(elFrom, subQuery, ns);

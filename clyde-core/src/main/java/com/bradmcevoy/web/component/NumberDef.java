@@ -39,7 +39,6 @@ public class NumberDef extends TextDef {
 
     @Override
     public String formatValue( Object v ) {
-        log.debug( "formatValue: " + v );
         if( v == null ) {
             return "";
         } else if( v instanceof Double ) {

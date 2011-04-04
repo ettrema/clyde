@@ -211,7 +211,6 @@ public class AjaxResourceFactory implements ResourceFactory {
                     }
                 }
             }
-
             for (String paramName : parameters.keySet()) {
                 Path path = Path.path(paramName);
                 Component c = rc.findComponent(path);

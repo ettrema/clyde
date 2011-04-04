@@ -79,7 +79,6 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
     }
 
     public Resource createNew( String newName, InputStream inputStream, Long length, String contentType ) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
-        System.out.println("create: " + newName + " - " + contentType);
         log.trace( "createNew" );
         if( rf.isMeta( newName ) ) {
             newName = rf.getPageName( newName );

@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.code.meta.comp;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.CsvSubPage;
@@ -38,6 +39,7 @@ public class CsvSubPageHandler implements ComponentHandler {
     public void populateXml( Element e2, CsvSubPage t ) {
         InitUtils.setString( e2, "name", t.getName() );
         InitUtils.set( e2, "path", t.getSourceFolderPath() );
+        InitUtils.set( e2, "selectable", t.getSelectablePath() );
         InitUtils.set( e2, "type", t.getIsType() );
         t.populateFieldsInXml( e2 );
         subPageHandler.populateXml( e2, t );
@@ -48,6 +50,7 @@ public class CsvSubPageHandler implements ComponentHandler {
         CsvSubPage sp = new CsvSubPage( res, name );
         sp.setSourceFolderPath( InitUtils.getPath( el, "path" ) );
         sp.setIsType( InitUtils.getValue( el, "type" ) );
+        sp.setSelectablePath(InitUtils.getPath(el, "selectable"));
         sp.loadFieldsFromXml( el );
         subPageHandler.updateFromXml( sp, el );
         return sp;

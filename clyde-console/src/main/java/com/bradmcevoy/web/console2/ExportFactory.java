@@ -14,7 +14,7 @@ public class ExportFactory extends AbstractFactory{
     private CodeResourceFactory codeResourceFactory;
 
     public ExportFactory(CodeResourceFactory codeResourceFactory) {
-        super("Export the contents of the current folder recurisvely to a remote host. Optional -dry to do a dry run only. The destination path should already exist. Eg export -dry -r -nohost http://www.bradmcevoy.com/somewhere aUser aPassword", new String[]{"export","ex"} );
+        super("Export the contents of the current folder recurisvely to a remote host. Optional -dry to do a dry run only. Option -force to export export-disabled resources. The destination path should already exist. Eg export -dry -r -nohost http://www.bradmcevoy.com/somewhere aUser aPassword", new String[]{"export","ex"} );
         this.codeResourceFactory = codeResourceFactory;
     }
 
