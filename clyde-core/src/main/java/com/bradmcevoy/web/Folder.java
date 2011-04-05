@@ -1,6 +1,5 @@
 package com.bradmcevoy.web;
 
-import java.io.InvalidClassException;
 import com.bradmcevoy.utils.ClydeUtils;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;

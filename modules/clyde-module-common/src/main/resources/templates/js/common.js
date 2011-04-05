@@ -5,6 +5,27 @@ function startsWith(str, prefix) {
     return str.indexOf(prefix) === 0;
 }
 
+/**
+ * Adds a contains function to String objects
+ */
+String.prototype.contains = function(it) {
+    return this.indexOf(it) != -1;
+};
+
+String.prototype.startsWith = function(it) {
+    return it.indexOf(prefix) === 0;
+};
+String.prototype.endsWith = function(it) {
+    return it.match(suffix+"$")==suffix;
+};
+
+function ensureObject(target) {
+    if( typeof target == "string") {
+        target = $("#" + target);
+    }
+    return target;
+}
+
 $.extend({
     URLEncode:function(c){
         var o='';
