@@ -308,6 +308,17 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return params;
     }
 
+    /**
+     * An alias for getParams, this is to allow a consistent templating syntax:
+     *
+     * $file.view.title
+     * ...and...
+     * $view.title
+     */
+    public Params getView() {
+        return getParams();
+    }
+
     @Override
     public boolean is(String type) {
         ITemplate t = getTemplate();
