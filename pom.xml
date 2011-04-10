@@ -16,7 +16,7 @@
         <geroa.version>1.2</geroa.version>
         <morton.version>1.1</morton.version>
         <endrick.version>1.7-SNAPSHOT</endrick.version>
-        <endrick.logging.version>1.0</endrick.logging.version>
+        <endrick.logging.version>1.6</endrick.logging.version>
     </properties>
     <distributionManagement>
         <repository>

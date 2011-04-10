@@ -9,6 +9,8 @@ var thumbs;
 function initTree() {
     initUser();
 
+    $( "#tabs" ).tabs();  // file manager tabs
+
     $("#tree").bind("loaded.jstree", function (e, data) {
         checkInitialLoad();
     });
@@ -217,9 +219,10 @@ function highLightFolder(url) {
 
 function selectFolder(folderHref, template) {
     log('selectFolder: ' + folderHref, "template", template);
+    loadFilesTable(folderHref);
     if( template == null || template == "" || template == "folder") {
-        // if no template, just a plain folder so load files
-        loadFilesTable(folderHref);
+        // if no template, just a plain folder so don't show preview
+        $("#preview").html("<h2>There is no preview for this folder</h2>");
     } else {
         // if has template, then assume there is a management page for it
         loadFolderIntoIframe(folderHref);
@@ -236,15 +239,10 @@ function loadIframe(href) {
 }
 
 function loadFilesTable(folderUrl) {
-    var thumbsDiv = $("#thumbs");
-    thumbsDiv.html(" <table width='100%' height='100%' border='0' cellspacing='0' cellpadding='0'><tr><td valign='middle' height='100%' align='center'><img class='ajaxLoading' src='../templates/images/loading-icon.gif' /></td></tr></table>");
-
-    // load thumbs
     var url = toPropFindUrl(folderUrl);
     log('loadFilesTable', url);
     $.getJSON(url, function(response) {
         log('got json response');
-        thumbsDiv.html("");
         var allThumbs = response;
         thumbs = new Array(); // reset the array of displayable thumbs
         currentThumbId = 0;
@@ -277,7 +275,8 @@ function loadFilesTable(folderUrl) {
 }
 
 function loadCurrentFiles() {
-    var thumbsDiv = $("#preview");
+    var thumbsDiv = $("#files");
+    log("loadCurrentFiles", thumbsDiv, thumbs.length);
     var table = $("<table class='filesList'><thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody></tbody></table>");
     thumbsDiv.html("").append(table);
     var tbody = $("tbody", table);
@@ -285,7 +284,7 @@ function loadCurrentFiles() {
         var file = thumbs[i];
         buildThumbRow(file, i, tbody);
     }
-    var h = $("#preview").height() - 100;
+    var h = $("#files").height() - 130;
     $(table).dataTable({
         "bJQueryUI": true,
         "sScrollY": h + "px",

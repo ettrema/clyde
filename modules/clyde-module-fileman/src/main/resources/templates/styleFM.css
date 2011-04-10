@@ -324,6 +324,22 @@ a.buttonGreen:active span {
     background-position: bottom left;
     padding: 6px 0 4px 14px; /* push text down 1px */
 }
+
+
+/***************************** Files list ********************************/
+#tabs {
+    height: 95%;
+}
+#tabs div {
+    padding: 0 !important;
+}
+
+#files {
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
 /***************************** Preview Area ********************************/
 
 .preview {
@@ -1010,3 +1026,7 @@ tr.even.gradeU td.sorting_3 {
     background-color: #e2e2e2;
 }
 
+/** JQuery UI mods **/
+.ui-dialog-titlebar {
+    height: 20px;
+}

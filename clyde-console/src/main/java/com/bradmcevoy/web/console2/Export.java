@@ -98,7 +98,7 @@ public class Export extends AbstractConsoleCommand {
         RemoteResource remote = new RemoteResource(path, res);
         Date destDate = remote.getModifiedDate();
 
-        if (isDateApplicalble(destDate, localDate, arguments)) {
+        if (isUploadable(remote, res, arguments)) {
             if (arguments.dryRun) {
                 arguments.uploaded(res, destDate);
                 return;
@@ -117,6 +117,20 @@ public class Export extends AbstractConsoleCommand {
         }
     }
 
+    private boolean isUploadable(RemoteResource remote, BaseResource res,  Arguments arguments) throws Exception {
+        Date localDate = res.getModifiedDate();
+        Date destDate = remote.getModifiedDate();
+
+        if (isDateApplicalble(destDate, localDate, arguments)) {
+            return true;
+        } else if( res instanceof Folder) {
+            // always upload folder meta-data
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     private boolean isDateApplicalble(Date destDate, Date localDate,  Arguments arguments) {
         log.trace("isDateApplicalble: local: " + localDate + " dest: " + destDate + " since: " + arguments.sinceDate);
         if( arguments.sinceDate != null && localDate.before(arguments.sinceDate)) {

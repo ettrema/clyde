@@ -33,8 +33,8 @@ public class MetaParser {
             Document doc = parse( inputStream );
             Element elItem = getItemElement( doc );
             String itemAlias = elItem.getName();
-            MetaHandler handler = null;
-            for( MetaHandler<?> h : rf.getMetaHandlers() ) {
+            MetaHandler<? extends Resource> handler = null;
+            for( MetaHandler<? extends Resource> h : rf.getMetaHandlers() ) {
                 if( h.getAlias().equals( itemAlias ) ) {
                     handler = h;
                     break;

@@ -7,6 +7,7 @@ import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.component.ValueHolder;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,7 +24,8 @@ public class Calc {
     }
 
     public Object eval(String mvelExpr, Object r) {
-        Object o = org.mvel.MVEL.eval(mvelExpr, r);
+        HashMap map = new HashMap();
+        Object o = org.mvel.MVEL.eval(mvelExpr, r, map);
         //log.debug( "eval: returned: " + o);
         if( o instanceof ComponentValue ) {
             ComponentValue cv = (ComponentValue) o;

@@ -141,27 +141,32 @@ public class FileWatcher implements JNotifyListener, Service {
     public void initialScan(boolean forceReload) {
         long t = System.currentTimeMillis();
         log.info("begin full scan");
-        scan(this.root, forceReload);
+        startScan(this.root, forceReload);
         log.info("------------------------------------");
         log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
         log.info("------------------------------------");
     }
 
-    private void scan(File root, boolean forceReload) {
+    private void startScan(File root, boolean forceReload) {
         log.info("scan files in " + root.getAbsolutePath());
         DirectoryListing listing = new DirectoryListing(root);
         // First process the templates folder, if present.
         if (listing.templates != null) {
-            scan(listing.templates, forceReload);
+            startScan(listing.templates, forceReload);
         }
+        scanDir(root, forceReload);
+    }
+    private void scanDir(File dir, boolean forceReload) {
+        DirectoryListing listing = new DirectoryListing(dir);
 
-        // Then process files, then directories, for breadth then depth
+        processFile(dir, true); // force load of dirs for metadata
+
         for (File f : listing.files) {
             processFile(f, forceReload);
         }
 
         for (File f : listing.subdirs) {
-            scan(f, forceReload);
+            startScan(f, forceReload);
         }
     }
 
@@ -169,7 +174,7 @@ public class FileWatcher implements JNotifyListener, Service {
         rootContext.execute(new Executable2() {
 
             public void execute(Context context) {
-                if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
+                if (forceReload || fileLoader.isNewOrUpdated(f, root) ) {
                     fileLoader.onNewFile(f, root);
                 }
 

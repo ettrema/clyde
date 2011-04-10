@@ -72,7 +72,7 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
         try {
             Document doc = rf.getMetaParser().parse( in );
             Element elItem = rf.getMetaParser().getItemElement( doc );
-            MetaHandler actualMetaHandler = rf.getMetaHandler( elItem );
+            MetaHandler<? extends Resource> actualMetaHandler = rf.getMetaHandler( elItem );
             if( actualMetaHandler != metaHandler ) {
                 log.trace( "type has changed from: " + metaHandler.getClass() + " -> " + actualMetaHandler.getClass() );
                 String name = wrapped.getName();
