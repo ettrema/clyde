@@ -290,13 +290,17 @@ function loadCurrentFiles() {
         "sScrollY": h + "px",
         "bPaginate": false
     });
+    log('init context menu');
+    initFileContextMenu("fileContextMenu", $("#files tbody tr"));
 }
 function showNoThumbs(thumbsDiv) {
     $("#facebookShare").hide();
-    $("#preview").html("<h2>There are no files in this folder</h2>");
+    var thumbsDiv = $("#files");
+    thumbsDiv.html("<h2>There are no files in this folder</h2>");
 }
 function buildThumbRow(file, i, thumbsTable) {
     var row = $("<tr>");
+    row.attr("id", "" + i);
     thumbsTable.append(row);
     row.append("<td>" + file.name + "</td>");
     row.append("<td>" + file.getType() + "</td>");
@@ -304,7 +308,6 @@ function buildThumbRow(file, i, thumbsTable) {
     row.click(function() {
         log("row click", file.href);
         selectTableItem(file);
-
     });
 }
 function selectTableItem(file) {
@@ -322,6 +325,39 @@ function selectTableItem(file) {
     }
 }
 
+
+function initFileContextMenu(id, items) {
+    items.contextMenu(id, {
+        bindings: {
+            'contextView': function(t) {
+                var file = thumbs[t.id];
+                log('file', file);
+
+                selectTableItem(file);
+                $( "#tabs" ).tabs('select', 1);
+            },
+            'contextEdit': function(t) {
+                var file = thumbs[t.id];
+                log('file', file);
+                loadIframe(file.href + ".edit");
+                $( "#tabs" ).tabs('select', 1);
+            },
+            'contextDelete': function(t) {
+                var file = thumbs[t.id];
+                log('file', file);
+                confirmDelete(file.href, file.name, function() {
+                    alert('Deleted ' + file.name);
+                    selectFolder(currentFolderUrl, currentFolderTemplate);
+                });
+
+            }
+
+        }
+
+    });
+}
+
+
 /**
  *  Called to invoke the edit page for a
  */
@@ -330,12 +366,14 @@ function doEdit() {
     var frame = $(".preview iframe");
     if( frame.length == 0 ) {
         loadIframe(currentFolderUrl + ".edit");
+        $( "#tabs" ).tabs('select', 1);
     } else {
         var src = frame.attr("src");
         if( endsWith(src, ".edit")) {
             alert("You are already on the edit page for this resource");
         } else {
             loadIframe(src + ".edit");
+            $( "#tabs" ).tabs('select', 1);
         }
     }
 }
@@ -394,7 +432,7 @@ function ajaxLoadingOff(sel) {
 }
 function initFolderUpload() {
     var button = $('#filemanUpload');
-    log('initUploads', button);
+    log('initFolderUpload', button);
 
     new AjaxUpload(button,{
         action: currentFolderUrl + '_DAV/PUT?_autoname=true',
