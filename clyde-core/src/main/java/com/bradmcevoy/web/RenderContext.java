@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.joda.time.DateTime;
 
@@ -77,6 +78,7 @@ public class RenderContext implements Map<String, Component> {
     final Map<String, Object> attributes = new HashMap<String, Object>();
 
     public RenderContext(ITemplate template, Templatable page, RenderContext child, boolean editMode) {
+        System.out.println("create RC: template: " + template + " page:" + page + " child: " + child);
         if( page == null ) {
             throw new IllegalArgumentException("page cannot be null");
         }
@@ -260,19 +262,21 @@ public class RenderContext implements Map<String, Component> {
     public String doBody(RenderContext rcChild) {
         //log.debug( "doBody: page: " + rcChild.page.getName());
         Templatable childPage = rcChild.page;
+
         ComponentValue cvBody = childPage.getValues().get("body");
         if (cvBody == null) {
+            //stem.out.println("no body found----");
             cvBody = new ComponentValue("body", childPage);
             cvBody.init(childPage);
             childPage.getValues().add(cvBody);
         }
         if (rcChild.pageEditMode) {
-            //log.debug( "edit");
+            //log.debug( "child is in edit mode");
             return cvBody.renderEdit(rcChild);
         } else {
             //log.debug( "not edit: isTemplate" + (rcChild.page instanceof Template) + " - child is null: " + (rcChild.child == null));
             if (rcChild.child == null && rcChild.page instanceof Template) {
-                log.debug("output source");
+                //log.debug("output source");
                 Object val = cvBody.getValue();
                 if (val == null) {
                     return "";

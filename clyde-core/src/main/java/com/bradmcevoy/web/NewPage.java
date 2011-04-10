@@ -27,31 +27,31 @@ import static com.ettrema.context.RequestContext._;
 
 public class NewPage implements PostableResource, XmlPersistableResource, DigestResource {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( NewPage.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(NewPage.class);
     public static final String AUTO_NAME = "_autoname";
     public static String NEW_INDICATOR = ".new";
 
-    public static boolean isNewPath( Path path ) {
-        if( path == null || path.getName() == null ) {
+    public static boolean isNewPath(Path path) {
+        if (path == null || path.getName() == null) {
             return false;
         }
-        return ( path.getName().endsWith( ".new" ) );
+        return (path.getName().endsWith(".new"));
     }
 
-    static Path getPagePath( Path path ) {
-        String nm = path.getName().replace( ".new", "" );
-        return path.getParent().child( nm );
+    static Path getPagePath(Path path) {
+        String nm = path.getName().replace(".new", "");
+        return path.getParent().child(nm);
     }
     final Folder folder;
     final String newName;
     private transient BaseResource editee;
     private transient ITemplate template;
 
-    public NewPage( Folder folder, String newName ) throws IllegalArgumentException {
+    public NewPage(Folder folder, String newName) throws IllegalArgumentException {
         this.folder = folder;
         this.newName = newName;
-        if( folder.child( newName ) != null ) {
-            throw new IllegalArgumentException( "The file already exists" );
+        if (folder.child(newName) != null) {
+            throw new IllegalArgumentException("The file already exists");
         }
 //        if (newName.contains(" ") || newName.contains(",")) {
 //            throw new IllegalArgumentException("The file name is invalid");
@@ -59,22 +59,21 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     public BaseResource getEditee(Map<String, String> parameters) {
-        if( editee != null ) {
+        if (editee != null) {
             return editee;
         }
-        ITemplate template = getTemplate( parameters );
-        if( template == null ) {
-            log.error( "didnt locate template" );
+        ITemplate template = getTemplate(parameters);
+        if (template == null) {
+            log.error("didnt locate template");
             return null;
         }
         String nameToUse = newName;
-        if( newName.equals( AUTO_NAME ) ) {
-            nameToUse = findAutoName( parameters );
+        if (newName.equals(AUTO_NAME)) {
+            nameToUse = findAutoName(parameters);
         }
-        editee = template.createPageFromTemplate( folder, nameToUse );
+        editee = template.createPageFromTemplate(folder, nameToUse);
         return editee;
     }
-    
 
     @Override
     public String getUniqueId() {
@@ -86,76 +85,82 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.getHref() + newName + ".new";
     }
 
-    private String findAutoName( Map<String, String> parameters ) {
+    private String findAutoName(Map<String, String> parameters) {
         String nameToUse;
-        if( parameters.containsKey( "name " ) ) {
-            String name = parameters.get( "name" );
-            name = name.toLowerCase().replace( "/", "-");
-            nameToUse = ClydeUtils.getUniqueName( this.folder, name );
-        } else if( parameters.containsKey( "firstName" ) ) {
-            String fullName = parameters.get( "firstName" );
-            if( parameters.containsKey( "surName")) {
-                fullName = fullName + "." + parameters.get( "surName");
+        if (parameters.containsKey("name ")) {
+            String name = parameters.get("name");
+            name = name.toLowerCase().replace("/", "-");
+            nameToUse = ClydeUtils.getUniqueName(this.folder, name);
+        } else if (parameters.containsKey("firstName")) {
+            String fullName = parameters.get("firstName");
+            if (parameters.containsKey("surName")) {
+                fullName = fullName + "." + parameters.get("surName");
             }
-            fullName = fullName.toLowerCase().replace( "/", "-");
+            fullName = fullName.toLowerCase().replace("/", "-");
 
-            nameToUse = ClydeUtils.getUniqueName( this.folder, fullName );
-        } else if( parameters.containsKey( "title" ) ) {
-            String title = parameters.get( "title" );
-            nameToUse = ClydeUtils.getUniqueName( this.folder, title );
+            nameToUse = ClydeUtils.getUniqueName(this.folder, fullName);
+        } else if (parameters.containsKey("title")) {
+            String title = parameters.get("title");
+            nameToUse = ClydeUtils.getUniqueName(this.folder, title);
         } else {
-            nameToUse = ClydeUtils.getDateAsNameUnique( this.folder );
+            nameToUse = ClydeUtils.getDateAsNameUnique(this.folder);
         }
 
         return nameToUse;
     }
 
-    private ITemplate getTemplate( Map<String, String> params ) {
-        if( template == null ) {
-            String templateName = templateName( params );
-            template = folder.getTemplate( templateName );
-            if( template == null ) {
-                log.warn( "couldnt find template: " + templateName );
+    private ITemplate getTemplate(Map<String, String> params) {
+        if (template == null) {
+            String templateName = templateName(params);
+            template = folder.getTemplate(templateName);
+            if (template == null) {
+                log.warn("couldnt find template: " + templateName);
             }
         }
         return template;
     }
 
-    private String templateName( Map<String, String> params ) {
-        if( params == null ) {
-            throw new NullPointerException( "no params" );
+    private String templateName(Map<String, String> params) {
+        if (params == null) {
+            throw new NullPointerException("no params");
         }
         String t = selectName();
-        if( t == null ) {
+        if (t == null) {
             return null;
         }
-        return params.get( t );
+        return params.get(t);
     }
 
     @Override
     public void delete() {
-        throw new UnsupportedOperationException( "Delete not possible on new page" );
+        throw new UnsupportedOperationException("Delete not possible on new page");
     }
 
     @Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        log.debug( "sendContent" );
-        String templateName = templateName( params );
-        if( templateName == null || templateName.length() == 0 ) {
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        String templateName = templateName(params);
+        log.debug("sendContent: " + templateName);
+        if (templateName == null || templateName.length() == 0) {
             String s = renderSelectTemplate();
-            out.write( s.getBytes() );
+            out.write(s.getBytes());
         } else {
-            ITemplate t = getTemplate( params );
-            if( t == null ) {
-                throw new RuntimeException( "Template not found: " + template );
+            ITemplate t = getTemplate(params);
+            if (t == null) {
+                throw new RuntimeException("Template not found: " + template);
             }
-            if( editee == null ) {
-                editee = t.createPageFromTemplate( folder, newName );
+            log.trace("found template");
+            if (editee == null) {
+                log.trace("editee is null, so create from template");
+                editee = t.createPageFromTemplate(folder, newName);
+            } else {
+                log.trace("editee already exists");
             }
             if( editee instanceof EditableResource ) {
+                log.trace("editee is editable");
                 EditableResource er = (EditableResource) editee;
                 er.getEditPage().sendContent( out, range, params, null );
             } else {
+                log.trace("editee is not editable, use rendercontext");
                 RenderContext rc = new RenderContext( t, editee, null, true );
                 String s = t.render( rc );
                 if( s == null ) {
@@ -169,18 +174,18 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     private String renderSelectTemplate() {
         StringBuilder sb = new StringBuilder();
-        sb.append( "<html><body>" );
-        sb.append( "<h1></h1>" );
-        sb.append( "<h1>Select Template for New Page</h1>" );
-        sb.append( "<ul>" );
+        sb.append("<html><body>");
+        sb.append("<h1></h1>");
+        sb.append("<h1>Select Template for New Page</h1>");
+        sb.append("<ul>");
 
-        for( Template res : folder.getAllowedTemplates() ) {
-            if( res instanceof Template ) {
-                sb.append( "<li><a href='" ).append( this.getHref() ).append( "?" ).append( selectName() ).append( "=" ).append( res.getName() ).append( "'>" ).append( res.getName() ).append( "</a></li>" );
+        for (Template res : folder.getAllowedTemplates()) {
+            if (res instanceof Template) {
+                sb.append("<li><a href='").append(this.getHref()).append("?").append(selectName()).append("=").append(res.getName()).append("'>").append(res.getName()).append("</a></li>");
             }
         }
-        sb.append( "</ul>" );
-        sb.append( "</body></html>" );
+        sb.append("</ul>");
+        sb.append("</body></html>");
         return sb.toString();
     }
 
@@ -190,7 +195,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public Long getMaxAgeSeconds( Auth auth ) {
+    public Long getMaxAgeSeconds(Auth auth) {
         return null;
     }
 
@@ -200,13 +205,13 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public Object authenticate( String user, String password ) {
-        return folder.authenticate( user, password );
+    public Object authenticate(String user, String password) {
+        return folder.authenticate(user, password);
     }
 
     @Override
-    public Object authenticate( DigestResponse digestRequest ) {
-        return folder.authenticate( digestRequest );
+    public Object authenticate(DigestResponse digestRequest) {
+        return folder.authenticate(digestRequest);
     }
 
     public boolean isDigestAllowed() {
@@ -214,11 +219,11 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public boolean authorise( Request request, Request.Method method, Auth auth ) {
-        ITemplate t = getTemplate( request.getParams() );
-        Role creatingRole = _( AuthoringPermissionService.class ).getCreateRole( folder, t );
-        boolean b = _( PermissionChecker.class ).hasRole( creatingRole, folder, auth );
-        if( !b ) {
+    public boolean authorise(Request request, Request.Method method, Auth auth) {
+        ITemplate t = getTemplate(request.getParams());
+        Role creatingRole = _(AuthoringPermissionService.class).getCreateRole(folder, t);
+        boolean b = _(PermissionChecker.class).hasRole(creatingRole, folder, auth);
+        if (!b) {
             log.info("Permission denied. User does not have role: " + creatingRole + " on: " + folder.getHref());
         }
         return b;
@@ -240,18 +245,18 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public String getContentType( String accepts ) {
+    public String getContentType(String accepts) {
         return "text/html";
     }
 
     @Override
-    public String checkRedirect( Request request ) {
-        String t = templateName( request.getParams() );
-        if( t == null || t.length() == 0 ) {
+    public String checkRedirect(Request request) {
+        String t = templateName(request.getParams());
+        if (t == null || t.length() == 0) {
             List<Template> allowedTemplates = folder.getAllowedTemplates();
-            if( allowedTemplates != null && allowedTemplates.size() == 1 ) {
-                String templateName = allowedTemplates.get( 0 ).getName();
-                log.debug( "no template selected, and only one allowed, so auto-select it" );
+            if (allowedTemplates != null && allowedTemplates.size() == 1) {
+                String templateName = allowedTemplates.get(0).getName();
+                log.debug("no template selected, and only one allowed, so auto-select it");
                 return request.getAbsoluteUrl() + "?templateSelect=" + templateName;
             }
         }
@@ -260,20 +265,20 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws BadRequestException, NotAuthorizedException, ConflictException {
-        log.debug( "processForm" );
-        getEditee( parameters );
-        if( editee instanceof EditableResource ) {
+    public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws BadRequestException, NotAuthorizedException, ConflictException {
+        log.debug("processForm");
+        getEditee(parameters);
+        if (editee instanceof EditableResource) {
 
             EditableResource er = (EditableResource) editee;
-            String ret = er.getEditPage().processForm( parameters, files );
-            if( ret != null ) {
+            String ret = er.getEditPage().processForm(parameters, files);
+            if (ret != null) {
                 return ret;
             } else {
                 return null; // probably invalid input
             }
         } else {
-            log.debug( "..NOT editbale" );
+            log.debug("..NOT editbale");
             editee.save();
             return editee.getHref();
         }
@@ -284,17 +289,17 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public void loadFromXml( Element el, Map<String, String> parameters ) {
-        ITemplate template = getTemplate( parameters );
-        editee = (Page) template.createPageFromTemplate( folder, newName );
-        editee.loadFromXml( el );
+    public void loadFromXml(Element el, Map<String, String> parameters) {
+        ITemplate template = getTemplate(parameters);
+        editee = (Page) template.createPageFromTemplate(folder, newName);
+        editee.loadFromXml(el);
     }
 
     @Override
-    public Element toXml( Element el, Map<String, String> parameters ) {
-        ITemplate template = getTemplate( parameters );
-        editee = (Page) template.createPageFromTemplate( folder, newName );
-        return editee.toXml( el );
+    public Element toXml(Element el, Map<String, String> parameters) {
+        ITemplate template = getTemplate(parameters);
+        editee = (Page) template.createPageFromTemplate(folder, newName);
+        return editee.toXml(el);
     }
 
     @Override

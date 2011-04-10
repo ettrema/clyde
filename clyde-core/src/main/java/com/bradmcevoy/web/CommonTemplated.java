@@ -575,7 +575,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             log.trace("getTemplateName: no template component`");
             return null;
         }
-        return sel.getValue();
+        String s = sel.getValue();
+        log.trace("templatename: " + s + " - " + getClass());
+        return s;
     }
 
     public TemplateSelect getTemplateSelect() {

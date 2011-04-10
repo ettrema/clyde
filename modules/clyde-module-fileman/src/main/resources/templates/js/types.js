@@ -160,6 +160,7 @@ function doAddFile(item) {
 function showNewPage(templateName) {
     var url = currentFolderUrl + "_autoname.new?templateSelect=" + templateName;
     loadIframe(url);
+    $( "#tabs" ).tabs('select', 1);
     $("#addPageModal").dialog("close");
 }
 

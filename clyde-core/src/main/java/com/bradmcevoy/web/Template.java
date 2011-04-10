@@ -231,13 +231,17 @@ public class Template extends Page implements ITemplate {
         String sClass = getClassToCreate();
         if (StringUtils.isEmpty(sClass)) {
             log.trace("no class to create specified, so default to page");
-            return new Page(location, name);
+            Page p = new Page(location, name);
+            p.setTemplateName(this.getName());
+            return p;
         } else {
             if (log.isTraceEnabled()) {
                 log.trace("creating a '" + sClass + "' called: " + name);
             }
             Class clazz = ReflectionUtils.findClass(sClass);
-            return (BaseResource) ReflectionUtils.create(clazz, location, name);
+            BaseResource res = (BaseResource) ReflectionUtils.create(clazz, location, name);
+            res.setTemplateName(this.getName());
+            return res;
         }
     }
 
