@@ -15,7 +15,6 @@ public class ComponentValueMap extends LinkedHashMap<String, ComponentValue> {
     private static final long serialVersionUID = 1L;
 
     public void add( ComponentValue parameterValue ) {
-        System.out.println("add");
         put( parameterValue.name, parameterValue );
     }
 
@@ -57,7 +56,6 @@ public class ComponentValueMap extends LinkedHashMap<String, ComponentValue> {
     }
 
     void init( Addressable parent ) {
-        System.out.println("init: " + parent.getPath());
         for( ComponentValue cv : this.values() ) {
             cv.init( parent );
         }
