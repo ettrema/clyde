@@ -45,7 +45,7 @@ public class ReCaptchaComponentHandler  implements ComponentHandler {
         InitUtils.set( elThis, "publicKey", cap.getPublicKey() );
     }
 
-    private void fromXml( ReCaptchaComponent cap, Element e2 ) {
+    public void fromXml( ReCaptchaComponent cap, Element e2 ) {
         cap.setPrivateKey( InitUtils.getValue( e2, "privateKey"));
         cap.setPublicKey( InitUtils.getValue( e2, "publicKey"));
     }

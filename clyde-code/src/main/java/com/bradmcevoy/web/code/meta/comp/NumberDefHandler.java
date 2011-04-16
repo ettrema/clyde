@@ -42,7 +42,7 @@ public class NumberDefHandler implements ComponentDefHandler {
         return NumberDef.class;
     }
 
-    private void fromXml(Element el, NumberDef def) {
+    public void fromXml(Element el, NumberDef def) {
         def.setDecimals(InitUtils.getInt(el, "decimals"));
         textDefHandler.fromXml(el, def);
     }
