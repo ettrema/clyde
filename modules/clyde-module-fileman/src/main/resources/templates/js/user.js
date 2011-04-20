@@ -8,7 +8,7 @@ var jsonDev;
  */
 function initUser() {
     if( userUrl ) {
-        return; // already done
+        return true; // already done
     }
     initUserCookie();
     if( isEmpty(userUrl) || isEmpty(accountName) ) {
@@ -97,4 +97,31 @@ function getParameter( name ) {
     return "";
   else
     return results[1];
+}
+
+// Assumes that the current page is the user
+function setAccountDisabled(isDisabled, container) {
+    log('setAccountDisabled', isDisabled, container);
+    ajaxLoadingOn();
+    $.ajax({
+        type: 'POST',
+        url: "_DAV/PROPPATCH",
+        data: "clyde:accountDisabled=" + isDisabled,
+        dataType: "json",
+        success: function(resp) {
+            ajaxLoadingOff();
+            if( resp.length == 0 ) {
+                var newClass = isDisabled ? "disabled" : "enabled";
+                log('update state:', $("div", container), newClass);
+                $("div", container).attr("class",newClass);
+            } else {
+                alert("The user could not be updated because: " + resp[0].description);
+            }
+        },
+        error: function(resp) {
+            ajaxLoadingOff();
+            log(failed, resp);
+            alert("Sorry, the account could not be updated. Please check your internet connection");
+        }
+    });
 }

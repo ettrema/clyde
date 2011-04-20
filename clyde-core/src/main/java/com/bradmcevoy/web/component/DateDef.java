@@ -8,6 +8,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.jdom.Element;
 
+/**
+ *
+ * Maybe use this one - http://trentrichardson.com/examples/timepicker/
+ *
+ * @author brad
+ */
 public class DateDef extends TextDef {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( DateDef.class );

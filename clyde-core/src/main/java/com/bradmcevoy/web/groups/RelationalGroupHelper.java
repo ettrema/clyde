@@ -76,6 +76,10 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
                     throw new RuntimeException("The current user does not have permission to add users to this group. You must be an Author of the group");
                 }
             }
+            if( group.isInGroup(user) ) {
+                log.trace("user is already in group");
+                return;
+            }
             Relationship r = user.getNameNode().makeRelation(clydeGroup.getNameNode(), REL_NAME);
             if (log.isTraceEnabled()) {
                 log.trace("created relation from: " + r.from().getId() + " -> " + r.to().getId());

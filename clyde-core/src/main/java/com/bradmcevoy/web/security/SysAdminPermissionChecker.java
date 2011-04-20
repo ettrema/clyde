@@ -31,11 +31,15 @@ public class SysAdminPermissionChecker implements PermissionChecker {
 
     @Override
     public boolean hasRole( Role role, Resource r, Auth auth ) {
-        User user = null;
+        User user = null;        
         if( auth != null ) {
+            log.trace("hasRole: " + auth.getTag());
             if( auth.getTag() instanceof User ) {
                 user = (User) auth.getTag();
             }
+        } else {
+            log.trace("hasRole: null auth");
+            Thread.dumpStack();
         }
 
         if( isSysAdmin( user ) ) {

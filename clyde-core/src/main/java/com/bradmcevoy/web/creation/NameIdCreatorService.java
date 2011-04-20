@@ -54,6 +54,7 @@ public class NameIdCreatorService implements CreatorService {
     public void setCreator( IUser user, Resource r ) {
         BaseResource res = (BaseResource) r;
         res.setCreatorNameNodeId( user.getNameNodeId() );
+        System.out.println("NameIdCreatorService: do not save");
 //        res.save();
     }
 }

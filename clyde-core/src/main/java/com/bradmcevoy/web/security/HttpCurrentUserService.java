@@ -15,10 +15,12 @@ public class HttpCurrentUserService implements CurrentUserService {
 
     public IUser getSecurityContextUser() {
         if (HttpManager.request() == null) {
+            log.trace("getSecurityContextUser: no http request in milton HttpManager");
             return null;
         }
         Auth auth = HttpManager.request().getAuthorization();
         if (auth == null) {
+            log.trace("getSecurityContextUser: no auth object in request");
             return null;
         }
         Object tag = auth.getTag();
@@ -26,6 +28,7 @@ public class HttpCurrentUserService implements CurrentUserService {
             return (IUser) tag;
         } else {
             if (tag == null) {
+                log.trace("getSecurityContextUser: found an auth object, but no associated user object");
                 return null;
             } else {
                 throw new RuntimeException("auth.tag is not a IUser. Is a: " + tag.getClass().getCanonicalName());

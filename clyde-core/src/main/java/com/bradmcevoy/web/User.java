@@ -2,6 +2,7 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.Subject;
@@ -28,6 +29,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.groups.RelationalGroupHelper;
 import com.bradmcevoy.web.mail.MailProcessor;
 import com.bradmcevoy.web.security.CookieAuthenticationHandler;
+import com.bradmcevoy.web.security.CurrentUserService;
 import com.bradmcevoy.web.security.UserGroup;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
@@ -76,7 +78,6 @@ public class User extends Folder implements IUser {
         elEmail.setText(getExternalEmailText());
         e2.addContent(elEmail);
     }
-
 
     @Override
     public void loadFromXml(Element el) {
@@ -433,7 +434,22 @@ public class User extends Folder implements IUser {
             log.error("invalid role: " + role, e);
             return false;
         }
-        return _(PermissionChecker.class).hasRole(r, res, null);
+        Auth auth;
+        if (HttpManager.request() == null) {
+            log.trace("no HTTP request, so look for current user");
+            IUser user = _(CurrentUserService.class).getSecurityContextUser();
+            if (user == null) {
+                log.trace("found a current user so wrap in Auth object");
+                auth = new Auth(user.getName(), user);
+            } else {
+                log.trace("no current user");
+                auth = null;
+            }
+        } else {
+            auth = HttpManager.request().getAuthorization();
+        }
+
+        return _(PermissionChecker.class).hasRole(r, res, auth);
     }
 
     /**
