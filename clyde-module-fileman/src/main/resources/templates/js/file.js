@@ -411,7 +411,7 @@ function deleteFile(href, callback) {
         error: function(resp) {
             log("failed", resp);
             ajaxLoadingOff();
-            alert("Sorry, an error occured deleting a module status. Please check your internet connection");
+            alert("Sorry, an error occured deleting " + href + ". Please check your internet connection");
         }
     });
 }
