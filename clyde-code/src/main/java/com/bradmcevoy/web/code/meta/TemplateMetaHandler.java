@@ -169,9 +169,13 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
             if (c != null) {
                 instanceType = c.getCanonicalName();
             } else {
-                log.warn("--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:");
-                for (String alias : mapOfAliasesByClass.values()) {
-                    log.warn("  alias: " + alias);
+                try {
+                    c = Class.forName(instanceType);
+                } catch (ClassNotFoundException e) {
+                    log.warn("--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:");
+                    for (String alias : mapOfAliasesByClass.values()) {
+                        log.warn("  alias: " + alias);
+                    }
                 }
 
             }
@@ -181,10 +185,10 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         DocType docType = dt == null ? null : DocType.valueOf(dt);
         template.setDocType(docType);
 
-        template.setDisableExport( InitUtils.getBoolean(el, "disableExport") );
+        template.setDisableExport(InitUtils.getBoolean(el, "disableExport"));
 
-        template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));        
-        
+        template.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));
+
         String beforeSave = JDomUtils.valueOf(el, "beforeSaveScript", CodeMeta.NS);
         template.setBeforeSaveScript(beforeSave);
 
