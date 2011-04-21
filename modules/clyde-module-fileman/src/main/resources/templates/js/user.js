@@ -1,5 +1,6 @@
 
 var userUrl = null;
+var userName = null;
 var accountName;
 var jsonDev;
 
@@ -23,6 +24,13 @@ function initUser() {
 
 function initUserCookie() {
     userUrl = $.cookie('_clydeUser');
+    if( userUrl && userUrl.length > 1 ) {
+        userName = userUrl.substr(0, userUrl.length-1); // drop trailing slash
+        userName = userName.substr(userName.lastIndexOf("/")+1, userName.length-1);
+        log('user:',userUrl, userName);
+    } else {
+        userName = null;
+    }
     accountName = $.cookie('accountName');
     jsonDev = $.cookie('jsonDev');
 }
@@ -89,14 +97,14 @@ function initUsage() {
 }
 
 function getParameter( name ) {
-  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-  var regexS = "[\\?&]"+name+"=([^&#]*)";
-  var regex = new RegExp( regexS );
-  var results = regex.exec( window.location.href );
-  if( results == null )
-    return "";
-  else
-    return results[1];
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if( results == null )
+        return "";
+    else
+        return results[1];
 }
 
 // Assumes that the current page is the user
