@@ -78,7 +78,6 @@ public class RenderContext implements Map<String, Component> {
     final Map<String, Object> attributes = new HashMap<String, Object>();
 
     public RenderContext(ITemplate template, Templatable page, RenderContext child, boolean editMode) {
-        System.out.println("create RC: template: " + template + " page:" + page + " child: " + child);
         if( page == null ) {
             throw new IllegalArgumentException("page cannot be null");
         }

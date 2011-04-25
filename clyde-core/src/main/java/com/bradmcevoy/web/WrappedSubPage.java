@@ -98,6 +98,10 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
                 return false;
             }
         }
+        if( subPage.isPublicAccess() ) {
+            log.trace("allow access because subpage has public=true");
+            return true;
+        }
         return actualParent.authorise( request, method, auth );
 
         // Invitations failed authorisation, because authorisation was delegated
@@ -299,6 +303,12 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     public boolean isSecure() {
         return subPage.isSecure();
     }
+
+    public boolean isPublicAccess() {
+        return subPage.isPublicAccess();
+    }
+
+
 
     public String getRedirect() {
         return subPage.getRedirect();

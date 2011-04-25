@@ -20,6 +20,7 @@ public class EmailVal extends ComponentValue {
    
     @Override
     public String getValue() {
+        System.out.println("email: getValue");
         Addressable p = getContainer();
         if( p == null ) {
             throw new RuntimeException( "No container, so can't get email" );

@@ -159,6 +159,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
     }
 
+    public boolean  hasChildNode(String name) {
+        NameNode child = this.nameNode.child(name);
+        return child != null;
+    }
+
+
     public NameNode addChildNode(String name, DataNode dn) {
         return this.nameNode.add(name, dn);
     }

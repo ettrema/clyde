@@ -5,6 +5,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
+import com.bradmcevoy.web.component.EvaluatableComponent;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.query.OrderByField.Direction;
 import java.io.Serializable;
@@ -183,6 +184,11 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         try {
             if (f.getEvaluatable() == null) {
                 Object o = fs.get(f.getName());
+                System.out.println("evaluate: " + o);
+                if( o instanceof EvaluatableComponent) {
+                    EvaluatableComponent ec = (EvaluatableComponent) o;
+                    System.out.println("got EC: fs: " + fs.getData());
+                }
                 return o;
             } else {
                 //return f.getEvaluatable().evaluate(fs);

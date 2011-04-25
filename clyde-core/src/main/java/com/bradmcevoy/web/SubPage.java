@@ -1,4 +1,3 @@
-
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
@@ -22,7 +21,6 @@ import java.util.Date;
 import java.util.Map;
 import org.jdom.Element;
 
-
 /**
  * Just a normal templated resource, except that the parent may not be a folder
  * 
@@ -31,16 +29,13 @@ import org.jdom.Element;
 public class SubPage extends CommonTemplated implements Component, PostableResource, XmlPersistableResource, ISubPage, Redirectable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubPage.class);
-        
     private static final long serialVersionUID = 1L;
-    
     String name;
-        
     CommonTemplated parentPage;
-
     boolean secure;
+    private boolean publicAccess;
     private String redirect;
-        
+
     public SubPage(CommonTemplated parent, String name) {
         super();
         this.parentPage = parent;
@@ -57,9 +52,9 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public String getDefaultContentType() {
         return "text/html";
     }
-    
-    public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        requestedPage.generateContent( out );
+
+    public void sendContent(WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        requestedPage.generateContent(out);
     }
 
     /**
@@ -73,10 +68,6 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         throw new BadRequestException(this);
     }
 
-
-
-
-
     /**
      * if secure is set requires a logged in user
      *
@@ -86,27 +77,31 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
      * @return
      */
     @Override
-    public boolean authorise( Request request, Method method, Auth auth ) {
-        if( secure) {
-            if( auth == null ) return false;
+    public boolean authorise(Request request, Method method, Auth auth) {
+        if (secure) {
+            if (auth == null) {
+                return false;
+            }
         }
-        return super.authorise( request, method, auth );
+        if( publicAccess ) {
+            return true;
+        }
+        return super.authorise(request, method, auth);
     }
-
-
 
     @Override
     public String getUniqueId() {
         return null;
     }
 
-    
     @Override
     public Folder getParentFolder() {
-        if( parentPage instanceof Folder ) return (Folder) parentPage;
+        if (parentPage instanceof Folder) {
+            return (Folder) parentPage;
+        }
         return parentPage.getParentFolder();
     }
-    
+
     @Override
     public CommonTemplated getParent() {
         return parentPage;
@@ -120,21 +115,23 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public CommonTemplated getFoundParent() {
         return getParent();
     }
-    
+
     @Override
     public void loadFromXml(Element el) {
         this.name = el.getAttributeValue("name");
-        this.secure = InitUtils.getBoolean( el, "secure");
-        if( name == null || name.trim().length() == 0 ) throw new RuntimeException("name is blank");
+        this.secure = InitUtils.getBoolean(el, "secure");
+        if (name == null || name.trim().length() == 0) {
+            throw new RuntimeException("name is blank");
+        }
         super.loadFromXml(el);
-        
+
     }
 
     @Override
     public Element toXml(Addressable container, Element el) {
         Element e2 = super.toXml(container, el);
         InitUtils.setString(e2, "name", name);
-        InitUtils.setBoolean( e2, "secure", secure);
+        InitUtils.setBoolean(e2, "secure", secure);
         return e2;
     }
 
@@ -143,24 +140,26 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return true;
     }
 
-    public final void setValidationMessage( String s ) {
+    public final void setValidationMessage(String s) {
         RequestParams params = RequestParams.current();
-        params.attributes.put( this.getName() + "_validation", s );
+        params.attributes.put(this.getName() + "_validation", s);
     }
 
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
-        return (String) params.attributes.get( this.getName() + "_validation" );
+        return (String) params.attributes.get(this.getName() + "_validation");
     }
 
     @Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         ITemplate lTemplate = getTemplate();
-        RenderContext rcChild = new RenderContext(lTemplate,this,rc,false);
+        RenderContext rcChild = new RenderContext(lTemplate, this, rc, false);
         String redirectTo = null;
-        for( Component c : allComponents() ) {
-            redirectTo = c.onProcess(rcChild,parameters,files);
-            if( redirectTo != null ) return redirectTo;
+        for (Component c : allComponents()) {
+            redirectTo = c.onProcess(rcChild, parameters, files);
+            if (redirectTo != null) {
+                return redirectTo;
+            }
         }
         return null;
     }
@@ -168,14 +167,14 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     @Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         ITemplate lTemplate = getTemplate();
-        RenderContext rcChild = new RenderContext(lTemplate,this,rc,false);
-        for( Component c : this.getComponents().values() ) {
-            c.onPreProcess(rcChild,parameters,files);
+        RenderContext rcChild = new RenderContext(lTemplate, this, rc, false);
+        for (Component c : this.getComponents().values()) {
+            c.onPreProcess(rcChild, parameters, files);
         }
-        
+
         Collection<Component> all = allComponents();
-        for( Component c : all ) {            
-            c.onPreProcess(rcChild,parameters,files);
+        for (Component c : all) {
+            c.onPreProcess(rcChild, parameters, files);
         }
     }
 
@@ -188,7 +187,9 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     @Override
     public String getHref() {
         String s = parentPage.getHref();
-        if( !s.endsWith("/") ) s = s + "/";
+        if (!s.endsWith("/")) {
+            s = s + "/";
+        }
         s = s + name;
         return s;
     }
@@ -207,7 +208,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) {
         return null;
     }
-    
+
     @Override
     public Web getWeb() {
         return Web.find(this);
@@ -228,7 +229,6 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return this.parentPage;
     }
 
-    
     void setRequestParent(Resource parent) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -254,11 +254,11 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     }
 
     private BaseResource getPhysicalParent() {
-         return physicalParent(this.parentPage);
+        return physicalParent(this.parentPage);
     }
 
     private BaseResource physicalParent(CommonTemplated parentPage) {
-        if( parentPage instanceof BaseResource ) {
+        if (parentPage instanceof BaseResource) {
             return (BaseResource) parentPage;
         }
         return physicalParent(parentPage.getParent());
@@ -273,15 +273,24 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return secure;
     }
 
-    public void setSecure( boolean secure ) {
+    public void setSecure(boolean secure) {
         this.secure = secure;
     }
+
+    public void setPublicAccess(boolean publicAccess) {
+        this.publicAccess = publicAccess;
+    }
+
+    public boolean isPublicAccess() {
+        return publicAccess;
+    }
+    
 
     public String getRedirect() {
         return this.redirect;
     }
 
-    public void setRedirect( String redirect ) {
+    public void setRedirect(String redirect) {
         this.redirect = redirect;
-    }        
+    }
 }

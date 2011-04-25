@@ -39,7 +39,6 @@ public class SysAdminPermissionChecker implements PermissionChecker {
             }
         } else {
             log.trace("hasRole: null auth");
-            Thread.dumpStack();
         }
 
         if( isSysAdmin( user ) ) {

@@ -1,6 +1,8 @@
 package com.bradmcevoy.web.eval;
 
+import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.component.Addressable;
+import java.util.List;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -11,13 +13,16 @@ class NotEvaluatableToXml implements EvaluatableToXml<NotEvaluatable> {
     }
 
     public void populateXml(Element elEval, NotEvaluatable target, Namespace ns) {
-        target.getExpression();
-        EvalUtils.setEvalDirect(elEval, target, ns);
+        EvalUtils.setEvalDirect(elEval, target.getExpression(), ns);
     }
 
     public NotEvaluatable fromXml(Element elEval, Namespace ns, Addressable container) {
         NotEvaluatable e = new NotEvaluatable();
-        Evaluatable expr = EvalUtils.getEvalDirect(elEval, ns, container);
+        List<Element> list = JDomUtils.children(elEval);
+        if( list == null || list.isEmpty() ) {
+            return e;
+        }
+        Evaluatable expr = EvalUtils.getEvalDirect(list.get(0), ns, container);
         e.setExpression(expr);
         return e;
     }

@@ -39,32 +39,34 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-context</artifactId>
-            <version>${endrick.version}</version>
+            <version>[${endrick.version},)</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-api</artifactId>
-            <version>${endrick.version}</version>
+            <version>[${endrick.version},)</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-aws</artifactId>
             <version>${endrick.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>geroa-server</artifactId>
-            <version>[${geroa.version}]</version>
+            <version>[${geroa.version},)</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>morton-api</artifactId>
-            <version>[${morton.version}]</version>
+            <version>[${morton.version},)</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>berry-channel</artifactId>
-            <version>${berry.version}</version>
+            <version>[${berry.version},)</version>
         </dependency>
 
 

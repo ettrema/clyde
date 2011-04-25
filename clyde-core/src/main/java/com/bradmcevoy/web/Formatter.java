@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.utils.CurrentDateService;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.component.ComponentUtils;
 import com.bradmcevoy.web.component.ComponentValue;
@@ -13,6 +14,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * Handy functions exposes to rendering logic for formatting.
@@ -22,7 +26,6 @@ import org.joda.time.DateTime;
 public class Formatter {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Formatter.class);
-    private static final Formatter theInstance = new Formatter();
     public static ThreadLocal<DateFormat> tlSdfUkShort = new ThreadLocal<DateFormat>() {
 
         @Override
@@ -39,8 +42,16 @@ public class Formatter {
     };
 
     public static Formatter getInstance() {
-        return theInstance;
+        return _(Formatter.class);
     }
+
+    private final CurrentDateService currentDateService;
+
+    public Formatter(CurrentDateService currentDateService) {
+        this.currentDateService = currentDateService;
+    }
+
+
 
     /**
      * Null safe method, returns empty string if the value is null
@@ -478,4 +489,28 @@ public class Formatter {
         html = html.replace("</" + tag + ">", replaceWithClosing); // closing tag
         return html;
     }
+
+    public Date getNow() {
+        return currentDateService.getNow();
+    }
+
+    /**
+     * Get the duration from the start to the finish date in seconds.
+     *
+     * @param start - any object which can be converted to a jodadate
+     * @param finish - any object which can be converted to a jodadate
+     * @return
+     */
+    public long durationSecs(Object start, Object finish) {
+        DateTime jodaSt = toJodaDate(start);
+        DateTime jodaFn = toJodaDate(finish);
+        Duration d = new Duration(jodaSt, jodaFn);
+        return d.getStandardSeconds();
+    }
+
+    public CurrentDateService getCurrentDateService() {
+        return currentDateService;
+    }
+
+    
 }

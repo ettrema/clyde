@@ -2,6 +2,7 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.eval.EvalUtils;
@@ -49,6 +50,12 @@ public class EvaluatableComponent extends CommonComponent implements Serializabl
     }
 
     public String render(RenderContext rc) {
+        Object o = eval(rc);
+        return Formatter.getInstance().toString(o);
+    }
+
+    public String render(CommonTemplated page) {
+        RenderContext rc = new RenderContext(page.getTemplate(), page, null, false);
         Object o = eval(rc);
         return Formatter.getInstance().toString(o);
     }

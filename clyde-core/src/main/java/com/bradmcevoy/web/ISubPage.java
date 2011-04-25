@@ -22,6 +22,13 @@ public interface ISubPage extends Templatable, Redirectable{
      */
     boolean isSecure();
 
+    /**
+     * Overrides other permissions to allow all access if set
+     *
+     * @return
+     */
+    boolean isPublicAccess();
+
     Resource getChildResource( String childName );
 
     String getContentType( String accepts );
