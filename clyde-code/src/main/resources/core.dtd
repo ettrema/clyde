@@ -162,7 +162,9 @@ formatter - the standard formatter
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable|c:csvsubpage)*>
+
+
 
 <!--- Component which wraps an evaluatable element -->
 <!ELEMENT c:evaluatable (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query|c:groovyEval)>
@@ -205,6 +207,17 @@ formatter - the standard formatter
 <!ELEMENT c:and (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)* >
 <!ELEMENT c:or (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)* >
 <!ELEMENT c:not (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query) >
+
+<!ELEMENT c:query (c:select|c:from|c:where?|c:orderby?)>
+
+<!ELEMENT c:select (c:field)*>
+
+<!ELEMENT c:from (c:query?)>
+<!ATTLIST c:from
+        path CDATA #IMPLIED
+  >
+
+<!ELEMENT c:where (c:const|c:ref|c:mvel|c:velocity|c:and|c:or|c:not|c:query)* >
 
 
 <!--- Put your DTDDoc comment here. -->
@@ -255,16 +268,25 @@ formatter - the standard formatter
 
   >
 
-<!--- Put your DTDDoc comment here. -->
+<!--- note that secure and public should be mutually exclusive. -->
 <!ELEMENT c:subpage (c:attributes?)>
 <!ATTLIST c:subpage
     template CDATA #IMPLIED
     name CDATA #REQUIRED
     redirect CDATA #IMPLIED
     secure (true|false) #IMPLIED
+    public (true|false) #IMPLIED
     maxAge CDATA #IMPLIED
   >
 
+<!ELEMENT c:csvsubpage (c:attributes?,c:components?)*>
+<!ATTLIST c:csvsubpage
+    template CDATA #IMPLIED
+    name CDATA #REQUIRED
+    redirect CDATA #IMPLIED
+    secure (true|false) #IMPLIED
+    maxAge CDATA #IMPLIED
+  >
 
 
 <!--- Put your DTDDoc comment here. -->

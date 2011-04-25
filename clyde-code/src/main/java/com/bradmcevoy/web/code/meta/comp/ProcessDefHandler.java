@@ -84,6 +84,10 @@ public class ProcessDefHandler implements ComponentDefHandler {
             String stateName = elChild.getAttributeValue("name");
             if (n.equals("state")) {
                 s = process.createState(stateName);
+                String sInterval = elChild.getAttributeValue("interval");
+                if( sInterval != null && sInterval.length() > 0 ) {
+                    s.setInterval(State.TimeDependentInterval.valueOf(sInterval));
+                }
             }
             if (s != null) {
                 if (process.getStartState() == null) {
@@ -120,6 +124,7 @@ public class ProcessDefHandler implements ComponentDefHandler {
 
         //s.getState().populateXml(e2);
         StateImpl stateImpl = s.getState();
+        e2.setAttribute("interval", toString(s.getInterval()));
         populateTransitionsXml(stateImpl, e2);
         stateImpl.appendHandlers(stateImpl.getOnEnterHandlers(), "onEnter", e2);
         stateImpl.appendHandlers(stateImpl.getOnExitHandlers(), "onExit", e2);
@@ -132,6 +137,14 @@ public class ProcessDefHandler implements ComponentDefHandler {
             elThis.addContent(elTrans);
             subPageHandler.populateXml(elTrans, ctrans);
             ctrans.getTransition().populateXml(elTrans);
+        }
+    }
+
+    private String toString(State.TimeDependentInterval t) {
+        if( t == null ) {
+            return "";
+        } else {
+            return t.name();
         }
     }
 }

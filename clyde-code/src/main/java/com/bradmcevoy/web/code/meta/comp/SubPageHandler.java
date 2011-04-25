@@ -40,6 +40,10 @@ public class SubPageHandler implements ComponentHandler {
         InitUtils.setString( e2, "name", t.getName() );
         if( t.isSecure() ) {
             InitUtils.setBoolean( e2, "secure", t.isSecure() );
+        } else {
+            if( t.isPublicAccess() ) {
+                InitUtils.setBoolean( e2, "public", t.isPublicAccess() );
+            }
         }
         InitUtils.set( e2, "redirect", t.getRedirect() );
         commonTemplatedMetaHandler.populateXml( e2, t, true );
@@ -59,6 +63,7 @@ public class SubPageHandler implements ComponentHandler {
 
     public void updateFromXml( SubPage sp, Element el ) {
         sp.setSecure( InitUtils.getBoolean( el, "secure" ) );
+        sp.setPublicAccess(InitUtils.getBoolean( el, "public" ) );
         commonTemplatedMetaHandler.updateFromXml( sp, el, true );
     }
 }
