@@ -23,7 +23,11 @@ public class ClydeState extends SubPage implements State {
     public StateImpl getState() {
         return state;
     }
+    
 
+    public TimeDependentInterval getInterval() {
+        return state.getInterval();
+    }
 
     @Override
     public List<ActionHandler> getOnEnterHandlers() {
@@ -95,6 +99,10 @@ public class ClydeState extends SubPage implements State {
         } else {
             return super.getChildResource(childName);
         }
+    }
+
+    public void setInterval(TimeDependentInterval interval) {
+        state.setInterval(interval);
     }
 
     public class MyStateImpl extends StateImpl {

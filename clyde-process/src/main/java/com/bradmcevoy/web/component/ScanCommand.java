@@ -3,6 +3,7 @@ package com.bradmcevoy.web.component;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.process.ClydeTransition;
 import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.TimerService;
 import com.bradmcevoy.process.TokenValue;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.RenderContext;
@@ -10,6 +11,8 @@ import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.WrappedSubPage;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -44,7 +47,8 @@ public class ScanCommand extends Command {
         Templatable ct = rc.getTargetPage();
         log.debug("target page: " + ct.getHref());
         TokenValue token = getTokenValueFromTransition(ct);
-        ProcessContext pc = new ProcessContext(token, process);
+        TimerService timerService = _(TimerService.class);
+        ProcessContext pc = new ProcessContext(token, process, timerService);
         BaseResource pageToSave = (BaseResource) token.getContainer();
         if (pc.scan()) {
             log.debug("transitioned to: " + token.getStateName());

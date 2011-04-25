@@ -7,6 +7,7 @@ import com.bradmcevoy.pay.PaymentRequest;
 import com.bradmcevoy.pay.PaymentService;
 import com.bradmcevoy.process.ClydeTransition;
 import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.TimerService;
 import com.bradmcevoy.process.TokenValue;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
@@ -18,6 +19,8 @@ import com.bradmcevoy.web.WrappedSubPage;
 import java.text.ParseException;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class PaymentCommand extends Command implements ComponentContainer {
 
@@ -137,7 +140,8 @@ public class PaymentCommand extends Command implements ComponentContainer {
                 com.bradmcevoy.process.Process process = fromState.getProcess();
                 Templatable ct = rc.page;
                 TokenValue token = getTokenValueFromTransition(ct);
-                ProcessContext pc = new ProcessContext(token, process);
+                TimerService timerService = _(TimerService.class);
+                ProcessContext pc = new ProcessContext(token, process, timerService);
                 BaseResource pageToSave = (BaseResource)token.getContainer();
                 return doPayment(pc, pageToSave);
             } catch (ParseException ex) {

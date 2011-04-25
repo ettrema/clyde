@@ -18,7 +18,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-
+import static com.ettrema.context.RequestContext._;
 
 /**
  * Contains one process
@@ -98,7 +98,8 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         Object o = cv.getValue();
         Token t = (Token) o;
         Process process = pdef.process;
-        ProcessContext context = new ProcessContext(t, process);
+        TimerService timerService = _(TimerService.class);
+        ProcessContext context = new ProcessContext(t, process, timerService);
         context.addAttribute("res", res);
         context.addAttribute("cv", cv);
         context.addAttribute("def", pdef);
