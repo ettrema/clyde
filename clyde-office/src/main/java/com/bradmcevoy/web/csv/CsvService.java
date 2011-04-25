@@ -29,8 +29,12 @@ import org.mvel.MVEL;
 public class CsvService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CsvService.class );
-    private final Formatter formatter = new Formatter();
+    private final Formatter formatter;
 
+    public CsvService(Formatter formatter) {
+        this.formatter = formatter;
+    }
+       
     public void generate( OutputStream out, String isType, Path sourceFolder, Folder folder ) throws IOException {
         generate( out, null, isType, sourceFolder, folder );
     }
