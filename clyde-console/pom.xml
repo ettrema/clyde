@@ -30,7 +30,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>berry-server</artifactId>
-            <version>${berry.version}</version>
+            <version>[${berry.version},)</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
