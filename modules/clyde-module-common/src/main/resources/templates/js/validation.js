@@ -20,9 +20,13 @@ function checkRequiredFields(container) {
             showErrorField($(node));
             isOk = false;
         }
-
-        return
     });
+
+    if( !checkRequiredChecks(container) ) {
+        log('missing required checkboxs');
+        isOk = false;
+    }
+
     if( isOk ) {
         isOk = checkValidEmailAddress(container);
         if( !checkDates(container)) {
@@ -40,6 +44,17 @@ function checkRequiredFields(container) {
     }
     return isOk;
 }
+function checkRequiredChecks(container) {
+    var isOk = true;
+    $("input.required:checkbox", container).not(":checked").each( function(index, node) {
+        node = $(node);
+        node = $("label[for=" + node.attr("id") + "]");
+        showErrorField($(node));
+        isOk = false;
+    });
+    return isOk;
+}
+
 
 function checkRadio(radioName, container) {
     log('checkRadio', radioName, container);
