@@ -7,7 +7,9 @@ var thumbs;
  
  
 function initTree() {
+    log('initTree');
     initUser();
+    initButtons();
 
     $( "#tabs" ).tabs();  // file manager tabs
 
