@@ -330,14 +330,12 @@ a.buttonGreen:active span {
 #tabs {
     height: 95%;
 }
-#tabs div {
-    padding: 0 !important;
-}
 
 #files {
     position:relative;
     width:100%;
     height:100%;
+    padding: 0 !important;
 }
 
 /***************************** Preview Area ********************************/
@@ -656,7 +654,7 @@ table.filesList thead th div.DataTables_sort_wrapper span {
     min-height: 302px;
     _height: 302px;
     clear: both;
-    margin: 10px;
+    margin: 10px 0;
 }
 
 .dataTables_processing {
