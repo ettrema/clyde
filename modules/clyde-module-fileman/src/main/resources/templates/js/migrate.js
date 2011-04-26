@@ -3,7 +3,8 @@ function showMigrator() {
     log("showMigrator");
     $('#migrator').dialog({
         modal: true,
-        width: 800
+        width: 800,
+        minHeight: 400
     }
     )
     initStatus();
@@ -24,6 +25,7 @@ function initStatus() {
             } else {
                 $("#headline").html("No migration in progress");
                 $("#migrateFiles tbody").html("<tr><td colspan='5'>No files</td></tr>");
+                buttonControl(null);
             }
         },
         error: function(response) {
@@ -69,6 +71,11 @@ function showQuery(report) {
         tr.append("<td>" + status.comment + "</td>");
         tbody.append(tr);
     }
+    $("#btnMigrateScan").hide();
+    $("#btnMigrateRefresh").show();
+    $("#btnMigrateStart").show();
+    $("#btnMigrateStop").hide();
+    $("#selectAll").show();
 }
 
 
@@ -78,29 +85,62 @@ function showStatus(report) {
     log('showReport - ', report);
 
     if( report.finished ) {
-        $("#headline").html("Migration complete");
+        $("#headline").html("Migration complete: "  + report.destHost);
     } else {
-        $("#headline").html("Migration is running");
+        var perc = report.statuses.length * 100 / report.numSourceIds;
+        $("#headline").html("Migration is running: " + report.destHost + " - " + perc + "%");
     }
-
 
     var tbody = $("#migrateFiles tbody");
     tbody.html("");
     for( i=0; i<report.statuses.length; i++) {
         var status = report.statuses[i];
         var tr = $("<tr>");
-        tr.append("<td>" + status.uploaded + "</td>");
+        tr.append("<td></td>");
         tr.append("<td>" + status.localHref + "</td>");
         tr.append("<td>" + toDisplayDate(status.localModDate) + "</td>");
         tr.append("<td>" + toDisplayDate(status.remoteMod) + "</td>");
-        tr.append("<td>" + status.comment + "</td>");
         tbody.append(tr);
+        if( status.comment ) {
+            tr = $("<tr>");
+            tr.append("<td></td>");
+            tr.append("<td></td>");
+            tr.append("<td colspan='3' class='error'>" + status.comment + "</td>");
+            tbody.append(tr);
+        }
     }
 
     if( !report.finished ) {
         timerStatus = window.setTimeout(function() {
             initStatus();
         },2000);
+    }
+    buttonControl(report);
+    $("#selectAll").hide();
+}
+
+function buttonControl(report) {
+    log('buttonControl');
+    if( report ) {
+        log('has report');
+        if( report.finished ) {
+            $("#btnMigrateScan").show();
+            $("#btnMigrateRefresh").show();
+            $("#btnMigrateStart").hide();
+            $("#btnMigrateStop").hide();
+        } else {
+            // job running
+            $("#btnMigrateScan").hide();
+            $("#btnMigrateRefresh").show();
+            $("#btnMigrateStart").hide();
+            $("#btnMigrateStop").show();
+        }
+    } else {
+        log("no report, so none running");
+        $("#btnMigrateScan").show();
+        $("#btnMigrateRefresh").show();
+        $("#btnMigrateStart").hide();
+        $("#btnMigrateStop").hide();
     }
 }
 
@@ -139,6 +179,15 @@ function stopMigration() {
             ajaxLoadingOff();
         }
     });
+}
+
+function toggleMigrateFiles(source) {
+    log('toggleMigrateFiles', source);
+    if( $(source).is(":checked")) {
+        $("#migrateFiles input:checkbox").attr("checked", "checked");
+    } else {
+        $("#migrateFiles input:checkbox").removeAttr("checked");
+    }
 }
 
 function toDisplayDate(dt) {
