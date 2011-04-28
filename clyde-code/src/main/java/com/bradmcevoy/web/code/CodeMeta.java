@@ -73,8 +73,15 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
             Document doc = rf.getMetaParser().parse( in );
             Element elItem = rf.getMetaParser().getItemElement( doc );
             MetaHandler<? extends Resource> actualMetaHandler = rf.getMetaHandler( elItem );
+            if( actualMetaHandler == null ) {
+                throw new RuntimeException("Couldnt find a meta handler for: " + elItem.getName());
+            }
             if( actualMetaHandler != metaHandler ) {
-                log.trace( "type has changed from: " + metaHandler.getClass() + " -> " + actualMetaHandler.getClass() );
+                if( metaHandler == null ) {
+                    log.trace( "type has changed from: (none) -> " + actualMetaHandler.getClass() );
+                } else {
+                    log.trace( "type has changed from: " + metaHandler.getClass() + " -> " + actualMetaHandler.getClass() );
+                }
                 String name = wrapped.getName();
                 BufferingOutputStream bufferedContent = bufferContent();
                 delete();

@@ -29,6 +29,26 @@ public class Thumb implements Serializable {
         thumbsComp.setValue( thumbs );
     }
 
+    public static void setThumbSpecs(Folder folder, List<Thumb> thumbs) {
+        ThumbsComponent thumbsComp = (ThumbsComponent) folder.getComponent("thumbSpecs" );
+        if( thumbsComp == null ) {
+            if( thumbs == null || thumbs.isEmpty()) {
+                // nothing to do;
+                return ;
+            }
+            thumbsComp = new ThumbsComponent( folder, "thumbSpecs");
+            folder.getComponents().add( thumbsComp );
+        } else {
+            if( thumbs == null || thumbs.isEmpty()) {
+                // nothing defined, so need to remove component
+                folder.getComponents().remove( "thumbSpecs");
+                return ;
+            }
+        }
+        thumbsComp.setValue( thumbs );
+    }
+
+
     public static List<Thumb> getThumbSpecs( Template template ) {
 
         ThumbsComponent thumbs = (ThumbsComponent) template.getComponents().get( "thumbSpecs" );
@@ -79,6 +99,8 @@ public class Thumb implements Serializable {
             return val;
         }
     }
+
+
     String suffix;
     int height;
     int width;

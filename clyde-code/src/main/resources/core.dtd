@@ -83,7 +83,7 @@ formatter - the standard formatter
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:folder (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?)*>
+<!ELEMENT c:folder (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?,c:thumbs?)*>
 <!ATTLIST c:folder
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
@@ -110,13 +110,23 @@ formatter - the standard formatter
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?)>
+<!ELEMENT c:template (c:attributes?,c:fields?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?,c:thumbs?)>
 <!ATTLIST c:template
     template CDATA #IMPLIED
     maxAge CDATA #IMPLIED
     disableExport (true|false) #IMPLIED
     instanceType (folder|page|group|user|event|binaryFile|pdf) #IMPLIED
   >
+
+<!ELEMENT c:thumbs (c:thumb)*>
+
+<!ELEMENT c:thumb (#PCDATA)>
+<!ATTLIST c:thumb
+    id CDATA #REQUIRED
+    h CDATA #REQUIRED
+    W CDATA #REQUIRED
+>
+
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef|c:boolean)*>

@@ -60,13 +60,12 @@ public class ImageFile extends BinaryFile {
         if( thumbs == null ) {
             thumbs = Thumb.getThumbSpecs( getParent() );
         }
-        ThumbProcessor proc = new ThumbProcessor( this, thumbs );
         try {
-            return proc.generateThumbs( skipIfExists );
+            return _(ThumbProcessor.class).generateThumbs( this,thumbs, skipIfExists );
         } catch( FileNotFoundException ex ) {
-            throw new RuntimeException( ex );
+            throw new RuntimeException( this.getHref(), ex );
         } catch( IOException ex ) {
-            throw new RuntimeException( ex );
+            throw new RuntimeException( this.getHref(),ex );
         }
     }
 

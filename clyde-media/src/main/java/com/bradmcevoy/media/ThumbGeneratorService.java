@@ -15,7 +15,6 @@ import com.bradmcevoy.web.VideoFile;
 import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
-import com.ettrema.context.RequestContext;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.grid.AsynchProcessor;
 import com.ettrema.grid.Processable;
@@ -31,6 +30,8 @@ import java.util.UUID;
 import static com.ettrema.context.RequestContext._;
 
 /**
+ * This service is responsible for causing thumbnail generation to occur, although
+ * the actual processing of thumbs occurs elsewhere
  *
  * @author brad
  */
