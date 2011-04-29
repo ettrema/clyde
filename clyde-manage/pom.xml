@@ -58,7 +58,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-logging</artifactId>
-            <version>[${endrick.logging.version}]</version>
+            <version>[${endrick.version}]</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.appframework</groupId>
