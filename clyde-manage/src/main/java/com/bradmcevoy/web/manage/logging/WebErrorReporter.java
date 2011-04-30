@@ -79,6 +79,13 @@ public class WebErrorReporter implements Service, com.ettrema.logging.NotifyingA
                     s += paramName + "=" + val + "\n";
                 }
             }
+            if(r.getHeaders() != null ) {
+                s += "HEADERS\n";
+                for(String headerName : r.getHeaders().keySet()) {
+                    String val = r.getHeaders().get(headerName);
+                    s += headerName + " = " + val + "\n";
+                }
+            }
             return s;
         }
     }
