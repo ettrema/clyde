@@ -418,6 +418,49 @@ function deleteFile(href, callback) {
     });
 }
 
+function showCreateFolder() {
+    $("#createFolderModal").dialog({
+        modal: true,
+        width: 500,
+        title: "Create folder",
+        buttons: { 
+            "Ok": function() { 
+                var name = $("#createFolderModal input[type=text]").val();
+                if( name && name.length > 0 ) {
+                    createFolder(name);
+                    $(this).dialog("close");                     
+                } else {
+                    alert("Please enter a name to create");
+                }
+            } ,
+            "Cancel": function() {
+                $(this).dialog("close"); 
+            }
+        }
+    });
+}
+
+function createFolder(name) {
+    var encodedName = $.URLEncode(name);
+    ajaxLoadingOn();
+    $.ajax({
+        type: 'POST',
+        url: "_DAV/MKCOL",
+        data: {
+            name: encodedName
+        },
+        dataType: "json",
+        success: function() {
+            ajaxLoadingOff();
+            window.location = encodedName + "/index.html";
+        },
+        error: function() {
+            ajaxLoadingOff();
+            alert('There was a problem creating the folder');
+        }
+    });
+}
+
 function ajaxLoadingOn(sel) {
     log('ajax ON', sel);
     $("#ajaxLoading").dialog({
