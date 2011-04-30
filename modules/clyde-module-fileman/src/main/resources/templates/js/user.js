@@ -14,7 +14,6 @@ function initUser() {
         // no cookie, so authentication hasnt been performed.
         log('no userUrl');
         $("#logout").hide();
-        $("#currentUser").hide();
         $(".requiresuser").hide();
         return false;
     } else {
