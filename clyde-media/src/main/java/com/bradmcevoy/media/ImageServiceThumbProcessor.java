@@ -1,5 +1,6 @@
 package com.bradmcevoy.media;
 
+import com.bradmcevoy.io.FileUtils;
 import java.io.InputStream;
 import com.bradmcevoy.web.BaseResource;
 import java.io.ByteArrayInputStream;
@@ -51,7 +52,8 @@ public class ImageServiceThumbProcessor implements ThumbProcessor{
             log.trace( "doing thumb processing with thumbs: " + Thumb.format( thumbs ) );
         }
 
-        BufferedImage image = imageService.read( imageFile.getInputStream() );
+        String format = FileUtils.getExtension(imageFile.getName());
+        BufferedImage image = imageService.read( imageFile.getInputStream(), format );
         if( image == null ) {
             log.warn("Couldnt get an image for: " + imageFile.getPath());
             return 0;

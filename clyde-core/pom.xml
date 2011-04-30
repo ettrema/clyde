@@ -9,7 +9,7 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-coreapi</artifactId>
     <packaging>jar</packaging>
-    <name>clyde-coreapi</name>
+    <name>clyde-core</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

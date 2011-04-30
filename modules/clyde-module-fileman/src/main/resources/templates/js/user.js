@@ -1,8 +1,6 @@
 
 var userUrl = null;
 var userName = null;
-var accountName;
-var jsonDev;
 
 /**
  * returns true if there is a valid user
@@ -12,12 +10,22 @@ function initUser() {
         return true; // already done
     }
     initUserCookie();
-    if( isEmpty(userUrl) || isEmpty(accountName) ) {
+    if( isEmpty(userUrl) ) {
         // no cookie, so authentication hasnt been performed.
+        log('no userUrl');
+        $("#logout").hide();
+        $("#currentUser").hide();
+        $(".requiresuser").hide();
         return false;
     } else {
+        userName = userUrl.substr(0, userUrl.length-1); // drop trailing slash
+        var pos = userUrl.indexOf("users");
+        userName = userName.substring(pos+6);
+        $("#currentUser").html("<a href='" + userUrl + "'>My profile</a>");
+        $("#currentUser").show();
+        
+        $("#login").hide();
         $("#userUrl").html(userUrl);
-        $("#accountName").html(accountName);
         return true;
     }
 }
@@ -31,8 +39,6 @@ function initUserCookie() {
     } else {
         userName = null;
     }
-    accountName = $.cookie('accountName');
-    jsonDev = $.cookie('jsonDev');
 }
 
 function isEmpty(s) {

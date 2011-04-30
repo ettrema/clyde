@@ -260,7 +260,7 @@ public class ImageService {
     }
 
     public boolean scaleProportionallyWithMax( InputStream in, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
-        BufferedImage image = read( in );
+        BufferedImage image = read( in, format );
         return scaleProportionallyWithMax( image, out, maxHeight, maxWidth, format );
     }
 
@@ -362,7 +362,7 @@ public class ImageService {
         }
     }
 
-    public BufferedImage read( InputStream is ) throws FileNotFoundException, IOException {
+    public BufferedImage read( InputStream is, String type ) throws FileNotFoundException, IOException {
 //        BufferedImage image;
 //        try {
 //            image = Sanselan.getBufferedImage( is );
@@ -372,7 +372,7 @@ public class ImageService {
 //        return image;
 
 
-        Iterator readers = ImageIO.getImageReadersByFormatName( "jpg" );
+        Iterator readers = ImageIO.getImageReadersByFormatName( type );
         ImageReader reader = (ImageReader) readers.next();
         ImageInputStream iis = ImageIO.createImageInputStream( is );
         reader.setInput( iis );

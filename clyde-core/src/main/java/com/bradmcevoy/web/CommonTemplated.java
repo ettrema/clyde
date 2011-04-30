@@ -635,7 +635,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             log.trace("sendContent: " + this.getHref());
         }
         //tlTargetPage.set(this);
-        RequestParams.current().attributes.put("targetPage", this);
+        if (RequestParams.current() != null) {
+            RequestParams.current().attributes.put("targetPage", this);
+        }
         String s = null;
         try {
             s = render(null);
@@ -1043,7 +1045,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public Object eval(String name) {
         Component c = this.getComponent(name);
         RenderContext rc = new RenderContext(getTemplate(), this, null, false);
-        if( c instanceof Evaluatable) {
+        if (c instanceof Evaluatable) {
             Evaluatable eval = (Evaluatable) c;
             return EvalUtils.eval(eval, rc, this);
         } else {
