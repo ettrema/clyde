@@ -235,6 +235,13 @@ public final class GroupEmailCommand2 extends Command {
             addAttachments(sm, (List) o);
         } else if (o instanceof GetableResource) {
             addAttachment(sm, (GetableResource) o);
+        } else if( o instanceof String ) {
+            String s = (String) o;
+            if( s.trim().length() == 0 ) {
+                return ;
+            } else {
+                throw new RuntimeException("Unsupported attachment type: " + o.getClass() + " Should be reference to resource, or a list of resources");
+            }
         } else {
             throw new RuntimeException("Unsupported attachment type: " + o.getClass() + " Should be reference to resource, or a list of resources");
         }
