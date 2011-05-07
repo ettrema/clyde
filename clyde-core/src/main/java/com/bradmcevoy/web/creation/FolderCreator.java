@@ -18,13 +18,7 @@ public class FolderCreator implements Creator {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FolderCreator.class );
 
-    @Override
-    public boolean accepts( String ct ) {
-        return ct.contains( "folder" );
-    }
-
-    @Override
-    public BaseResource createResource( Folder parent, String ct, InputStream in, String newName ) throws ReadingException, WritingException {
+    public static ITemplate findNewFolderTemplate(Folder parent ){
         List<Template> allowedTemplates = parent.getAllowedTemplates();
         ITemplate template = null;
         if( !CollectionUtils.isEmpty( allowedTemplates ) ) {
@@ -39,6 +33,17 @@ public class FolderCreator implements Creator {
             // this might locate a folder from the parent web
             template = parent.getTemplate( "folder" );
         }
+        return template;
+    }
+    
+    @Override
+    public boolean accepts( String ct ) {
+        return ct.contains( "folder" );
+    }
+
+    @Override
+    public BaseResource createResource( Folder parent, String ct, InputStream in, String newName ) throws ReadingException, WritingException {
+        ITemplate template = findNewFolderTemplate(parent);
         Folder f;
         if( template != null ) {
             log.debug( "using template: " + template.getName() );

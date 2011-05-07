@@ -330,47 +330,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public CollectionResource createCollection(final String newName) throws ConflictException, NotAuthorizedException, BadRequestException {
         log.debug("createCollection: " + newName + " in folder with id: " + this.getNameNodeId());
-//        if( newName.equals( "_code")) {
-//            // HACK HACK
-//            return new CollectionResource() {
-//
-//                public Resource child( String childName ) {
-//                    return null;
-//                }
-//
-//                public List<? extends Resource> getChildren() {
-//                    return null;
-//                }
-//
-//                public String getUniqueId() {
-//                    return null;
-//                }
-//
-//                public String getName() {
-//                    return newName;
-//                }
-//
-//                public Object authenticate( String user, String password ) {
-//                    return Folder.this.authenticate(user, password );
-//                }
-//
-//                public boolean authorise( Request request, Method method, Auth auth ) {
-//                    return Folder.this.authorise( request, method, auth );
-//                }
-//
-//                public String getRealm() {
-//                    return Folder.this.getRealm();
-//                }
-//
-//                public Date getModifiedDate() {
-//                    return null;
-//                }
-//
-//                public String checkRedirect( Request request ) {
-//                    return null;
-//                }
-//            };
-//        }
         return createCollection(newName, true);
     }
 
