@@ -147,6 +147,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         }
         MetaHandler mh = getMetaHandler(r);
         if (mh == null) {
+            log.info("No meta handler for resource of type: " + r.getClass());
             return null;
         }
         return new CodeMeta(this, mh, r.getName() + metaSuffix, r, parent);

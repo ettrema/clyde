@@ -2,11 +2,14 @@ package com.bradmcevoy.web.code;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -18,7 +21,7 @@ import org.xml.sax.EntityResolver;
  * @author brad
  */
 public class MetaParser {
-
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MetaParser.class );
     private static List<String> knownSystemIds = Arrays.asList( "core.dtd", "xhtml-lat1.ent", "xhtml-special.ent", "xhtml-symbol.ent", "xhtml1-strict.dtd" );
     private final CodeResourceFactory rf;
     private final EntityResolver entityResolver;
@@ -61,14 +64,22 @@ public class MetaParser {
     }
 
     public Document parse( InputStream in ) throws JDOMException {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        try {
+            IOUtils.copy(in, bout);
+        } catch (IOException ex) {
+            throw new JDOMException("IOException reading data", ex);
+        }
+        ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
         try {
             SAXBuilder builder = new SAXBuilder();
             builder.setExpandEntities( false );
             builder.setEntityResolver( entityResolver );
             //builder.setFeature(  "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
-            return builder.build( in );
+            return builder.build( bin );
         } catch( IOException ex ) {
+            log.error("Exception processing:" + bout.toString());
             throw new RuntimeException( ex );
         }
     }

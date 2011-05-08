@@ -42,7 +42,7 @@ public class MigrationHelper {
 
     public void doMigration(Arguments arguments) throws Exception {
         log.trace("doMigration");
-        com.ettrema.httpclient.Host remoteHost = new com.ettrema.httpclient.Host(arguments.getDestHost(), 80, arguments.getDestUser(), arguments.destPassword(), null);
+        com.ettrema.httpclient.Host remoteHost = new com.ettrema.httpclient.Host(arguments.getDestHost(), arguments.getDestPort(), arguments.getDestUser(), arguments.destPassword(), null);
 
         Path destPath = Path.path(arguments.getDestPath());
         if (arguments.localFolder() != null) {
@@ -161,6 +161,12 @@ public class MigrationHelper {
                     return false;
                 }
             }
+            if (ct instanceof Folder) {
+                Folder f = (Folder) ct;
+                if (f.isSystemFolder()) {
+                    return false;
+                }
+            }
             if (ct instanceof User) {
                 if (arguments.isNoUser()) {
                     return false;
@@ -199,6 +205,10 @@ public class MigrationHelper {
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         CodeMeta codeMeta = codeResourceFactory.wrapMeta(res, res.getParent());
+        if (codeMeta == null) {
+            log.info("Not migrating resource: " + res.getHref() + " because code meta factory did not return a resource");
+            return;
+        }
         codeMeta.sendContent(bytes, null, null, null);
         byte[] arr = bytes.toByteArray();
         ByteArrayInputStream bin = new ByteArrayInputStream(arr);

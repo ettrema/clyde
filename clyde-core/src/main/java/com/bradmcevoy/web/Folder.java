@@ -337,7 +337,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         Resource res;
         BaseResource child = childRes(newName);
         if (child != null) {
-            throw new RuntimeException("An item already exists named: " + newName + " - " + child.getClass() + " in " + this.getHref());
+            throw new ConflictException(child, "An item already exists named: " + newName + " - " + child.getClass() + " in " + this.getHref());
         }
         try {
             res = createNew_notx(newName, null, null, "folder");

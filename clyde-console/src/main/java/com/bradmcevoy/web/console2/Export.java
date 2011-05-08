@@ -55,6 +55,7 @@ public class Export extends AbstractConsoleCommand {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         XmlWriter w = new XmlWriter(out);
         w.begin("p").writeText("remote host: " + args.getDestHost()).close();
+        w.begin("p").writeText("remote port: " + args.getDestPort()).close();
         w.begin("p").writeText("remote user: " + args.getDestUser()).close();
         w.begin("p").writeText("  dryRun: " + args.isDryRun()).close();
         w.begin("p").writeText("  recursive: " + args.isRecursive()).close();

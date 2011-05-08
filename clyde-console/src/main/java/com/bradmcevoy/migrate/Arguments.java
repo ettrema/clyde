@@ -17,6 +17,7 @@ public class Arguments {
     private final Folder localFolder;
     private final List<UUID> ids;
     private final String destHost;
+    private final int destPort;
     private final String destUser;
     private final String destPassword;
     private final String destPath;
@@ -37,6 +38,7 @@ public class Arguments {
         this.localFolder = localFolder;
         this.ids = null;
         this.destHost = destHost;
+        this.destPort = 80;
         this.destUser = destUser;
         this.destPassword = destPassword;
         this.destPath = destPath;
@@ -46,6 +48,7 @@ public class Arguments {
         this.localFolder = null;
         this.ids = ids;
         this.destHost = destHost;
+        this.destPort = 80;
         this.destUser = destUser;
         this.destPassword = destPassword;
         this.destPath = destPath;
@@ -73,6 +76,7 @@ public class Arguments {
         URI uriDest = new URI(dest);
         destHost = uriDest.getHost();
         destPath = uriDest.getPath();
+        destPort = uriDest.getPort();
         destUser = list.get(1);
         destPassword = list.get(2);
         log.trace("host: " + destHost + " destPath: " + destPassword + " user: " + destUser);
@@ -158,6 +162,10 @@ public class Arguments {
     public String getDestHost() {
         return destHost;
     }
+
+    public int getDestPort() {
+        return destPort;
+    }        
 
     public String getDestPath() {
         return destPath;
