@@ -69,6 +69,8 @@ public class MetaParser {
             IOUtils.copy(in, bout);
         } catch (IOException ex) {
             throw new JDOMException("IOException reading data", ex);
+        } finally {
+            IOUtils.closeQuietly(bout);            
         }
         ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
         try {
@@ -78,7 +80,7 @@ public class MetaParser {
             //builder.setFeature(  "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 
             return builder.build( bin );
-        } catch( IOException ex ) {
+        } catch( Exception ex ) {
             log.error("Exception processing:" + bout.toString());
             throw new RuntimeException( ex );
         }

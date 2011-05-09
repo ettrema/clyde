@@ -82,18 +82,28 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
                 }
                 return r;
             } else if (isCreate) {                
-                Folder f = (Folder) resource;
-                ITemplate template = FolderCreator.findNewFolderTemplate(f);
-                if (template == null) {
-                    log.trace("findRole: isCreate: couldnt locate a folder template, default to AUTHOR");
-                    return Role.AUTHOR;
+                if (resource instanceof Folder) {
+                    Folder f = (Folder) t;
+                    ITemplate template = FolderCreator.findNewFolderTemplate(f);
+                    if (template == null) {
+                        log.trace("findRole: isCreate: couldnt locate a folder template, default to AUTHOR");
+                        return Role.AUTHOR;
+                    } else {
+                        Role r = authoringPermissionService.getCreateRole(f, template);
+                        if (log.isTraceEnabled()) {
+                            log.trace("findRole: isCreate: required edit role for template: " + template.getName() + ": " + r);
+                        }
+                        return r;
+                    }
                 } else {
-                    Role r = authoringPermissionService.getCreateRole(f, template);
+                    // doing a PUT to an existing file
+                    Role r = authoringPermissionService.getEditRole(t);
                     if (log.isTraceEnabled()) {
-                        log.trace("findRole: isCreate: required edit role for template: " + template.getName() + ": " + r);
+                        log.trace("findRole: templatable: required edit role: " + r);
                     }
                     return r;
                 }
+
 
             } else {
                 if (isMethod(method, new Method[]{Method.PROPFIND, Method.GET, Method.HEAD, Method.OPTIONS, Method.POST})) {

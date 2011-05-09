@@ -1,5 +1,9 @@
 package com.bradmcevoy.web;
 
+import com.ettrema.http.AccessControlledResource;
+import com.bradmcevoy.http.Auth;
+import com.ettrema.http.AccessControlledResource.Priviledge;
+import com.ettrema.http.acl.Principal;
 import com.bradmcevoy.utils.ClydeUtils;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;
@@ -50,7 +54,7 @@ import static com.ettrema.context.RequestContext.*;
  * @author brad
  */
 @BeanPropertyResource("clyde")
-public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource {
+public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource, AccessControlledResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Folder.class);
     private static final long serialVersionUID = 1L;
@@ -437,6 +441,16 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             }
         } else {
             log.debug("null namenode");
+        }
+
+
+        if (isA == null && except == null) {
+            List<Templatable> subPages = _(ChildFinder.class).getSubPages(this);
+            if (subPages != null) {
+                for (Templatable t : subPages) {
+                    children.add(t);
+                }
+            }
         }
 
         Collections.sort(children);
@@ -852,21 +866,21 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     /**
     public class TransientNameNode implements RelationalNameNode {
-
+    
     final UUID id;
     final String name;
     final DataNode data;
     //final List<Relationship> relations = new ArrayList<Relationship>();
     RelationalNameNode persistedNameNode;
     private boolean isNew = true;
-
+    
     public TransientNameNode( String name, BaseResource data ) {
     this.id = UUID.randomUUID();
     this.name = name;
     this.data = data;
     data.setId( id );
     }
-
+    
     @Override
     public InputStream getBinaryContent() {
     if( persistedNameNode == null ) {
@@ -874,7 +888,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.getBinaryContent();
     }
-
+    
     @Override
     public long setBinaryContent( InputStream in ) {
     if( persistedNameNode == null ) {
@@ -882,12 +896,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.setBinaryContent( in );
     }
-
+    
     @Override
     public String getName() {
     return name;
     }
-
+    
     @Override
     public boolean hasBinaryContent() {
     if( persistedNameNode == null ) {
@@ -895,7 +909,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.hasBinaryContent();
     }
-
+    
     @Override
     public void setName( String s ) {
     if( persistedNameNode == null ) {
@@ -903,12 +917,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     persistedNameNode.setName( s );
     }
-
+    
     @Override
     public NameNode getParent() {
     return Folder.this.getNameNode();
     }
-
+    
     @Override
     public NameNode child( String name ) {
     if( persistedNameNode == null ) {
@@ -916,7 +930,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.child( name );
     }
-
+    
     @Override
     public List<NameNode> children() {
     if( persistedNameNode == null ) {
@@ -924,27 +938,27 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.children( true );
     }
-
+    
     @Override
     public List<NameNode> children( boolean preloadDataNodes ) {
     return children();
     }
-
+    
     @Override
     public DataNode getData() {
     return data;
     }
-
+    
     @Override
     public Class getDataClass() {
     return data.getClass();
     }
-
+    
     @Override
     public UUID getId() {
     return id;
     }
-
+    
     @Override
     public NameNode add( String name, DataNode data ) {
     if( persistedNameNode == null ) {
@@ -952,7 +966,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.add( name, data );
     }
-
+    
     @Override
     public void delete() {
     if( persistedNameNode != null ) {
@@ -961,7 +975,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     transientNameNodes.remove( this );
     }
-
+    
     @Override
     public void save() {
     persistedNameNode = (RelationalNameNode) getNameNode().add( name, data );
@@ -972,12 +986,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     //                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
     //            }
     }
-
+    
     @Override
     public UUID getParentId() {
     return Folder.this.getNameNodeId();
     }
-
+    
     @Override
     public Date getCreatedDate() {
     if( persistedNameNode != null ) {
@@ -985,7 +999,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return new Date();
     }
-
+    
     @Override
     public Date getModifiedDate() {
     if( persistedNameNode != null ) {
@@ -993,21 +1007,21 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return new Date();
     }
-
+    
     @Override
     public void onChildNameChanged( String oldName, NameNode childNode ) {
     if( persistedNameNode != null ) {
     persistedNameNode.onChildNameChanged( oldName, childNode );
     }
     }
-
+    
     @Override
     public void onChildDeleted( NameNode child ) {
     if( persistedNameNode != null ) {
     persistedNameNode.onChildDeleted( child );
     }
     }
-
+    
     @Override
     public void move( NameNode newParent, String newName ) {
     if( persistedNameNode == null ) {
@@ -1015,14 +1029,14 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     persistedNameNode.move( newParent, newName );
     }
-
+    
     @Override
     public void onChildMoved( NameNode child ) {
     if( persistedNameNode != null ) {
     persistedNameNode.onChildMoved( child );
     }
     }
-
+    
     @Override
     public long writeToBinaryOutputStream( OutputStreamWriter<Long> writer ) {
     if( persistedNameNode == null ) {
@@ -1030,7 +1044,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.writeToBinaryOutputStream( writer );
     }
-
+    
     @Override
     public Relationship makeRelation( final RelationalNameNode toNode, final String relationshipName ) {
     if( persistedNameNode == null ) {
@@ -1062,7 +1076,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.makeRelation( toNode, relationshipName );
     }
-
+    
     @Override
     public List<Relationship> findToRelations( String relationshipName ) {
     if( persistedNameNode == null ) {
@@ -1070,8 +1084,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     return persistedNameNode.findToRelations( relationshipName );
     }
-
-
+    
+    
     @Override
     public List<Relationship> findFromRelations( String relationshipName ) {
     if( persistedNameNode == null ) {
@@ -1081,7 +1095,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     return persistedNameNode.findFromRelations( relationshipName );
     }
     }
-
+    
     @Override
     public void onNewRelationship( Relationship r ) {
     if( persistedNameNode == null ) {
@@ -1089,7 +1103,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     persistedNameNode.onNewRelationship( r );
     }
-
+    
     @Override
     public void onDeletedFromRelationship( Relationship r ) {
     if( persistedNameNode == null ) {
@@ -1097,7 +1111,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     persistedNameNode.onDeletedFromRelationship( r );
     }
-
+    
     @Override
     public void onDeletedToRelationship( Relationship r ) {
     if( persistedNameNode == null ) {
@@ -1105,13 +1119,13 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
     persistedNameNode.onDeletedToRelationship( r );
     }
-
+    
     public boolean isNew() {
     log.debug( "isNew: " + isNew);
     return isNew;
     }
-
-
+    
+    
     }
      **/
     @Override
@@ -1163,6 +1177,46 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         long persistedSize = cout.getByteCount();
         if (persistedSize != length) {
             throw new RuntimeException("Data integrity failure. Byte sizes do not match: persisted: " + persistedSize);
+        }
+    }
+
+    /**
+     * Required for calendar support. Doesnt really need to be on Folder, could be
+     * on Calendar, but should also be on the scheduling collections within
+     * calendar so is handy to stick it here
+     * 
+     * @return 
+     */
+    public String getCTag() {
+        int x = this.hashCode();
+        for (Resource r : this.getChildren()) {
+            if (r instanceof Folder) {
+                Folder tfr = (Folder) r;
+                x = x ^ tfr.getCTag().hashCode();
+            } else {
+                x = x ^ r.getUniqueId().hashCode();
+            }
+        }
+        return "c" + x;
+    }
+
+    public List<Priviledge> getPriviledges(Auth auth) {
+        return null;
+    }
+
+    public Map<Principal, List<Priviledge>> getAccessControlList() {
+        return null;
+    }
+
+    public void setPriviledges(Principal principal, boolean isGrantOrDeny, List<Priviledge> privs) {
+    }
+
+    public String getPrincipalURL() {
+        IUser owner = getCreator();
+        if (owner == null) {
+            return null;
+        } else {
+            return owner.getHref();
         }
     }
 }

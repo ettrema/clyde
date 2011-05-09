@@ -142,6 +142,10 @@ public final class CodeResourceFactory implements ResourceFactory {
     }
 
     public CodeMeta wrapMeta(Resource r, CollectionResource parent) {
+        if(r == null ) {
+            log.trace("wrapMeta: resource is null");
+            return null;
+        }
         if (isIgnoredResource(r)) {
             return null;
         }

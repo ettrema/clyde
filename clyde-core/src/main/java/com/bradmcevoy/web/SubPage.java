@@ -35,6 +35,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     boolean secure;
     private boolean publicAccess;
     private String redirect;
+    private boolean browsable;
 
     public SubPage(CommonTemplated parent, String name) {
         super();
@@ -65,6 +66,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
      * @param length
      */
     public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+        log.error("Can't replace a SubPage content");
         throw new BadRequestException(this);
     }
 
@@ -293,4 +295,14 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public void setRedirect(String redirect) {
         this.redirect = redirect;
     }
+
+    public boolean isBrowsable() {
+        return browsable;
+    }
+
+    public void setBrowsable(boolean browsable) {
+        this.browsable = browsable;
+    }
+    
+    
 }

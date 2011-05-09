@@ -315,10 +315,12 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
 
     public void replaceContent(InputStream in, Long length) throws BadRequestException{
+        log.trace("replaceContent1");
         subPage.replaceContent(this,in,length);
     }
 
     public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+        log.trace("replaceContent2");
         subPage.replaceContent(this, in, length);
     }
 }

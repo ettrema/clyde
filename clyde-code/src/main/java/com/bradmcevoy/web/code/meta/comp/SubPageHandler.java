@@ -46,6 +46,7 @@ public class SubPageHandler implements ComponentHandler {
             }
         }
         InitUtils.set( e2, "redirect", t.getRedirect() );
+        InitUtils.set( e2, "browsable", t.isBrowsable() );
         commonTemplatedMetaHandler.populateXml( e2, t, true );
     }
 
@@ -64,6 +65,7 @@ public class SubPageHandler implements ComponentHandler {
     public void updateFromXml( SubPage sp, Element el ) {
         sp.setSecure( InitUtils.getBoolean( el, "secure" ) );
         sp.setPublicAccess(InitUtils.getBoolean( el, "public" ) );
+        sp.setBrowsable(InitUtils.getBoolean( el, "browsable" ) );
         commonTemplatedMetaHandler.updateFromXml( sp, el, true );
     }
 }

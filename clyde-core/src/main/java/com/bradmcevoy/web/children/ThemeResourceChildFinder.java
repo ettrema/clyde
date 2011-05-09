@@ -2,7 +2,9 @@ package com.bradmcevoy.web.children;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.Web;
+import java.util.List;
 
 /**
  * Implement locating themed resources from under the templates folder
@@ -58,5 +60,9 @@ public class ThemeResourceChildFinder implements ChildFinder {
             return false;
         }
         return ( folder.getParent() instanceof Web );
+    }
+
+    public List<Templatable> getSubPages(Folder folder) {
+        return wrapped.getSubPages(folder);
     }
 }

@@ -1049,7 +1049,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             Evaluatable eval = (Evaluatable) c;
             return EvalUtils.eval(eval, rc, this);
         } else {
-            return c.render(rc);
+            if( c == null ) {
+                return "";
+            } else {
+                return c.render(rc);
+            }
         }
     }
 }

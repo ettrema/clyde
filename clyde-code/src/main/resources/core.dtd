@@ -286,7 +286,9 @@ formatter - the standard formatter
     redirect CDATA #IMPLIED
     secure (true|false) #IMPLIED
     public (true|false) #IMPLIED
+    browsable (true|false) #IMPLIED
     maxAge CDATA #IMPLIED
+
   >
 
 <!ELEMENT c:csvsubpage (c:attributes?,c:components?)*>
@@ -295,6 +297,8 @@ formatter - the standard formatter
     name CDATA #REQUIRED
     redirect CDATA #IMPLIED
     secure (true|false) #IMPLIED
+    public (true|false) #IMPLIED
+    browsable (true|false) #IMPLIED
     maxAge CDATA #IMPLIED
   >
 

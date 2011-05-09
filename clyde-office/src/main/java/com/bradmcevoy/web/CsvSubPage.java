@@ -101,13 +101,36 @@ public class CsvSubPage extends SubPage implements Replaceable {
     public void replaceContent(InputStream in, Long length) {
         log.trace("replaceContent");
         try {
-            _(CsvService.class).replaceContent(in, length, isType, sourceFolder, this.getParentFolder());
-            this.commit();
+            if (selectablePath == null) {
+                _(CsvService.class).replaceContent(in, length, isType, sourceFolder, this.getParentFolder());
+                this.commit();
+            } else {
+                throw new Exception("This CSV page uses a query, so cannot be updated");
+            }
         } catch (Exception ex) {
             this.rollback();
             throw new RuntimeException(ex);
         }
     }
+
+    @Override
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+        log.trace("replaceContent");
+        try {
+            if (selectablePath == null) {
+                _(CsvService.class).replaceContent(in, length, isType, sourceFolder, requestedPage.getParentFolder());
+                this.commit();
+            } else {
+                throw new Exception("This CSV page uses a query, so cannot be updated");
+            }
+        } catch (Exception ex) {
+            this.rollback();
+            throw new RuntimeException(ex);
+        }
+
+    }
+    
+    
 
     @Override
     public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
