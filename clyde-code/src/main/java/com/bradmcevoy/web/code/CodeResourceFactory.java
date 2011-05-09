@@ -18,6 +18,7 @@ import com.bradmcevoy.web.code.meta.CsvPageMetaHandler;
 import com.bradmcevoy.web.code.meta.CsvViewMetaHandler;
 import com.bradmcevoy.web.code.meta.FolderMetaHandler;
 import com.bradmcevoy.web.code.meta.GroupMetaHandler;
+import com.bradmcevoy.web.code.meta.MigrateResourceMetaHandler;
 import com.bradmcevoy.web.code.meta.PageMetaHandler;
 import com.bradmcevoy.web.code.meta.PdfMetaHandler;
 import com.bradmcevoy.web.code.meta.TemplateMetaHandler;
@@ -216,6 +217,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         add(new UserMetaHandler(folderMetaHandler), mapOfAliases);
         add(new CsvViewMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new CsvPageMetaHandler(baseResourceMetaHandler), mapOfAliases);
+        add(new MigrateResourceMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new TextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new PdfMetaHandler(binaryFileMetaHandler), mapOfAliases);
 

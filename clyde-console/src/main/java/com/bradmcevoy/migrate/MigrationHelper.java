@@ -41,7 +41,7 @@ public class MigrationHelper {
     }
 
     public void doMigration(Arguments arguments) throws Exception {
-        log.trace("doMigration");
+        log.trace("doMigration: " + arguments.getDestHost() + ":" + arguments.getDestPort());
         com.ettrema.httpclient.Host remoteHost = new com.ettrema.httpclient.Host(arguments.getDestHost(), arguments.getDestPort(), arguments.getDestUser(), arguments.destPassword(), null);
 
         Path destPath = Path.path(arguments.getDestPath());

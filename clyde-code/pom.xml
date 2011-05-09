@@ -27,6 +27,11 @@
             <artifactId>clyde-office</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>clyde-console</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
 

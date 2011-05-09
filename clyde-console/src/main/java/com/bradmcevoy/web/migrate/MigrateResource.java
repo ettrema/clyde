@@ -46,10 +46,12 @@ public class MigrateResource extends BaseResource {
     private static final Map<String, Arguments> jobs = new ConcurrentHashMap<String, Arguments>();
 
     private String remoteHost;
+    private int remotePort;
     private String remotePath;
     private String remoteUser;
     private String remotePassword;
     private Path localPath;
+    
 
     public MigrateResource(String contentType, Folder parentFolder, String newName) {
         super(contentType, parentFolder, newName);
@@ -83,6 +85,9 @@ public class MigrateResource extends BaseResource {
             // Query for what files should be migrated
             MigrationHelper migrationHelper = _(MigrationHelper.class);
             Folder localFolder = (Folder) this.getHost().find(localPath);
+            if( localFolder == null ) {
+                throw new RuntimeException("Local folder not found: " + localPath);
+            }
             Arguments args = getArgs(localFolder);
             args.setDryRun(true);
             try {
@@ -205,6 +210,10 @@ public class MigrateResource extends BaseResource {
     public void setRemotePassword(String remotePassword) {
         this.remotePassword = remotePassword;
     }
+    
+    public String remotePassword() {
+        return remotePassword;
+    }
 
     public Path getLocalPath() {
         return localPath;
@@ -214,8 +223,18 @@ public class MigrateResource extends BaseResource {
         this.localPath = localPath;
     }
 
+    public int getRemotePort() {
+        return remotePort;
+    }
+
+    public void setRemotePort(int remotePort) {
+        this.remotePort = remotePort;
+    }
+    
+    
+
     private Arguments getArgs(Folder localFolder) {
-        Arguments args = new Arguments(localFolder, remoteHost, remoteUser, remotePassword, remotePath);
+        Arguments args = new Arguments(localFolder, remoteHost, remotePort,remoteUser, remotePassword, remotePath);
         args.setStopAtHosts(true);
         args.setNoUser(true);
         args.setRecursive(true);
@@ -223,7 +242,7 @@ public class MigrateResource extends BaseResource {
     }
 
     private Arguments getArgs(List<UUID> ids) {
-        Arguments args = new Arguments(ids, remoteHost, remoteUser, remotePassword, remotePath);
+        Arguments args = new Arguments(ids, remoteHost,remotePort, remoteUser, remotePassword, remotePath);
         args.setStopAtHosts(true);
         args.setNoUser(true);
         args.setRecursive(true);
@@ -238,6 +257,7 @@ public class MigrateResource extends BaseResource {
         this.remotePassword = InitUtils.getValue(el, "remotePassword");
         this.remotePath = InitUtils.getValue(el, "remotePath");
         this.remoteUser = InitUtils.getValue(el, "remoteUser");
+        this.remotePort = InitUtils.getInt(el, "remotePort");
     }
 
     @Override
@@ -245,6 +265,7 @@ public class MigrateResource extends BaseResource {
         super.populateXml(e2);
         InitUtils.set(e2, "localFolder", localPath);
         InitUtils.set(e2, "remoteHost", remoteHost);
+        InitUtils.set(e2, "remotePort", remotePort);
         InitUtils.set(e2, "remotePassword", remotePassword);
         InitUtils.set(e2, "remotePath", remotePath);
         InitUtils.set(e2, "remoteUser", remoteUser);

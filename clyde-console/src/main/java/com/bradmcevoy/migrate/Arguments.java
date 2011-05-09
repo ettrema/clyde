@@ -34,21 +34,21 @@ public class Arguments {
     private Thread worker;
     boolean finished;
 
-    public Arguments(Folder localFolder, String destHost, String destUser, String destPassword, String destPath) {
+    public Arguments(Folder localFolder, String destHost, int destPort, String destUser, String destPassword, String destPath) {
         this.localFolder = localFolder;
         this.ids = null;
         this.destHost = destHost;
-        this.destPort = 80;
+        this.destPort = destPort;
         this.destUser = destUser;
         this.destPassword = destPassword;
         this.destPath = destPath;
     }
 
-    public Arguments(List<UUID> ids, String destHost, String destUser, String destPassword, String destPath) {
+    public Arguments(List<UUID> ids, String destHost,int destPort, String destUser, String destPassword, String destPath) {
         this.localFolder = null;
         this.ids = ids;
         this.destHost = destHost;
-        this.destPort = 80;
+        this.destPort = destPort;
         this.destUser = destUser;
         this.destPassword = destPassword;
         this.destPath = destPath;
