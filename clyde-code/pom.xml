@@ -30,7 +30,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-client</artifactId>
-            <version>[${milton.version},)</version>
+            <version>${milton.version}</version>
         </dependency>
     </dependencies>
 </project>
