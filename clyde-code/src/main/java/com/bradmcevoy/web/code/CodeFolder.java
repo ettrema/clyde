@@ -4,6 +4,7 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.MakeCollectionableResource;
+import com.bradmcevoy.http.MoveableResource;
 import com.bradmcevoy.http.PutableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -19,7 +20,7 @@ import java.util.List;
  *
  * @author brad
  */
-public class CodeFolder extends AbstractCodeResource<CollectionResource> implements CollectionResource, DeletableResource, PutableResource, MakeCollectionableResource {
+public class CodeFolder extends AbstractCodeResource<CollectionResource> implements CollectionResource, DeletableResource, PutableResource, MakeCollectionableResource, MoveableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeFolder.class );
 
@@ -103,6 +104,20 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
             return mk.createCollection( newName );
         } else {
             throw new ConflictException( wrapped);
+        }
+    }
+
+    public void moveTo(CollectionResource rDest, String name) throws ConflictException, NotAuthorizedException, BadRequestException {
+        if( rDest instanceof CodeFolder ) {
+            if( this.wrapped instanceof MoveableResource ) {
+                MoveableResource source = (MoveableResource) this.wrapped;
+                CodeFolder cfDest = (CodeFolder) rDest;
+                source.moveTo( cfDest.wrapped, name );
+            } else {
+                throw new ConflictException( rDest );
+            }
+        } else {
+            throw new ConflictException( rDest );
         }
     }
 

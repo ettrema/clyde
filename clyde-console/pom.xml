@@ -12,11 +12,7 @@
     <packaging>jar</packaging>
     <name>Clyde Console</name>
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-code</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>clyde-media</artifactId>
@@ -47,7 +43,11 @@
             <artifactId>endrick-aws</artifactId>
             <version>${endrick.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>clyde-code</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
 

@@ -29,8 +29,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-console</artifactId>
-            <version>${project.version}</version>
+            <artifactId>milton-client</artifactId>
+            <version>[${milton.version},)</version>
         </dependency>
     </dependencies>
 </project>
