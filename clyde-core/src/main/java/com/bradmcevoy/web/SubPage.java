@@ -125,6 +125,9 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         if (name == null || name.trim().length() == 0) {
             throw new RuntimeException("name is blank");
         }
+        this.publicAccess = InitUtils.getBoolean(el, "publicAccess");
+        this.browsable = InitUtils.getBoolean(el, "browsable");
+        this.redirect = InitUtils.getValue(el, "redirect");
         super.loadFromXml(el);
 
     }
@@ -134,6 +137,9 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         Element e2 = super.toXml(container, el);
         InitUtils.setString(e2, "name", name);
         InitUtils.setBoolean(e2, "secure", secure);
+        InitUtils.setBoolean(e2, "publicAccess", publicAccess);
+        InitUtils.setBoolean(e2, "browsable", browsable);
+        InitUtils.setString(e2, "redirect", redirect);
         return e2;
     }
 

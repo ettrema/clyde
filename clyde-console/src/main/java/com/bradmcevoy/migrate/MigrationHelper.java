@@ -44,8 +44,15 @@ public class MigrationHelper {
         log.trace("doMigration: " + arguments.getDestHost() + ":" + arguments.getDestPort());
         com.ettrema.httpclient.Host remoteHost = new com.ettrema.httpclient.Host(arguments.getDestHost(), arguments.getDestPort(), arguments.getDestUser(), arguments.destPassword(), null);
 
-        Path destPath = Path.path(arguments.getDestPath());
+        // note that destPath is an ADDITIONAL prefix to the path of the resource
+        // Eg if resource /b is migrated to a destPath of /a the path to create is /a/b
+        Path destPath = Path.path(arguments.getDestPath()); 
         if (arguments.localFolder() != null) {
+            log.info("Destination start path (a): " + destPath);
+            Path localPath = Path.path(arguments.localFolder().getUrl());
+            log.info("Local start path (b): " + localPath);
+            destPath = destPath.add(localPath);
+            log.info("Destination first resource path (a+b): " + destPath);
             migrateFolder(arguments.localFolder(), arguments, destPath, remoteHost);
         } else {
             migrateIds(arguments.sourceIds(), arguments, destPath, remoteHost);
@@ -54,6 +61,7 @@ public class MigrationHelper {
     }
 
     private void migrateIds(List<UUID> sourceIds, Arguments arguments, Path destPath, com.ettrema.httpclient.Host remoteHost) throws Exception {
+        log.trace("migrateIds: destPath: " + destPath);
         for (UUID id : sourceIds) {
             if (arguments.isFinished()) {
                 log.info("cancelled");
@@ -64,15 +72,16 @@ public class MigrationHelper {
                 log.warn("Couldnt locate resource: " + id);
                 arguments.skipped(null, null, "Couldnt locate resource with id: " + id);
             } else {
-                Path p = Path.path(localResource.getUrl());
-                Path destResourcePath = destPath.add(p);
-                migrateResource(localResource, destResourcePath, arguments, remoteHost, true); // force=true because when a file is selected it must be migrated
+                Path p = Path.path(localResource.getUrl());                
+                Path destParentPath = destPath.add(p).getParent();
+                System.out.println("localResource: " + p + " - destPath: " + destPath + " = " + destParentPath);
+                migrateResource(localResource, destParentPath, arguments, remoteHost, true); // force=true because when a file is selected it must be migrated
             }
         }
     }
 
     private void migrateFolder(Folder folder, Arguments arguments, Path destPath, com.ettrema.httpclient.Host remoteHost) throws Exception {
-        log.debug("importFolder: " + folder.getHref());
+        log.debug("migrateFolder: " + folder.getHref());
         for (Resource r : folder.getChildren()) {
             if (arguments.isFinished()) {
                 log.info("cancelled");
@@ -95,15 +104,15 @@ public class MigrationHelper {
         }
     }
 
-    private void migrateResource(BaseResource res, Path path, Arguments arguments, com.ettrema.httpclient.Host remoteHost, boolean force) throws Exception {
-        log.debug("doImport: " + res.getHref() + " - path:" + path);
+    private void migrateResource(BaseResource res, Path parentPath, Arguments arguments, com.ettrema.httpclient.Host remoteHost, boolean force) throws Exception {
+        log.debug("migrateResource: " + res.getHref() + " - path:" + parentPath);
         if (arguments.isFinished()) {
             log.info("cancelled");
             return;
         }
 
         Date localDate = res.getModifiedDate();
-        RemoteResource remote = new RemoteResource(path, res, remoteHost, this);
+        RemoteResource remote = new RemoteResource(parentPath, res, remoteHost, this);
         Date destDate = remote.getModifiedDate();
 
         if (isUploadable(remote, res, arguments) || force) {
@@ -142,11 +151,9 @@ public class MigrationHelper {
     private boolean isDateApplicalble(Date destDate, Date localDate, Arguments arguments) {
         log.trace("isDateApplicalble: local: " + localDate + " dest: " + destDate + " since: " + arguments.getSinceDate());
         if (arguments.getSinceDate() != null && localDate.before(arguments.getSinceDate())) {
-            log.trace(" - not since");
             return false;
         }
         boolean b = (destDate == null || localDate.after(destDate));
-        log.trace(" - " + b);
         return b;
     }
 

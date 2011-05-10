@@ -27,11 +27,12 @@ public class RemoteResource {
      *
      * @return - modified date
      */
-    Date getModifiedDate() throws Exception {
-        log.debug("doHead: " + destFolder);
-        com.ettrema.httpclient.Resource r = remoteHost.find(destFolder + "/" + res.getName());
+    Date getModifiedDate() throws Exception {        
+        String path = getRemotePath().toString();
+        System.out.println("getModifiedDate: destFolder: " + destFolder + " name: " + res.getName() + " = " + path);
+        com.ettrema.httpclient.Resource r = remoteHost.find(path);
         if (r == null) {
-            log.trace("not found: " + getRemotePath());
+            log.trace("getModifiedDate: not found: " + path);
             return null;
         }
         return r.getModifiedDate();
@@ -45,6 +46,9 @@ public class RemoteResource {
     public void doPut() throws Exception {
         log.warn("put: " + this.getRemotePath());
         com.ettrema.httpclient.Folder parent = remoteHost.getOrCreateFolder(destFolder, true);
+        if( parent == null ) {
+            throw new RuntimeException("Failed to get parent: " + destFolder + " from remote host: " + remoteHost.href());
+        }
         com.ettrema.httpclient.Resource remote = parent.child(res.getName());
         try {
             if (remote != null && !(remote instanceof com.ettrema.httpclient.Folder)) {
@@ -62,6 +66,10 @@ public class RemoteResource {
     }
 
     public Path getRemotePath() {
-        return destFolder.child(res.getName());
+        if( destFolder == null ) {
+            return Path.path(res.getName());
+        } else {
+            return destFolder.child(res.getName());
+        }
     }
 }
