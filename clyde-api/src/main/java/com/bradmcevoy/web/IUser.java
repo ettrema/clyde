@@ -41,11 +41,29 @@ public interface IUser extends Mailbox, PermissionRecipient {
     boolean isEmailDisabled();
 
     void storeMail(MimeMessage mm);
-    
+
+    /**
+     * The fully qualified url of this user, including the protocol. Use getUrl
+     * for an absolute path (note the naming error)
+     *
+     * @return
+     */
     String getHref();
 
+    /**
+     * The name of the resource which identifies the user. This is the local name
+     * within the folder
+     *
+     * @return
+     */
     String getName();
 
+    /**
+     * If this user is a member of the given group
+     *
+     * @param groupName
+     * @return
+     */
     boolean isInGroup( String groupName );
 
 }

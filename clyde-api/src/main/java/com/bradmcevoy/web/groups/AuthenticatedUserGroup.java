@@ -21,4 +21,10 @@ public class AuthenticatedUserGroup implements SystemUserGroup {
             return false;
         }
     }
+
+    public boolean isOrContains(Subject s) {
+        return isInGroup(s);
+    }
+
+
 }

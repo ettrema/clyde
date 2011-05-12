@@ -220,4 +220,10 @@ public class Group extends Folder implements Mailbox, CustomUserGroup, Permissio
         }
         return false;
     }
+
+    public boolean isOrContains(Subject s) {
+        return appliesTo(s);
+    }
+
+
 }

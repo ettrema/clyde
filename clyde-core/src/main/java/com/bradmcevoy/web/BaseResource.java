@@ -1,5 +1,12 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.values.HrefList;
+import com.bradmcevoy.web.security.CurrentUserService;
+import com.bradmcevoy.web.security.Permission;
+import com.ettrema.http.AccessControlledResource;
+import com.ettrema.http.AccessControlledResource.Priviledge;
+import com.ettrema.http.acl.Principal;
 import java.util.Collection;
 import java.util.Set;
 import com.bradmcevoy.event.LogicalDeleteEvent;
@@ -20,6 +27,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.bradmcevoy.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.comments.Comment;
@@ -48,6 +56,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +73,7 @@ import static com.ettrema.context.RequestContext.*;
  * @author brad
  */
 @BeanPropertyResource(value = "clyde")
-public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource, Redirectable {
+public abstract class BaseResource extends CommonTemplated implements DataNode, Addressable, XmlPersistableResource, LockableResource, Redirectable, AccessControlledResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BaseResource.class);
     private static final long serialVersionUID = 1L;
@@ -78,7 +87,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private transient User creator;
     private transient boolean isNew;
     private transient boolean isSaved;
-    
     /**
      * Just a transient map variable holding logic to access relations through
      * the map syntax
@@ -159,11 +167,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
     }
 
-    public boolean  hasChildNode(String name) {
+    public boolean hasChildNode(String name) {
         NameNode child = this.nameNode.child(name);
         return child != null;
     }
-
 
     public NameNode addChildNode(String name, DataNode dn) {
         return this.nameNode.add(name, dn);
@@ -489,7 +496,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void save(boolean isTrashed) {
         isSaved = true;
-        
+
         preSave();
 
         fireEvent(new PreSaveEvent(this));
@@ -499,7 +506,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         fireEvent(new PostSaveEvent(this));
 
         afterSave();
-        
+
     }
 
     protected void fireEvent(ResourceEvent e) {
@@ -820,6 +827,84 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
+     *
+     * {@inheritDoc}
+     */
+    public HrefList getPrincipalCollectionHrefs() {
+        HrefList list = new HrefList();
+        IUser user = _(CurrentUserService.class).getOnBehalfOf();
+        if (user instanceof Templatable) {
+            Templatable t = (Templatable) user;
+            list.add(t.getHref());
+        }
+        return list;
+    }
+
+    /**
+     *
+     * {@inheritDoc}
+     */
+    public String getPrincipalURL() {
+        IUser owner = getCreator();
+        if (owner == null) {
+            return null;
+        } else {
+            return owner.getHref();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     */
+    public Map<Principal, List<Priviledge>> getAccessControlList() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param auth
+     * @return
+     */
+    public List<Priviledge> getPriviledges(Auth auth) {
+        Permissions perms = this.permissions();
+        Set<Priviledge> privs = EnumSet.noneOf(Priviledge.class);
+        AuthoringPermissionService aps = _(AuthoringPermissionService.class);
+        IUser current = _(CurrentUserService.class).getSecurityContextUser();
+        Role editRole = aps.getEditRole(this);
+        if (perms != null) {
+            for (Permission p : perms) {
+                if (p.getGrantee().isOrContains(current)) {
+                    if (p.getRole().equals(editRole)) {
+                        privs.add(Priviledge.READ);
+                        privs.add(Priviledge.WRITE);
+                    }
+                    if (p.getRole().equals(Role.AUTHOR)) {
+                        privs.add(Priviledge.READ);
+                        privs.add(Priviledge.WRITE);
+                    }
+                    if(p.getRole().equals(Role.ADMINISTRATOR)) {
+                        privs.add(Priviledge.READ);
+                        privs.add(Priviledge.WRITE);
+                        privs.add(Priviledge.READ_ACL);
+                        privs.add(Priviledge.WRITE_ACL);
+                        privs.add(Priviledge.UNLOCK);
+                    }
+                }
+            }
+        }
+        List<Priviledge> privsList = new ArrayList<Priviledge>(privs);
+        return privsList;
+    }
+
+    public void setPriviledges(Principal principal, boolean isGrantOrDeny, List<Priviledge> privs) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
+
+    /**
      * Creates a relation from this to the user with name "creator"
      *
      * @param user
@@ -1033,13 +1118,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     public Relations getRelations() {
-        if( relations == null ) {
+        if (relations == null) {
             relations = new Relations();
         }
         return relations;
     }
-
-
 
     /**
      * This doesnt hold any data, it just permits access to relations (ie from

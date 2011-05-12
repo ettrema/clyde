@@ -394,6 +394,12 @@ public class User extends Folder implements IUser {
         }
     }
 
+    public boolean isOrContains(Subject s) {
+        return appliesTo(s);
+    }
+
+
+
     /**
      * Checks to see if the given user is the same as this user
      * 

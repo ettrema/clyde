@@ -54,7 +54,7 @@ import static com.ettrema.context.RequestContext.*;
  * @author brad
  */
 @BeanPropertyResource("clyde")
-public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource, AccessControlledResource {
+public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Folder.class);
     private static final long serialVersionUID = 1L;
@@ -1200,23 +1200,4 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return "c" + x;
     }
 
-    public List<Priviledge> getPriviledges(Auth auth) {
-        return null;
-    }
-
-    public Map<Principal, List<Priviledge>> getAccessControlList() {
-        return null;
-    }
-
-    public void setPriviledges(Principal principal, boolean isGrantOrDeny, List<Priviledge> privs) {
-    }
-
-    public String getPrincipalURL() {
-        IUser owner = getCreator();
-        if (owner == null) {
-            return null;
-        } else {
-            return owner.getHref();
-        }
-    }
 }
