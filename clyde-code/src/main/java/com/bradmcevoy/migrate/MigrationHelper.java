@@ -74,7 +74,6 @@ public class MigrationHelper {
             } else {
                 Path p = Path.path(localResource.getUrl());                
                 Path destParentPath = destPath.add(p).getParent();
-                System.out.println("localResource: " + p + " - destPath: " + destPath + " = " + destParentPath);
                 migrateResource(localResource, destParentPath, arguments, remoteHost, true); // force=true because when a file is selected it must be migrated
             }
         }
