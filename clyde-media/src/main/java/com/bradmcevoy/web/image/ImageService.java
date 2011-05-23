@@ -192,7 +192,7 @@ public class ImageService {
         h = img.getHeight();
 
         do {
-            //System.out.println( "loop: " + w + " - " + h + " target:" + targetWidth + " - " + targetHeight );
+            //Sy  stem.out.println( "loop: " + w + " - " + h + " target:" + targetWidth + " - " + targetHeight );
             if( w > targetWidth ) {
                 w /= 2;
                 if( w < targetWidth ) {

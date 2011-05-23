@@ -29,7 +29,7 @@ public class CookieAuthenticationHandler implements AuthenticationHandler, Logou
     private static final String HANDLER_ATT_NAME = "_delegatedAuthenticationHandler";
     private String requestParamName = "_clydeauthid";
     private String requestParamLogout = "_clydelogout";
-    private String cookieAuthIdName = "_clydeauthid";
+    private String cookieAuthIdName = "_clydeauthid"; // TODO: make this a HTTP Only cookie, to avoid XSS attacks
     private String cookieUserUrl = "_clydeUser";
     private final List<AuthenticationHandler> handlers;
     private final Map<String, UUID> authIdMap = new ConcurrentHashMap<String, UUID>();

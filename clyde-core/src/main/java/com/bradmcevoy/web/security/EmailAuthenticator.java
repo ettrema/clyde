@@ -27,23 +27,23 @@ import java.util.List;
  */
 public class EmailAuthenticator implements ClydeAuthenticator {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( EmailAuthenticator.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailAuthenticator.class);
     private final ClydeAuthenticator wrapped;
 
-    public EmailAuthenticator( ClydeAuthenticator wrapped ) {
+    public EmailAuthenticator(ClydeAuthenticator wrapped) {
         this.wrapped = wrapped;
     }
 
-    public IUser authenticate( Resource resource, String userName, String password ) {
-        if( resource instanceof CommonTemplated ) {
-            MailboxAddress email = parse( userName );
-            if( email != null ) {
-                User user = findUser( email, (CommonTemplated) resource );
-                if( user == null ) {
+    public IUser authenticate(Resource resource, String userName, String password) {
+        if (resource instanceof CommonTemplated) {
+            MailboxAddress email = parse(userName);
+            if (email != null) {
+                User user = findUser(email, (CommonTemplated) resource);
+                if (user == null) {
                     log.trace("user not found");
                     return null;
                 } else {
-                    if( user.checkPassword( password ) ) {
+                    if (user.checkPassword(password)) {
                         log.trace("authentication ok");
                         return user;
                     } else {
@@ -53,31 +53,35 @@ public class EmailAuthenticator implements ClydeAuthenticator {
                 }
             }
         }
-        return wrapped.authenticate( resource, userName, password );
+        return wrapped.authenticate(resource, userName, password);
     }
 
-    public IUser authenticate( Resource resource, DigestResponse digestRequest ) {
-        if( resource instanceof CommonTemplated ) {
-            MailboxAddress email = parse( digestRequest.getUser() );
-            if( email != null ) {
-                User user = findUser( email, (CommonTemplated) resource );
-                if( user.checkPassword( digestRequest ) ) {
-                    return user;
-                } else {
+    public IUser authenticate(Resource resource, DigestResponse digestRequest) {
+        if (resource instanceof CommonTemplated) {
+            MailboxAddress email = parse(digestRequest.getUser());
+            if (email != null) {
+                User user = findUser(email, (CommonTemplated) resource);
+                if (user == null) {
                     return null;
+                } else {
+                    if (user.checkPassword(digestRequest)) {
+                        return user;
+                    } else {
+                        return null;
+                    }
                 }
             }
         }
 
-        return wrapped.authenticate( resource, digestRequest );
+        return wrapped.authenticate(resource, digestRequest);
     }
 
-    private MailboxAddress parse( String user ) {
-        if( user.contains( "@" ) ) {
+    private MailboxAddress parse(String user) {
+        if (user.contains("@")) {
             try {
-                MailboxAddress add = MailboxAddress.parse( user );
+                MailboxAddress add = MailboxAddress.parse(user);
                 return add;
-            } catch( IllegalArgumentException e ) {
+            } catch (IllegalArgumentException e) {
                 return null;
             }
         } else {
@@ -94,44 +98,44 @@ public class EmailAuthenticator implements ClydeAuthenticator {
      * @param currentResource
      * @return
      */
-    public User findUser( MailboxAddress add, CommonTemplated currentResource ) {
-        List<User> foundUsers = findMatchingUsers( add );
-        for( User user : foundUsers ) {
-            if( isMatchingDomain( user, currentResource.getHost() ) ) {
+    public User findUser(MailboxAddress add, CommonTemplated currentResource) {
+        List<User> foundUsers = findMatchingUsers(add);
+        for (User user : foundUsers) {
+            if (isMatchingDomain(user, currentResource.getHost())) {
                 return user;
             }
         }
         return null;
     }
 
-    private List<User> findMatchingUsers( MailboxAddress add ) {
-        VfsSession vfs = RequestContext.getCurrent().get( VfsSession.class );
-        List<NameNode> list = vfs.find( EmailAddress.class, add.toPlainAddress() );
+    private List<User> findMatchingUsers(MailboxAddress add) {
+        VfsSession vfs = RequestContext.getCurrent().get(VfsSession.class);
+        List<NameNode> list = vfs.find(EmailAddress.class, add.toPlainAddress());
         List<User> foundUsers = new ArrayList<User>();
-        if( list == null || list.isEmpty() ) {
-            log.debug( "no nodes found" );
+        if (list == null || list.isEmpty()) {
+            log.debug("no nodes found");
         } else {
-            for( NameNode node : list ) {
+            for (NameNode node : list) {
                 NameNode nUser = node.getParent().getParent(); // the first parent is just a holder
                 DataNode dnUser = nUser.getData();
-                if( dnUser != null && dnUser instanceof User ) {
+                if (dnUser != null && dnUser instanceof User) {
                     User user = (User) dnUser;
-                    foundUsers.add( user );
+                    foundUsers.add(user);
                 } else {
-                    log.warn( "parent is not a user: " + dnUser.getClass() );
+                    log.warn("parent is not a user: " + dnUser.getClass());
                 }
             }
         }
         return foundUsers;
     }
 
-    private boolean isMatchingDomain( User user, Host h ) {
-        if( h == null ) {
+    private boolean isMatchingDomain(User user, Host h) {
+        if (h == null) {
             return false;
         }
-        if( user.getHost().getNameNodeId().equals( h.getNameNodeId() ) ) {
+        if (user.getHost().getNameNodeId().equals(h.getNameNodeId())) {
             return true;
         }
-        return isMatchingDomain( user, h.getParentHost() );
+        return isMatchingDomain(user, h.getParentHost());
     }
 }

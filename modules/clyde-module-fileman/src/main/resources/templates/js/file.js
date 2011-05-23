@@ -329,6 +329,7 @@ function selectTableItem(file) {
 
 
 function initFileContextMenu(id, items) {
+    log("initFileContextMenu", id);
     items.contextMenu(id, {
         bindings: {
             'contextView': function(t) {
@@ -343,6 +344,10 @@ function initFileContextMenu(id, items) {
                 log('file', file);
                 loadIframe(file.href + ".edit");
                 $( "#tabs" ).tabs('select', 1);
+            },
+            'contextRename': function(t) {
+                var file = thumbs[t.id];
+                showRename(file.href, file.name);
             },
             'contextDelete': function(t) {
                 var file = thumbs[t.id];
@@ -393,12 +398,52 @@ function toDisplayFolder(href) {
     return s;
 }
 
+function showRename(href, oldName, callback) {
+    var newName = prompt("Please enter a new name for " + oldName);
+    if( newName ) {
+        if( newName.length > 0 && newName != oldName ) {
+            renameFile(href, newName, function() {
+                refreshCurrentFolder();
+                if( callback ) {
+                    callback();
+                }
+            });
+        }
+    }
+}
+function renameFile(href, newName, callback) {    
+    ajaxLoadingOn();
+    var newUrl = getParentHref(href) + "/" + newName;
+    log("renameFile", newUrl);
+    $.ajax({
+        type: 'POST',
+        url: href + "/_DAV/MOVE",
+        data: "destination=" + newUrl,
+        dataType: "json",
+        success: function() {
+            log('success');
+            ajaxLoadingOff();
+            showThankyou("Rename", "The file has been renamed to " + newName);
+            if( callback ) {
+                callback();
+            }
+        },
+        error: function(resp) {            
+            log("failed", resp);
+            ajaxLoadingOff();
+            showThankyou("Error", "Sorry, the file could not be renamed.");
+        }
+    });
+
+}
+
+
+
 function confirmDelete(href, name, callback) {
     if( confirm("Are you sure you want to delete " + name + "?")) {
         deleteFile(href, callback);
     }
 }
-
 function deleteFile(href, callback) {
     ajaxLoadingOn();
     $.ajax({
@@ -408,7 +453,9 @@ function deleteFile(href, callback) {
         success: function(resp) {
             log('deleted', href);
             ajaxLoadingOff();
-            callback();
+            if( callback ) {
+                callback();
+            }
         },
         error: function(resp) {
             log("failed", resp);
@@ -494,4 +541,21 @@ function initFolderUpload() {
             refreshCurrentFolder();
         }
     });
+}
+
+/**
+ * Returns the path of the parent item, without a trailing slash
+ * 
+ * Eg getParentHref("a/b/c") == "a/b"
+ */
+function getParentHref(href) {
+    log('getParentHref', href);
+    while( href.endsWith("/")) {
+        href = href.substring(0, href.length-1);
+        log(' - stripped to: ', href);
+    }
+    var pos = href.lastIndexOf("/");
+    href = href.substring(0, pos);
+    log(' - result: ', href);
+    return href;
 }

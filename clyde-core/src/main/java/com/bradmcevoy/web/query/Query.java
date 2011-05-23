@@ -184,10 +184,8 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         try {
             if (f.getEvaluatable() == null) {
                 Object o = fs.get(f.getName());
-                System.out.println("evaluate: " + o);
                 if( o instanceof EvaluatableComponent) {
                     EvaluatableComponent ec = (EvaluatableComponent) o;
-                    System.out.println("got EC: fs: " + fs.getData());
                 }
                 return o;
             } else {

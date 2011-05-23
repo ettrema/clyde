@@ -77,7 +77,6 @@ public class CsvSubPage extends SubPage implements Replaceable {
     @Override
     public void loadFromXml(Element el) {
         super.loadFromXml(el);
-        System.out.println("loadFromXml");
         isType = InitUtils.getValue(el, "type");
         String s = InitUtils.getValue(el, "sourceFolder", ".");
         sourceFolder = Path.path(s);

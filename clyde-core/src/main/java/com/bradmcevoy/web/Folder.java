@@ -1,5 +1,6 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.values.HrefList;
 import com.ettrema.http.AccessControlledResource;
 import com.bradmcevoy.http.Auth;
 import com.ettrema.http.AccessControlledResource.Priviledge;
@@ -1200,4 +1201,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return "c" + x;
     }
 
+
+    public HrefList getPrincipalCollectionHrefs() {
+        HrefList list = new HrefList();
+        list.add(getHost().getUsers().getHref());
+        return list;
+    }
 }

@@ -12,11 +12,11 @@ String.prototype.contains = function(it) {
     return this.indexOf(it) != -1;
 };
 
-String.prototype.startsWith = function(it) {
-    return it.indexOf(prefix) === 0;
+String.prototype.startsWith = function(prefix) {
+    return this.indexOf(prefix) === 0;
 };
-String.prototype.endsWith = function(it) {
-    return it.match(suffix+"$")==suffix;
+String.prototype.endsWith = function(suffix) {
+    return this.match(suffix+"$")==suffix;
 };
 
 function ensureObject(target) {
@@ -185,6 +185,18 @@ function ajaxLoadingOff(sel) {
     $("#ajaxLoading").dialog('close');
 }
 
+/** Displays a modal with a title and message
+ */
+function showThankyou(title, message) {
+    log("showThankyou");
+    $(".modal").dialog("close");
+    $('#thankyou h3').html(title);
+    $('#thankyou p').html(message);
+    $('#thankyou').dialog({
+        modal: true,
+        width: 500
+    });
+}
 
 /**
  * DHTML date validation script. Courtesy of SmartWebby.com (http://www.smartwebby.com/dhtml/)
