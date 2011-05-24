@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
+import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.Templatable;
 
 /**
@@ -107,15 +108,29 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     }
 
     private boolean isSecure(Templatable templatable) {
-        if (templatable instanceof Host) {
+        System.out.println("isSecure: " + templatable.getHref());
+        if(templatable == null ) {
+            return false;
+        } else if (templatable instanceof Host) {
             Host h = (Host) templatable;
             return h.isSecureRead();
         } else if (templatable instanceof Folder) {
             Folder folder = (Folder) templatable;
-            if (folder.isSecureRead()) {
-                return true;
+            Boolean bb = folder.isSecureRead2(); // Look for a value defined directly on the folder
+            if ( bb != null ) {
+                return bb.booleanValue();
             } else {
-                return false;
+                // there was no value on the folder, so look on the template if there is one
+                ITemplate t = folder.getTemplate();
+                if( t != null ) {
+                    Boolean b = t.isSecure();
+                    System.out.println("template secure: " + t.getName() + " = " + t.isSecure());
+                    if( b != null ) {
+                        return b;
+                    }
+                }
+                // No value on this folder or its template, so repeat for parent
+                return isSecure(folder.getParentFolder());
             }
         } else {
             Folder folder = templatable.getParentFolder();

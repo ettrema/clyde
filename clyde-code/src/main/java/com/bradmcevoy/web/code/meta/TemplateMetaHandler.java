@@ -128,6 +128,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         }
         InitUtils.set(el, "instanceType", cn);
         InitUtils.set(el, "disableExport", template.isDisableExport());
+        InitUtils.set(el, "secure", template.isSecure());
 
         String dt = template.getDocType() == null ? null : template.getDocType().name();
         InitUtils.set(el, "docType", dt);
@@ -184,6 +185,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         String dt = InitUtils.getValue(el, "docType");
         DocType docType = dt == null ? null : DocType.valueOf(dt);
         template.setDocType(docType);
+        
+        template.setSecure( InitUtils.getNullableBoolean(el, "secure") );
 
         template.setDisableExport(InitUtils.getBoolean(el, "disableExport"));
 

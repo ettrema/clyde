@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Request;
+import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.values.HrefList;
 import com.bradmcevoy.web.security.CurrentUserService;
@@ -28,6 +30,7 @@ import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.bradmcevoy.utils.CurrentRequestService;
 import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.comments.Comment;
@@ -40,6 +43,8 @@ import com.bradmcevoy.web.component.NameInput;
 import com.bradmcevoy.web.component.TemplateSelect;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.creation.CreatorService;
+import com.bradmcevoy.web.eval.EvalUtils;
+import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.locking.ClydeLockManager;
 import com.bradmcevoy.web.security.BeanProperty;
@@ -63,6 +68,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 import static com.ettrema.context.RequestContext.*;
 
@@ -77,11 +83,15 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BaseResource.class);
     private static final long serialVersionUID = 1L;
+    
+    public static final Namespace NS = Namespace.getNamespace( "c", "http://clyde.ettrema.com/ns/core" );
+    
     private UUID id;
     protected NameInput nameInput;
     private String redirect;
     private UUID creatorNameNodeId;
     private Date timestamp;
+    private Evaluatable roleRules;
     private List<RoleAndGroup> groupPermissions;
     protected transient RelationalNameNode nameNode;
     private transient User creator;
@@ -223,13 +233,27 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param rDest
      * @param name
      */
-    public void moveTo(CollectionResource rDest, String name) {
+    public void moveTo(CollectionResource rDest, String name) throws NotAuthorizedException {
         moveTo(rDest, name, true);
     }
 
-    public void moveTo(CollectionResource rDest, String name, boolean commit) {
+    public void moveTo(CollectionResource rDest, String name, boolean commit) throws NotAuthorizedException {
         if (rDest instanceof Folder) {
-            Folder fDest = (Folder) rDest;
+            Folder fDest = (Folder) rDest;            
+            IUser user = _(CurrentUserService.class).getSecurityContextUser();
+            if( user != null ) {
+                Role neededRole = _(AuthoringPermissionService.class).getCreateRole(fDest, getTemplate() );                
+                Request req = _(CurrentRequestService.class).request();
+                boolean isOk = _(PermissionChecker.class).hasRole(neededRole, fDest, req.getAuthorization());
+                if(log.isTraceEnabled()) {
+                    log.trace("check move destination security. does current user have role: " + neededRole + " = " + isOk);
+                }
+                if( !isOk ) {
+                    throw new NotAuthorizedException(rDest);
+                }
+            } else {
+                log.trace("No current user, so skip move destination security check");
+            }
             _moveTo(fDest, name);
         } else {
             throw new RuntimeException("destination collection is not a known type. Is a: " + rDest.getClass().getName());
@@ -363,7 +387,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param res
      * @param folder
      */
-    private void moveWithRename(BaseResource res, Folder target) {
+    private void moveWithRename(BaseResource res, Folder target) throws NotAuthorizedException {
         log.debug("moveWithRename: res: " + res.getName() + " target: " + target.getHref());
         String name = res.getName();
         boolean isFirst = true;
@@ -417,6 +441,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             }
         } else {
             log.warn("no groups element");
+        }
+        
+        Element elRoleRules = el.getChild("roleRules");
+        if( elRoleRules != null ) {
+            this.roleRules = EvalUtils.getEvalDirect(el, NS, this);
         }
     }
 
@@ -486,6 +515,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 elRel.setAttribute("name", nFrom.getName());
             }
         }
+
+        Element elRoleRules = e2.getChild("roleRules");
+        EvalUtils.setEvalDirect(elRoleRules, roleRules, NS);
+        
+        
         super.populateXml(e2);
     }
 
@@ -1079,6 +1113,15 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+    public Evaluatable getRoleRules() {
+        return roleRules;
+    }
+
+    public void setRoleRules(Evaluatable roleRules) {
+        this.roleRules = roleRules;
+    }
+        
 
     public List<RoleAndGroup> getGroupPermissions() {
         if (groupPermissions == null) {

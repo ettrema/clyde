@@ -266,4 +266,10 @@ public class WrappedTemplate implements ITemplate {
     public DocType getDocType() {
         return physicalTemplate.getDocType();
     }
+
+    public Boolean isSecure() {
+        return physicalTemplate.isSecure();
+    }
+    
+    
 }

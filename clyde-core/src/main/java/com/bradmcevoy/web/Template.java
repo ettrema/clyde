@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.eval.EvalUtils;
+import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.utils.GroovyUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
@@ -12,6 +14,8 @@ import com.bradmcevoy.web.component.NumberDef;
 import com.bradmcevoy.web.component.Text;
 import com.bradmcevoy.web.component.TextDef;
 import com.bradmcevoy.web.security.CurrentUserService;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Subject;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +36,8 @@ public class Template extends Page implements ITemplate {
     private String afterCreateScript;
     private String beforeSaveScript;
     private String afterSaveScript;
+    private Boolean secure; // if true, will make instances of this template secure. May be overridden
+    private Evaluatable roleRules; // rules to determine if a user has a given role on instances of this template
     
     /**
      * true indicates that content items of this type will not be exported
@@ -73,6 +79,12 @@ public class Template extends Page implements ITemplate {
         String dt = InitUtils.getValue(el, "docType");
         docType = dt == null ? null : DocType.valueOf(dt);
 
+        secure = InitUtils.getNullableBoolean(el, "secure");
+        
+        Element elRoleRules = el.getChild("roleRules");
+        if( elRoleRules != null ) {
+            this.roleRules = EvalUtils.getEvalDirect(el, NS, this);
+        }        
     }
 
     @Override
@@ -94,6 +106,10 @@ public class Template extends Page implements ITemplate {
         String dt = getDocType() == null ? null : getDocType().name();
         InitUtils.set(e2, "docType", dt);
 
+        InitUtils.set(e2, "secure", secure);
+        
+        Element elRoleRules = e2.getChild("roleRules");
+        EvalUtils.setEvalDirect(elRoleRules, roleRules, NS);        
     }
 
     @Override
@@ -387,6 +403,24 @@ public class Template extends Page implements ITemplate {
     public void setDisableExport(boolean disableExport) {
         this.disableExport = disableExport;
     }
-
     
+    public Boolean isSecure() {
+        return secure;
+    }
+
+    public void setSecure(Boolean secure) {
+        this.secure = secure;
+    }
+
+    public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
+        Evaluatable rules = getRoleRules();
+        if (rules != null ) {
+            RenderContext rc = new RenderContext(this, target, null, false);
+            Object r = EvalUtils.eval(rules, rc, target);
+            Boolean result = Formatter.getInstance().toBool(r);
+            return result;
+        } else {
+            return null;
+        }
+    }
 }

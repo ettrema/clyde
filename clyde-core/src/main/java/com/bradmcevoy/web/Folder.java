@@ -1202,6 +1202,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
 
+    @Override
     public HrefList getPrincipalCollectionHrefs() {
         HrefList list = new HrefList();
         list.add(getHost().getUsers().getHref());

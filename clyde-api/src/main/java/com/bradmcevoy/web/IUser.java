@@ -1,6 +1,7 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.security.PermissionRecipient;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
@@ -65,5 +66,13 @@ public interface IUser extends Mailbox, PermissionRecipient {
      * @return
      */
     boolean isInGroup( String groupName );
+    
+    /**
+     * Can this user author the given resource
+     * 
+     * @param r
+     * @return
+     */    
+    boolean canAuthor(Resource r);
 
 }

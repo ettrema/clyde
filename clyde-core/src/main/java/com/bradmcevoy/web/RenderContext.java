@@ -78,7 +78,7 @@ public class RenderContext implements Map<String, Component> {
     final Map<String, Object> attributes = new HashMap<String, Object>();
 
     public RenderContext(ITemplate template, Templatable page, RenderContext child, boolean editMode) {
-        if( page == null ) {
+        if (page == null) {
             throw new IllegalArgumentException("page cannot be null");
         }
         this.template = template;
@@ -98,21 +98,21 @@ public class RenderContext implements Map<String, Component> {
     }
 
     public String getDocTypeDec() {
-        if( child == null || child.page == null ) {
+        if (child == null || child.page == null) {
             return "";
         }
         ITemplate.DocType dt;
-        if( child.page instanceof ITemplate ) {
+        if (child.page instanceof ITemplate) {
             ITemplate t = (ITemplate) child.page;
             dt = t.getDocType();
         } else {
             return "";
         }
 
-        if( dt == null ) {
+        if (dt == null) {
             return "";
         }
-        switch( dt ) {
+        switch (dt) {
             case STRICT:
                 return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">";
             case TRANSITIIONAL:
@@ -122,7 +122,7 @@ public class RenderContext implements Map<String, Component> {
             case XTRANSITIONAL:
                 return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
             default:
-                throw new RuntimeException("Unsupported doc type");                        
+                throw new RuntimeException("Unsupported doc type");
         }
 
     }
@@ -503,7 +503,7 @@ public class RenderContext implements Map<String, Component> {
     }
 
     private boolean isNew(RenderContext child) {
-        if( child == null ) {
+        if (child == null) {
             return false;
         }
         Templatable target = child.getTargetPage();
@@ -658,36 +658,40 @@ public class RenderContext implements Map<String, Component> {
         BrowserList list = new BrowserList();
         // Eg: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13
         String browser = _(CurrentRequestService.class).request().getUserAgentHeader();
-        String x =  _(CurrentRequestService.class).request().getParams().get("BrowserGrade");
-        if( x != null ) {
+        String x = _(CurrentRequestService.class).request().getParams().get("BrowserGrade");
+        if (x != null) {
             browser = x;
         }
 
         boolean isGradeA = true;
         String family;
         String version = null;
-        if (browser.contains("MSIE")) {
-            family = "ie";
-            if (browser.contains("MSIE 6")) {
-                version = "ie6";
-                isGradeA = false;
-            } else if (browser.contains("MSIE 7")) {
-                version = "ie7";
-            } else if (browser.contains("MSIE 8")) {
-                version = "ie8";
-            }
-        } else if (browser.contains("Firefox")) {
-            family = "firefox";
-        } else if (browser.contains("Chrom")) {
-            family = "chrome";
-        } else if (browser.contains("Safari")) {
-            family = "safari";
-        } else {
+        if (browser == null) {
             family = "unknownBrowser";
-            // assume grade a because it might be standards compliant
+        } else {
+            if (browser.contains("MSIE")) {
+                family = "ie";
+                if (browser.contains("MSIE 6")) {
+                    version = "ie6";
+                    isGradeA = false;
+                } else if (browser.contains("MSIE 7")) {
+                    version = "ie7";
+                } else if (browser.contains("MSIE 8")) {
+                    version = "ie8";
+                }
+            } else if (browser.contains("Firefox")) {
+                family = "firefox";
+            } else if (browser.contains("Chrom")) {
+                family = "chrome";
+            } else if (browser.contains("Safari")) {
+                family = "safari";
+            } else {
+                family = "unknownBrowser";
+                // assume grade a because it might be standards compliant
+            }
         }
         list.add(family);
-        if( isGradeA ) {
+        if (isGradeA) {
             list.add("grade-a");
         } else {
             list.add("grade-b");

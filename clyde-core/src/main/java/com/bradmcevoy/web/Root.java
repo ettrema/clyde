@@ -134,4 +134,8 @@ public class Root extends CommonTemplated implements ITemplate {
         return null;
     }
 
+    public Boolean isSecure() {
+        return null;
+    }
+
 }

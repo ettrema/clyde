@@ -107,6 +107,7 @@ public class ClydePermissionChecker implements PermissionChecker {
                 return true;
             }
         }
+        
         if( res instanceof Host ) {
             log.trace( "reached host, no permissions found" );
             return false;

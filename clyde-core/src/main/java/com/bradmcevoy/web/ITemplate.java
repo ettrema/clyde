@@ -1,6 +1,8 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Subject;
 import java.io.InputStream;
 
 /**
@@ -86,6 +88,29 @@ public interface ITemplate extends Templatable{
      * @return
      */
     public DocType getDocType();
+    
+    /**
+     * If true, will make instances require a valid user
+     * 
+     * @return 
+     */
+    public Boolean isSecure();
 
+    
+    /**
+     * Non-recursive check to see if the given subject has the requested Role on the resource,
+     * where the resource is an instance of this template.
+     * 
+     * This will check programmatic rules, rather then persisted relationships. If
+     * there is no applicable rule, so this template has no opinion, it will return
+     * null.
+     * 
+     * @param user
+     * @param role
+     * @param target
+     * @return - true indicates the subject does have the requested role, false it does not
+     * and null indicates this template has no opinion
+     */
+    Boolean hasRole(Subject user, Role role, CommonTemplated target);
 
 }

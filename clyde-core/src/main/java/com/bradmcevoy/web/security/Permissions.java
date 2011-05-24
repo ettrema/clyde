@@ -1,8 +1,14 @@
 package com.bradmcevoy.web.security;
 
+import com.bradmcevoy.utils.GroovyUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResource.RoleAndGroup;
+import com.bradmcevoy.web.Formatter;
+import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.eval.EvalUtils;
+import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.vfs.DataNode;
@@ -42,46 +48,46 @@ import static com.ettrema.context.RequestContext._;
  */
 public class Permissions implements List<Permission>, DataNode, Serializable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Permissions.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Permissions.class);
     private static final long serialVersionUID = 1L;
     public static final String NAME_NODE_KEY = "_sys_permissions";
     private UUID dataNodeId;
     private transient RelationalNameNode nameNode;
     private transient BaseResource _granted;
 
-    public void grant( String roleName, Subject subject ) {
-        grant( Role.valueOf( roleName ), subject );
+    public void grant(String roleName, Subject subject) {
+        grant(Role.valueOf(roleName), subject);
     }
 
-    public void grant( Role role, Subject subject ) {
-        if( this.nameNode == null ) {
-            throw new IllegalStateException( "name node is not set" );
+    public void grant(Role role, Subject subject) {
+        if (this.nameNode == null) {
+            throw new IllegalStateException("name node is not set");
         }
-        if( subject == null ) {
-            throw new IllegalArgumentException( "user is null" );
+        if (subject == null) {
+            throw new IllegalArgumentException("user is null");
         }
-        if( role == null ) {
-            throw new IllegalArgumentException( "role is null" );
+        if (role == null) {
+            throw new IllegalArgumentException("role is null");
         }
-        if( this.allows( subject, role ) ) {
-            log.trace( "already has permission" );
+        if (this.allows(subject, role)) {
+            log.trace("already has permission");
             return;
         }
-        if( subject instanceof PermissionRecipient ) {
+        if (subject instanceof PermissionRecipient) {
             PermissionRecipient res = (PermissionRecipient) subject;
-            log.trace( "make relation: " + role );
-            this.nameNode.makeRelation( res.getNameNode(), role.toString() );
-        } else if( subject instanceof SystemUserGroup ) {
-            RoleAndGroup rag = new RoleAndGroup( role, subject.getSubjectName() );
-            addGroup( rag );
+            log.trace("make relation: " + role);
+            this.nameNode.makeRelation(res.getNameNode(), role.toString());
+        } else if (subject instanceof SystemUserGroup) {
+            RoleAndGroup rag = new RoleAndGroup(role, subject.getSubjectName());
+            addGroup(rag);
         } else {
-            throw new RuntimeException( "Cant grant to subject of type: " + subject.getClass() );
+            throw new RuntimeException("Cant grant to subject of type: " + subject.getClass());
         }
-        if( role.equals( Role.ADMINISTRATOR ) ) {
-            grant( Role.AUTHOR, subject );
+        if (role.equals(Role.ADMINISTRATOR)) {
+            grant(Role.AUTHOR, subject);
         }
-        if( role.equals( Role.AUTHOR ) ) {
-            grant( Role.VIEWER, subject );
+        if (role.equals(Role.AUTHOR)) {
+            grant(Role.VIEWER, subject);
         }
     }
 
@@ -90,9 +96,9 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      *
      * @param user
      */
-    public void revokeAll( User user ) {
-        for( Role r : Role.values() ) {
-            revoke( r, user );
+    public void revokeAll(User user) {
+        for (Role r : Role.values()) {
+            revoke(r, user);
         }
     }
 
@@ -102,21 +108,21 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @param role
      * @param user
      */
-    public void revoke( Role role, Subject subject ) {
-        log.trace( "revoke" );
-        if( subject instanceof PermissionRecipient ) {
-            revokeUser( role, (PermissionRecipient) subject );
-        } else if( subject instanceof SystemUserGroup ) {
-            log.trace( "remove group permission" );
+    public void revoke(Role role, Subject subject) {
+        log.trace("revoke");
+        if (subject instanceof PermissionRecipient) {
+            revokeUser(role, (PermissionRecipient) subject);
+        } else if (subject instanceof SystemUserGroup) {
+            log.trace("remove group permission");
             SystemUserGroup group = (SystemUserGroup) subject;
-            removeGroup( new RoleAndGroup( role, group.getSubjectName() ) );
+            removeGroup(new RoleAndGroup(role, group.getSubjectName()));
         }
     }
 
-    private void revokeUser( Role role, PermissionRecipient res ) {
-        List<Relationship> rels = this.nameNode.findFromRelations( role.toString() );
-        for( Relationship r : rels ) {
-            if( r.to().getId().equals( res.getNameNodeId() ) ) {
+    private void revokeUser(Role role, PermissionRecipient res) {
+        List<Relationship> rels = this.nameNode.findFromRelations(role.toString());
+        for (Relationship r : rels) {
+            if (r.to().getId().equals(res.getNameNodeId())) {
                 r.delete();
             }
         }
@@ -124,28 +130,28 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
 
     private List<Permission> list() {
         List<Permission> list = new ArrayList<Permission>();
-        List<Relationship> rels = this.nameNode.findFromRelations( null );
-        if( !CollectionUtils.isEmpty( rels ) ) {
-            for( Relationship r : rels ) {
+        List<Relationship> rels = this.nameNode.findFromRelations(null);
+        if (!CollectionUtils.isEmpty(rels)) {
+            for (Relationship r : rels) {
                 String roleName = r.relationship();
                 try {
-                    Role role = Role.valueOf( roleName );
+                    Role role = Role.valueOf(roleName);
                     PermissionRecipient grantee = (PermissionRecipient) r.to().getData();
-                    if( grantee != null ) {
-                        Permission p = new Permission( role, grantee, granted() );
-                        list.add( p );
+                    if (grantee != null) {
+                        Permission p = new Permission(role, grantee, granted());
+                        list.add(p);
                     }
-                } catch( IllegalArgumentException e ) {
-                    log.warn( "Invalid role: " + roleName );
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid role: " + roleName);
                 }
             }
         }
 
-        for( RoleAndGroup rag : granted().getGroupPermissions() ) {
-            UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
-            if( group != null ) {
-                Permission p = new Permission( rag.getRole(), group, granted() );
-                list.add( p );
+        for (RoleAndGroup rag : granted().getGroupPermissions()) {
+            UserGroup group = _(GroupService.class).getGroup(granted(), rag.getGroupName());
+            if (group != null) {
+                Permission p = new Permission(rag.getRole(), group, granted());
+                list.add(p);
             }
         }
         return list;
@@ -162,9 +168,9 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
-    @SuppressWarnings( "element-type-mismatch" )
-    public boolean contains( Object o ) {
-        return list().contains( o );
+    @SuppressWarnings("element-type-mismatch")
+    public boolean contains(Object o) {
+        return list().contains(o);
     }
 
     @Override
@@ -178,44 +184,44 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
-    public <T> T[] toArray( T[] a ) {
-        return list().toArray( a );
+    public <T> T[] toArray(T[] a) {
+        return list().toArray(a);
     }
 
     @Override
-    public boolean add( Permission e ) {
-        return list().add( e );
+    public boolean add(Permission e) {
+        return list().add(e);
     }
 
     @Override
-    @SuppressWarnings( "element-type-mismatch" )
-    public boolean remove( Object o ) {
-        return list().remove( o );
+    @SuppressWarnings("element-type-mismatch")
+    public boolean remove(Object o) {
+        return list().remove(o);
     }
 
     @Override
-    public boolean containsAll( Collection<?> c ) {
-        return list().containsAll( c );
+    public boolean containsAll(Collection<?> c) {
+        return list().containsAll(c);
     }
 
     @Override
-    public boolean addAll( Collection<? extends Permission> c ) {
-        return list().addAll( c );
+    public boolean addAll(Collection<? extends Permission> c) {
+        return list().addAll(c);
     }
 
     @Override
-    public boolean addAll( int index, Collection<? extends Permission> c ) {
-        return list().addAll( index, c );
+    public boolean addAll(int index, Collection<? extends Permission> c) {
+        return list().addAll(index, c);
     }
 
     @Override
-    public boolean removeAll( Collection<?> c ) {
-        return list().removeAll( c );
+    public boolean removeAll(Collection<?> c) {
+        return list().removeAll(c);
     }
 
     @Override
-    public boolean retainAll( Collection<?> c ) {
-        return list().retainAll( c );
+    public boolean retainAll(Collection<?> c) {
+        return list().retainAll(c);
     }
 
     @Override
@@ -224,33 +230,33 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
-    public Permission get( int index ) {
-        return list().get( index );
+    public Permission get(int index) {
+        return list().get(index);
     }
 
     @Override
-    public Permission set( int index, Permission element ) {
-        return list().set( index, element );
+    public Permission set(int index, Permission element) {
+        return list().set(index, element);
     }
 
     @Override
-    public void add( int index, Permission element ) {
-        list().add( index, element );
+    public void add(int index, Permission element) {
+        list().add(index, element);
     }
 
     @Override
-    public Permission remove( int index ) {
-        return list().remove( index );
+    public Permission remove(int index) {
+        return list().remove(index);
     }
 
     @Override
-    public int indexOf( Object o ) {
-        return list().indexOf( o );
+    public int indexOf(Object o) {
+        return list().indexOf(o);
     }
 
     @Override
-    public int lastIndexOf( Object o ) {
-        return list().lastIndexOf( o );
+    public int lastIndexOf(Object o) {
+        return list().lastIndexOf(o);
     }
 
     @Override
@@ -259,17 +265,17 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
-    public ListIterator<Permission> listIterator( int index ) {
-        return list().listIterator( index );
+    public ListIterator<Permission> listIterator(int index) {
+        return list().listIterator(index);
     }
 
     @Override
-    public List<Permission> subList( int fromIndex, int toIndex ) {
-        return list().subList( fromIndex, toIndex );
+    public List<Permission> subList(int fromIndex, int toIndex) {
+        return list().subList(fromIndex, toIndex);
     }
 
     @Override
-    public void setId( UUID id ) {
+    public void setId(UUID id) {
         this.dataNodeId = id;
     }
 
@@ -279,12 +285,12 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
     }
 
     @Override
-    public void init( NameNode nameNode ) {
+    public void init(NameNode nameNode) {
         this.nameNode = (RelationalNameNode) nameNode;
     }
 
     @Override
-    public void onDeleted( NameNode nameNode ) {
+    public void onDeleted(NameNode nameNode) {
     }
 
     /**
@@ -297,19 +303,19 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @param role - the access being requested
      * @return - true if the user should be permitted the requested access
      */
-    public boolean allows( Subject user, Role requestedRole ) {
-        if( log.isTraceEnabled() ) {
-            log.trace( "allows: " + requestedRole );
+    public boolean allows(Subject user, Role requestedRole) {
+        if (log.isTraceEnabled()) {
+            log.trace("allows: " + requestedRole);
         }
-        List<Relationship> rels = this.nameNode.findFromRelations( requestedRole.toString() );
-        if( !CollectionUtils.isEmpty( rels ) ) {
-            for( Relationship r : rels ) {
+        List<Relationship> rels = this.nameNode.findFromRelations(requestedRole.toString());
+        if (!CollectionUtils.isEmpty(rels)) {
+            for (Relationship r : rels) {
                 NameNode to = r.to();
-                if( to != null ) {
+                if (to != null) {
                     PermissionRecipient grantee = (PermissionRecipient) to.getData();
-                    if( grantee != null ) {
-                        if( grantee.appliesTo( user ) ) {
-                            log.trace( "found granted user" );
+                    if (grantee != null) {
+                        if (grantee.appliesTo(user)) {
+                            log.trace("found granted user");
                             return true;
                         }
                     }
@@ -317,14 +323,14 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
             }
         }
         BaseResource res = granted();
-        if( res != null ) {
-            for( RoleAndGroup rag : res.getGroupPermissions() ) {
-                if( rag.getRole() == requestedRole ) {
-                    UserGroup group = _( GroupService.class ).getGroup( granted(), rag.getGroupName() );
-                    if( group != null ) {
-                        log.trace( "found group with role" );
-                        if( group.isInGroup( user ) ) {
-                            log.trace( "user is in group" );
+        if (res != null) {
+            for (RoleAndGroup rag : res.getGroupPermissions()) {
+                if (rag.getRole() == requestedRole) {
+                    UserGroup group = _(GroupService.class).getGroup(granted(), rag.getGroupName());
+                    if (group != null) {
+                        log.trace("found group with role");
+                        if (group.isInGroup(user)) {
+                            log.trace("user is in group");
                             return true;
                         }
                     }
@@ -332,49 +338,73 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
             }
         }
 
+        Boolean bRuleResult = checkRules(user, requestedRole);
+        if (bRuleResult != null) {
+            return bRuleResult.booleanValue();
+        }
         return false;
     }
 
-    private void addGroup( RoleAndGroup rag ) {
-        log.trace( "addGroup: " + rag.getGroupName() );
+    private void addGroup(RoleAndGroup rag) {
+        log.trace("addGroup: " + rag.getGroupName());
         BaseResource granted = granted();
         List<RoleAndGroup> perms = granted.getGroupPermissions();
-        for( RoleAndGroup current : perms ) {
-            if( current.equalTo( rag ) ) {
-                log.trace( "already has role/group" );
+        for (RoleAndGroup current : perms) {
+            if (current.equalTo(rag)) {
+                log.trace("already has role/group");
                 return;
             }
         }
-        perms.add( rag );
+        perms.add(rag);
         granted.save();
     }
 
-    private void removeGroup( RoleAndGroup rag ) {
+    private void removeGroup(RoleAndGroup rag) {
         BaseResource granted = granted();
         List<RoleAndGroup> perms = granted.getGroupPermissions();
         Iterator<RoleAndGroup> itPerms = perms.iterator();
-        while( itPerms.hasNext() ) {
+        while (itPerms.hasNext()) {
             RoleAndGroup current = itPerms.next();
-            if( current.equalTo( rag ) ) {
-                if( log.isTraceEnabled() ) {
-                    log.trace( "remote role/group: " + rag );
+            if (current.equalTo(rag)) {
+                if (log.isTraceEnabled()) {
+                    log.trace("remote role/group: " + rag);
                 }
                 itPerms.remove();
             }
         }
-        perms.add( rag );
+        perms.add(rag);
         granted.save();
 
     }
 
     private BaseResource granted() {
-        if( _granted == null ) {
-            if( nameNode == null || nameNode.getParent() == null ) {
-                log.trace( "no namenode" );
+        if (_granted == null) {
+            if (nameNode == null || nameNode.getParent() == null) {
+                log.trace("no namenode");
             } else {
                 _granted = (BaseResource) nameNode.getParent().getData();
             }
         }
         return _granted;
+    }
+
+    private Boolean checkRules(Subject user, Role role) {
+        BaseResource res = granted();
+        Evaluatable rules = res.getRoleRules();
+        ITemplate t = res.getTemplate();
+        if (rules != null ) {            
+            RenderContext rc = new RenderContext(t, res, null, false);
+            Object r = EvalUtils.eval(rules, rc, res);
+            Boolean result = Formatter.getInstance().toBool(r);
+            return result;
+        } else {
+            while( t != null ) {
+                Boolean b = t.hasRole(user, role, res);
+                if( b != null ) {
+                    return b;
+                }
+            }
+            return null;
+        }
     }
 }
