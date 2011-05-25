@@ -6,6 +6,8 @@ import com.bradmcevoy.web.component.DeleteCommand;
 import com.bradmcevoy.web.component.HtmlDef;
 import com.bradmcevoy.web.component.HtmlInput;
 import com.bradmcevoy.web.component.SaveCommand;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Subject;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -135,6 +137,10 @@ public class Root extends CommonTemplated implements ITemplate {
     }
 
     public Boolean isSecure() {
+        return null;
+    }
+
+    public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         return null;
     }
 

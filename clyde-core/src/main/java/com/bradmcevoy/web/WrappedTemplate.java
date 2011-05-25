@@ -11,6 +11,8 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.CommonTemplated.Params;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.bradmcevoy.web.security.Subject;
 import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.InputStream;
@@ -269,6 +271,10 @@ public class WrappedTemplate implements ITemplate {
 
     public Boolean isSecure() {
         return physicalTemplate.isSecure();
+    }
+
+    public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
+        return physicalTemplate.hasRole(user, role, target);
     }
     
     
