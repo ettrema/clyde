@@ -8,6 +8,7 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.Templatable;
+import java.util.List;
 
 /**
  * This class checks to see if any parent folder of the requested resource
@@ -25,6 +26,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SecureReadAuthoriser.class);
     private final ClydeAuthoriser wrapped;
     private boolean securePropfind;
+    private List<String> securePropFindUserAgents;
 
     public SecureReadAuthoriser(ClydeAuthoriser wrapped) {
         this.wrapped = wrapped;
@@ -35,10 +37,36 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
         return SecureReadAuthoriser.class.getCanonicalName() + "( " + wrapped.getName() + " )";
     }
 
+    private boolean isSecurePropFind(Resource resource, Request request, Method method, Auth auth) {
+        if( securePropfind ) {
+            return true;
+        } else {
+            if( securePropFindUserAgents != null ) {
+                String ua = request.getUserAgentHeader();
+                if( ua != null) {
+                    log.trace("isSecurePropFind: check user agent: " + ua);
+                    for(String s : securePropFindUserAgents ) {
+                        if( ua.startsWith(s)) {
+                            if(log.isTraceEnabled() ) {
+                                log.trace("isSecurePropFind: requiring auth for user-agent: " + ua + " matching: " + s);
+                            }
+                            return true;
+                        }
+                    }
+                } else {
+                    log.trace("isSecurePropFind: No user agent header");
+                }
+            } else {
+                log.trace("isSecurePropFind: No configured secure propfind user agents");
+            }
+            return false;
+        }
+    }
+    
     @Override
     public Boolean authorise(Resource resource, Request request, Method method, Auth auth) {
         if (resource instanceof Templatable) {
-            if (method == Method.PROPFIND && securePropfind) {
+            if (method == Method.PROPFIND && isSecurePropFind(resource, request, method, auth)) {
                 if (auth == null) {
                     log.info("SecureReadAuthoriser has securePropfind set, this method is a propfind, and there is no user, so decline");
                     return Boolean.FALSE;
@@ -144,6 +172,14 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
 
     public void setSecurePropfind(boolean securePropfind) {
         this.securePropfind = securePropfind;
+    }
+
+    public List<String> getSecurePropFindUserAgents() {
+        return securePropFindUserAgents;
+    }
+
+    public void setSecurePropFindUserAgents(List<String> securePropFindUserAgents) {
+        this.securePropFindUserAgents = securePropFindUserAgents;
     }
 
     

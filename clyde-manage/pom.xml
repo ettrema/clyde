@@ -47,8 +47,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>berry-cache</artifactId>
-            <version>${berry.version}</version>
+            <artifactId>endrick-cache</artifactId>
+            <version>${endrick.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

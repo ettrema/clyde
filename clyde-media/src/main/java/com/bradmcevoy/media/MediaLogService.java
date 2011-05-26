@@ -17,6 +17,7 @@ import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -215,4 +216,10 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     public void setPageSize( int pageSize ) {
         this.pageSize = pageSize;
     }
+
+    public void onCreate(Table t, Connection con) {
+
+    }
+    
+    
 }

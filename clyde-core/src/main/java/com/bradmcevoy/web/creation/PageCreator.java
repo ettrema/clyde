@@ -38,35 +38,27 @@ public class PageCreator implements Creator {
     @Override
     public BaseResource createResource( Folder folder, String ct, InputStream in, String newName ) throws ReadingException, WritingException {
         // Attempt to find a suitable template
-        ITemplate template = folder.getTemplate( "normal" );
+        //ITemplate template = folder.getTemplate( "normal" );
+        ITemplate template = folder.getTemplate( "root" );
 
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         StreamUtils.readTo( in, bout );
 
         Page page;
-        if( template == null ) {
-            page = new Page( folder, newName );
-            HtmlInput root = new HtmlInput( page, "root" );
-            root.setDisAllowTemplating( true );
-            if( in != null ) {
-                root.setValue( bout.toString() );
-                page.getComponents().add( root );
+        page = (Page) template.createPageFromTemplate( folder, newName );
+        ComponentValue cvBody = page.getValues().get( "body" );
+        if( cvBody == null ) {
+            ComponentDef bodyDef = template.getComponentDef( "body" );
+            if( bodyDef != null ) {
+                cvBody = bodyDef.createComponentValue( page );
+                cvBody.setValue( bout.toString() );
+            } else {
+                log.warn( "Found template, but no body componentdef. Can't set content!" );
             }
         } else {
-            page = (Page) template.createPageFromTemplate( folder, newName );
-            ComponentValue cvBody = page.getValues().get( "body" );
-            if( cvBody == null ) {
-                ComponentDef bodyDef = template.getComponentDef( "body" );
-                if( bodyDef != null ) {
-                    cvBody = bodyDef.createComponentValue( page );
-                    cvBody.setValue( bout.toString() );
-                } else {
-                    log.warn( "Found template, but no body componentdef. Can't set content!" );
-                }
-            } else {
-                cvBody.setValue( bout.toString() );
-            }
+            cvBody.setValue( bout.toString() );
         }
+
         IUser creator = _( CurrentUserService.class ).getOnBehalfOf();
         if( creator instanceof User ) {
             page.setCreator( (User) creator );
