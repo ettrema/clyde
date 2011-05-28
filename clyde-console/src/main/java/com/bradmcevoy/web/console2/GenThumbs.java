@@ -1,14 +1,12 @@
 package com.bradmcevoy.web.console2;
 
+import com.bradmcevoy.media.ThumbGeneratorService;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.media.MediaLogService;
 import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.BinaryFile;
+import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.Thumb;
-import com.bradmcevoy.web.wall.WallService;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
@@ -18,6 +16,8 @@ import com.ettrema.vfs.VfsSession;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -152,20 +152,8 @@ public class GenThumbs extends AbstractConsoleCommand {
                 } else {
                     log.warn("processing thumbs: " + name + " with thumb specs: " + Thumb.format(thumbs));
                     for (Resource r : folder.getChildren()) {
-                        if (r instanceof ImageFile) {
-                            ImageFile imageFile = (ImageFile) r;
-                            log.trace("process image file: " + imageFile.getPath());
-                            try {
-                                int numThumbs = imageFile.generateThumbs(skipIfExists, thumbs);
-                                totalThumbs += numThumbs;
-                                if (updateWall) {
-                                    notifyWallEtc(numThumbs, imageFile);
-                                }
-                            } catch (Exception e) {
-                                log.error("Failed to generate thumb for: " + imageFile.getHref(), e);
-                            }
-                        } else {
-                            log.trace("not an imagefile");
+                        if( r instanceof BaseResource) {
+                            _(ThumbGeneratorService.class).doGeneration((BaseResource)r, session);
                         }
                     }
                 }
@@ -176,27 +164,6 @@ public class GenThumbs extends AbstractConsoleCommand {
             } finally {
                 tm = System.currentTimeMillis() - tm;
                 log.warn("generated: " + totalThumbs + " thumbs in " + tm / 1000 + "secs for: " + name);
-            }
-        }
-
-        private void notifyWallEtc(int numThumbs, BinaryFile file) {
-            MediaLogService mediaLogService = requestContext().get(MediaLogService.class);
-            WallService wallService = requestContext().get(WallService.class);
-            if (file.getParent().isSystemFolder()) {
-                log.trace("parent is sys folder: " + file.getParent().getUrl());
-                return;
-            }
-            if (numThumbs > 0) {
-                if (mediaLogService != null) {
-                    mediaLogService.onThumbGenerated(file);
-                }
-
-                if (wallService != null) {
-                    log.trace("updating wall");
-                    wallService.onUpdatedFile(file);
-                }
-            } else {
-                log.trace("not checking thumbs because no thumbs generated");
             }
         }
 

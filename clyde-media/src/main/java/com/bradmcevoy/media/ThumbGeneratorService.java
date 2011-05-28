@@ -1,5 +1,6 @@
 package com.bradmcevoy.media;
 
+import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.video.FlashService;
@@ -104,6 +105,57 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
 
     }
 
+    public void initiateGeneration( Context context, String targetName, UUID fileNameNodeId ) {
+        if( log.isTraceEnabled() ) {
+            log.trace( "generating thumbs: " + targetName + "..." );
+        }
+        VfsSession vfs = context.get( VfsSession.class );
+        NameNode pageNameNode = vfs.get( fileNameNodeId );
+        if( pageNameNode == null ) {
+            log.trace( "..name node not found. prolly deleted: " + targetName );
+            return;
+        }
+        DataNode dn = pageNameNode.getData();
+        if( dn == null ) {
+            log.warn( "Could not find target: " + fileNameNodeId );
+            return;
+        } else if( dn instanceof BaseResource) {
+            boolean didSomething = doGeneration((BaseResource)dn, vfs);
+        try {
+            if( didSomething ) {
+                vfs.commit();
+            } else {
+                vfs.rollback();
+            }
+        } catch( Exception e ) {
+            // consume exception so we don't keep trying to process same message
+            log.error( "failed to generate thumbs for: " + fileNameNodeId, e );
+            vfs.rollback();
+        }            
+        } else {
+            log.warn( "Target is not a BaseResource: " + fileNameNodeId );
+        }               
+    }
+    
+    public boolean doGeneration(BaseResource dn, VfsSession vfs) {
+        int count;
+        if (dn instanceof ImageFile) {
+            count = generate( (ImageFile) dn );
+        } else if (dn instanceof VideoFile) {
+            count = generate( (VideoFile) dn );
+        } else if (dn instanceof FlashFile) {
+            count = generate( (FlashFile) dn );
+        } else {
+            log.warn( "Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName() );
+            return false;
+        }
+        log.trace( "generated: " + count + " thumb files for: " + dn.getHref() );
+        if( dn instanceof BinaryFile ) {
+            notifyWallEtc( count, (BinaryFile) dn );
+        }
+        return count > 0;
+    }
+
     private boolean enqueue( BinaryFile f ) {
         if( f.isTrash() ) {
             log.trace( "not generating thumbs because is in trash" );
@@ -121,48 +173,6 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         return false;
     }
 
-    public void initiateGeneration( Context context, String targetName, UUID fileNameNodeId ) {
-        if( log.isTraceEnabled() ) {
-            log.trace( "generating thumbs: " + targetName + "..." );
-        }
-        VfsSession vfs = context.get( VfsSession.class );
-        NameNode pageNameNode = vfs.get( fileNameNodeId );
-        if( pageNameNode == null ) {
-            log.trace( "..name node not found. prolly deleted: " + targetName );
-            return;
-        }
-        DataNode dn = pageNameNode.getData();
-        if( dn == null ) {
-            log.warn( "Could not find target: " + fileNameNodeId );
-            return;
-        }
-        int count;
-        if( dn instanceof ImageFile ) {
-            count = generate( (ImageFile) dn );
-        } else if( dn instanceof VideoFile ) {
-            count = generate( (VideoFile) dn );
-        } else if( dn instanceof FlashFile ) {
-            count = generate( (FlashFile) dn );
-        } else {
-            log.warn( "Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName() );
-            return;
-        }
-        log.trace( "generated: " + count );
-        if( dn instanceof BinaryFile ) {
-            notifyWallEtc( count, (BinaryFile) dn );
-        }
-        try {
-            if( count > 0 ) {
-                vfs.commit();
-            } else {
-                vfs.rollback();
-            }
-        } catch( Exception e ) {
-            // consume exception so we don't keep trying to process same message
-            log.error( "failed to generate thumbs for: " + fileNameNodeId, e );
-            vfs.rollback();
-        }
-    }
 
     /**
      *
