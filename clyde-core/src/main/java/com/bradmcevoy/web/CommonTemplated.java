@@ -1,3 +1,4 @@
+
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.utils.GroovyUtils;
@@ -42,7 +43,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.jdom.Element;
 
+
 import static com.ettrema.context.RequestContext._;
+
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 

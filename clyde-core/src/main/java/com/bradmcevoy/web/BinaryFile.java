@@ -5,6 +5,7 @@ import com.bradmcevoy.binary.ClydeBinaryService;
 import com.bradmcevoy.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
+import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -13,19 +14,22 @@ import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.FileUtils;
+import com.bradmcevoy.web.SimpleEditPage.SimpleEditable;
 import com.ettrema.vfs.OutputStreamWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 
 @BeanPropertyResource( "clyde" )
-public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable, BinaryContainer {
+public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable, BinaryContainer, SimpleEditable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( BinaryFile.class );
     private static final long serialVersionUID = 1L;
@@ -211,6 +215,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         afterSetContent();
     }
 
+    @Override
     public void replaceContent( InputStream in, Long length ) {
         log.trace( "replaceContent" );
         setContent( in );
@@ -344,10 +349,12 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         }
     }
 
+    @Override
     public long getLocalCrc() {
         return crc;
     }
 
+    @Override
     public void setLocalCrc( long value ) {
         this.crc = value;
     }
@@ -378,6 +385,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         return svc.getContentLength( this, versionNum );
     }
 
+    @Override
     public Long getLocalContentLength() {
         int i = contentLength;
         return (long) i;
@@ -415,4 +423,37 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
             return super.getMaxAgeSeconds(auth);
         }
     }
+
+    @Override
+    public void setContent(String content) {
+        try {
+            ByteArrayInputStream bin = new ByteArrayInputStream(content.getBytes("UTF-8"));
+            setContent(bin);
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public String getContent() {
+        try {
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            InputStream in = getInputStream();
+            StreamUtils.readTo(in, bout);
+            return bout.toString("UTF-8");
+        } catch (ReadingException ex) {
+            throw new RuntimeException(ex);
+        } catch (WritingException ex) {
+            throw new RuntimeException(ex);
+        } catch(UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public PostableResource getEditPage() {
+        return new SimpleEditPage(this);
+    }
+    
+    
 }

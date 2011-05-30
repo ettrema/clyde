@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.web.SimpleEditPage.SimpleEditable;
+import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.component.InitUtils;
@@ -26,7 +28,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
-public class Template extends Page implements ITemplate {
+public class Template extends Page implements ITemplate, SimpleEditable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Template.class);
     private static final long serialVersionUID = 1L;
@@ -272,6 +274,7 @@ public class Template extends Page implements ITemplate {
         }
     }
 
+    @Override
     public boolean canCreateFolder() {
         String s = getClassToCreate();
         if (StringUtils.isEmpty(s)) {
@@ -327,6 +330,7 @@ public class Template extends Page implements ITemplate {
         log.debug("done execAfterScript");
     }
 
+    @Override
     public void onBeforeSave(BaseResource aThis) {
         if (beforeSaveScript != null) {
             if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
@@ -339,6 +343,7 @@ public class Template extends Page implements ITemplate {
 
 
 
+    @Override
     public void onAfterSave(BaseResource aThis) {
         if (afterSaveScript != null) {
             if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
@@ -349,6 +354,7 @@ public class Template extends Page implements ITemplate {
         }
     }
 
+    @Override
     public String onPost(CommonTemplated aThis) {
         if( onPostPageScript != null ) {
             if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
@@ -418,6 +424,7 @@ public class Template extends Page implements ITemplate {
         this.afterSaveScript = afterSaveScript;
     }
 
+    @Override
     public DocType getDocType() {
         return docType;
     }
@@ -434,6 +441,7 @@ public class Template extends Page implements ITemplate {
         this.disableExport = disableExport;
     }
     
+    @Override
     public Boolean isSecure() {
         return secure;
     }
@@ -442,6 +450,7 @@ public class Template extends Page implements ITemplate {
         this.secure = secure;
     }
 
+    @Override
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         Evaluatable rules = getRoleRules();
         if (rules != null ) {
@@ -463,6 +472,36 @@ public class Template extends Page implements ITemplate {
     public void setOnPostPageScript(String onPostPageScript) {
         this.onPostPageScript = onPostPageScript;
     }
+
+    @Override
+    public PostableResource getEditPage() {
+        System.out.println("get simple edit page ---");
+        return new SimpleEditPage( this );
+    }
+
+    @Override
+    public void setContent(String content) {
+        System.out.println("setContent: " + content);
+        ComponentValue cvBody = this.getValues().get("body");
+        if( cvBody == null ) {
+            System.out.println("add cv");
+            cvBody = new ComponentValue("body", this);
+            this.getValues().add(cvBody);
+        }
+        cvBody.setValue(content);
+        this.save();
+    }
+
+    @Override
+    public String getContent() {
+        ComponentValue cvBody = this.getValues().get("body");
+        if( cvBody == null ) {
+            return "";
+        } else {
+            return cvBody.getFormattedValue(this);
+        }
+    }
+    
     
     
 }
