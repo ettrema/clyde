@@ -65,7 +65,7 @@ public class EmailDef extends TextDef {
             // make sure that if this is a user then no other user has that email address
             if (c.getContainer() instanceof User) {
                 User currentUser = (User) c.getContainer();
-                User foundUser = _(EmailAuthenticator.class).findUser(add, currentUser);
+                User foundUser = _(EmailAuthenticator.class).getUserLocator().findUserByEmail(add, currentUser);
                 if (foundUser == null) {
                     return true;
                 } else {

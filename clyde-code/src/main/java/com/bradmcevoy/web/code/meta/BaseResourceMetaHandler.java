@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.code.meta;
 
+import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.Subject;
@@ -55,6 +56,7 @@ public class BaseResourceMetaHandler {
                 elRag.setAttribute( "role", rag.getRole().name() );
             }
         }
+        
         Permissions perms = res.permissions();
         if( perms != null ) {
             for( Permission perm : perms ) {
@@ -83,6 +85,11 @@ public class BaseResourceMetaHandler {
                 }
             }
         }
+        
+        Element elRoleRules = new Element("roleRules", CodeMeta.NS);
+        e2.addContent(elRoleRules);
+        EvalUtils.setEvalDirect(elRoleRules, res.getRoleRules(), CodeMeta.NS);
+        
 
 //        List<Relationship> rels = res.getNameNode().findFromRelations( null );
 //        if( !CollectionUtils.isEmpty( rels ) ) {
@@ -135,6 +142,12 @@ public class BaseResourceMetaHandler {
 
         GroupService groupService = _( GroupService.class );
 
+        Element elRoleRules = el.getChild("roleRules", CodeMeta.NS);
+        if( elRoleRules != null ) {
+            res.setRoleRules( EvalUtils.getEvalDirect(elRoleRules, CodeMeta.NS, res) );
+        }
+        
+        
         Permissions previousPerms = res.permissions();
         if( previousPerms != null ) {
             log.trace( "remove all previous permissions" );

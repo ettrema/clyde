@@ -266,7 +266,8 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
                 return thumb;
             }
         }
-        return new NoImageResource();
+        return null;
+        //return new NoImageResource();
     }
 
     public String getThumbHref() {

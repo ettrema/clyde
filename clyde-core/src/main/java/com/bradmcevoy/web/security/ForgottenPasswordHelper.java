@@ -144,7 +144,7 @@ public class ForgottenPasswordHelper {
             // Parsing validates the email
             MailboxAddress add = MailboxAddress.parse(email);
             this.parsedEmail = add;
-            foundUser = _(EmailAuthenticator.class).findUser(add, (CommonTemplated) comp.getContainer());
+            foundUser = _(EmailAuthenticator.class).getUserLocator().findUserByEmail(add, (CommonTemplated) comp.getContainer());
 
             if (foundUser != null) {
                 log.debug("found user: " + foundUser.getName());

@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.utils.GroovyUtils;
+import java.util.HashMap;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentUtils;
 import com.ettrema.event.ClydeEventDispatcher;
@@ -52,6 +54,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     protected TemplateSelect templateSelect;
     protected ComponentValueMap valueMap;
     protected ComponentMap componentMap;
+    /**
+     * Groovy script executed when a POST is done to this page
+     */
+    private String onPostScript;
     private transient Params params;
     /**
      * If not null will overide the default of text/html
@@ -178,6 +184,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         log.info("processForm");
+        String redirect = doOnPost(parameters, files);
+        if (redirect != null) {
+            return redirect;
+        }
         preProcess(null, parameters, files);
         String s = process(null, parameters, files);
         return s;
@@ -343,6 +353,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             String s = InitUtils.getValue(el, "template");
             templateSelect.setValue(s);
         }
+        Element elScript = el.getChild("onPostScript");
+        log.trace("loadFromXml: " + el.getName() + elScript);
+        if (elScript != null) {
+            onPostScript = elScript.getText();
+            log.trace("loadFromXml: onPostPageScript: " + onPostScript);
+        }
 
     }
 
@@ -391,9 +407,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public boolean authorise(Request request, Request.Method method, Auth auth) {
-        ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
-        boolean b = authoriser.authorise(this, request, method, auth);
-        return b;
+        log.trace("start authoirse");
+        try {
+            ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
+            boolean b = authoriser.authorise(this, request, method, auth);
+            return b;
+        } finally {
+            log.trace("finished authorise");
+        }
     }
 
     @Override
@@ -688,6 +709,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         getComponents().toXml(this, e2);
         InitUtils.setString(e2, getTemplateSelect());
         InitUtils.setString(e2, "contentType", contentType);
+        if (onPostScript != null) {
+            Element elScript = new Element("onPostScript");
+            elScript.setText(onPostScript);
+            e2.addContent(elScript);
+            log.trace("populateXml: onPostScript: " + onPostScript);
+        }
     }
 
     public Object value(String name) {
@@ -948,6 +975,22 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     }
 
+    private String doOnPost(Map<String, String> parameters, Map<String, FileItem> files) {
+        if (this.onPostScript != null) {
+            log.trace("onAfterSave: run script");
+            Map map = new HashMap();
+            Object redirect = GroovyUtils.exec(this, map, onPostScript);
+            if (redirect instanceof String) {
+                return redirect.toString();
+            }
+        }
+        ITemplate template = getTemplate();
+        if (template != null) {
+            template.onPost(this);
+        }
+        return null;
+    }
+
     public class Params implements Map<String, Component> {
 
         @Override
@@ -1048,7 +1091,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             Evaluatable eval = (Evaluatable) c;
             return EvalUtils.eval(eval, rc, this);
         } else {
-            if( c == null ) {
+            if (c == null) {
                 return "";
             } else {
                 return c.render(rc);
@@ -1056,6 +1099,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
     }
 
+    public String getOnPostScript() {
+        return onPostScript;
+    }
 
-
+    public void setOnPostScript(String onPostScript) {
+        this.onPostScript = onPostScript;
+    }
 }

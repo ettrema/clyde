@@ -24,7 +24,11 @@ public class MultipleAuthoriser implements ClydeAuthoriser{
 
     @Override
     public Boolean authorise( Resource resource, Request request, Method method, Auth auth ) {
+        log.trace("authorise");
         for( ClydeAuthoriser a : authorisers ) {
+            if(log.isTraceEnabled()) {
+                log.trace("check: " + a.getClass());
+            }
             Boolean res = a.authorise( resource, request, method, auth );
             if( res != null) {
                 log.debug( "authoriser said: " + res + " - " + a.getName());

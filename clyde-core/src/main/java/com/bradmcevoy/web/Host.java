@@ -9,7 +9,9 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.web.component.InitUtils;
+import com.bradmcevoy.web.security.UserLocator;
 import com.bradmcevoy.web.stats.StatsService;
+import com.ettrema.mail.MailboxAddress;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.aws.BucketOwner;
 import java.io.IOException;
@@ -194,22 +196,28 @@ public class Host extends Web implements BucketOwner {
     }
 
     public User findUser(String name) {
-        Folder users = getUsers();
-        if (users == null) {
-            return null;
-        }
-        Resource res = users.child(name);
-        if (res != null) {
-            if (res instanceof User) {
-                return (User) res;
-            } else {
-                log.warn("found an instance, but not a user: " + res.getName());
-            }
-        }
-        return null;
-
+        UserLocator userLocator = new UserLocator();
+        return userLocator.findUser(this, name);
     }
 
+    public User findByEmail(String s) {
+        // look for a matching email address       
+        UserLocator userLocator = new UserLocator();
+        MailboxAddress add = userLocator.parse(s);
+        if( add != null ) {            
+            User user = userLocator.findUserByEmail(add, this);
+            if( user != null ) {
+                return user;
+            }
+        }
+        return null;        
+    }
+    
+    public List<User> searchForUsers(String s) {
+        UserLocator userLocator = new UserLocator();
+        return userLocator.search(s, this);
+    }
+    
     /**
      * Authenticates against this particular domain (non recursive)
      * 

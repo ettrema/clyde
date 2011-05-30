@@ -10,6 +10,7 @@ import java.io.InputStream;
  * @author brad
  */
 public interface ITemplate extends Templatable{
+    
 
 
 
@@ -68,6 +69,15 @@ public interface ITemplate extends Templatable{
      */
     boolean canCreateFolder();
 
+    /**
+     * Called when a page which is an instance of this template receives a POST
+     * 
+     * Return a url to do a redirect, or null to not redirect and continue processing
+     * 
+     * @param aThis 
+     */
+    String onPost(CommonTemplated aThis);
+    
     /**
      * Called by the resource just before save is called
      * 

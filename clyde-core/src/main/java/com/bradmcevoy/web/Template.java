@@ -36,13 +36,17 @@ public class Template extends Page implements ITemplate {
     private String afterCreateScript;
     private String beforeSaveScript;
     private String afterSaveScript;
+    /**
+     * Script to call when a page of this template is POST'ed to.
+     */
+    private String onPostPageScript;
     private Boolean secure; // if true, will make instances of this template secure. May be overridden
-    private Evaluatable roleRules; // rules to determine if a user has a given role on instances of this template
     
     /**
      * true indicates that content items of this type will not be exported
      */
     private boolean disableExport;
+    
 
     public Template(Folder parent, String name) {
         super(parent, name);
@@ -76,15 +80,19 @@ public class Template extends Page implements ITemplate {
             afterSaveScript = elScript.getText();
             log.trace("loadFromXml: afterSaveScript: " + afterSaveScript);
         }
+        
+        elScript = el.getChild("onPostPageScript");
+        log.trace("loadFromXml: " + el.getName() + elScript);
+        if (elScript != null) {
+            onPostPageScript = elScript.getText();
+            log.trace("loadFromXml: onPostPageScript: " + afterSaveScript);
+        }        
+        
         String dt = InitUtils.getValue(el, "docType");
         docType = dt == null ? null : DocType.valueOf(dt);
 
         secure = InitUtils.getNullableBoolean(el, "secure");
         
-        Element elRoleRules = el.getChild("roleRules");
-        if( elRoleRules != null ) {
-            this.roleRules = EvalUtils.getEvalDirect(el, NS, this);
-        }        
     }
 
     @Override
@@ -103,13 +111,16 @@ public class Template extends Page implements ITemplate {
             e2.addContent(elScript);
             log.trace("populateXml: afterSaveScript: " + afterSaveScript);
         }
+        if (onPostPageScript != null) {
+            Element elScript = new Element("onPostPageScript");
+            elScript.setText(onPostPageScript);
+            e2.addContent(elScript);
+            log.trace("populateXml: onPostPageScript: " + onPostPageScript);
+        }        
         String dt = getDocType() == null ? null : getDocType().name();
         InitUtils.set(e2, "docType", dt);
 
-        InitUtils.set(e2, "secure", secure);
-        
-        Element elRoleRules = e2.getChild("roleRules");
-        EvalUtils.setEvalDirect(elRoleRules, roleRules, NS);        
+        InitUtils.set(e2, "secure", secure);        
     }
 
     @Override
@@ -338,6 +349,25 @@ public class Template extends Page implements ITemplate {
         }
     }
 
+    public String onPost(CommonTemplated aThis) {
+        if( onPostPageScript != null ) {
+            if (!this.isTrash()) { // this means it has been soft-deleted. Should be handled by afterDelete
+                log.trace("onPost: run script");
+                Map map = new HashMap();
+                Object result = GroovyUtils.exec(aThis, map, onPostPageScript);
+                if( result instanceof String ) {
+                    return result.toString();
+                }
+            }            
+        }
+        ITemplate t = getTemplate();
+        if( t != null ) {
+            return t.onPost(aThis);
+        }
+        return null;
+    }
+
+    
 
     public TextDef addTextDef(String name) {
         TextDef d = new TextDef(this, name);
@@ -415,12 +445,24 @@ public class Template extends Page implements ITemplate {
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         Evaluatable rules = getRoleRules();
         if (rules != null ) {
+            log.trace("hasRole - found rules");
             RenderContext rc = new RenderContext(this, target, null, false);
             Object r = EvalUtils.eval(rules, rc, target);
             Boolean result = Formatter.getInstance().toBool(r);
             return result;
         } else {
+            log.trace("hasRole - no rules defined");
             return null;
         }
     }
+
+    public String getOnPostPageScript() {
+        return onPostPageScript;
+    }
+
+    public void setOnPostPageScript(String onPostPageScript) {
+        this.onPostPageScript = onPostPageScript;
+    }
+    
+    
 }

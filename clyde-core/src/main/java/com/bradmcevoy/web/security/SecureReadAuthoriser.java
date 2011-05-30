@@ -77,7 +77,9 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
                 return Boolean.TRUE;
             } else {
                 log.trace("authorise: templatable, is secure or write method so delegate authorisation");
-                return wrapped.authorise(resource, request, method, auth);
+                Boolean bb = wrapped.authorise(resource, request, method, auth);
+                log.trace(" - got value from delegate");
+                return bb;
             }
             //return authoriseClydeResource( (Templatable) resource, request, method, auth );
         } else {
@@ -136,7 +138,6 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
     }
 
     private boolean isSecure(Templatable templatable) {
-        System.out.println("isSecure: " + templatable.getHref());
         if(templatable == null ) {
             return false;
         } else if (templatable instanceof Host) {
@@ -152,7 +153,6 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
                 ITemplate t = folder.getTemplate();
                 if( t != null ) {
                     Boolean b = t.isSecure();
-                    System.out.println("template secure: " + t.getName() + " = " + t.isSecure());
                     if( b != null ) {
                         return b;
                     }

@@ -445,7 +445,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         
         Element elRoleRules = el.getChild("roleRules");
         if( elRoleRules != null ) {
-            this.roleRules = EvalUtils.getEvalDirect(el, NS, this);
+            this.roleRules = EvalUtils.getEvalDirect(elRoleRules, NS, this);
         }
     }
 
@@ -516,7 +516,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             }
         }
 
-        Element elRoleRules = e2.getChild("roleRules");
+        Element elRoleRules = new Element("roleRules");
+        e2.addContent(elRoleRules);
         EvalUtils.setEvalDirect(elRoleRules, roleRules, NS);
         
         

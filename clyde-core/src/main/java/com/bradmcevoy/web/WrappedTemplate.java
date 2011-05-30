@@ -276,6 +276,10 @@ public class WrappedTemplate implements ITemplate {
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         return physicalTemplate.hasRole(user, role, target);
     }
+
+    public String onPost(CommonTemplated aThis) {
+        return physicalTemplate.onPost(aThis);
+    }
     
     
 }

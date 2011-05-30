@@ -144,4 +144,8 @@ public class Root extends CommonTemplated implements ITemplate {
         return null;
     }
 
+    public String onPost(CommonTemplated aThis) {
+        return null;
+    }
+
 }
