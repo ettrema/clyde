@@ -31,6 +31,7 @@ public abstract class CommonComponent implements Component, Serializable {
     public static VelocityContext velocityContext(RenderContext rc, Object value, Path path, IUser user) {
         VelocityContext vc = new VelocityContext();
         vc.put("rc", rc);
+        vc.put("body", rc.getBody());
         vc.put("show", new RenderMap(rc, null));
         vc.put("edit", new RenderMap(rc, true));
         vc.put("view", new RenderMap(rc, false));

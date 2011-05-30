@@ -161,7 +161,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                     s = s.substring(pos + 5);
                 }
                 if (s.length() > 200) {
-                    return s.substring(1, 200) + "...";
+                    return s.substring(0, 200) + "...";
                 } else {
                     return s;
                 }

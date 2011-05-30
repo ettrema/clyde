@@ -717,4 +717,17 @@ public class RenderContext implements Map<String, Component> {
             return res;
         }
     }
+    
+    public BodyProducer getBody() {
+        return new BodyProducer();
+    }
+    
+    public class BodyProducer {
+
+        @Override
+        public String toString() {
+            return doBody();
+        }
+        
+    }
 }
