@@ -8,11 +8,17 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.bradmcevoy.web.security.PermissionChecker;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Map;
+
+import static com.ettrema.context.RequestContext._;
 
 public class SimpleEditPage implements GetableResource, PostableResource {
 
@@ -32,8 +38,8 @@ public class SimpleEditPage implements GetableResource, PostableResource {
         PrintWriter pw = new PrintWriter(out);
         pw.println("<html>");
         pw.println("<body>");
-        pw.println("<form method='POST'>");
-        pw.println("<input type='submit' value='save'>");
+        pw.println("<form method='POST' action='" + this.getName() + "'>");
+        pw.println("<input type='submit' name='Save' value='save'>");
         pw.println("<br/>");
         pw.println("<textarea name='text' style='height: 90%; width: 100%;'>");
         pw.print(editable.getContent());
@@ -49,10 +55,13 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) {
+        System.out.println("processForm ---- ");
         if (parameters.containsKey("Save")) {
             editable.setContent(parameters.get("text"));
             editable.save();
             editable.commit();
+        } else {
+            System.out.println("no save command");
         }
         return null;
     }
@@ -68,7 +77,7 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     @Override
     public String getName() {
-        return editable.getName();
+        return editable.getName() + EditPage.EDIT_SUFFIX;
     }
 
     @Override
@@ -78,7 +87,9 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     @Override
     public boolean authorise(Request request, Method method, Auth auth) {
-        return (auth != null);
+        PermissionChecker permissionChecker = RequestContext.getCurrent().get( PermissionChecker.class );
+        Role editingRole = _(AuthoringPermissionService.class).getEditRole( editable );
+        return permissionChecker.hasRole( editingRole, editable, auth );
     }
 
     @Override
@@ -115,23 +126,11 @@ public class SimpleEditPage implements GetableResource, PostableResource {
         }
     }
 
-    public static interface SimpleEditable {
-
-        String getUniqueId();
+    public static interface SimpleEditable extends Templatable {
 
         void setContent(String content);
 
         String getContent();
-
-        Date getModifiedDate();
-
-        String getRealm();
-
-        Object authenticate(String user, String password);
-
-        String getName();
-
-        String getHref();
 
         void save();
 

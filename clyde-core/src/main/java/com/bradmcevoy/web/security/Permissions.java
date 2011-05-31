@@ -315,32 +315,16 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
                     PermissionRecipient grantee = (PermissionRecipient) to.getData();
                     if (grantee != null) {
                         if (grantee.appliesTo(user)) {
-                            log.trace("found granted user");
+                            log.trace("allows: found granted user");
                             return true;
                         }
                     }
                 }
             }
-        }
-        BaseResource res = granted();
-        if (res != null) {
-            for (RoleAndGroup rag : res.getGroupPermissions()) {
-                if (rag.getRole() == requestedRole) {
-                    UserGroup group = _(GroupService.class).getGroup(granted(), rag.getGroupName());
-                    if (group != null) {
-                        log.trace("found group with role");
-                        if (group.isInGroup(user)) {
-                            log.trace("user is in group");
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
+        }        
 
-        Boolean bRuleResult = checkRules(user, requestedRole);
-        if (bRuleResult != null) {
-            return bRuleResult.booleanValue();
+        if(log.isTraceEnabled()) {
+            log.trace("allows: didnt get a definitive answer so return false");
         }
         return false;
     }
@@ -386,25 +370,5 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
             }
         }
         return _granted;
-    }
-
-    private Boolean checkRules(Subject user, Role role) {
-        BaseResource res = granted();
-        Evaluatable rules = res.getRoleRules();
-        ITemplate t = res.getTemplate();
-        if (rules != null ) {            
-            RenderContext rc = new RenderContext(t, res, null, false);
-            Object r = EvalUtils.eval(rules, rc, res);
-            Boolean result = Formatter.getInstance().toBool(r);
-            return result;
-        } else {
-            while( t != null ) {
-                Boolean b = t.hasRole(user, role, res);
-                if( b != null ) {
-                    return b;
-                }
-            }
-            return null;
-        }
     }
 }

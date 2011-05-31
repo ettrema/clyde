@@ -41,7 +41,7 @@ public class SvgImageFile extends ImageFile {
         super.loadFromXml(el);
     }
 
-    AbstractInput<String> getContent() {
+    AbstractInput<String> getContentInput() {
         return (AbstractInput<String>) this.componentMap.get("content");
     }
     
@@ -53,7 +53,7 @@ public class SvgImageFile extends ImageFile {
 
     private void generateImage() {
         try {            
-            String s = getContent().getValue();
+            String s = getContentInput().getValue();
             if( s != null && s.length() > 0 ) {
                 JPEGTranscoder t = new JPEGTranscoder();
 

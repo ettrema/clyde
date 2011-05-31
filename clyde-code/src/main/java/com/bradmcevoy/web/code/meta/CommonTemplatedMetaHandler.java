@@ -134,6 +134,8 @@ public class CommonTemplatedMetaHandler {
         InitUtils.set(el, "template", res.getTemplateName());
         InitUtils.set(el, "contentType", res.getContentType());
         InitUtils.set(el, "maxAge", res.getMaxAgeSecsThis());
+        
+        JDomUtils.setChildText(el, "onPostScript", res.getOnPostScript(), CodeMeta.NS); 
 
     }
 
@@ -231,6 +233,11 @@ public class CommonTemplatedMetaHandler {
         updateValues(res, el, includeContentVals);
         updateComponents(res, el);
         // TODO: handle values for non body+title
+        
+        String onPostScript = JDomUtils.valueOf(el, "onPostScript", CodeMeta.NS);
+        res.setOnPostScript(onPostScript);
+       
+                
     }
 
     private void updateValues(CommonTemplated res, Element el, boolean includeContentVals) {

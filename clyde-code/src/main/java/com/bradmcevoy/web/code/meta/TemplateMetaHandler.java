@@ -144,6 +144,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         JDomUtils.setChildText(el, "beforeSaveScript", template.getBeforeSaveScript(), CodeMeta.NS);
 
         JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
+        
+        JDomUtils.setChildText(el, "onPostPageScript", template.getOnPostPageScript(), CodeMeta.NS);
     }
 
     private void initComponentDefs(Element el, Template page) {
@@ -198,6 +200,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
         template.setAfterSaveScript(afterSave);
 
+        String onPostPageScript = JDomUtils.valueOf(el, "onPostPageScript", CodeMeta.NS);
+        template.setOnPostPageScript(onPostPageScript);
+        
         template.setClassToCreate(instanceType);
 
         pageMetaHandler.updateFromXml(template, el);

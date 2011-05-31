@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.ettrema</groupId>
         <artifactId>clyde</artifactId>
-        <version>1.1.5-SNAPSHOT</version>
+        <version>1.1.5</version>
     </parent>
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-api</artifactId>
@@ -53,8 +53,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>berry-channel</artifactId>
-            <version>${berry.version}</version>
+            <artifactId>endrick-channel</artifactId>
+            <version>${endrick.version}</version>
         </dependency>
 
 

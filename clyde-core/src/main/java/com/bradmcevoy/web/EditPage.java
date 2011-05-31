@@ -29,14 +29,16 @@ public class EditPage implements PostableResource, DigestResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( EditPage.class );
 
+    public static final String EDIT_SUFFIX = ".edit";
+    
     public static boolean isEditPath( Path path ) {
         if( path == null || path.getName() == null ) return false;
-        return ( path.getName().endsWith( ".edit" ) );
+        return ( path.getName().endsWith( EDIT_SUFFIX ) );
     }
 
     public static Path getEditeePath( Path path ) {
         Path folder = path.getParent();
-        Path editee = folder.child( path.getName().replace( ".edit", "" ) );
+        Path editee = folder.child( path.getName().replace( EDIT_SUFFIX, "" ) );
         return editee;
     }
     final CommonTemplated editee;

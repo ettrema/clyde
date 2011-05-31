@@ -279,7 +279,7 @@ function loadFilesTable(folderUrl) {
 function loadCurrentFiles() {
     var thumbsDiv = $("#files");
     log("loadCurrentFiles", thumbsDiv, thumbs.length);
-    var table = $("<table class='filesList'><thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead><tbody></tbody></table>");
+    var table = $("<table class='filesList'><thead><tr><th>Name</th><th>Modified</th><th>Size</th></tr></thead><tbody></tbody></table>");
     thumbsDiv.html("").append(table);
     var tbody = $("tbody", table);
     for( i=0; i<thumbs.length; i++) {
@@ -320,10 +320,13 @@ function selectTableItem(file) {
         loadFolder(file.href, file.templateName);
     } else if( t == "image") {
         loadIframe(file.href);
+        $( "#tabs" ).tabs('select', 1);
     } else if( t == "flv") {
         loadFlv(file.href);
+        $( "#tabs" ).tabs('select', 1);
     } else {
         loadIframe(file.href);
+        $( "#tabs" ).tabs('select', 1);
     }
 }
 
