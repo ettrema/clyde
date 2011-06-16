@@ -114,9 +114,10 @@ public class ClydePermissionChecker implements PermissionChecker {
             log.trace("No explicite permissions granted to user, check groups on: " + res.getHref());
         }
         if (res != null) {
+            GroupService gs = _(GroupService.class);
             for (RoleAndGroup rag : res.getGroupPermissions()) {
                 if (rag.getRole() == role) {
-                    UserGroup group = _(GroupService.class).getGroup(res, rag.getGroupName());
+                    UserGroup group = gs.getGroup(res, rag.getGroupName());
                     if (group != null) {
                         log.trace("allows: found group with role");
                         if (group.isInGroup(user)) {
@@ -133,12 +134,12 @@ public class ClydePermissionChecker implements PermissionChecker {
                 log.trace("allows: result from rules: " + bRuleResult);
             }
             return bRuleResult.booleanValue();
-        }   
-        
+        }
+
         //Nothing set directly or in rules, so look to parent
         return hasRoleRecursive(user, res.getParent(), role);
     }
-    
+
     /**
      * Don't evaluate rules on parent resources
      * 
@@ -164,6 +165,20 @@ public class ClydePermissionChecker implements PermissionChecker {
             }
         }
 
+        GroupService gs = _(GroupService.class);        
+        for (RoleAndGroup rag : res.getGroupPermissions()) {
+            if (rag.getRole() == role) {
+                UserGroup group = gs.getGroup(res, rag.getGroupName());
+                if (group != null) {
+                    log.trace("allows: found group with role");
+                    if (group.isInGroup(user)) {
+                        log.trace("allows: user is in group");
+                        return true;
+                    }
+                }
+            }
+        }
+
         if (res instanceof Host) {
             log.trace("reached host, no permissions found");
             return false;
@@ -171,25 +186,25 @@ public class ClydePermissionChecker implements PermissionChecker {
             return hasRoleRecursive(user, res.getParent(), role);
         }
     }
-    
+
     private Boolean checkRules(BaseResource res, Subject user, Role role) {
         log.trace("checkRules");
         Evaluatable rules = res.getRoleRules();
         ITemplate t = res.getTemplate();
-        if (rules != null ) {            
+        if (rules != null) {
             RenderContext rc = new RenderContext(t, res, null, false);
             Object r = EvalUtils.eval(rules, rc, res);
             Boolean result = Formatter.getInstance().toBool(r);
             return result;
         } else {
-            while( t != null ) {
+            while (t != null) {
                 Boolean b = t.hasRole(user, role, res);
-                if( b != null ) {
+                if (b != null) {
                     return b;
                 }
                 t = t.getTemplate();
             }
             return null;
         }
-    }    
+    }
 }

@@ -83,9 +83,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BaseResource.class);
     private static final long serialVersionUID = 1L;
-    
-    public static final Namespace NS = Namespace.getNamespace( "c", "http://clyde.ettrema.com/ns/core" );
-    
+    public static final Namespace NS = Namespace.getNamespace("c", "http://clyde.ettrema.com/ns/core");
     private UUID id;
     protected NameInput nameInput;
     private String redirect;
@@ -239,17 +237,21 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void moveTo(CollectionResource rDest, String name, boolean commit) throws NotAuthorizedException {
         if (rDest instanceof Folder) {
-            Folder fDest = (Folder) rDest;            
+            Folder fDest = (Folder) rDest;
             IUser user = _(CurrentUserService.class).getSecurityContextUser();
-            if( user != null ) {
-                Role neededRole = _(AuthoringPermissionService.class).getCreateRole(fDest, getTemplate() );                
-                Request req = _(CurrentRequestService.class).request();
-                boolean isOk = _(PermissionChecker.class).hasRole(neededRole, fDest, req.getAuthorization());
-                if(log.isTraceEnabled()) {
-                    log.trace("check move destination security. does current user have role: " + neededRole + " = " + isOk);
-                }
-                if( !isOk ) {
-                    throw new NotAuthorizedException(rDest);
+            if (user != null) {
+                if (!fDest.getName().equals("Trash")) {
+                    Role neededRole = _(AuthoringPermissionService.class).getCreateRole(fDest, getTemplate());
+                    Request req = _(CurrentRequestService.class).request();
+                    boolean isOk = _(PermissionChecker.class).hasRole(neededRole, fDest, req.getAuthorization());
+                    if (log.isTraceEnabled()) {
+                        log.trace("check move destination security. does current user have role: " + neededRole + " = " + isOk);
+                    }
+                    if (!isOk) {
+                        throw new NotAuthorizedException(rDest);
+                    }
+                } else {
+                    log.trace("skip dest security check because its the trash folder");
                 }
             } else {
                 log.trace("No current user, so skip move destination security check");
@@ -399,6 +401,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         res.moveTo(target, name, false);
     }
 
+    @Override
     public String getRedirect() {
         return redirect;
     }
@@ -442,9 +445,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         } else {
             log.warn("no groups element");
         }
-        
+
         Element elRoleRules = el.getChild("roleRules");
-        if( elRoleRules != null ) {
+        if (elRoleRules != null) {
             this.roleRules = EvalUtils.getEvalDirect(elRoleRules, NS, this);
         }
     }
@@ -519,8 +522,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         Element elRoleRules = new Element("roleRules");
         e2.addContent(elRoleRules);
         EvalUtils.setEvalDirect(elRoleRules, roleRules, NS);
-        
-        
+
+
         super.populateXml(e2);
     }
 
@@ -820,6 +823,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return (BaseResource) nn.getData();
     }
 
+    /**
+     * Is this resource 'trashed', ie in the trash folder
+     * 
+     * @return 
+     */
     public boolean isTrash() {
         for (Templatable t : this.getParents()) {
             if (t.getName().equals("Trash")) {
@@ -865,6 +873,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      * {@inheritDoc}
      */
+    @Override
     public HrefList getPrincipalCollectionHrefs() {
         HrefList list = new HrefList();
         IUser user = _(CurrentUserService.class).getOnBehalfOf();
@@ -879,6 +888,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      *
      * {@inheritDoc}
      */
+    @Override
     public String getPrincipalURL() {
         IUser owner = getCreator();
         if (owner == null) {
@@ -892,6 +902,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * {@inheritDoc}
      *
      */
+    @Override
     public Map<Principal, List<Priviledge>> getAccessControlList() {
         return null;
     }
@@ -902,6 +913,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param auth
      * @return
      */
+    @Override
     public List<Priviledge> getPriviledges(Auth auth) {
         Permissions perms = this.permissions();
         Set<Priviledge> privs = EnumSet.noneOf(Priviledge.class);
@@ -919,7 +931,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                         privs.add(Priviledge.READ);
                         privs.add(Priviledge.WRITE);
                     }
-                    if(p.getRole().equals(Role.ADMINISTRATOR)) {
+                    if (p.getRole().equals(Role.ADMINISTRATOR)) {
                         privs.add(Priviledge.READ);
                         privs.add(Priviledge.WRITE);
                         privs.add(Priviledge.READ_ACL);
@@ -933,11 +945,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return privsList;
     }
 
+    @Override
     public void setPriviledges(Principal principal, boolean isGrantOrDeny, List<Priviledge> privs) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    
 
     /**
      * Creates a relation from this to the user with name "creator"
@@ -1122,7 +1133,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public void setRoleRules(Evaluatable roleRules) {
         this.roleRules = roleRules;
     }
-        
 
     public List<RoleAndGroup> getGroupPermissions() {
         if (groupPermissions == null) {

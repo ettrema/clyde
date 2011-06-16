@@ -17,6 +17,7 @@ public class ClydePropertySource implements PropertySource {
 
     private static final Logger log = LoggerFactory.getLogger(ClydePropertySource.class);
 
+    @Override
     public Object getProperty(QName name, Resource r) {
         if (r instanceof Templatable) {
             if (isClydeNs(name)) {

@@ -70,11 +70,17 @@ public class ClydeSecurityManager implements com.bradmcevoy.http.SecurityManager
         return null;
     }
 
+    @Override
     public String getRealm(String host) {
         return host;
     }
 
     public Host findHost( String authority ) {
         return hostFinder.getHost( authority );
+    }
+
+    @Override
+    public boolean isDigestAllowed() {
+        return true;
     }
 }

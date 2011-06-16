@@ -86,27 +86,37 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     private String findAutoName(Map<String, String> parameters) {
-        String nameToUse;
-        if (parameters.containsKey("name ")) {
-            String name = parameters.get("name");
-            name = name.toLowerCase().replace("/", "-");
-            nameToUse = ClydeUtils.getUniqueName(this.folder, name);
+        String nameToUse = getImpliedName(parameters);
+        if( nameToUse != null) {
+            nameToUse = nameToUse.toLowerCase().replace("/", "");
+            nameToUse = nameToUse.toLowerCase().replace("'", "");
+            nameToUse = nameToUse.toLowerCase().replace("\"", "");
+            nameToUse = nameToUse.toLowerCase().replace("@", "-");
+            nameToUse = nameToUse.replace(" ", "-");
+            nameToUse = ClydeUtils.getUniqueName(this.folder, nameToUse);
+        } else {
+            nameToUse = ClydeUtils.getDateAsNameUnique(this.folder);
+        }
+        return nameToUse;
+    }
+    
+    private String getImpliedName(Map<String, String> parameters) {
+        if (parameters.containsKey("name")) {
+            return parameters.get("name");
+        } else if (parameters.containsKey("fullName")) {
+            return parameters.get("fullName");
         } else if (parameters.containsKey("firstName")) {
             String fullName = parameters.get("firstName");
             if (parameters.containsKey("surName")) {
                 fullName = fullName + "." + parameters.get("surName");
             }
-            fullName = fullName.toLowerCase().replace("/", "-");
-
-            nameToUse = ClydeUtils.getUniqueName(this.folder, fullName);
+            return fullName;
         } else if (parameters.containsKey("title")) {
             String title = parameters.get("title");
-            nameToUse = ClydeUtils.getUniqueName(this.folder, title);
+            return title;
         } else {
-            nameToUse = ClydeUtils.getDateAsNameUnique(this.folder);
-        }
-
-        return nameToUse;
+            return null;
+        }        
     }
 
     private ITemplate getTemplate(Map<String, String> params) {

@@ -43,6 +43,7 @@ public class EditOwnUserPermissionChecker implements PermissionChecker {
         if( !b ) {
             if( log.isDebugEnabled() ) {
                 log.debug( "denying access because wrapped permission checker said so: " + wrapped.getClass() );
+                Thread.dumpStack();
             }
         }
         return b;

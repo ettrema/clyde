@@ -3,10 +3,10 @@ package com.bradmcevoy.web.forms;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;
 import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.Template;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
@@ -32,13 +32,13 @@ public class MultipleChoiceQaDef implements ComponentDef {
     private String name;
     private Addressable container;
 
-    public MultipleChoiceQaDef(Template res, String name) {
-        this.container = res;
+    public MultipleChoiceQaDef(ITemplate res, String name) {
+        this.container = (Addressable) res;
         this.name = name;
     }
 
-    public MultipleChoiceQaDef(Template res, Element el) {
-        this.container = res;
+    public MultipleChoiceQaDef(ITemplate res, Element el) {
+        this.container = (Addressable) res;
         this.name = el.getAttributeValue("name");
     }
 
