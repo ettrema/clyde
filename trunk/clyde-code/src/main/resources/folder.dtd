@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='windows-1252'?>
+
+<!--
+    TODO define vocabulary identification
+    PUBLIC ID: -//vendor//vocabulary//EN
+    SYSTEM ID: http://server/path/folder.dtd
+
+-->
+
+<!--
+    An example how to use this DTD from your XML document:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE c:meta SYSTEM "folder.dtd">
+
+    <c:meta>
+    ...
+    </c:meta>
+-->
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:meta (c:folder)*>
+<!ATTLIST c:meta
+    xmlns:c CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:folder EMPTY>
+<!ATTLIST c:folder
+    versioningEnabled CDATA #IMPLIED
+    secureRead CDATA #IMPLIED
+    template CDATA #IMPLIED
+    allowedTemplates CDATA #IMPLIED
+  >

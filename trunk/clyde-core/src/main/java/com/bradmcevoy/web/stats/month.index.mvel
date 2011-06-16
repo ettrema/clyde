@@ -1,0 +1,38 @@
+<html>
+<body>
+<h1>Month Report: @{parent.parent.parent.hostName} - @{parent.monthName} @{parent.parent.name} </h1>
+<br/>
+<img src="day.png" />
+
+<h2>Hits by File Type</h2>
+<table>
+<tr>
+    <th>File Type</th>
+    <th>Number of Hits</th>
+    <th>Total Bandwidth</th>
+</tr>
+@foreach{totals as t}
+<tr>
+    <td>@{t.contentType}</td>
+    <td align="right">@{t.hits}</td>
+    <td align="right">@{t.size} KB</td>
+</tr>
+@end{}
+</table>
+
+<h2>Hits by URL</h2>
+<table>
+<tr>
+    <th>URL</th>
+    <th>Number of Hits</th>
+</tr>
+@foreach{topUrls}
+<tr>
+    <td>@{item.url}</td>
+    <td align="right">@{item.hits}</td>
+</tr>
+@end{}
+</table>
+
+</body>
+</html>

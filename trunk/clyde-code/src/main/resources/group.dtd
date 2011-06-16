@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+    TODO define vocabulary identification
+    PUBLIC ID: -//vendor//vocabulary//EN
+    SYSTEM ID: http://server/path/committee.dtd
+
+-->
+
+<!--
+    An example how to use this DTD from your XML document:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE c:meta SYSTEM "committee.dtd">
+
+    <c:meta>
+    ...
+    </c:meta>
+-->
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:meta (c:group)*>
+<!ATTLIST c:meta
+    xmlns:c CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT c:group EMPTY>
+<!ATTLIST c:group
+    emailDiscardSubject CDATA #IMPLIED
+    emailPassword CDATA #IMPLIED
+    emailDisabled (true|false) #IMPLIED
+    secure (true|false) #IMPLIED
+    template CDATA #IMPLIED
+  >

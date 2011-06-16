@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE c:meta SYSTEM "core.dtd">
+<c:meta xmlns:c="http://clyde.ettrema.com/ns/core">
+	<c:template instanceType="folder" template="normal">
+        <c:attributes>
+            <c:date name="aDate">aaa</c:date>
+            <c:email name="aEmail">aaa</c:email>
+            <c:value name="aDefault">aaa</c:value>
+        </c:attributes>
+		<c:fields>
+			<c:text name="address" rows="1" cols="80" required="false" disAllowTemplating="false" />
+            <c:text name="bannerGroup" choices="Blooms,Unichem" rows="1" cols="80" required="false" disAllowTemplating="false" />
+			<c:html name="body" rows="50" cols="80" required="false" disAllowTemplating="false" toolbar="Default" />
+		</c:fields>
+        <c:components>
+			<c:text name="description">A photo album</c:text>
+			<c:subpage name="index.html" template="normal">
+				<c:attributes>
+					<c:value name="title">$targetPage.foundParent.title</c:value>
+
+					<c:value name="body">
+                        photo album!!
+					</c:value>
+				</c:attributes>
+			</c:subpage>
+		</c:components>
+	</c:template>
+</c:meta>
+
+

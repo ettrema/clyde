@@ -1,0 +1,20 @@
+package com.bradmcevoy.web.security;
+
+import com.bradmcevoy.web.User;
+
+/**
+ * Just checks to see if a password is valid, and if not reports the reason
+ *
+ * @author brad
+ */
+public interface PasswordValidationService {
+    /**
+     * Return the localised error message if the password is invalid, otherwise
+     * return null
+     *
+     * @param user
+     * @param proposedPassword
+     * @return
+     */
+    String checkValidity(User user, String proposedPassword);
+}
