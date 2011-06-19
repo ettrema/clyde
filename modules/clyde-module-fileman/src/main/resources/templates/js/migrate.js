@@ -58,13 +58,14 @@ function queryFiles() {
 }
 
 function showQuery(report) {
-    log('showReport', report.statuses);
+    log('showQuery', report.statuses.length);
     var tbody = $("#migrateFiles tbody");
     tbody.html("");
     for( i=0; i<report.statuses.length; i++) {
         var status = report.statuses[i];
+        log("status", status, i);
         var tr = $("<tr>");
-        tr.append("<td><input type='checkbox' name='resourceId_" + i + "' value='" + status.localId + "'/></td>");
+        tr.append("<td><input " + checkedStatus(status) + " type='checkbox' name='resourceId_" + i + "' value='" + status.localId + "'/></td>");
         tr.append("<td>" + status.localHref + "</td>");
         tr.append("<td>" + toDisplayDate(status.localModDate) + "</td>");
         tr.append("<td>" + toDisplayDate(status.remoteMod) + "</td>");
@@ -81,13 +82,52 @@ function showQuery(report) {
 
 var timerStatus;
 
+function checkedStatus(status) {
+    if( isModified(status)) {
+        return "checked='true'";
+    } else {
+        return "";
+    }
+}
+
+/**
+ * return true if the local mod date is after the remote mod date
+ */
+function isModified(status) {
+    l = status.localModDate; // local
+    r = status.remoteMod; // remote
+    if(r == null) {
+        return true;
+    }
+    if(l.year != r.year) {
+        return l.year > r.year;
+    } else {
+        if( l.month != r.month) {
+            return l.month > r.month;
+        } else {
+            if( l.date != r.date ) {
+                return l.date > r.date;
+            } else {
+                if( l.hours != r.hours ) {
+                    return l.hours > r.hours;
+                } else {
+                    if( l.minutes != r.minutes ) {
+                        return l.minutes > r.minutes;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function showStatus(report) {
     log('showReport - ', report);
 
     if( report.finished ) {
         $("#headline").html("Migration complete: "  + report.destHost);
     } else {
-        var perc = report.statuses.length * 100 / report.numSourceIds;
+        var perc = Math.round(report.statuses.length * 100 / report.numSourceIds);
         $("#headline").html("Migration is running: " + report.destHost + " - " + perc + "%");
     }
 
@@ -192,7 +232,7 @@ function toggleMigrateFiles(source) {
 
 function toDisplayDate(dt) {
     if( dt ) {
-        return (dt.day+1) + "/" + (dt.month+1) + "/" + (dt.year+1900) + " " + dt.hours + ":" + dt.minutes;
+        return (dt.date+1) + "/" + (dt.month+1) + "/" + (dt.year+1900) + " " + dt.hours + ":" + dt.minutes;
     } else {
         return "";
     }
