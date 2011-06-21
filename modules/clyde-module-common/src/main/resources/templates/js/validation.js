@@ -95,7 +95,7 @@ function checkValidPasswords(container) {
     var target = $("#password",container);
     var p1 = target.val();
     if( p1 ) {
-        var passed = validatePassword(password, {
+        var passed = validatePassword(p1, {
             length:   [6, Infinity],
             numeric:  1,
             badWords: ["password"],
