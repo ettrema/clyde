@@ -89,7 +89,12 @@ public class DateDef extends TextDef {
             return null;
         }
         try {
-            Date dt = sdf().parse( s );
+            Date dt;        
+            if( s.contains(":")) { // if there is no time component defintely dont parse with the date/time pattern
+                dt = sdf().parse( s );
+            } else {
+                dt = sdf(false).parse( s );
+            }
             return dt;
         } catch( ParseException ex ) {
             log.warn( "couldnt parse date", ex );
