@@ -84,6 +84,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         thValidationMessage.set(validationMessage);
     }
 
+    @Override
     public String getValidationMessage() {
         if (thValidationMessage == null) {
             return null;

@@ -59,6 +59,8 @@ public class ComponentUtilsTest {
         // Do change when not followed by a space
         assertEquals("N&amp;D", ComponentUtils.encodeHTML("N&D"));
 
+        // Don't change numbers
+        assertEquals("12", ComponentUtils.encodeHTML("12"));
     }
 
     @Test

@@ -50,10 +50,12 @@ import org.jdom.Namespace;
  */
 public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
 
+    @Override
     public String getLocalName() {
         return "query";
     }
 
+    @Override
     public void populateXml(Element elEval, Query target, Namespace ns) {
         populateSelect(elEval, target.getSelectFields(), ns);
         populateGroupBy(elEval, target.getGroupFields(), ns);
@@ -62,6 +64,7 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         populateOrderBy(elEval, target.getOrderByFields(), ns);
     }
 
+    @Override
     public Query fromXml(Element elEval, Namespace ns, Addressable container) {
         Query query = new Query();
         updateSelect(query, elEval, ns, container);
@@ -78,6 +81,7 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
         return query;
     }
 
+    @Override
     public Class<Query> getEvalClass() {
         return Query.class;
     }
@@ -139,7 +143,9 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
             elFrom.setAttribute("path", sPath);
         } else if (from instanceof Query) {
             Query subQuery = (Query) from;
-            populateXml(elFrom, subQuery, ns);
+            Element elQuery = new Element("query", ns);
+            elFrom.addContent(elQuery);
+            populateXml(elQuery, subQuery, ns);
         }
     }
 

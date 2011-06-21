@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -308,19 +307,24 @@ public class ComponentUtils {
         char ch;
         for (int i = 0; i < s.length(); ++i) {
             ch = s.charAt(i);
-            if ((ch >= 63 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == ' ')) {
+            if ((ch >= 48 && ch <= 59) || (ch >= 63 && ch <= 90) || (ch >= 97 && ch <= 122) || (ch == ' ')) {
                 sb.append(ch);
             } else if (ch == '\n') {
                 sb.append(cr);
             } else {
-                String chEnc = encodeSingleChar(String.valueOf(ch));
-                if (chEnc != null) {
-                    sb.append(chEnc);
+                // cherry pick some safe non-seq chars
+                if (ch == '(' || ch == ')' || ch == '+' || ch == '-' || ch == '*' || ch == '_') {
+                    sb.append(cr);
                 } else {
-                    // Not 7 Bit use the unicode system
-                    sb.append("&#");
-                    sb.append(new Integer(ch).toString());
-                    sb.append(';');
+                    String chEnc = encodeSingleChar(String.valueOf(ch));
+                    if (chEnc != null) {
+                        sb.append(chEnc);
+                    } else {
+                        // Not 7 Bit use the unicode system
+                        sb.append("&#");
+                        sb.append(new Integer(ch).toString());
+                        sb.append(';');
+                    }
                 }
             }
         }
