@@ -18,223 +18,236 @@ import net.contentobjects.jnotify.JNotifyListener;
  */
 public class FileWatcher implements JNotifyListener, Service {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileWatcher.class);
-    private RootContext rootContext;
-    private final File root;
-    private final FileLoader fileLoader;
-    private int watchId = 0;
-    private boolean watchFiles = true;
-    private boolean initialScan = false;
-    Thread thInitialScan;
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileWatcher.class);
 
-    public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
-        this.rootContext = rootContext;
-        this.root = root;
-        this.fileLoader = fileLoader;
-    }
+	{
+		String orig = System.getProperty("java.library.path");
+		System.out.println("original library path: " + orig);
+		String userDir = System.getProperty("user.dir");
+		System.out.println("user dir: " + userDir); 
+		String newLibPath = orig + ":" + userDir;
+		System.out.println("new library path: " + newLibPath);
+		System.setProperty("java.library.path", newLibPath);
 
-    public void start() {
-        if (watchFiles) {
-            String path = root.getAbsolutePath();
+	}
+	private RootContext rootContext;
+	private final File root;
+	private final FileLoader fileLoader;
+	private int watchId = 0;
+	private boolean watchFiles = true;
+	private boolean initialScan = false;
+	Thread thInitialScan;
 
-            // watch mask, specify events you care about,
-            // or JNotify.FILE_ANY for all events.
-            int mask = JNotify.FILE_CREATED
-                    | JNotify.FILE_DELETED
-                    | JNotify.FILE_MODIFIED
-                    | JNotify.FILE_RENAMED;
+	public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
+		this.rootContext = rootContext;
+		this.root = root;
+		this.fileLoader = fileLoader;
+	}
 
-            // watch subtree?
-            boolean watchSubtree = true;
-            try {
-                // add actual watch
-                watchId = JNotify.addWatch(path, mask, watchSubtree, this);
-                log.info("Now watching files in: " + path);
-            } catch (Throwable ex) {
-                log.error("error watching: " + root.getAbsolutePath(), ex);
-            }
-        }
+	public void start() {
+		if (watchFiles) {
+			String path = root.getAbsolutePath();
 
-        if (initialScan) {
-            thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
+			// watch mask, specify events you care about,
+			// or JNotify.FILE_ANY for all events.
+			int mask = JNotify.FILE_CREATED
+					| JNotify.FILE_DELETED
+					| JNotify.FILE_MODIFIED
+					| JNotify.FILE_RENAMED;
 
-                public void run() {
-                    initialScan();
-                }
-            });
-            thInitialScan.start();
-        }
-    }
+			// watch subtree?
+			boolean watchSubtree = true;
+			try {
+				// add actual watch
+				watchId = JNotify.addWatch(path, mask, watchSubtree, this);
+				log.info("Now watching files in: " + path);
+			} catch (Throwable ex) {
+				log.error("Library path (sys property) is: " + System.getProperty("java.library.path"));
+				log.error("error watching: " + root.getAbsolutePath(), ex);
+			}
+		}
 
-    public void stop() {
-        if (watchId > 0) {
-            try {
-                JNotify.removeWatch(watchId);
-            } catch (JNotifyException ex) {
-                log.error("Exception stopping jnotify", ex);
-            } finally {
-                watchId = 0;
-            }
-            thInitialScan.interrupt();
-        }
-    }
+		if (initialScan) {
+			thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
 
-    public void fileCreated(int wd, String rootPath, String name) {
-        String path = rootPath + File.separator + name;
-        final File f = new File(path);
-        if (isIgnored(f)) {
-            return;
-        }
+				public void run() {
+					initialScan();
+				}
+			});
+			thInitialScan.start();
+		}
+	}
 
-        rootContext.execute(new Executable2() {
+	public void stop() {
+		if (watchId > 0) {
+			try {
+				JNotify.removeWatch(watchId);
+			} catch (JNotifyException ex) {
+				log.error("Exception stopping jnotify", ex);
+			} finally {
+				watchId = 0;
+			}
+			thInitialScan.interrupt();
+		}
+	}
 
-            public void execute(Context context) {
-                fileLoader.onNewFile(f, root);
-            }
-        });
+	public void fileCreated(int wd, String rootPath, String name) {
+		String path = rootPath + File.separator + name;
+		final File f = new File(path);
+		if (isIgnored(f)) {
+			return;
+		}
 
-    }
+		rootContext.execute(new Executable2() {
 
-    public void fileDeleted(int wd, String rootPath, String name) {
-        String path = rootPath + File.separator + name;
-        final File f = new File(path);
-        if (isIgnored(f)) {
-            return;
-        }
+			public void execute(Context context) {
+				fileLoader.onNewFile(f, root);
+			}
+		});
 
-        rootContext.execute(new Executable2() {
+	}
 
-            public void execute(Context context) {
-                fileLoader.onDeleted(f, root);
-            }
-        });
-    }
+	public void fileDeleted(int wd, String rootPath, String name) {
+		String path = rootPath + File.separator + name;
+		final File f = new File(path);
+		if (isIgnored(f)) {
+			return;
+		}
 
-    public void fileModified(int wd, String rootPath, String name) {
-        log.trace("fileModified: " + rootPath + " - " + name);
-        String path = rootPath + File.separator + name;
-        final File f = new File(path);
-        if (isIgnored(f)) {
-            return;
-        }
+		rootContext.execute(new Executable2() {
 
-        rootContext.execute(new Executable2() {
+			public void execute(Context context) {
+				fileLoader.onDeleted(f, root);
+			}
+		});
+	}
 
-            public void execute(Context context) {
-                fileLoader.onModified(f, root);
-            }
-        });
+	public void fileModified(int wd, String rootPath, String name) {
+		log.trace("fileModified: " + rootPath + " - " + name);
+		String path = rootPath + File.separator + name;
+		final File f = new File(path);
+		if (isIgnored(f)) {
+			return;
+		}
 
-    }
+		rootContext.execute(new Executable2() {
 
-    public void fileRenamed(int i, String string, String string1, String string2) {
-    }
+			public void execute(Context context) {
+				fileLoader.onModified(f, root);
+			}
+		});
 
-    public void forceReload() {
-        initialScan(true);
-    }
+	}
 
-    public void initialScan() {
-        initialScan(false);
-    }
+	public void fileRenamed(int i, String string, String string1, String string2) {
+	}
 
-    public void initialScan(boolean forceReload) {
-        long t = System.currentTimeMillis();
-        log.info("begin full scan");
-        startScan(this.root, forceReload);
-        log.info("------------------------------------");
-        log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
-        log.info("------------------------------------");
-    }
+	public void forceReload() {
+		initialScan(true);
+	}
 
-    private void startScan(File root, boolean forceReload) {
-        log.info("scan files in " + root.getAbsolutePath());
-        DirectoryListing listing = new DirectoryListing(root);
-        // First process the templates folder, if present.
-        if (listing.templates != null) {
-            startScan(listing.templates, forceReload);
-        }
-        scanDir(root, forceReload);
-    }
-    private void scanDir(File dir, boolean forceReload) {
-        DirectoryListing listing = new DirectoryListing(dir);
+	public void initialScan() {
+		initialScan(false);
+	}
 
-        processFile(dir, true); // force load of dirs for metadata
+	public void initialScan(boolean forceReload) {
+		long t = System.currentTimeMillis();
+		log.info("begin full scan");
+		startScan(this.root, forceReload);
+		log.info("------------------------------------");
+		log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
+		log.info("------------------------------------");
+	}
 
-        for (File f : listing.files) {
-            processFile(f, forceReload);
-        }
+	private void startScan(File root, boolean forceReload) {
+		log.info("scan files in " + root.getAbsolutePath());
+		DirectoryListing listing = new DirectoryListing(root);
+		// First process the templates folder, if present.
+		if (listing.templates != null) {
+			startScan(listing.templates, forceReload);
+		}
+		scanDir(root, forceReload);
+	}
 
-        for (File f : listing.subdirs) {
-            startScan(f, forceReload);
-        }
-    }
+	private void scanDir(File dir, boolean forceReload) {
+		DirectoryListing listing = new DirectoryListing(dir);
 
-    private void processFile(final File f, final boolean forceReload) {
-        rootContext.execute(new Executable2() {
+		processFile(dir, true); // force load of dirs for metadata
 
-            public void execute(Context context) {
-                if (forceReload || fileLoader.isNewOrUpdated(f, root) ) {
-                    fileLoader.onNewFile(f, root);
-                }
+		for (File f : listing.files) {
+			processFile(f, forceReload);
+		}
 
-            }
-        });
-    }
+		for (File f : listing.subdirs) {
+			startScan(f, forceReload);
+		}
+	}
 
-    private boolean isIgnored(File f) {
-        return isAnyParentHidden(f);
-    }
+	private void processFile(final File f, final boolean forceReload) {
+		rootContext.execute(new Executable2() {
 
-    private boolean isAnyParentHidden(File f) {
-        if (f.getName().startsWith(".")) {
-            return true;
-        } else {
-            if (!f.getAbsolutePath().contains(root.getAbsolutePath())) { // reached root
-                return false;
-            } else {
-                return isAnyParentHidden(f.getParentFile());
-            }
-        }
-    }
+			public void execute(Context context) {
+				if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
+					fileLoader.onNewFile(f, root);
+				}
 
-    private class DirectoryListing {
+			}
+		});
+	}
 
-        File templates;
-        final List<File> files = new ArrayList<File>();
-        final List<File> subdirs = new ArrayList<File>();
+	private boolean isIgnored(File f) {
+		return isAnyParentHidden(f);
+	}
 
-        public DirectoryListing(File parent) {
-            for (File f : parent.listFiles()) {
-                if (!isIgnored(f)) {
-                    if (f.isDirectory()) {
-                        if ("templates".equals(f.getName())) {
-                            this.templates = f;
-                        } else {
-                            this.subdirs.add(f);
-                        }
-                    } else {
-                        this.files.add(f);
-                    }
-                }
-            }
+	private boolean isAnyParentHidden(File f) {
+		if (f.getName().startsWith(".")) {
+			return true;
+		} else {
+			if (!f.getAbsolutePath().contains(root.getAbsolutePath())) { // reached root
+				return false;
+			} else {
+				return isAnyParentHidden(f.getParentFile());
+			}
+		}
+	}
 
-        }
-    }
+	private class DirectoryListing {
 
-    public boolean isWatchFiles() {
-        return watchFiles;
-    }
+		File templates;
+		final List<File> files = new ArrayList<File>();
+		final List<File> subdirs = new ArrayList<File>();
 
-    public void setWatchFiles(boolean watchFiles) {
-        this.watchFiles = watchFiles;
-    }
+		public DirectoryListing(File parent) {
+			for (File f : parent.listFiles()) {
+				if (!isIgnored(f)) {
+					if (f.isDirectory()) {
+						if ("templates".equals(f.getName())) {
+							this.templates = f;
+						} else {
+							this.subdirs.add(f);
+						}
+					} else {
+						this.files.add(f);
+					}
+				}
+			}
 
-    public boolean isInitialScan() {
-        return initialScan;
-    }
+		}
+	}
 
-    public void setInitialScan(boolean initialScan) {
-        this.initialScan = initialScan;
-    }
+	public boolean isWatchFiles() {
+		return watchFiles;
+	}
+
+	public void setWatchFiles(boolean watchFiles) {
+		this.watchFiles = watchFiles;
+	}
+
+	public boolean isInitialScan() {
+		return initialScan;
+	}
+
+	public void setInitialScan(boolean initialScan) {
+		this.initialScan = initialScan;
+	}
 }
