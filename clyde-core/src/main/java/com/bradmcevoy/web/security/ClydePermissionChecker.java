@@ -10,6 +10,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;
@@ -165,7 +166,7 @@ public class ClydePermissionChecker implements PermissionChecker {
             }
         }
 
-        GroupService gs = _(GroupService.class);        
+        GroupService gs = _(GroupService.class);
         for (RoleAndGroup rag : res.getGroupPermissions()) {
             if (rag.getRole() == role) {
                 UserGroup group = gs.getGroup(res, rag.getGroupName());
@@ -188,22 +189,24 @@ public class ClydePermissionChecker implements PermissionChecker {
     }
 
     private Boolean checkRules(BaseResource res, Subject user, Role role) {
-        log.trace("checkRules");
         Evaluatable rules = res.getRoleRules();
         ITemplate t = res.getTemplate();
         if (rules != null) {
             RenderContext rc = new RenderContext(t, res, null, false);
             Object r = EvalUtils.eval(rules, rc, res);
             Boolean result = Formatter.getInstance().toBool(r);
+            LogUtils.trace(log, "checkRules: using rules on resource", rules, "result:", result);
             return result;
         } else {
             while (t != null) {
                 Boolean b = t.hasRole(user, role, res);
                 if (b != null) {
+                    LogUtils.trace(log, "checkRules: using hasRole on template", t.getName(), "result:", b);
                     return b;
                 }
                 t = t.getTemplate();
             }
+            LogUtils.trace(log, "checkRules: no rules on resource, and no template returned a value");
             return null;
         }
     }

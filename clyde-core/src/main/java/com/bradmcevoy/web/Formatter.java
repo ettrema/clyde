@@ -78,7 +78,12 @@ public class Formatter {
         } else if (o instanceof String) {
             String s = (String) o;
             s = s.toLowerCase();
-            return s.equals("true") || s.equals("yes");
+            s = s.trim();
+            if( s.length() > 0) {
+                return s.equals("true") || s.equals("yes");
+            } else {
+                return null;
+            }
         } else if (o instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) o;
             return toBool(cv.getValue());

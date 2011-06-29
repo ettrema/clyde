@@ -20,10 +20,12 @@ public class ConstEvaluatable implements Evaluatable, Serializable{
         this.value = value;
     }
 
+    @Override
     public Object evaluate(RenderContext rc, Addressable from) {
         return value;
     }
 
+    @Override
     public Object evaluate(Object from) {
         return value;
     }
@@ -38,6 +40,7 @@ public class ConstEvaluatable implements Evaluatable, Serializable{
         this.value = value;
     }
 
+    @Override
     public void pleaseImplementSerializable() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

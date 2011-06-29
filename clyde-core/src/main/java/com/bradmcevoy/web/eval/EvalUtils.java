@@ -101,7 +101,7 @@ public class EvalUtils {
     public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull, Addressable container) {
         EvaluatableToXml parser;
         if (el == null) {
-            return new ConstEvaluatable();
+            return null;
         } else {
             Element elChild = null;
             for (Object o : el.getChildren()) {
