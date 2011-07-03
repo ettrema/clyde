@@ -273,7 +273,7 @@ public class ImageService {
         Proportion prop = new Proportion( image.getWidth(), image.getHeight(), maxWidth, maxHeight );
         // find which dimension is the larger given its proportions
         if( prop.scaleByHeight() ) {
-            log.trace( "scale by height" );
+            log.trace( "scaleProportionallyWithMax: scale by height" );
             int width = (int) ( image.getWidth() / prop.heightProp );
             if( width > 0 ) {
                 image = getScaleImage( image, width, maxHeight );
@@ -281,7 +281,7 @@ public class ImageService {
                 throw new RuntimeException( "got non-positive width: " + width );
             }
         } else if( prop.scaleByWidth() ) {
-            log.trace( "scale by width" );
+            log.trace( "scaleProportionallyWithMax: scale by width" );
             int height = (int) ( image.getHeight() / prop.widthProp );
             if( height > 0 ) {
                 image = getScaleImage( image, maxWidth, height );
@@ -289,7 +289,7 @@ public class ImageService {
                 throw new RuntimeException( "got non-positive height: " + height );
             }
         } else {
-            log.warn( "doing nothing" );
+            log.warn( "scaleProportionallyWithMax: doing nothing" );
             // do nothing
         }
         write( image, out, format );
@@ -450,5 +450,12 @@ public class ImageService {
         public boolean scaleByWidth() {
             return ( widthProp > 1 && widthProp > heightProp );
         }
+
+        @Override
+        public String toString() {
+            return "orig " + origHeight + "x" + origWidth + "->new " + heightProp + "x" + widthProp;
+        }
+        
+        
     }
 }

@@ -316,8 +316,11 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
 
     public String linkThumbImg( String onclick ) {
         HtmlImage bf = getThumb();
-        String s = link( bf.img( onclick ) );
-        return s;
+        if( bf != null ) {
+            return "<a href='#' onclick=\"" + onclick + "; return false\" >" + bf.getImg() + "</a>";
+        } else {
+            return "<a href='#' onclick=\"" + onclick + "; return false\" >" + getName() + "</a>";
+        }
     }
 
     protected String getThumbName() {
