@@ -145,6 +145,7 @@ public class User extends Folder implements IUser {
      * @return - the email address for this user on this domain. NOT their specified
      *  external email
      */
+	@Override
     public Address getEmailAddress() {
         Host h = this.getHost();
         String s = this.getName() + "@" + h.getName();
@@ -168,10 +169,12 @@ public class User extends Folder implements IUser {
         return new ClydeMessageFolder(f);
     }
 
+	@Override
     public Folder getEmailFolder() {
         return getEmailFolder(false);
     }
 
+	@Override
     public Folder getEmailFolder(boolean create) {
         String emailFolderName = "inbox";
         Folder emailFolder = getMailFolder(emailFolderName, create);
@@ -187,6 +190,7 @@ public class User extends Folder implements IUser {
         return new ClydeMessageFolder(f);
     }
 
+	@Override
     public Folder getMailFolder(String name, boolean create) {
         String emailFolderName = "email_" + name;
         Folder emailFolder = getSubFolder(emailFolderName);
@@ -225,6 +229,7 @@ public class User extends Folder implements IUser {
      * 
      * @return - the user's specified external email address as a string. Null if not specified
      */
+	@Override
     public String getExternalEmailText() {
         String s = getExternalEmailTextV2("default");
         if (s != null) {
@@ -266,6 +271,7 @@ public class User extends Folder implements IUser {
         return super.is(type);
     }
 
+	@Override
     public boolean isInGroup(String groupName) {
         UserGroup group = _(GroupService.class).getGroup(this, groupName);
         if (group != null) {
@@ -296,6 +302,7 @@ public class User extends Folder implements IUser {
         return s;
     }
 
+	@Override
     public String getSubjectName() {
         return getName();
     }
@@ -385,6 +392,7 @@ public class User extends Folder implements IUser {
         _(CookieAuthenticationHandler.class).setLoginCookies(this, req);
     }
 
+	@Override
     public boolean appliesTo(Subject user) {
         if (user instanceof User) {
             User u = (User) user;
@@ -394,6 +402,7 @@ public class User extends Folder implements IUser {
         }
     }
 
+	@Override
     public boolean isOrContains(Subject s) {
         return appliesTo(s);
     }
@@ -422,6 +431,7 @@ public class User extends Folder implements IUser {
      * @param r
      * @return
      */
+	@Override
     public boolean canAuthor(Resource r) {
         Auth auth = null;
         Request req = _(CurrentRequestService.class).request();
