@@ -34,6 +34,7 @@ public class RelativeTemplateManager implements TemplateManager {
         this.templateManager = templateManager;
     }
 
+    @Override
     public ITemplate lookup( String templateName, Folder web ) {
         if( templateName == null ) {
             log.debug( "template name is null");

@@ -256,6 +256,8 @@ public class Formatter {
             return formatDate(dv.getValue());
         } else if (o instanceof String) {
             return (String) o;
+		} else if( o instanceof DateTime) {
+			return formatDate(((DateTime)o).toDate());
         } else {
             throw new RuntimeException("Unsupported type: " + o.getClass());
         }

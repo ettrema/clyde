@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.quota.QuotaDataAccessor;
 import com.bradmcevoy.http.quota.StorageChecker;
+import com.bradmcevoy.process.Token;
 import com.bradmcevoy.process.TokenValue;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.web.Host;
@@ -23,12 +24,14 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
     private final String processName;
     private final String limitVarName;
     private final String usageVarName;
+	private final String highwaterVarName;
     private final HostFinder hostFinder;
 
-    public QuotaManager( String processName, String limitVarName, String usageVarName, HostFinder hostFinder ) {
+    public QuotaManager( String processName, String limitVarName, String usageVarName, String highwaterVarName, HostFinder hostFinder ) {
         this.processName = processName;
         this.limitVarName = limitVarName;
         this.usageVarName = usageVarName;
+		this.highwaterVarName = highwaterVarName;
         this.hostFinder = hostFinder;
     }
 
@@ -95,6 +98,33 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
         Long currentUsage = toLong( oUsage );
         return currentUsage;
     }
+	
+    public  Long getHighwater(Token token) {
+        if( token == null ) {
+            log.debug( "token is null");
+            return null;
+        }
+        if( token.getVariables() == null ) {
+            log.debug( "token variables is null");
+            return null;
+        }
+        Object oHighWater = token.getVariables().get( highwaterVarName );
+        Long highwater = toLong( oHighWater );
+        return highwater;
+    }	
+	
+    private void setHighwater(TokenValue token, Long v) {
+        if( token == null ) {
+            log.debug( "token is null");
+			return ;
+        }
+        if( token.getVariables() == null ) {
+            log.debug( "token variables is null");
+            return;
+        }
+        token.getVariables().put( highwaterVarName, v );
+
+    }	
 
     /**
      * Recalculation takes too long. Almost 4 minutes for 20Gig of files
@@ -132,7 +162,11 @@ public class QuotaManager extends VfsCommon implements StorageChecker, QuotaData
         long perc = (newUsage * 100) / limit;
         token.getVariables().put( usageVarName + "Perc", perc);
         log.debug( "new usage is: " + newUsage + "   : " + perc + "%");
-
+		
+		Long hw = getHighwater(token);
+		if( hw == null || newUsage > hw) {
+			setHighwater(token, hw);
+		}
         host.save();
     }
 

@@ -1,16 +1,15 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.pay.CreditManager;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.pay.Credit;
-import com.bradmcevoy.process.PaidRule;
-import com.bradmcevoy.utils.ClydeUtils;
-import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;
 import java.math.BigDecimal;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -46,10 +45,8 @@ public class CreateCreditCommand extends Command {
         if( s == null ) {
             return null; // not this command
         }
-        Credit credit = createCredit( rc.getTargetPage() );
-        credit.save();
-        credit.commit();
-        log.debug( "created credit: " + credit.getHref() );
+        createCredit( rc.getTargetPage() );
+
         return null;
     }
 
@@ -58,15 +55,12 @@ public class CreateCreditCommand extends Command {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
-    private Credit createCredit( Templatable targetPage ) {
+    private void createCredit( Templatable targetPage ) {
         Host host = targetPage.getHost();
         if( host == null ) {
             throw new RuntimeException( "no host for: " + targetPage.getName() );
         }
-
-        Folder folder = PaidRule.getReceiptsFolder( host, true );
-        String newName = ClydeUtils.getDateAsNameUnique( folder );
-        Credit credit = Credit.create( folder, newName, amount, "USD", "me@b.com", "TEST", "test description" );
-        return credit;
+		_(CreditManager.class).createCredit(host, amount, "TEST",  "test description");
+		host.commit();
     }
 }

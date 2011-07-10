@@ -230,11 +230,13 @@ public class AjaxResourceFactory implements ResourceFactory {
 
         public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {            
             CommonTemplated res = accessor.get(parameters);
+            log.info("process: resource name: " + res.getName() + " - template: " + res.getTemplateName());
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext(lTemplate, res, rcChild, false);
 
             boolean componentFound = false;
             for (String paramName : parameters.keySet()) {
+                log.info("found request param: " + paramName);
                 Path path = Path.path(paramName);
                 Component c = rc.findComponent(path);
                 if (c != null) {
@@ -254,6 +256,7 @@ public class AjaxResourceFactory implements ResourceFactory {
             return null;
         }
 
+        @Override
         public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
             Map<String, String> errors = new HashMap<String, String>();
             CommonTemplated res = accessor.get(params);
@@ -275,22 +278,27 @@ public class AjaxResourceFactory implements ResourceFactory {
             writer.flush();
         }
 
+        @Override
         public Long getMaxAgeSeconds(Auth auth) {
             return null;
         }
 
+        @Override
         public String getContentType(String accepts) {
             return "application/x-javascript; charset=utf-8";
         }
 
+        @Override
         public Long getContentLength() {
             return null;
         }
 
+        @Override
         public String getUniqueId() {
             return null;
         }
 
+        @Override
         public String getName() {
             return NAME;
         }

@@ -8,6 +8,7 @@ public class TemplateManagerImpl implements TemplateManager {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TemplateManagerImpl.class);
 
+    @Override
     public ITemplate lookup(String templateName, Folder folder) {
         if (templateName == null) {
             return null;

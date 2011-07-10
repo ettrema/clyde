@@ -2,6 +2,7 @@ package com.bradmcevoy.process;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.pay.Credit;
+import com.bradmcevoy.pay.CreditManager;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.SubPage;
@@ -23,34 +24,6 @@ public class PaidRule implements Rule {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PaidRule.class );
     
-    public static final String RECEIPTS_FOLDER = "_receipts";
-
-
-
-    public static Folder getReceiptsFolder( Host host, boolean autocreate ) {
-        Folder f = getReceiptsFolder( host );
-        if( autocreate ) {
-            if( f == null ) {
-                f = new Folder( host, RECEIPTS_FOLDER );
-                f.save();
-            }
-        }
-        return f;
-    }
-
-    public static Folder getReceiptsFolder( Host host ) {
-        Resource r = host.child( "_receipts" );
-        if( r == null ) {
-            log.debug( "no receipts folder in host: " + host.getName() );
-            return null;
-        } else if( r instanceof Folder ) {
-                Folder receipts = (Folder) r;
-                return receipts;
-            } else {
-                log.debug( "receipts folder is not a folder! " + r.getName() + " - " + r.getClass() );
-                return null;
-            }
-    }
 
 
     String productCode;
@@ -79,13 +52,13 @@ public class PaidRule implements Rule {
 
     private boolean checkReceipt( Host host ) {
         log.debug( "checkReceipt" );
-        Folder receipts = getReceiptsFolder( host );
+        Folder receipts = CreditManager.getReceiptsFolder( host );
         if( receipts == null ) {
             log.debug( "no receipts folder" );
             return false;
         }
         List<? extends Resource> children = receipts.getChildren();
-        if( children.size() == 0 ) {
+        if( children.isEmpty() ) {
             log.debug( "receipts folder contains no entries");
             return false;
         }
