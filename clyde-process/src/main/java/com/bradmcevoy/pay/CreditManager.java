@@ -11,6 +11,7 @@ import com.bradmcevoy.web.Host;
 import java.math.BigDecimal;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -25,7 +26,7 @@ public class CreditManager {
 	private String currency = "USD";
 	
 	private final QuotaManager quotaManager;
-	
+		
 	private final CurrentDateService currentDateService;
 	
 	private BigDecimal perGigMonthCost;
@@ -34,6 +35,7 @@ public class CreditManager {
 	
 	private String varNameLastDebit = "_last_storage_debit_date_ms";
 
+	@Autowired
 	public CreditManager(QuotaManager quotaManager, CurrentDateService currentDateService) {
 		this.quotaManager = quotaManager;
 		this.currentDateService = currentDateService;

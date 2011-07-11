@@ -10,7 +10,7 @@ import static com.ettrema.context.RequestContext._;
 
 /**
  *
- * @author HP
+ * @author brad
  */
 public class CreateCreditAction implements ActionHandler, Serializable {
 

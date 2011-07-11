@@ -1,5 +1,6 @@
 package com.bradmcevoy.process;
 
+import java.io.Serializable;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.pay.CreditManager;
 import java.math.BigDecimal;
@@ -11,8 +12,10 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public class CreditStateRule implements Rule {
+public class CreditStateRule implements Rule, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private boolean  triggerOnPositive;
 
 	public CreditStateRule(Element el) {

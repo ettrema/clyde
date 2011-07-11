@@ -2,6 +2,7 @@ package com.bradmcevoy.process;
 
 import com.bradmcevoy.pay.CreditManager;
 import com.bradmcevoy.web.Host;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import org.jdom.Element;
 
@@ -11,7 +12,7 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public class CreateDebitAction implements ActionHandler {
+public class CreateDebitAction implements ActionHandler, Serializable {
 
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SetVariable.class);
