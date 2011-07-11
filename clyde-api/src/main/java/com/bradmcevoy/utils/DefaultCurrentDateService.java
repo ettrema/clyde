@@ -9,6 +9,7 @@ import java.util.Date;
  */
 public class DefaultCurrentDateService implements CurrentDateService {
 
+	@Override
     public Date getNow() {
         return new Date();
     }

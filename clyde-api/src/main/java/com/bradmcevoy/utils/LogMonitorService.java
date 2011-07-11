@@ -22,12 +22,14 @@ public class LogMonitorService implements Service {
         }
     }
 
+	@Override
     public void start() {
         logMonitor = new LogMonitor( interval, logFile );
         thread = new Thread( logMonitor );
         thread.start();
     }
 
+	@Override
     public void stop() {
         thread.interrupt();
     }

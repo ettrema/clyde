@@ -25,6 +25,7 @@ public class LogMonitor  implements Runnable  {
 
 
 
+	@Override
     public void run() {
         System.out.println( "Initialize " + file.getAbsolutePath() );
         lastModified = file.lastModified();

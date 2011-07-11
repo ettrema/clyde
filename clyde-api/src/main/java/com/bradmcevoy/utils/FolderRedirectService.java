@@ -12,6 +12,7 @@ public class FolderRedirectService implements RedirectService {
 
     private String redirectPage = "index.html";
 
+	@Override
     public String checkRedirect( Resource resource, Request request ) {
         if( resource instanceof CollectionResource ) {
             String s = request.getAbsoluteUrl();

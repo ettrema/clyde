@@ -15,6 +15,7 @@ public class MultiRedirectService implements RedirectService {
         this.redirectServices = redirectServices;
     }
 
+	@Override
     public String checkRedirect( Resource ct, Request request ) {
         for( RedirectService svc : redirectServices) {
             String s = svc.checkRedirect( ct, request );

@@ -12,6 +12,7 @@ public class MutableCurrentDateService implements CurrentDateService {
     private Date artificalDate = null;
     private Long dateOffset = null;
 
+	@Override
     public Date getNow() {
         if (artificalDate != null) {
             return artificalDate;

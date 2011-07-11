@@ -9,6 +9,7 @@ import com.bradmcevoy.http.Resource;
  */
 public class DefaultRedirectService implements RedirectService{
 
+	@Override
     public String checkRedirect( Resource res, Request request ) {
         if( res instanceof Redirectable ) {
             Redirectable r = (Redirectable) res;
