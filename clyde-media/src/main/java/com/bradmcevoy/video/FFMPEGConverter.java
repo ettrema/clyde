@@ -20,14 +20,10 @@ public class FFMPEGConverter implements Converter, Closeable {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FFMPEGConverter.class );
     private static final File TEMP_DIR = new File( System.getProperty( "java.io.tmpdir" ) );
     private final String process;
-    private final InputStream in;
     private final File source;
-    private final String inputFormat;
 
     public FFMPEGConverter( String process, InputStream in, String inputFormat ) {
         this.process = process;
-        this.in = in;
-        this.inputFormat = inputFormat;
         source = createSourceFile( in, inputFormat );
     }
 

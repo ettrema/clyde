@@ -1,7 +1,5 @@
 package com.bradmcevoy.media;
 
-import com.bradmcevoy.web.Folder;
-import java.awt.image.BufferedImage;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.Thumb;
 import java.io.FileNotFoundException;
@@ -27,7 +25,7 @@ public interface ThumbProcessor {
 
     public int generateThumbs( ImageFile imageFile, List<Thumb> thumbs, Rotate rotate, boolean skipIfExists ) throws FileNotFoundException, IOException;
 
-    public void createThumb( ImageFile imageFile, Folder folder, int width, int height, boolean skipIfExists, BufferedImage image );
+    //private void createThumb( ImageFile imageFile, Folder folder, int width, int height, boolean skipIfExists, BufferedImage image );
 
 
 }

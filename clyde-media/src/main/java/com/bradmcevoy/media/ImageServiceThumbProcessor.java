@@ -90,7 +90,7 @@ public class ImageServiceThumbProcessor implements ThumbProcessor{
         return count;
     }
 
-    public void createThumb( ImageFile imageFile, Folder folder, int width, int height, boolean skipIfExists, BufferedImage image ) {
+    private void createThumb( ImageFile imageFile, Folder folder, int width, int height, boolean skipIfExists, BufferedImage image ) {
         log.trace("createThumb");
         ByteArrayOutputStream out = new ByteArrayOutputStream( 50000 );
         try {

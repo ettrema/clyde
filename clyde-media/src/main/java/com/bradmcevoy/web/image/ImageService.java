@@ -25,7 +25,7 @@ import org.apache.sanselan.formats.tiff.constants.TiffConstants;
  *
  * @author brad
  */
-public class ImageService {
+public class ImageService implements IImageService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ImageService.class );
 //scale limit to when apply 2-phase downscaling or not
@@ -54,6 +54,7 @@ public class ImageService {
         }
     }
 
+	@Override
     public BufferedImage rotateLeft( BufferedImage image ) {
         BufferedImage target = new BufferedImage( image.getHeight(), image.getWidth(), image.getType() );
         Graphics2D graphics = target.createGraphics();
@@ -63,6 +64,7 @@ public class ImageService {
         return target;
     }
 
+	@Override
     public BufferedImage rotateRight( BufferedImage image ) {
         BufferedImage target = new BufferedImage( image.getHeight(), image.getWidth(), image.getType() );
         Graphics2D graphics = target.createGraphics();
@@ -71,6 +73,7 @@ public class ImageService {
         return target;
     }
 
+	@Override
     public Dimensions getDimenions( InputStream in, String name ) {
         try {
             ImageInfo info = Sanselan.getImageInfo( in, name );
@@ -84,6 +87,7 @@ public class ImageService {
         }
     }
 
+	@Override
     public ExifData getExifData( InputStream in, String name ) {
 
         try {
@@ -126,6 +130,7 @@ public class ImageService {
 
     }
 
+	@Override
     public Dimensions getImageDimensions( File in ) {
         try {
             Dimensions d = null;
@@ -146,6 +151,7 @@ public class ImageService {
      * @param height the new image's height
      * @return the new image scaled
      */
+	@Override
     public BufferedImage getScaleImage( BufferedImage source, int width, int height ) {
         long t = System.currentTimeMillis();
 
@@ -179,6 +185,7 @@ public class ImageService {
      *    the {@code BILINEAR} hint is specified)
      * @return a scaled version of the original {@code BufferedImage}
      */
+	@Override
     public BufferedImage getScaledInstance( BufferedImage img, int targetWidth, int targetHeight ) {
         log.trace( "using getScaledInstance" );
         int type = ( img.getTransparency() == Transparency.OPAQUE ) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
@@ -232,15 +239,18 @@ public class ImageService {
      * @param yscale the percentage of the source image's height
      * @return the new image scaled
      */
+	@Override
     public BufferedImage getScaleImage( BufferedImage source, double xscale, double yscale ) {
         //assert(source != null && width > 0 && height > 0);
         return getScaleImage( source, (int) ( source.getWidth() * xscale ), (int) ( source.getHeight() * yscale ) );
     }
 
+	@Override
     public String getFormat( String name ) {
         return name.substring( name.lastIndexOf( '.' ) + 1 );
     }
 
+	@Override
     public boolean scaleProportionallyWithMax( File input, File output, int maxHeight, int maxWidth ) throws IOException {
         String name = input.getName();
         String format = name.substring( name.lastIndexOf( '.' ) + 1 );
@@ -259,11 +269,13 @@ public class ImageService {
         }
     }
 
+	@Override
     public boolean scaleProportionallyWithMax( InputStream in, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
         BufferedImage image = read( in, format );
         return scaleProportionallyWithMax( image, out, maxHeight, maxWidth, format );
     }
 
+	@Override
     public boolean scaleProportionallyWithMax( BufferedImage image, OutputStream out, int maxHeight, int maxWidth, String format ) throws IOException {
         format = format.toLowerCase();
         if( image == null ) {
@@ -297,6 +309,7 @@ public class ImageService {
         return true;
     }
 
+	@Override
     public boolean scaleProportionallyFromHeight( File input, File output, int height ) throws IOException {
         BufferedImage image = ImageIO.read( input );
         return scaleProportionallyFromHeight( image, output, height );
@@ -330,6 +343,7 @@ public class ImageService {
         }
     }
 
+	@Override
     public void write( BufferedImage input, OutputStream out ) throws IOException {
         Iterator iter = ImageIO.getImageWritersByFormatName( "JPG" );
         if( iter.hasNext() ) {
@@ -346,6 +360,7 @@ public class ImageService {
         }
     }
 
+	@Override
     public void write( BufferedImage image, OutputStream out, String format ) {
         try {
 //            Sanselan.writeImage( image, out, ImageFormat.IMAGE_FORMAT_JPEG, null);
@@ -362,6 +377,7 @@ public class ImageService {
         }
     }
 
+	@Override
     public BufferedImage read( InputStream is, String type ) throws FileNotFoundException, IOException {
 //        BufferedImage image;
 //        try {
