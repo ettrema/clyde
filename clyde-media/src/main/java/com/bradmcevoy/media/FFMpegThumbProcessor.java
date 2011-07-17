@@ -27,7 +27,6 @@ public class FFMpegThumbProcessor implements ThumbProcessor {
 	private String ffmpegProcess = "ffmpeg";
 
 	public int generateThumbs(ImageFile imageFile, List<Thumb> thumbs, boolean skipIfExists) throws FileNotFoundException, IOException {
-		int cnt = 0;
 		Folder parent = imageFile.getParent();
 		GenContext genContext = new GenContext(imageFile, skipIfExists, parent);
 
