@@ -13,12 +13,15 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.BaseResource;
+import com.bradmcevoy.web.BaseResourceList;
+import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.ImageFile;
 import com.bradmcevoy.web.ImageFile.ImageData;
 import com.bradmcevoy.web.Page;
+import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.ClydeAuthenticator;
 import com.bradmcevoy.web.security.ClydeAuthoriser;
@@ -41,188 +44,190 @@ import java.util.Map;
  */
 public class RssResource implements GetableResource, DigestResource {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RssResource.class);
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RssResource.class);
+	public static final String PATTERN_RESPONSE_HEADER = "E, dd MMM yyyy HH:mm:ss Z"; // Tue, 29 Jun 2010 10:37:14 +1200
+	private final String name;
+	private final Folder folder;
 
-    public static final String PATTERN_RESPONSE_HEADER = "E, dd MMM yyyy HH:mm:ss Z"; // Tue, 29 Jun 2010 10:37:14 +1200
+	public RssResource(Folder folder, String name) {
+		this.name = name;
+		this.folder = folder;
+	}
 
-    private final String name;
-    private final Folder folder;
+	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+		log.trace("sendContent1");
+		String where = params.get("where");
+		boolean includeImages = true;
+		boolean includePages = true;
+		boolean includeBinaries = true;
+		if (where != null && where.length() > 0) {
+			if (where.equals("image")) {
+				log.debug("not include pages");
+				includePages = false;
+				includeBinaries = false;
+			} else if (where.equals("page")) {
+				log.debug("not include images");
+				includeImages = false;
+				includeBinaries = false;
+			} else {
+				log.warn("unknown where: " + where);
+			}
+		}
 
-    public RssResource(Folder folder, String name) {
-        this.name = name;
-        this.folder = folder;
-    }
+		BaseResourceList list = getResources();
+		list = list.getSortByModifiedDate();
+		XmlWriter writer = new XmlWriter(out);
+		writer.writeXMLHeader();
+		Element elChannel = writer.begin("rss").writeAtt("version", "2.0").begin("channel").prop("title", folder.getTitle()).prop("link", folder.getHref());
+		if (log.isTraceEnabled()) {
+			log.trace("sendContent: resources: " + list.size());
+		}
+		for (Templatable r : list) {
+			if (r instanceof RecentResource) {
+				RecentResource rr = (RecentResource) r;
+				appendBaseResource(rr.getTargetResource(), elChannel, includeImages, includePages, includeBinaries);
+			} else if(r instanceof BaseResource) {
+				appendBaseResource((BaseResource)r, elChannel, includeImages, includePages, includeBinaries);
+			}
+		}
+		elChannel.close().close();
 
-    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
-        log.trace("sendContent");
-        String where = params.get("where");
-        boolean includeImages = true;
-        boolean includePages = true;
-        if (where != null && where.length() > 0) {
-            if (where.equals("image")) {
-                log.debug("not include pages");
-                includePages = false;
-            } else if (where.equals("page")) {
-                log.debug("not include images");
-                includeImages = false;
-            } else {
-                log.warn("unknown where: " + where);
-            }
-        }
+		writer.flush();
+	}
 
-        List<BaseResource> list = getResources();
-        XmlWriter writer = new XmlWriter(out);
-        writer.writeXMLHeader();
-        Element elChannel = writer.begin("rss").writeAtt("version", "2.0").begin("channel").prop("title", folder.getTitle()).prop("link", folder.getHref());
+	private void appendBaseResource(BaseResource r, Element elChannel, boolean includeImages, boolean includePages, boolean includeBinaries) {
+		if (r == null) {
+			return;
+		}
 
-        for (BaseResource r : list) {
-            if (r instanceof RecentResource) {
-                RecentResource rr = (RecentResource) r;
-                appendBaseResource(rr.getTargetResource(), elChannel, includeImages, includePages);
-            } else {
-                appendBaseResource(r, elChannel, includeImages, includePages);
-            }
-        }
-        elChannel.close().close();
+		if (r instanceof ImageFile && includeImages) {
+			ImageFile img = (ImageFile) r;
+			appendImage(img, elChannel);
+		} else if (r instanceof Page && includePages) {
+			Page page = (Page) r;
+			appendPage(page, elChannel);
+		} else if( r instanceof BinaryFile && includeBinaries) {
+			BinaryFile bf = (BinaryFile) r;
+			appendBinaryFile(bf, elChannel);
+		} else {
+			log.trace("Not including: " + r.getClass());
+		}
 
-        writer.flush();
-    }
+	}
 
-    private void appendBaseResource(BaseResource r, Element elChannel, boolean includeImages, boolean includePages) {
-        if (r == null) {
-            return;
-        }
+	private void appendPage(Page page, Element elChannel) {
+		User creator = page.getCreator();
+		String author = null;
+		if (creator != null) {
+			author = creator.getName();
+		}
+		Element elItem = elChannel.begin("item").prop("title", page.getTitle()).prop("description", page.getBrief()).prop("link", page.getHref()).prop("pubDate", formatDate(page.getModifiedDate()));
 
-        if (r instanceof ImageFile && includeImages) {
-            ImageFile img = (ImageFile) r;
-            appendImage(img, elChannel);
-        } else if (r instanceof Page && includePages) {
-            Page page = (Page) r;
-            appendPage(page, elChannel);
-        }
+		if (author != null) {
+			elItem.prop("author", author);
+		}
+		elItem.close();
+	}
+	
+	private void appendBinaryFile(BinaryFile page, Element elChannel) {
+		User creator = page.getCreator();
+		String author = null;
+		if (creator != null) {
+			author = creator.getName();
+		}
+		Element elItem = elChannel.begin("item").prop("title", page.getName()).prop("link", page.getHref()).prop("pubDate", formatDate(page.getModifiedDate()));
 
-    }
+		if (author != null) {
+			elItem.prop("author", author);
+		}
+		elItem.close();
+	}	
 
-    private void appendPage(Page page, Element elChannel) {
-        User creator = page.getCreator();
-        String author = null;
-        if( creator != null ) {
-            author = creator.getName();
-        }
-        Element elItem = elChannel.begin("item")
-                .prop("title", page.getTitle())
-                .prop("description", page.getBrief())
-                .prop("link", page.getHref())
-                .prop("pubDate", formatDate(page.getModifiedDate()));
+	private void appendImage(ImageFile target, Element elChannel) {
+		ImageData data = target.imageData(false);
+		Element elImg = elChannel.begin("image").prop("title", target.getTitle()).prop("link", target.getParent().getHref()).prop("pubDate", formatDate(target.getModifiedDate())).prop("url", target.getHref());
+		if (data != null) {
+			elImg.prop("width", data.getWidth());
+			elImg.prop("height", data.getHeight());
+		}
+		elImg.close(true);
+	}
 
-        if( author != null ) {
-            elItem.prop("author",author);
-        }
+	public Long getMaxAgeSeconds(Auth auth) {
+		return null;
+	}
 
-        elItem.close();
+	public String getContentType(String accepts) {
+		return "application/rss+xml ";
+	}
 
-    }
+	public Long getContentLength() {
+		return null;
+	}
 
-    private void appendImage(ImageFile target, Element elChannel) {
-        ImageData data = target.imageData(false);
-        Element elImg = elChannel.begin("image")
-                .prop("title", target.getTitle())
-                .prop("link", target.getParent().getHref())
-                .prop("pubDate", formatDate(target.getModifiedDate()))
-                .prop("url", target.getHref());
-        if (data != null) {
-            elImg.prop("width", data.getWidth());
-            elImg.prop("height", data.getHeight());
-        }
-        elImg.close(true);
-    }
+	public String getUniqueId() {
+		return null;
+	}
 
-    public Long getMaxAgeSeconds(Auth auth) {
-        return null;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getContentType(String accepts) {
-        return "application/rss+xml ";
-    }
+	public boolean authorise(Request request, Method method, Auth auth) {
+		ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
+		return authoriser.authorise(folder, request, method, auth);
+	}
 
-    public Long getContentLength() {
-        return null;
-    }
+	public String getRealm() {
+		return getHost().getName();
+	}
 
-    public String getUniqueId() {
-        return null;
-    }
+	public Date getModifiedDate() {
+		return null;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String checkRedirect(Request request) {
+		return null;
+	}
 
-    public boolean authorise(Request request, Method method, Auth auth) {
-        ClydeAuthoriser authoriser = requestContext().get(ClydeAuthoriser.class);
-        return authoriser.authorise(folder, request, method, auth);
-    }
+	@Override
+	public IUser authenticate(String user, String password) {
+		ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
+		IUser o = authenticator.authenticate(folder, user, password);
+		if (o == null) {
+			log.warn("authentication failed by: " + authenticator.getClass());
+		}
+		return o;
+	}
 
-    public String getRealm() {
-        return getHost().getName();
-    }
+	@Override
+	public Object authenticate(DigestResponse digestRequest) {
+		ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
+		Object o = authenticator.authenticate(folder, digestRequest);
+		if (o == null) {
+			log.warn("authentication failed by: " + authenticator.getClass());
+		}
+		return o;
+	}
 
-    public Date getModifiedDate() {
-        return null;
-    }
+	public boolean isDigestAllowed() {
+		return folder.isDigestAllowed();
+	}
 
-    public String checkRedirect(Request request) {
-        return null;
-    }
+	protected RequestContext requestContext() {
+		return RequestContext.getCurrent();
+	}
 
-    @Override
-    public IUser authenticate(String user, String password) {
-        ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
-        IUser o = authenticator.authenticate(folder, user, password);
-        if (o == null) {
-            log.warn("authentication failed by: " + authenticator.getClass());
-        }
-        return o;
-    }
+	public Host getHost() {
+		return folder.getHost();
+	}
 
-    @Override
-    public Object authenticate(DigestResponse digestRequest) {
-        ClydeAuthenticator authenticator = requestContext().get(ClydeAuthenticator.class);
-        Object o = authenticator.authenticate(folder, digestRequest);
-        if (o == null) {
-            log.warn("authentication failed by: " + authenticator.getClass());
-        }
-        return o;
-    }
+	private BaseResourceList getResources() {
+		return (BaseResourceList) folder.getChildren();
+	}
 
-
-    public boolean isDigestAllowed() {
-        return folder.isDigestAllowed();
-    }
-
-    protected RequestContext requestContext() {
-        return RequestContext.getCurrent();
-    }
-
-    public Host getHost() {
-        return folder.getHost();
-    }
-
-    private List<BaseResource> getResources() {
-        List<BaseResource> list = new ArrayList<BaseResource>();
-        for (Resource r : folder.getChildren()) {
-            if (r instanceof BaseResource) {
-                list.add((BaseResource) r);
-            }
-        }
-        return list;
-    }
-
-
-    public String formatDate(Date date) {
-        DateFormat df = new SimpleDateFormat(PATTERN_RESPONSE_HEADER);
-        return df.format(date);
-    }
-
-
-
+	public String formatDate(Date date) {
+		DateFormat df = new SimpleDateFormat(PATTERN_RESPONSE_HEADER);
+		return df.format(date);
+	}
 }

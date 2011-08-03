@@ -453,6 +453,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             //ct = null;
             ct = getDefaultContentType();
         }
+		if( ct != null && ct.contains(",")) {
+			String[] arr = ct.split(",");
+			ct = arr[0];
+		}
+			
         if (log.isTraceEnabled()) {
             log.trace("getContentType: " + accepts + " -> " + ct);
         }
