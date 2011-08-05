@@ -6,7 +6,6 @@ import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
-import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.XmlWriter;
 import com.bradmcevoy.http.XmlWriter.Element;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -30,9 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -121,7 +118,7 @@ public class RssResource implements GetableResource, DigestResource {
 		if (creator != null) {
 			author = creator.getName();
 		}
-		Element elItem = elChannel.begin("item").prop("title", page.getTitle()).prop("description", page.getBrief()).prop("link", page.getHref()).prop("pubDate", formatDate(page.getModifiedDate()));
+		Element elItem = elChannel.begin("item").prop("title", page.getTitle()).prop("description", fixHtml(page.getBrief())).prop("link", page.getHref()).prop("pubDate", formatDate(page.getModifiedDate()));
 
 		if (author != null) {
 			elItem.prop("author", author);
@@ -223,11 +220,15 @@ public class RssResource implements GetableResource, DigestResource {
 	}
 
 	private BaseResourceList getResources() {
-		return (BaseResourceList) folder.getChildren();
+		return (BaseResourceList) folder.getPagesRecursive();
 	}
 
 	public String formatDate(Date date) {
 		DateFormat df = new SimpleDateFormat(PATTERN_RESPONSE_HEADER);
 		return df.format(date);
+	}
+	
+	private String fixHtml(String s) {
+		return s.replace("&nbsp", "#160;");
 	}
 }

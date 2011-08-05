@@ -24,6 +24,7 @@ import com.bradmcevoy.web.code.meta.PdfMetaHandler;
 import com.bradmcevoy.web.code.meta.TemplateMetaHandler;
 import com.bradmcevoy.web.code.meta.TextFileMetaHandler;
 import com.bradmcevoy.web.code.meta.UserMetaHandler;
+import com.bradmcevoy.web.code.meta.WebMetaHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -214,6 +215,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         FolderMetaHandler folderMetaHandler = add(new FolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
         PageMetaHandler pageMetaHandler = add(new PageMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new GroupMetaHandler(folderMetaHandler), mapOfAliases);
+		add(new WebMetaHandler(folderMetaHandler), mapOfAliases);
         add(new UserMetaHandler(folderMetaHandler), mapOfAliases);
         add(new CsvViewMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new CsvPageMetaHandler(baseResourceMetaHandler), mapOfAliases);

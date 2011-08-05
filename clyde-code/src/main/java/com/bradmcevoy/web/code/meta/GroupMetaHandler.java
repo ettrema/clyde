@@ -7,7 +7,6 @@ import com.bradmcevoy.web.Group;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.code.MetaHandler;
 import com.bradmcevoy.web.component.InitUtils;
-import java.util.Arrays;
 import org.jdom.Element;
 
 /**

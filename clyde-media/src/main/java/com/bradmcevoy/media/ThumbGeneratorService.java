@@ -146,7 +146,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         } else if (dn instanceof FlashFile) {
             count = generate( (FlashFile) dn );
         } else {
-            log.warn( "Target page is not of type CommonTemplated. Is a: " + dn.getClass().getName() );
+            log.warn( "Target page is not a media file. Is a: " + dn.getClass().getName() );
             return false;
         }
         log.trace( "generated: " + count + " thumb files for: " + dn.getHref() );

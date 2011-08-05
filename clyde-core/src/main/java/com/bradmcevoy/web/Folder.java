@@ -462,8 +462,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return getChildren(template);
     }
 
-    public List<? extends Resource> getPagesRecursive() {
-        List<? extends Resource> list = new BaseResourceList();
+    public BaseResourceList getPagesRecursive() {
+        BaseResourceList list = new BaseResourceList();
         appendChildrenRecursive(list, 0);
         return list;
     }
