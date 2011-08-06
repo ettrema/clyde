@@ -1,10 +1,6 @@
 package com.bradmcevoy.web;
 
 import com.bradmcevoy.http.values.HrefList;
-import com.ettrema.http.AccessControlledResource;
-import com.bradmcevoy.http.Auth;
-import com.ettrema.http.AccessControlledResource.Priviledge;
-import com.ettrema.http.acl.Principal;
 import com.bradmcevoy.utils.ClydeUtils;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;
@@ -486,6 +482,29 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             }
         }
     }
+	
+    public BaseResourceList getFoldersRecursive() {
+        BaseResourceList list = new BaseResourceList();
+        appendFoldersRecursive(list, 0);
+        return list;
+    }
+
+    private void appendFoldersRecursive(List list, int depth) {
+        if (depth > 5) {
+            return;
+        }
+        for (Resource r : this.getChildren()) {
+            if (r instanceof Folder) {
+                Folder f = (Folder) r;
+				 list.add(r);
+                if (!f.getName().equals("templates")) {
+                    f.appendChildrenRecursive(list, depth++);
+                }
+            } else {
+                // do nothing
+            }
+        }
+    }	
 
     @Override
     public Resource createNew(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
