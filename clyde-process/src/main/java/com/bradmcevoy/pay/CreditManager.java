@@ -59,7 +59,8 @@ public class CreditManager {
 	public void createStorageDebit(Token token, Host host, String productCode, String description) {
 		Long hw = quotaManager.getHighwater(token);
 		if( hw == null || hw.longValue() == 0) {
-			log.info("do storage cost");
+			log.info("no storage cost");
+			return ;
 		}
 		BigDecimal bdHighwaterGigs = new BigDecimal(hw);
 		DateTime dtLastDebitDate = getLastStorageDebitDate(token);

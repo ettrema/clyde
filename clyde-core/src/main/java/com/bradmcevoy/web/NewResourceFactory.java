@@ -12,6 +12,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.utils.LogUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -31,14 +32,14 @@ public class NewResourceFactory extends CommonResourceFactory {
 
     @Override
     public Resource getResource( String host, String url ) {
-//        log.debug("getResource: host=" + host + " url=" + url);
+        LogUtils.trace(log, "getResource: host=", host, " url=", url);
         Path path = Path.path( url );
         if( REDIRECT_TO_NEW_PATH.equals( path.getName() ) ) {
             Path pRes = NewPage.getPagePath( path );
             Path folder = pRes.getParent();
             Resource r = next.getResource( host, folder.toString() );
             if( r == null ) {
-                log.debug( "folder not found, not returning New page" );
+                log.trace( "folder not found, not returning New page" );
                 return null;
             } else {
                 Folder f = (Folder) r;
@@ -70,7 +71,9 @@ public class NewResourceFactory extends CommonResourceFactory {
                 }
             }
         } else {
-            return next.getResource( host, url );
+            Resource r = next.getResource( host, url );
+			LogUtils.trace(log, "got result:", r);
+			return r;
         }
     }
 

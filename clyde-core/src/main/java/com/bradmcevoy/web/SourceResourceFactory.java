@@ -14,6 +14,7 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.vfs.VfsCommon;
@@ -40,13 +41,13 @@ public class SourceResourceFactory extends CommonResourceFactory {
 
     @Override
     public Resource getResource( String host, String url ) {
-        log.debug( "getResource: " + url );
+        LogUtils.trace(log, "getResource: ", url );
         Path path = Path.path( url );
         if( SourcePage.isSourcePath( path ) ) {
             Path pagePath = SourcePage.getPagePath( path );
             Resource res = next.getResource( host, pagePath.toString() );
             if( res == null ) {
-                log.debug( "resource not found" );
+                LogUtils.trace(log, "resource not found from:", next.getClass() );
                 Resource rParent = next.getResource( host, pagePath.getParent().toString() );
                 if( rParent == null ) {
                     return null;
