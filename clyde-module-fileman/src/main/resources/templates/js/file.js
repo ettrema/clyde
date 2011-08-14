@@ -3,11 +3,23 @@ var currentFolderUrl;
 var currentFolderTemplate;
 var currentThumbId;
 var thumbs;
+var accountRoot;
+var excludedPaths;
 
  
  
-function initTree() {
-    log('initTree');
+function initTree(pAccountRoot, pExcludedPaths) {
+	if( pAccountRoot) {
+		accountRoot = pAccountRoot;
+	} else {
+		accountRoot = "";
+	}
+	if( pExcludedPaths) {
+		excludedPaths = pExcludedPaths;
+	} else {
+		excludedPaths = new Array();
+	}
+    log('initTree', accountRoot);
     initUser();
 
     $( "#tabs" ).tabs();  // file manager tabs
@@ -51,7 +63,7 @@ function initTree() {
                     $.each(data, function(key, value) {
                         if( value.iscollection ) {
                             log('tree item', value.href, value.templateName);
-                            if( key > 0 && isDisplayableFileHref(value.href) ) {
+                            if( key > 0 && isDisplayable(value.href) ) {
                                 value.state = "closed"; // set the initial state
                                 value.data = value.name; // copy name to required property
                                 value.metadata = value;
@@ -167,15 +179,17 @@ function toPropFindUrl(path) {
 
 function basePath() {
     // Note this is used to strip the path from raw hrefs
-    return "";
+    //return "";
+	return accountRootPathNoSlash();
 }
 
 function accountRootPath() {
-    return "/";
+    return accountRoot + "/";
 }
 
 function accountRootPathNoSlash() {
-    return "";
+	return accountRoot;
+    //return "";
 //return "/sites/" + accountName;
 }
 
@@ -400,34 +414,47 @@ function toDisplayFolder(href) {
     return s;
 }
 
+/**
+ * Will callback to function(newUrl, newName)
+ */
 function showRename(href, oldName, callback) {
     var newName = prompt("Please enter a new name for " + oldName);
     if( newName ) {
         if( newName.length > 0 && newName != oldName ) {
-            renameFile(href, newName, function() {
-                refreshCurrentFolder();
+            renameFile(href, newName, function(newUrl, newName) {
                 if( callback ) {
-                    callback();
+					log("callback2")
+                    callback(newUrl, newName);
                 }
             });
         }
     }
 }
+/**
+ * Will callback to function(newUrl, newName)
+ */
 function renameFile(href, newName, callback) {    
     ajaxLoadingOn();
     var newUrl = getParentHref(href) + "/" + newName;
-    log("renameFile", newUrl);
+	var targetUrl = href;
+	if( !targetUrl.endsWith("/")) {
+		targetUrl += "/";		
+	}
+	targetUrl += "_DAV/MOVE";
+    log("renameFile2", newUrl);
     $.ajax({
         type: 'POST',
-        url: href + "/_DAV/MOVE",
+        url: targetUrl,
         data: "destination=" + newUrl,
         dataType: "json",
         success: function() {
             log('success');
             ajaxLoadingOff();
+			log('success - show confirmation');
             showThankyou("Rename", "The file has been renamed to " + newName);
             if( callback ) {
-                callback();
+				log("callback1");
+                callback(newUrl, newName);
             }
         },
         error: function(resp) {            
@@ -436,10 +463,7 @@ function renameFile(href, newName, callback) {
             showThankyou("Error", "Sorry, the file could not be renamed.");
         }
     });
-
 }
-
-
 
 function confirmDelete(href, name, callback) {
     if( confirm("Are you sure you want to delete " + name + "?")) {
@@ -489,8 +513,11 @@ function showCreateFolder() {
     });
 }
 
+
+
+
 function createFolder(name) {
-    var encodedName = $.URLEncode(name);
+    var encodedName = name; //$.URLEncode(name);
     ajaxLoadingOn();
     $.ajax({
         type: 'POST',
@@ -509,6 +536,7 @@ function createFolder(name) {
         }
     });
 }
+
 
 function ajaxLoadingOn(sel) {
     log('ajax ON', sel);
@@ -560,4 +588,26 @@ function getParentHref(href) {
     href = href.substring(0, pos);
     log(' - result: ', href);
     return href;
+}
+
+function isExcluded(href) {
+	log("isExcluded", href, excludedPaths);
+	for(i=0; i<excludedPaths.length; i++) {
+		var p = accountRootPathNoSlash() + excludedPaths[i];
+		log("starts with", href, p);
+		if( href.startsWith(p)) {
+			log("yep");
+			return true;
+		}
+		log("nup");
+	}
+	return false;
+}
+function isDisplayable(href) {
+	if( isExcluded(href)) {
+		return false;
+	} else if( !isDisplayableFileHref(href)) {
+		return false;
+	}
+	return true;
 }
