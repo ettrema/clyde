@@ -2,10 +2,13 @@ package com.bradmcevoy.web.creation;
 
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.WritingException;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
+import com.bradmcevoy.web.Template;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  *
@@ -16,7 +19,22 @@ public class FolderCreator implements Creator {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FolderCreator.class );
 
     public static ITemplate findNewFolderTemplate(Folder parent ){
-		return parent.getTemplate( "folder" );
+		LogUtils.trace(log, "findNewFolderTemplate: folder name: ", parent.getName());
+		ITemplate folderTemplate = parent.getTemplate( "folder" );
+		if( folderTemplate != null ) {
+			log.trace("findNewFolderTemplate: found a template called 'folder'");
+			return folderTemplate;
+		}
+		List<Template> templateSpecs = parent.getAllowedTemplates();
+		LogUtils.trace(log, "findNewFolderTemplate: got template specs", templateSpecs.size());
+		for( Template t : templateSpecs ) {
+			if( t.represents("folder")) {
+				LogUtils.trace(log, "findNewFolderTemplate: Found template for folder", t.getName());
+				return t;
+			}
+		}
+		log.trace("findNewFolderTemplate: couldnt find a folder template");
+		return null;
     }
     
     @Override

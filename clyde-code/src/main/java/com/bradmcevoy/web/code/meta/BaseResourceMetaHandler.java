@@ -135,10 +135,7 @@ public class BaseResourceMetaHandler {
 
         commonTemplatedMetaHandler.updateFromXml( res, el, includeContentVals );
 
-        res.setRedirect( InitUtils.getValue( el, "redirect" ) );
-
-
-        List<Element> permElements = JDomUtils.childrenOf( el, "permissions", CodeMeta.NS );
+        res.setRedirect( InitUtils.getValue( el, "redirect" ) );      
 
         GroupService groupService = _( GroupService.class );
 
@@ -157,6 +154,7 @@ public class BaseResourceMetaHandler {
             }
         }
 
+		List<Element> permElements = JDomUtils.childrenOf( el, "permissions", CodeMeta.NS );
         if( permElements.size() > 0 ) {
             log.trace( "adding permissions: " + permElements.size() );
             for( Element elPerm : permElements ) {
@@ -178,6 +176,7 @@ public class BaseResourceMetaHandler {
                         }
                         UserGroup group = groupService.getGroup( res, groupName );
                         if( group != null ) {
+							log.info("Add new permission: " + role + " - " + group.getSubjectName());
                             res.permissions( true ).grant( role, group );
                         } else {
                             log.error("Group not found: " + groupName);

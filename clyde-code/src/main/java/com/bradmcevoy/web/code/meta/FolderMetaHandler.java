@@ -4,7 +4,6 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.utils.JDomUtils;
 import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Template;
 import com.bradmcevoy.web.TemplateSpecs;
 import com.bradmcevoy.web.Thumb;
 import com.bradmcevoy.web.code.CodeMeta;

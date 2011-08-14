@@ -84,6 +84,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
             } else if (isCreate) {                
                 if (resource instanceof Folder) {
                     Folder f = (Folder) t;
+					log.trace("findRole: look for appropriate template");
                     ITemplate template = FolderCreator.findNewFolderTemplate(f);
                     if (template == null) {
                         log.trace("findRole: isCreate: couldnt locate a folder template, default to AUTHOR");

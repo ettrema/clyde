@@ -5,6 +5,7 @@ import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.utils.CurrentRequestService;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.utils.RelationUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Group;
@@ -40,6 +41,7 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         this.permissionChecker = permissionChecker;
     }
 
+	@Override
     public List<Subject> getMembers(UserGroup group) {
         log.trace("getMembers");
         NameNode nFrom;
@@ -62,6 +64,7 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         }
     }
 
+	@Override
     public void addToGroup(IUser user, CustomUserGroup group) {
         log.trace("addToGroup");
         if (group == null) {
@@ -90,6 +93,7 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         }
     }
 
+	@Override
     public UserGroup getGroup(Resource relativeTo, String name) {
         if (log.isTraceEnabled()) {
             log.trace("getGroup: " + name);
@@ -110,8 +114,9 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         return wrapped.getGroup(relativeTo, name);
     }
 
+	@Override
     public boolean isInGroup(IUser user, Group group) {
-        log.trace("isInGroup");
+        LogUtils.trace(log, "isInGroup: user: ", user.getName(), "group:", group.getName());
         List<Relationship> rels = user.getNameNode().findFromRelations(REL_NAME);
         if (CollectionUtils.isEmpty(rels)) {
             return false;

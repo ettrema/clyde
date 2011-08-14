@@ -58,7 +58,7 @@ public class DeleteCommand extends Command {
     protected String doProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         log.debug("doing delete");
         PermissionChecker permissionChecker = requestContext().get( PermissionChecker.class);
-
+		
         if( !permissionChecker.hasRole( Role.AUTHOR, rc.getTargetPage(), RequestParams.current().getAuth()) ) {
             throw new RuntimeException( "no permission to delete");
         }

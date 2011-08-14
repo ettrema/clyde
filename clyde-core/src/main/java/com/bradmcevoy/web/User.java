@@ -394,6 +394,7 @@ public class User extends Folder implements IUser {
 
 	@Override
     public boolean appliesTo(Subject user) {
+		log.trace("appliesTo");
         if (user instanceof User) {
             User u = (User) user;
             return u.getNameNodeId().equals(this.getNameNodeId());

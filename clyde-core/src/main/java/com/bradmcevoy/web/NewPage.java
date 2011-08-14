@@ -85,7 +85,11 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.getHref() + newName + ".new";
     }
 
-    private String findAutoName(Map<String, String> parameters) {
+	public String findAutoName(Map<String, String> parameters) {
+		return findAutoName(folder, parameters);
+	}
+	
+    public static String findAutoName(Folder folder, Map<String, String> parameters) {
         String nameToUse = getImpliedName(parameters);
         if( nameToUse != null) {
             nameToUse = nameToUse.toLowerCase().replace("/", "");
@@ -93,14 +97,17 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             nameToUse = nameToUse.toLowerCase().replace("\"", "");
             nameToUse = nameToUse.toLowerCase().replace("@", "-");
             nameToUse = nameToUse.replace(" ", "-");
-            nameToUse = ClydeUtils.getUniqueName(this.folder, nameToUse);
+            nameToUse = ClydeUtils.getUniqueName(folder, nameToUse);
         } else {
-            nameToUse = ClydeUtils.getDateAsNameUnique(this.folder);
+            nameToUse = ClydeUtils.getDateAsNameUnique(folder);
         }
         return nameToUse;
     }
     
-    private String getImpliedName(Map<String, String> parameters) {
+    private static String getImpliedName(Map<String, String> parameters) {
+		if( parameters == null ) {
+			return null;
+		}
         if (parameters.containsKey("name")) {
             return parameters.get("name");
         } else if (parameters.containsKey("fullName")) {

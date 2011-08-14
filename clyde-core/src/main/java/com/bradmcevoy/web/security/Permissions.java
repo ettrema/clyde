@@ -1,14 +1,9 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.utils.GroovyUtils;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResource.RoleAndGroup;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.vfs.DataNode;
@@ -69,15 +64,17 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
         if (role == null) {
             throw new IllegalArgumentException("role is null");
         }
+		LogUtils.info(log,"grant: ", role, subject.getSubjectName());
         if (this.allows(subject, role)) {
-            log.trace("already has permission");
+            log.trace("grant: already has permission");
             return;
         }
         if (subject instanceof PermissionRecipient) {
             PermissionRecipient res = (PermissionRecipient) subject;
-            log.trace("make relation: " + role);
+            LogUtils.trace(log, "grant: subject is permission recipient, so make relation: ", role);
             this.nameNode.makeRelation(res.getNameNode(), role.toString());
         } else if (subject instanceof SystemUserGroup) {
+			LogUtils.trace(log, "grant: subject is SystemUserGroup, so create new RoleAndGroup: ", role);
             RoleAndGroup rag = new RoleAndGroup(role, subject.getSubjectName());
             addGroup(rag);
         } else {
@@ -304,9 +301,9 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
      * @return - true if the user should be permitted the requested access
      */
     public boolean allows(Subject user, Role requestedRole) {
-        if (log.isTraceEnabled()) {
-            log.trace("allows: " + requestedRole);
-        }
+
+		LogUtils.trace(log, "allows: ", user.getSubjectName(), requestedRole);
+        
         List<Relationship> rels = this.nameNode.findFromRelations(requestedRole.toString());
         if (!CollectionUtils.isEmpty(rels)) {
             for (Relationship r : rels) {
@@ -314,14 +311,22 @@ public class Permissions implements List<Permission>, DataNode, Serializable {
                 if (to != null) {
                     PermissionRecipient grantee = (PermissionRecipient) to.getData();
                     if (grantee != null) {
+						LogUtils.trace(log, "allows: check is grantee applies to requested", grantee.getClass());
                         if (grantee.appliesTo(user)) {
                             log.trace("allows: found granted user");
                             return true;
                         }
-                    }
-                }
+                    } else {
+						log.warn("allows: grantee is null");
+					}
+                } else {
+					log.warn("allows: to node is null");
+				}
             }
-        }        
+        } else {
+			log.trace("allows: relations is empty");
+		}
+			
 
         if(log.isTraceEnabled()) {
             log.trace("allows: didnt get a definitive answer so return false");

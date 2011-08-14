@@ -116,6 +116,7 @@ formatter - the standard formatter
     maxAge CDATA #IMPLIED
     disableExport (true|false) #IMPLIED
     instanceType (folder|page|group|user|event|binaryFile|pdf) #IMPLIED
+	docType (STRICT|TRANSITIIONAL|XSTRICT|XTRANSITIONAL) #IMPLIED
   >
 
 <!ELEMENT c:thumbs (c:thumb)*>

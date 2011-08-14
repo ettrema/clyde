@@ -6,6 +6,7 @@ import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.utils.GroovyUtils;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.ComponentDef;
@@ -143,8 +144,12 @@ public class Template extends Page implements ITemplate, SimpleEditable {
         String tname = getName();
         boolean b = type.equals(tname) || (type + ".html").equals(tname);
         if (b) {
+			LogUtils.trace(log, "represents: type matches template name");
             return true;
         }
+		if( "folder".equals(type)) {
+			return canCreateFolder();
+		}
         ITemplate parent = getTemplate();
         if (parent != null) {
             return parent.represents(type);
