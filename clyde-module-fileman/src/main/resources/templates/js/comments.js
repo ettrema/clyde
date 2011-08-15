@@ -21,8 +21,8 @@ function showForumReply() {
 
 
 function sendNewForumComment( commentId, containerId) {
-    log('sendNewForumComment', commentUrl);
     var comment = $("#" + commentId).val();
+    log('sendNewForumComment', commentUrl, comment, commentId,  $("#" + commentId));	
     var url = commentUrl + "_DAV/PROPPATCH";
     ajaxLoadingOn();
     $.ajax({
@@ -34,6 +34,7 @@ function sendNewForumComment( commentId, containerId) {
             ajaxLoadingOff();
             $("#" + commentId).val('');
             addComment(containerId, userName, now(), comment);
+			$('#forumReply').dialog("close");
         },
         error: function() {
             ajaxLoadingOff();
@@ -67,6 +68,6 @@ function addComment(containerId, userName, commentDate, comment ) {
     s = s + "<p class='forumAnnotation'>" + userName + " | " + toDisplayDateNoTime(commentDate) + "</p>";
     s = s + "<p class='forumText'>" + comment + "</p>";
     var container = $("#" + containerId);
-    container.append("<div class='forumComment'>" + s + "</div>");
+    container.prepend("<div class='forumComment'>" + s + "</div>");
 
 }

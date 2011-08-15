@@ -35,7 +35,7 @@ function initUploads() {
 function showUploadModal() {
 	$("#uploads").dialog({
 		modal: true,
-		width: 500,
+		width: 600,
 		title: "Upload"
 	});
 }
@@ -47,7 +47,7 @@ function showUploadModal() {
 			dragenterClass: "",
 			dragleaveClass: "",
 			dropListing: "#dropListing",
-			loaderIndicator: "#progress"
+			loaderIndicator: "#fileDropContainer .progress"
 		};
 		var options = $.extend(defaults, options);
 
@@ -73,8 +73,8 @@ function showUploadModal() {
 				var data = event.originalEvent.dataTransfer;
 				event.stopPropagation();
 				event.preventDefault();
-				addToList(event.originalEvent.dataTransfer, options.dropListing, options.loaderIndicator);
-				upload(postURL, fieldName, data);
+				addToList(event.originalEvent.dataTransfer, options.dropListing);
+				upload(postURL, fieldName, data, options.loaderIndicator);
 			}, false);
 		});
 	};
@@ -96,128 +96,66 @@ function dropSetup() {
 };
 
 function upload(postURL, fieldName, dataTransfer, loaderIndicator) {
-	log("upload", postURL, fieldName, dataTransfer.files.length);
-	$.each(dataTransfer.files, function ( i, file ) {
-		log("send file", file.fileName);
-		var xhr    = new XMLHttpRequest();
-		var fileUpload = xhr.upload;
-		fileUpload.addEventListener("progress", function(event) {
-			if (event.lengthComputable) {
-				var percentage = Math.round((event.loaded * 100) / event.total);				
-				if (percentage < 100 && loaderIndicator) {
-					log("percent complete", percentage);
-					$(loaderIndicator).css("width", percentage + "%");
-					$(loaderIndicator).text(percentage + "%");
+	if( dataTransfer.files ) {
+		log("upload", postURL, fieldName, dataTransfer.files.length);
+		$.each(dataTransfer.files, function ( i, file ) {
+			log("send file", file.fileName);
+			var xhr    = new XMLHttpRequest();
+			var fileUpload = xhr.upload;
+			fileUpload.addEventListener("progress", function(event) {
+				if (event.lengthComputable) {
+					var percentage = Math.round((event.loaded * 100) / event.total);				
+					if (percentage < 100 && loaderIndicator) {
+						log("percent complete", percentage);
+						$(loaderIndicator).show();
+						$(loaderIndicator).css("width", percentage + "%");
+						$(loaderIndicator).text(percentage + "%");
+					}
 				}
+			}, false);
+				
+			fileUpload.addEventListener("load", function(event) {
+				$(loaderIndicator).text("Finished");
+			}, false);
+				
+			fileUpload.addEventListener("error", function(event) {
+				$(loaderIndicator).text("Error");
 			}
-		}, false);
-				
-		fileUpload.addEventListener("load", function(event) {
-			$(loaderIndicator).text("Finished");
-		}, false);
-				
-		fileUpload.addEventListener("error", function(event) {
-			$(loaderIndicator).text("Error");
-		}
-		, false);
-		xhr.open('PUT', postURL + "/" + file.fileName, true);
-		xhr.setRequestHeader('X-Filename', file.fileName);
+			, false);
+			xhr.open('PUT', postURL + "/" + file.fileName, true);
+			xhr.setRequestHeader('X-Filename', file.fileName);
  
-		xhr.send(file);
-	});
+			xhr.send(file);
+		});
+	} else {
+		log("upload: no files to upload");
+	}
 }
 
 function addToList(dataTransfer, dropListing) {	
 	log("addToList");
 	var files = dataTransfer.files;
-	for (var i = 0, f; f = files[i]; i++) {
-		var reader = new FileReader();
-		reader.onload = (function(theFile) {
-			return function(e) {
-				var li = $("<li>");
-				var img = $("<img>");
-				$(dropListing).append(li);
-				li.append(img);
+	if( files ) {
+		for (i = 0; i < files.length; i++) {
+			var f = files[i];
+			var reader = new FileReader();
+			reader.onload = (function(theFile) {
+				return function(e) {
+					var li = $("<li>");
+					var img = $("<img>");
+					$(dropListing).append(li);
+					li.append(img);
 	
-				var data = e.target.result;
-				img.attr("src", data); // base64 encoded string of local file(s)
-				img.attr("width", 150);
-				img.attr("height", 150);		
-				log("done addToList");	
-			};
-		})(f);
-		reader.readAsDataURL(f);
-	}	
-}
-
-function upload1(postURL, fieldName, data) {
-	log("upload", postURL, fieldName, data.files.length);
-	var boundary = '------multipartformboundary' + (new Date).getTime();
-	var dashdash = '--';
-	var crlf     = '\r\n';
-
-	/* Build RFC2388 string. */
-	var builder = '';
-
-	builder += dashdash;
-	builder += boundary;
-	builder += crlf;
-
-	var xhr = new XMLHttpRequest();
-
-	/* For each dropped file. */
-	for (var i = 0; i < data.files.length; i++) {
-		log("build upload for file", i);
-		var file = data.files[i];
-
-		/* Generate headers. */
-		builder += 'Content-Disposition: form-data; name="' + fieldName + '"';
-		if (file.fileName) {
-			builder += '; filename="' + file.fileName + '"';
-		}
-		builder += crlf;
-
-		builder += 'Content-Type: application/octet-stream';
-		builder += crlf;
-		builder += crlf; 
-
-		/* Append binary data. */
-		builder += file.getAsBinary();
-		builder += crlf;
-
-		/* Write boundary. */
-		builder += dashdash;
-		builder += boundary;
-		builder += crlf;
-		log("done..");
+					var data = e.target.result;
+					img.attr("src", data); // base64 encoded string of local file(s)
+					img.attr("width", 150);
+					img.attr("height", 150);		
+					log("done addToList");	
+				};
+			})(f);
+			reader.readAsDataURL(f);
+		}	
+	} else {
+		log("no files droppped? must be IE...");
 	}
-
-	/* Mark end of the request. */
-	builder += dashdash;
-	builder += boundary;
-	builder += dashdash;
-	builder += crlf;
-	log("begin upload", builder.length);
-	xhr.open("POST", postURL, true);
-	xhr.setRequestHeader('content-type', 'multipart/form-data; boundary=' + boundary);
-	xhr.sendAsBinary(builder);        
-
-	xhr.onload = function(event) {
-		/* Response from server */
-		log("response", event);
-		if (xhr.responseText) {
-			log(xhr.responseText);
-		}
-
-	};
-
 }
-
-
-
-
-
-
-
-
-
