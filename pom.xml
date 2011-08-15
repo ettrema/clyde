@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-modules</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
     <packaging>pom</packaging>
     <name>clyde-modules</name>
     <scm>
-        <connection>scm:svn:http://svn.ettrema.com/svn/clyde/trunk/modules</connection>
+        <connection>scm:svn:http://svn.ettrema.com/svn/clyde/tags/clyde-modules-1.0.5</connection>
     </scm>
     <distributionManagement>
         <repository>
