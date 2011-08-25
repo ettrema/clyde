@@ -14,4 +14,12 @@
                 <goal>release:perform</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-clean release:perform</actionName>
+            <displayName>clean release:perform</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>release:perform</goal>
+            </goals>
+        </action>
     </actions>
