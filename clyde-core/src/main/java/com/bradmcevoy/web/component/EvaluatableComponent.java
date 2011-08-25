@@ -37,18 +37,22 @@ public class EvaluatableComponent extends CommonComponent implements Serializabl
         evaluatable = EvalUtils.getEvalDirect(el, NS, container);
     }
 
+	@Override
     public void init(Addressable container) {
         this.container = container;
     }
 
+	@Override
     public Addressable getContainer() {
         return container;
     }
 
+	@Override
     public boolean validate(RenderContext rc) {
         return true;
     }
 
+	@Override
     public String render(RenderContext rc) {
         Object o = eval(rc);
         return Formatter.getInstance().toString(o);
@@ -60,15 +64,18 @@ public class EvaluatableComponent extends CommonComponent implements Serializabl
         return Formatter.getInstance().toString(o);
     }
 
+	@Override
     public String renderEdit(RenderContext rc) {
         Object o = eval(rc);
         return Formatter.getInstance().toString(o);
     }
 
+	@Override
     public String getName() {
         return name;
     }
 
+	@Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         Object result = evaluatable.evaluate(rc, container);
         if( result == null ) {
@@ -78,10 +85,12 @@ public class EvaluatableComponent extends CommonComponent implements Serializabl
         }
     }
 
+	@Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
 
     }
 
+	@Override
     public Element toXml(Addressable container, Element el) {
         Element e2 = new Element("component");
         el.addContent(e2);

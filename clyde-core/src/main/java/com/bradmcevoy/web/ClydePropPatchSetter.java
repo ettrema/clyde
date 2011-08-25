@@ -18,6 +18,7 @@ public class ClydePropPatchSetter implements PropPatchSetter{
         this.wrapped = wrapped;
     }
 
+	@Override
     public PropFindResponse setProperties(String href, ParseResult parseResult, Resource r) {
         log.debug("setProperties");
         PropFindResponse resp = wrapped.setProperties(href, parseResult, r);
@@ -27,6 +28,7 @@ public class ClydePropPatchSetter implements PropPatchSetter{
         return resp;
     }
 
+	@Override
     public boolean supports(Resource r) {
         if( r instanceof BaseResource) {
             return wrapped.supports(r);

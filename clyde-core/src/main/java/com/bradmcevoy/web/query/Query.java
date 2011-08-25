@@ -5,7 +5,6 @@ import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.EvaluatableComponent;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.query.OrderByField.Direction;
 import java.io.Serializable;
@@ -16,6 +15,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * A query has a list of fields to be evaluated for the rows in a source, where
@@ -37,6 +37,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     private Evaluatable where;
     private List<OrderByField> orderByFields;
 
+	@Override
     public List<String> getFieldNames() {
         ArrayList<String> list = new ArrayList<String>();
         for (Field f : selectFields) {
@@ -85,23 +86,32 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         this.where = where;
     }
 
+	@Override
     public Object evaluate(RenderContext rc, Addressable from) {
+		log.info("evaluate query");
         CommonTemplated relativeTo = (CommonTemplated) from;
         if (!(relativeTo instanceof Folder)) {
             relativeTo = relativeTo.getParentFolder();
 
         }
-        return getRows((Folder) relativeTo);
+		List<FieldSource> list = getRows((Folder) relativeTo);
+		log.trace("evaluate returned rows: " + list.size());
+		return list;
     }
 
+	@Override
     public Object evaluate(Object from) {
         Folder relativeTo = (Folder) from;
-        return getRows(relativeTo);
+        List<FieldSource> list =  getRows(relativeTo);
+		log.trace("evaluate returned rows: " + list.size());
+		return list;
     }
 
+	@Override
     public List<FieldSource> getRows(Folder relativeTo) {
         long t = System.currentTimeMillis();
         List<FieldSource> sourceRows;
+		
         try {
             log.trace("getRows: " + relativeTo.getHref());
             if (groupFields == null || groupFields.isEmpty()) {
@@ -120,7 +130,11 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
             } else {
                 log.trace("aggregating query");
                 Map<Row, Row> output = new HashMap<Row, Row>();
-                for (FieldSource fs : from.getRows(relativeTo)) {
+				long tt = System.currentTimeMillis();
+				List<FieldSource> fromRows = from.getRows(relativeTo);
+				tt = System.currentTimeMillis() - tt;
+				log.trace("got fromRows: " + fromRows.size() + " in " + tt + "ms");
+                for (FieldSource fs : fromRows) {
                     if (isWhereTrue(fs)) {
                         addAggregatedResult(fs, output);
                     }
@@ -130,9 +144,9 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
             }
         } finally {
             t = System.currentTimeMillis() - t;
-            if (t > 2000) {
+            if (t > 15000) {
                 log.warn("Very slow query: " + t + "ms");
-            } else if (t > 500) {
+            } else if (t > 1500) {
                 log.info("Slow query: " + t + "ms");
             } else {
                 if (log.isTraceEnabled()) {
@@ -141,6 +155,59 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
             }
         }
     }
+	
+	@Override
+	public long processRows(Folder relativeTo, RowProcessor rowProcessor) {
+        long t = System.currentTimeMillis();
+        List<FieldSource> sourceRows;
+		long count = 0;
+        try {
+            log.trace("getRows: " + relativeTo.getHref());
+            if (groupFields == null || groupFields.isEmpty()) {
+                log.trace("non aggregating query");
+                sourceRows = from.getRows(relativeTo);
+                log.trace("got source rows: " + sourceRows.size() + "  in " + (System.currentTimeMillis() - t) + "ms");
+				int rowNum = 0;
+                for (FieldSource fs : sourceRows) {
+                    if (isWhereTrue(fs)) {
+                        Row row = buildRow(fs, selectFields, rowNum++);
+						count++;
+                        rowProcessor.process(row);
+                    }
+                }
+                log.trace("done non aggregating process query in: " + (System.currentTimeMillis() - t) + "ms  rows: " + rowNum);
+            } else {
+                log.trace("aggregating query");
+                Map<Row, Row> output = new HashMap<Row, Row>();
+				long tt = System.currentTimeMillis();
+				List<FieldSource> fromRows = from.getRows(relativeTo);
+				tt = System.currentTimeMillis() - tt;
+				log.trace("got fromRows: " + fromRows.size() + " in " + tt + "ms");
+                for (FieldSource fs : fromRows) {
+                    if (isWhereTrue(fs)) {
+                        addAggregatedResult(fs, output);
+                    }
+                }
+                calcAggegatedFields(output);
+				for( Row row : output.values()) {
+					count++;
+					rowProcessor.process(row);
+				}
+            }
+			return count;
+        } finally {
+            t = System.currentTimeMillis() - t;
+            if (t > 15000) {
+                log.warn("Very slow query: " + t + "ms");
+            } else if (t > 1500) {
+                log.info("Slow query: " + t + "ms");
+            } else {
+                if (log.isTraceEnabled()) {
+                    log.trace("query time: " + t + "ms");
+                }
+            }
+        }
+	}	
 
     private boolean isWhereTrue(FieldSource fs) {
         if (where == null) {
@@ -184,9 +251,6 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         try {
             if (f.getEvaluatable() == null) {
                 Object o = fs.get(f.getName());
-                if( o instanceof EvaluatableComponent) {
-                    EvaluatableComponent ec = (EvaluatableComponent) o;
-                }
                 return o;
             } else {
                 //return f.getEvaluatable().evaluate(fs);
@@ -199,7 +263,8 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     }
 
     private void calcAggegatedFields(Map<Row, Row> output) {
-        log.trace("calcAggegatedFields: " + output.size());
+        log.trace("calcAggegatedFields");
+		long t = System.currentTimeMillis();
         for (Row keyRow : output.keySet()) {
             Row valueRow = output.get(keyRow);
             for (Field f : selectFields) {
@@ -212,6 +277,8 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
                 }
             }
         }
+		t = System.currentTimeMillis() - t;
+		log.trace("calcAggegatedFields: done aggregation in " + t + "ms");
     }
 
     private void populateRow(Row row, FieldSource fs, Collection<Field> fields) {
@@ -221,6 +288,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         }
     }
 
+	@Override
     public void pleaseImplementSerializable() {
     }
 
@@ -235,9 +303,11 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
     private List<FieldSource> sort(Collection<Row> values) {
         List<FieldSource> list = new ArrayList<FieldSource>();
         list.addAll(values);
-        return sort(list);
+        List<FieldSource> sorted = sort(list);
+		return sorted;
     }
 
+	@Override
     public int compare(FieldSource o1, FieldSource o2) {
         if (orderByFields == null || orderByFields.isEmpty()) {
             if (o1.hashCode() < o2.hashCode()) {
@@ -285,4 +355,5 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
         String s2 = Formatter.getInstance().toString(val2);
         return s1.compareTo(s2);
     }
+
 }

@@ -20,6 +20,7 @@ public class VelocityInterpreter {
             Velocity.setProperty("yadboro.resource.loader.class", YadboroVelocityResourceLoader.class.getName());
             Velocity.setProperty("input.encoding","UTF-8");
             Velocity.setProperty("output.encoding","UTF-8");
+			Velocity.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogSystem");
             Velocity.init();
         } catch (Exception e) {
             e.printStackTrace();

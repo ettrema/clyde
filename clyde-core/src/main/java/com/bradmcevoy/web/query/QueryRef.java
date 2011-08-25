@@ -23,6 +23,7 @@ public class QueryRef implements Selectable, Serializable {
         this.container = container;
     }
 
+	@Override
     public List<FieldSource> getRows(Folder from) {
         log.trace("getRows");
         Component c = container.getComponents().get(componentName);
@@ -42,7 +43,32 @@ public class QueryRef implements Selectable, Serializable {
             throw new RuntimeException("QueryRef resolved to a component which is not a Query");
         }
     }
+	
+	@Override
+	public long processRows(Folder from, RowProcessor rowProcessor) {
+        log.trace("processRows");
+		long count = 0;
+        Component c = container.getComponents().get(componentName);
+        if (c == null) {
+            throw new RuntimeException("Cant find component: " + componentName + " for queryRef");
+        } else if (c instanceof EvaluatableComponent) {
+            EvaluatableComponent ec = (EvaluatableComponent) c;
+            if (ec.getEvaluatable() == null) {
+                throw new RuntimeException("QueryReference is to a component which does not have a Evaluatable set");
+            } else if (ec.getEvaluatable() instanceof Query) {
+                Query q = (Query) ec.getEvaluatable();
+				count++;
+                q.processRows(from, rowProcessor);
+            } else {
+                throw new RuntimeException("QueryReference is to a component whose evaluatable is not of type Query. Is a: " + ec.getEvaluatable().getClass());
+            }
+        } else {
+            throw new RuntimeException("QueryRef resolved to a component which is not a Query");
+        }
+		return count;
+	}	
 
+	@Override
     public List<String> getFieldNames() {
         log.trace("getRows");
         Component c = container.getComponents().get(componentName);
@@ -62,4 +88,5 @@ public class QueryRef implements Selectable, Serializable {
             throw new RuntimeException("QueryRef resolved to a component which is not a Query");
         }
     }
+
 }
