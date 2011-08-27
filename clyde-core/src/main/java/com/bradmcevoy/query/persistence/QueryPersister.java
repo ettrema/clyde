@@ -1,7 +1,9 @@
 package com.bradmcevoy.query.persistence;
 
+import java.sql.SQLException;
 import java.util.Map;
 import com.bradmcevoy.web.Folder;
+import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.query.FieldSource;
 import com.bradmcevoy.web.query.FieldSourceMap;
 import com.bradmcevoy.web.query.Selectable;
@@ -9,6 +11,9 @@ import com.ettrema.db.Table;
 import com.ettrema.db.dialects.Dialect;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.ettrema.context.RequestContext._;
@@ -24,12 +29,13 @@ public class QueryPersister {
 	private final Dialect dialect;
 
 	@Autowired
-	public QueryPersister( Dialect dialect) {
+	public QueryPersister(Dialect dialect) {
 		this.dialect = dialect;
 	}
 
-	public void persist(final Table table, Selectable query, Folder from, String tableName) {
+	public void persist(final Table table, Selectable query, Folder from) {
 		log.trace("persist");
+		String tableName = table.tableName;
 		Connection con = _(Connection.class);
 
 		if (dialect.tableExists(tableName, con)) {
@@ -39,11 +45,30 @@ public class QueryPersister {
 		final PreparedStatement stmt = table.prepareInsertStatement(con);
 		long count = query.processRows(from, new Selectable.RowProcessor() {
 
+			@Override
 			public void process(FieldSource row) {
-				Map<String, Object> values = new FieldSourceMap(row);
+				Map<String, Object> values = toSimpleValues(row);
 				table.insert(stmt, values);
 			}
 		});
+		try {
+			con.commit();
+		} catch (SQLException ex) {
+			log.error("Exception committing",ex);
+		}
 		log.info("inserted rows: " + count + " into: " + table.tableName);
+	}
+
+	private Map<String, Object> toSimpleValues(FieldSource row) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		for( String key : row.getKeys()) {
+			Object value = row.get(key);
+			if( value instanceof ComponentValue) {
+				ComponentValue cv = (ComponentValue) value;
+				value = cv.getValue();
+			}
+			map.put(key, value);
+		}
+		return map;
 	}
 }

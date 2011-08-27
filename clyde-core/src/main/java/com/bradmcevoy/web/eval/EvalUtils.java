@@ -1,10 +1,12 @@
 package com.bradmcevoy.web.eval;
 
+import com.bradmcevoy.query.persistence.SqlExportEvaluatableToXml;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.query.QueryEvaluatableToXml;
+import com.bradmcevoy.web.query.SqlSelectableToXml;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,8 @@ public class EvalUtils {
         add(new NotEvaluatableToXml());
 
         add(new QueryEvaluatableToXml());
+		add(new SqlExportEvaluatableToXml());
+		add(new SqlSelectableToXml());
     }
 
     private static void add(EvaluatableToXml parser) {
@@ -98,6 +102,15 @@ public class EvalUtils {
     public static Evaluatable getEvalDirect(Element el, Namespace ns, Addressable container) {
         return getEvalDirect(el, ns, true, container);
     }
+	/**
+	 * 
+	 * @param el
+	 * @param ns
+	 * @param defaultIfNull
+	 * @param container
+	 * @param elementName - optional
+	 * @return 
+	 */
     public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull, Addressable container) {
         EvaluatableToXml parser;
         if (el == null) {

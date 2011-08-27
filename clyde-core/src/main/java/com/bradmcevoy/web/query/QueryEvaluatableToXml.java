@@ -89,6 +89,7 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
     private void populateSelect(Element elEval, List<Field> selectFields, Namespace ns) {
         Element elSelect = new Element("select", ns);
         elEval.addContent(elSelect);
+		System.out.println("selectfields: " + selectFields.size());
         for (Field f : selectFields) {
             Element elField = new Element("field", ns);
             elField.setAttribute("name", f.getName());
@@ -146,7 +147,10 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
             Element elQuery = new Element("query", ns);
             elFrom.addContent(elQuery);
             populateXml(elQuery, subQuery, ns);
-        }
+        } else if( from instanceof Evaluatable ) {
+			Evaluatable eval = (Evaluatable) from;
+			EvalUtils.setEvalDirect(elFrom, eval, ns);
+		}
     }
 
     private void updateFrom(Query query, Element elEval, Namespace ns, Templatable container) {
@@ -163,11 +167,11 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
             ps.setPath(Path.path(elFrom.getAttributeValue("path")));
             selectable = ps;
         } else {
-            Query subQuery = (Query) EvalUtils.getEvalDirect(elFrom, ns, false, container);
-            if (subQuery == null) {
+            selectable = (Selectable) EvalUtils.getEvalDirect(elFrom, ns, false, container);
+            if (selectable == null) {
                 throw new RuntimeException("No valid from clause for query: " + query.toString());
             }
-            selectable = subQuery;
+			System.out.println("Got from clause: " + selectable);
         }
         query.setFrom(selectable);
     }

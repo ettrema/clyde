@@ -27,7 +27,10 @@ import java.util.concurrent.TimeUnit;
 public class ClydeTimerService extends VfsCommon implements TimerService, Service {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ClydeTimerService.class);
-    private final List<Processable> scheduled;
+	/**
+	 * Statically defined scheduled tasks
+	 */
+    private List<Processable> scheduled;
     private final long schedulePeriodMs;
     private final RootContextLocator rootContextLocator;
     private final CheckAllProcessesTask checkAllProcessesTask;
@@ -126,6 +129,16 @@ public class ClydeTimerService extends VfsCommon implements TimerService, Servic
         });
 
     }
+
+	public List<Processable> getScheduled() {
+		return scheduled;
+	}
+
+	public void setScheduled(List<Processable> scheduled) {
+		this.scheduled = scheduled;
+	}
+	
+	
 
     /**
      * Look for all TimerProcessor instances and queue them for processing
