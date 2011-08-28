@@ -4,7 +4,6 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.bradmcevoy.web.Formatter;
 import com.bradmcevoy.web.query.Field;
 import com.bradmcevoy.web.query.FieldSource;
-import com.bradmcevoy.web.query.Row;
 import com.bradmcevoy.web.query.Selectable;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -55,7 +54,7 @@ public class ViewOutputHelper {
     private void toCsv(List<FieldSource> rows, CSVWriter writer, Selectable selectable) {
         for (FieldSource row : rows) {
             List<String> values;
-            values = buildLineOfValues((Row) row, selectable);
+            values = buildLineOfValues(row, selectable);
             String[] arr = new String[values.size()];
             values.toArray(arr);
             writer.writeNext(arr);

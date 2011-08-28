@@ -89,7 +89,6 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
     private void populateSelect(Element elEval, List<Field> selectFields, Namespace ns) {
         Element elSelect = new Element("select", ns);
         elEval.addContent(elSelect);
-		System.out.println("selectfields: " + selectFields.size());
         for (Field f : selectFields) {
             Element elField = new Element("field", ns);
             elField.setAttribute("name", f.getName());
@@ -171,7 +170,6 @@ public class QueryEvaluatableToXml implements EvaluatableToXml<Query> {
             if (selectable == null) {
                 throw new RuntimeException("No valid from clause for query: " + query.toString());
             }
-			System.out.println("Got from clause: " + selectable);
         }
         query.setFrom(selectable);
     }

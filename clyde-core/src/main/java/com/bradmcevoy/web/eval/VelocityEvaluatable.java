@@ -30,12 +30,14 @@ public class VelocityEvaluatable implements Evaluatable, Serializable {
 
 
 
+	@Override
     public Object evaluate(RenderContext rc, Addressable from) {
         IUser user = _(CurrentUserService.class).getOnBehalfOf();
         VelocityContext vc = CommonComponent.velocityContext(rc, null, from.getPath(), user);
         return _render(template, vc);
     }
 
+	@Override
     public Object evaluate(Object from) {
         IUser user = _(CurrentUserService.class).getOnBehalfOf();
         VelocityContext vc = CommonComponent.velocityContext(null, from, null, user);

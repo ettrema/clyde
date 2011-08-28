@@ -100,4 +100,9 @@ public class RequestParams {
     public Resource getResource() {
         return resource;
     }
+	
+	public boolean hasParam(String name) {
+		String s = getParameters().get(name);
+		return s != null && s.length() > 0;
+	}
 }

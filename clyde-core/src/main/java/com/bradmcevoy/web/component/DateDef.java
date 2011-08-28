@@ -39,7 +39,12 @@ public class DateDef extends TextDef {
             return null;
         }
         try {
-            Date dt = sdf(true).parse( s );
+			Date dt;
+			if( s.contains(":")) {
+				dt = sdf(true).parse( s );
+			} else {
+				dt = sdf(false).parse( s );
+			}
             return dt;
         } catch( ParseException ex ) {
             log.warn( "couldnt parse date", ex );

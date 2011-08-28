@@ -255,7 +255,7 @@ public class Query implements Selectable, Evaluatable, Serializable, Comparator<
                 //return f.getEvaluatable().evaluate(fs);
                 return f.getEvaluatable().evaluate(fs.getData());
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("Exception in evaluate. field: " + f.getName() + " from fieldSource: " + fs.toString(), e);
             return "ERR";
         }
