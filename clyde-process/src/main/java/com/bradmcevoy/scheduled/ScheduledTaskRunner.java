@@ -27,11 +27,10 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ScheduledTaskRunner.class);
 	private final BlockingQueue<UUID> scheduledTasksToRun = new ArrayBlockingQueue<UUID>(10000);
 	private final RootContextLocator rootContextLocator;
-
 	private boolean started;
 	private Consumer consumer;
 	private Thread consumerThread;
-	
+
 	@Autowired
 	public ScheduledTaskRunner(RootContextLocator rootContextLocator) {
 		this.rootContextLocator = rootContextLocator;
@@ -39,14 +38,24 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 
 	public void doProcess(Context context) {
 		log.trace("doProcess");
-		if( !started ) {
+		if (!started) {
 			log.trace("service isnt started, so starting it now");
 			start();
 		}
+
+		if( !scheduledTasksToRun.isEmpty()) {
+			log.trace("Have tasks in queue already, so exit");
+			return ;
+		}
+
 		List<NameNode> tasks = _(VfsSession.class).find(ScheduleTask.class, null);
 		for (NameNode task : tasks) {
-			if (isTimeToRun(task)) {
-				enqueueTask(task);
+			if (scheduledTasksToRun.contains(task.getId())) {
+				log.trace("scheduled task is already in queue");
+			} else {
+				if (isTimeToRun(task)) {
+					enqueueTask(task);
+				}
 			}
 		}
 	}
@@ -77,7 +86,7 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 	public void start() {
 		started = true;
 		consumer = new Consumer();
-		consumerThread = new Thread( consumer, "ScheduledTaskRunner.queue.consumer");
+		consumerThread = new Thread(consumer, "ScheduledTaskRunner.queue.consumer");
 		consumerThread.setDaemon(true);
 		consumerThread.start();
 	}
@@ -113,6 +122,7 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 						ScheduleTask st = (ScheduleTask) dn;
 						LogUtils.trace(log, "Execute task", st.getName());
 						st.execute();
+						_(VfsSession.class).commit();
 					} else {
 						log.warn("data node is not a ScheduleTask! Is a:" + dn.getClass() + " id:" + node.getId());
 					}

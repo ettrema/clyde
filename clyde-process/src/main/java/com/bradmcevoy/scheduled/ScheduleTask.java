@@ -1,14 +1,20 @@
 package com.bradmcevoy.scheduled;
 
+import java.util.Date;
+import com.bradmcevoy.utils.CurrentDateService;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Page;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.component.EvaluatableComponent;
 import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import org.jdom.Element;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * 
@@ -41,31 +47,55 @@ public class ScheduleTask extends Page {
 		super(parentFolder, name);
 	}
 
+	@Override
+	public void populateXml(Element e2) {
+		super.populateXml(e2);
+		String s = "none";
+		if(lastRun != null ) {
+			s = lastRun.toString();
+		}
+		InitUtils.set(e2, "lastRun", s);
+	}
+	
+	
+
 	public boolean isTimeToRun() {
-		DateTime now = new DateTime();
+		Date dtNow = _(CurrentDateService.class).getNow();
+		DateTime now = new DateTime(dtNow.getTime());
 		if (notBeforeHour != null) {
 			if (now.getHourOfDay() < notBeforeHour) {
+				log.trace("isTimeToRun: Not time to run, before early hour");
 				return false;
 			}
 		}
 		if (noLaterThenHour != null) {
 			if (now.getHourOfDay() > noLaterThenHour) {
+				log.trace("isTimeToRun: Not time to run, is after late hour");
 				return false;
 			}
 		}
 		if (lastRun != null) {
 			Duration dur = new Duration(lastRun, now);
-			return dur.getStandardSeconds() > intervalMinutes * 60;
+			long actualMins = dur.getStandardSeconds()/60;
+			boolean isAfterInterval = actualMins > intervalMinutes;
+			LogUtils.trace(log, "isTimeToRun: check is after interval: lastRun", lastRun, "now", now, "intervalMinutes", intervalMinutes, "actual duration", actualMins, isAfterInterval);
+			return isAfterInterval;
 		}
+		log.trace("isTimeToRun: no lastrun and is inside allowed hours, so yes");
 		return true;
 	}
 
 	public void execute() {
 		Component c = this.getComponent(taskName);
-		if (c instanceof Evaluatable) {
-			Evaluatable ev = (Evaluatable) c;
+		if (c instanceof EvaluatableComponent) {
+			LogUtils.trace(log, "execute: running",getName(), taskName, " in ", this.getHref());
+			Evaluatable ev = ((EvaluatableComponent) c).getEvaluatable();
 			RenderContext rc = new RenderContext(getTemplate(), this, null, false);
 			ev.evaluate(rc, this);
+			this.lastRun = new DateTime(_(CurrentDateService.class).getNow().getTime());
+			this.save();
+		} else {
+			log.warn("execute: No evaluatable component called: " + taskName);
 		}
 	}
 

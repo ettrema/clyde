@@ -5,15 +5,12 @@ import java.util.Map;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.component.ComponentValue;
 import com.bradmcevoy.web.query.FieldSource;
-import com.bradmcevoy.web.query.FieldSourceMap;
 import com.bradmcevoy.web.query.Selectable;
 import com.ettrema.db.Table;
 import com.ettrema.db.dialects.Dialect;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.ettrema.context.RequestContext._;
