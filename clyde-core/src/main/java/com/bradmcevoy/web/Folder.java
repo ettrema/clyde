@@ -889,6 +889,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		return false;
 	}
 
+	@Override
 	public boolean isLockedOutRecursive(Request request) {
 		return false; // TODO: lookup from clydelock thingo
 	}

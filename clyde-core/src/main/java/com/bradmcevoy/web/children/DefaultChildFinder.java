@@ -19,6 +19,7 @@ public class DefaultChildFinder implements ChildFinder{
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( DefaultChildFinder.class );
 
+	@Override
     public Resource find( String name, Folder folder ) {
         Resource res = folder.childRes( name );
         if( res != null ) {
@@ -39,6 +40,7 @@ public class DefaultChildFinder implements ChildFinder{
         return null;
     }
 
+	@Override
     public List<Templatable> getSubPages(Folder folder) {
         List<Templatable> list = new ArrayList<Templatable>();
         addSubPages(list, folder);

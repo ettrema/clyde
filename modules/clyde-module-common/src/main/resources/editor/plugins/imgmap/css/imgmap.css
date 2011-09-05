@@ -84,7 +84,7 @@ LEGEND A {
 
 #pic_container {
 	position: relative;
-	width: 100%;
+	width: 650px; /** was 100%, but that made it to wide for scroll bars to work */
 	height: 300px;
 	border: solid 0px #efefef;
 	overflow: auto;
