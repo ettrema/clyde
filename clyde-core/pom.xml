@@ -55,7 +55,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>milton-caldav</artifactId>
-            <version>[${milton.version},)</version>
+            <version>${milton.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-log4j12</artifactId>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-context</artifactId>
-            <version>[${endrick.version},)</version>
+            <version>${endrick.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-api</artifactId>
-            <version>[${endrick.version},)</version>
+            <version>${endrick.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>

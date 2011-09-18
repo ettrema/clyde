@@ -27,7 +27,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-grid-api</artifactId>
-            <version>[${endrick.version},)</version>
+            <version>${endrick.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -47,12 +47,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-context</artifactId>
-            <version>[${endrick.version},)</version>
+            <version>${endrick.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-api</artifactId>
-            <version>[${endrick.version},)</version>
+            <version>${endrick.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
