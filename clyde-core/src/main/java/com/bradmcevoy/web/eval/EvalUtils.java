@@ -25,19 +25,24 @@ public class EvalUtils {
     private static final Map<Class, EvaluatableToXml> parsersByClass = new HashMap<Class, EvaluatableToXml>();
 
     static {
-        add(new ConstEvaluatableToXml());
-        add(new ComponentReferenceToXml());
-        add(new MvelEvaluatableToXml());
-        add(new GroovyEvaluatableToXml());
-        add(new VelocityEvaluatableToXml());
+		try {
+			add(new ConstEvaluatableToXml());
+			add(new ComponentReferenceToXml());
+			add(new MvelEvaluatableToXml());
+			add(new GroovyEvaluatableToXml());
+			add(new VelocityEvaluatableToXml());
 
-        add(new AndEvaluatableToXml());
-        add(new OrEvaluatableToXml());
-        add(new NotEvaluatableToXml());
+			add(new AndEvaluatableToXml());
+			add(new OrEvaluatableToXml());
+			add(new NotEvaluatableToXml());
 
-        add(new QueryEvaluatableToXml());
-		add(new SqlExportEvaluatableToXml());
-		add(new SqlSelectableToXml());
+			add(new QueryEvaluatableToXml());
+			add(new SqlExportEvaluatableToXml());
+			add(new SqlSelectableToXml());
+		} catch(Throwable e) {
+			e.printStackTrace();
+			throw new RuntimeException("Exception initialising EvalUtils: " + e.getMessage(), e);
+		}
     }
 
     private static void add(EvaluatableToXml parser) {
