@@ -1,8 +1,5 @@
-$(document).ready(function(){
-	initUploads();
-});
 
-function initUploads() {
+function initAjaxUploads(ajaxUploadCompleteHandler) {
 	var button = $('#doUpload');
 	
 	new AjaxUpload(button,{
@@ -11,6 +8,7 @@ function initUploads() {
 		autoSubmit: true,
 		responseType: 'json',
 		onSubmit : function(file, ext){
+			log("ajaxUploads:onSubmit", file, ext);
 			if( !userUrl ) {
 				alert('Please login to upload photos');
 				return;
@@ -19,10 +17,19 @@ function initUploads() {
 			this.disable();
 		},
 		onComplete: function(file, response){
+			log("ajaxUploads:onComplete", file, response);
 			$("span", button).text('Upload again');
 			this.enable();
 			for( i=0; i<response.length; i++ ) {
-				var file = response[i];
+				var f = response[i];
+				log(" - response file", f, i);
+				if( ajaxUploadCompleteHandler ) {
+					log(" - calling callback");
+					var f2 = {name: f.originalName, type: f.contentType};
+					ajaxUploadCompleteHandler(f2);
+				} else {
+					log(" no callback");
+				}
 			//      	     $("#cvHidden").attr("value",file.href);
 			//      	     $("#cvLink").html(file.originalName + "(" + file.length + ")");
 			//      	     $("#cvLink").attr("href",file.href);
@@ -52,6 +59,9 @@ function showUploadModal() {
 		};
 		var options = $.extend(defaults, options);
 		
+		initAjaxUploads(options.onUploaded);
+		log(" - options.onUploaded", options.onUploaded);
+
 		return this.each(function() {
 			obj = $(this);
 			obj.bind("dragenter", function(event){
@@ -171,3 +181,4 @@ function addToList(dataTransfer, dropListing) {
 		log("no files droppped? must be IE...");
 	}
 }
+
