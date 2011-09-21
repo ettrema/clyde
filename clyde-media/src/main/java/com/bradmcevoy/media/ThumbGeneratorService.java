@@ -1,5 +1,8 @@
 package com.bradmcevoy.media;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.event.PostSaveEvent;
 import com.bradmcevoy.vfs.VfsCommon;
@@ -185,7 +188,16 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     }
 
     private int generate( VideoFile videoFile ) {
-        int num = _( FlashService.class ).generateStreamingVideo( videoFile );
+        int num;
+		try {
+			num = _( FlashService.class ).generateStreamingVideo( videoFile );
+		} catch (NotAuthorizedException ex) {
+			throw new RuntimeException(ex);
+		} catch (ConflictException ex) {
+			throw new RuntimeException(ex);
+		} catch (BadRequestException ex) {
+			throw new RuntimeException(ex);
+		}
         return num;
     }
 

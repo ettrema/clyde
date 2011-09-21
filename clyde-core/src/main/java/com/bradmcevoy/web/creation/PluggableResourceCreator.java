@@ -27,7 +27,7 @@ public class PluggableResourceCreator implements ResourceCreator {
     }
 
     @Override
-    public void addCreator( Creator creator ) {
+    public final void addCreator( Creator creator ) {
         log.debug( "add creator: " + creator.getClass() );
         creators.add( creator );
     }

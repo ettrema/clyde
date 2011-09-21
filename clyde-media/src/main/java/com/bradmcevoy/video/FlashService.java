@@ -1,5 +1,6 @@
 package com.bradmcevoy.video;
 
+import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
@@ -38,7 +39,7 @@ public class FlashService {
      * @param source
      * @return
      */
-    public int generateStreamingVideo( final VideoFile source ) {
+    public int generateStreamingVideo( final VideoFile source ) throws NotAuthorizedException, ConflictException, BadRequestException {
         log.debug( "generateStreaming: " + source.getConvertedHeight() + source.getConvertedWidth() );
         if( source.isTrash() ) {
             log.debug( "not generating as in trash: " + source.getPath() );
@@ -49,7 +50,14 @@ public class FlashService {
 
         try {
             Folder thumbs = source.getParent().thumbs( flashThumbSuffix, true );
-            FlashFile flash = new FlashFile( thumbs, getFlashFileNameForVideo( source ) );
+			String newName = getFlashFileNameForVideo( source );
+			Resource existing = thumbs.getChildResource(newName);
+			if( existing != null ) {
+				if( existing instanceof BaseResource ) {
+					((BaseResource)existing).deleteNoTx();
+				}
+			}
+            FlashFile flash = new FlashFile( thumbs, newName );
             flash.save();
             in = source.getInputStream();
             final String inputType = FileUtils.getExtension( source.getName() );
