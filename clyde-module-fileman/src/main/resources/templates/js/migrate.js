@@ -17,11 +17,12 @@ function initStatus() {
 	$.ajax({
 		type: "GET",
 		dataType: "json",
+		data: "fields=clyde:status",
 		url: "migrator",
 		success: function(response){
 			log('got status response', response);
 			if( response && response.statuses ) {
-				showStatus(response);
+				showStatus(response[0].status);
 			} else {
 				$("#headline").html("No migration in progress");
 				$("#migrateFiles tbody").html("<tr><td colspan='5'>No files</td></tr>");
@@ -42,14 +43,14 @@ function queryFiles() {
 	ajaxLoadingOn();
 	$.ajax({
 		type: "GET",
-		data: "command=query",
+		data: "fields=clyde:files",
 		dataType: "json",
 		url: "migrator",
 		success: function(response){
 			ajaxLoadingOff();
-			log('got migrator response', response, "destHost:" ,response.destHost);
+			log('got migrator response', response);
 			$("#headline").html("Migration query results");
-			showQuery(response);
+			showQuery(response[0].files);
 		},
 		error: function(response) {
 			ajaxLoadingOff();
