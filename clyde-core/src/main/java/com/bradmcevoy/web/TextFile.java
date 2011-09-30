@@ -5,6 +5,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
+import com.bradmcevoy.property.BeanPropertyResource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.zip.CheckedInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
+@BeanPropertyResource( "clyde" )
 public class TextFile extends File implements SimpleEditPage.SimpleEditable, Replaceable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TextFile.class );

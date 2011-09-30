@@ -13,7 +13,6 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResourceList;
-import com.bradmcevoy.web.BinaryFile;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.IUser;
@@ -103,9 +102,8 @@ public class RssResource implements GetableResource, DigestResource {
 		} else if (r instanceof Page && includePages) {
 			Page page = (Page) r;
 			appendPage(page, elChannel);
-		} else if( r instanceof BinaryFile && includeBinaries) {
-			BinaryFile bf = (BinaryFile) r;
-			appendBinaryFile(bf, elChannel);
+		} else if( includeBinaries) {
+			appendBinaryFile(r, elChannel);
 		} else {
 			log.trace("Not including: " + r.getClass());
 		}
@@ -126,7 +124,7 @@ public class RssResource implements GetableResource, DigestResource {
 		elItem.close();
 	}
 	
-	private void appendBinaryFile(BinaryFile page, Element elChannel) {
+	private void appendBinaryFile(BaseResource page, Element elChannel) {
 		User creator = page.getCreator();
 		String author = null;
 		if (creator != null) {
@@ -220,6 +218,7 @@ public class RssResource implements GetableResource, DigestResource {
 	}
 
 	private BaseResourceList getResources() {
+		System.out.println("getResources: " + folder.getName());
 		return (BaseResourceList) folder.getPagesRecursive();
 	}
 

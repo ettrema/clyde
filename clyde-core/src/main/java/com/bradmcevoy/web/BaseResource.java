@@ -1136,7 +1136,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public List<RoleAndGroup> getGroupPermissions() {
         if (groupPermissions == null) {
-            log.trace("create new list");
             groupPermissions = new ArrayList<RoleAndGroup>();
         }
         return groupPermissions;
