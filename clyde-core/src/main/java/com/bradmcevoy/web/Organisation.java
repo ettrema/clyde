@@ -5,7 +5,7 @@ public class Organisation extends Host{
     private static final long serialVersionUID = 1L;
     
     public Organisation(Folder parent, String name) {
-        super(parent,name);
+        super(parent,name);	
     }
 
     @Override

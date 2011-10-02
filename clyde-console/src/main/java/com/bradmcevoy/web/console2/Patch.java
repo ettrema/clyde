@@ -18,7 +18,7 @@ public class Patch extends AbstractConsoleCommand {
     
     @Override
     public Result execute() {
-        if( args.size() == 0 ) return result("Please enter a class name");
+        if( args.isEmpty() ) return result("Please enter a class name");
         String sClazz = args.get(0);
         if( sClazz == null ) return result("Please enter a class name");
         Object oPatch = initInstance(sClazz);

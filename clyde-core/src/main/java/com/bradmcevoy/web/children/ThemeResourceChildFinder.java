@@ -23,6 +23,7 @@ public class ThemeResourceChildFinder implements ChildFinder {
         this.themeFinder = themeFinder;
     }
 
+	@Override
     public Resource find( String name, Folder folder ) {
         log.trace( "find" );
         Resource r = wrapped.find( name, folder );

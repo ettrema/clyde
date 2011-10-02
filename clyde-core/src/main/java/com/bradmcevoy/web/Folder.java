@@ -366,7 +366,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 	public BaseResource childRes(String name) {
 		//log.trace( "childRes: " + name + " node: " + getNameNodeId() + " this folder: " + this.getName());
 		if (getNameNode() == null) {
-			throw new NullPointerException("nameNode is null");
+			throw new NullPointerException("nameNode is null. This can often happen if the instance is being used outside of its session (ie has become detached)");
 		}
 		NameNode childNode = getNameNode().child(name);
 		if (childNode != null) {
