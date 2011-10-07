@@ -39,7 +39,7 @@ public class PasswordStorageService {
 	}
 
 	public boolean checkPasswordMD5(User user, byte[] passwordHash) {
-		if (user.isAccountDisabled()) {
+		if (isAccountDisabled(user)) {
 			log.info("account is disabled: " + user.getHref());
 			return false;
 		}
@@ -55,7 +55,7 @@ public class PasswordStorageService {
 	}
 
 	public boolean checkPassword(User user, String password) {
-		if (user.isAccountDisabled()) {
+		if (isAccountDisabled(user)) {
 			log.info("account is disabled: " + user.getHref());
 			return false;
 		}
@@ -81,7 +81,7 @@ public class PasswordStorageService {
 	}
 
 	public boolean checkPassword(User user, DigestResponse digestRequest) {
-		if (user.isAccountDisabled()) {
+		if (isAccountDisabled(user)) {
 			log.info("account is disabled: " + user.getHref());
 			return false;
 		}
@@ -169,5 +169,17 @@ public class PasswordStorageService {
 
 	public void setEnabled(boolean enabled) {
 		this.enableValidation = enabled;
+	}
+
+	private boolean isAccountDisabled(User user) {
+		if( user.isAccountDisabled()) {
+			log.trace("account is disabled because has been explicitly disabled");
+			return true;
+		}
+		if( user.isTrash()) {
+			log.trace("account is disabled because in trash");
+			return true;
+		}
+		return false;
 	}
 }
