@@ -29,7 +29,7 @@ public class RemoteResource {
      */
     Date getModifiedDate() throws Exception {        
         String path = getRemotePath().toString();
-        System.out.println("getModifiedDate: destFolder: " + destFolder + " name: " + res.getName() + " = " + path);
+        //System.out.println("getModifiedDate: destFolder: " + destFolder + " name: " + res.getName() + " = " + path);
         com.ettrema.httpclient.Resource r = remoteHost.find(path);
         if (r == null) {
             log.trace("getModifiedDate: not found: " + path);

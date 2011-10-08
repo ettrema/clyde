@@ -25,6 +25,7 @@ public class RecentManager implements EventListener{
         eventManager.registerEventListener(this, DeleteEvent.class);
     }
 
+	@Override
     public void onEvent(Event e) {
         log.trace("onEvent");
         if(e instanceof PostSaveEvent) {

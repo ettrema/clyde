@@ -6,6 +6,7 @@ import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.code.CodeMeta;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
+import com.bradmcevoy.web.component.InitUtils;
 import com.bradmcevoy.xml.XmlHelper;
 import java.util.List;
 import org.jdom.Element;
@@ -38,10 +39,12 @@ public class DefaultValueHandler implements ValueHandler {
         e2.setContent( content );
     }
 
+	@Override
     public String getAlias() {
         return "value";
     }
 
+	@Override
     public ComponentValue fromXml( CommonTemplated res, Element eAtt ) {
         String name = eAtt.getAttributeValue( "name" );
         ComponentValue cv = new ComponentValue( name, res );
@@ -53,9 +56,10 @@ public class DefaultValueHandler implements ValueHandler {
         //String sVal = InitUtils.getValue( eAtt );
         ComponentDef def = getDef( res, cv.getName() );
         if( def == null ) {
-            throw new RuntimeException( "No definition for : " + cv.getName() + " in template: " + res.getTemplateName());
-//            String sVal = InitUtils.getValue( eAtt );
-//            cv.setValue( sVal );
+//            throw new RuntimeException( "No definition for : " + cv.getName() + " in template: " + res.getTemplateName());
+			log.warn("No definition for : " + cv.getName() + " in template: " + res.getTemplateName() + " The value will be represented as a string, which might cause errors if its intended to be a structured tye");
+            String sVal = InitUtils.getValue( eAtt );
+            cv.setValue( sVal );
         } else {
             cv.setValue( def.parseValue( cv, res, eAtt ) );
         }

@@ -28,6 +28,7 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
         super( rf, name, wrapped );
     }
 
+	@Override
     public Resource child( String childName ) {
         log.trace( "child: " + childName );
         if( rf.isMeta( childName ) ) {
@@ -50,6 +51,7 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
         }
     }
 
+	@Override
     public List<? extends Resource> getChildren() {
         List<Resource> list = new ArrayList<Resource>();
         for( Resource child : wrapped.getChildren() ) {
@@ -70,15 +72,7 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
         return list;
     }
 
-    public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
-        if( wrapped instanceof DeletableResource ) {
-            ( (DeletableResource) wrapped ).delete();
-            CodeUtils.commit();
-        } else {
-            throw new BadRequestException( this, "The resource is not deletable" );
-        }
-    }
-
+	@Override
     public Resource createNew( String newName, InputStream inputStream, Long length, String contentType ) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
         log.trace( "createNew" );
         if( rf.isMeta( newName ) ) {
@@ -98,15 +92,17 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
         }
     }
 
+	@Override
     public CollectionResource createCollection( String newName ) throws NotAuthorizedException, ConflictException, BadRequestException {
         if( wrapped instanceof MakeCollectionableResource) {
             MakeCollectionableResource mk = (MakeCollectionableResource) wrapped;
-            return mk.createCollection( newName );
+            return this.rf.wrapCollection(mk.createCollection( newName ));
         } else {
             throw new ConflictException( wrapped);
         }
     }
 
+	@Override
     public void moveTo(CollectionResource rDest, String name) throws ConflictException, NotAuthorizedException, BadRequestException {
         if( rDest instanceof CodeFolder ) {
             if( this.wrapped instanceof MoveableResource ) {

@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author brad
  */
-public class CodeContentPage extends AbstractCodeResource<GetableResource> implements GetableResource, DeletableResource, Replaceable, MoveableResource {
+public class CodeContentPage extends AbstractCodeResource<GetableResource> implements GetableResource, Replaceable, MoveableResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeContentPage.class );
 
@@ -33,6 +33,7 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
         super( rf, name, wrapped );
     }
 
+	@Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
         if( cth != null ) {
@@ -43,23 +44,22 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
         }
     }
 
+	@Override
     public Long getMaxAgeSeconds( Auth auth ) {
         return null;
     }
 
+	@Override
     public String getContentType( String accepts ) {
         return wrapped.getContentType( accepts );
     }
 
+	@Override
     public Long getContentLength() {
         return null;
     }
 
-    public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
-        ( (DeletableResource) wrapped ).delete();
-        CodeUtils.commit();
-    }
-
+	@Override
     public void replaceContent( InputStream in, Long l ) {
         log.trace( "replaceContent" );
         ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
@@ -71,6 +71,7 @@ public class CodeContentPage extends AbstractCodeResource<GetableResource> imple
         }
     }
 
+	@Override
     public void moveTo( CollectionResource rDest, String name ) throws ConflictException, NotAuthorizedException, BadRequestException {
         if( rDest instanceof CodeFolder ) {
             if( this.wrapped instanceof MoveableResource ) {

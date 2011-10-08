@@ -42,6 +42,7 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
         this.parent = parent;
     }
 
+	@Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         DocType dt = new DocType( "c:meta", "http://clyde.ettrema.com/dtd/core.dtd" );
         Element elRoot = new Element( "meta", NS );
@@ -55,19 +56,23 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
 
     }
 
+	@Override
     public Long getMaxAgeSeconds( Auth auth ) {
         return null;
     }
 
+	@Override
     public String getContentType( String accepts ) {
         return "application/xml";
     }
 
+	@Override
     public Long getContentLength() {
         return null;
     }
 
-    public void replaceContent( InputStream in, Long length ) {
+	@Override
+    public void replaceContent( InputStream in, Long length ) throws NotAuthorizedException, ConflictException, BadRequestException {
         log.trace( "replaceContent: " + wrapped.getClass() );
         try {
             Document doc = rf.getMetaParser().parse( in );
@@ -131,22 +136,6 @@ public class CodeMeta extends AbstractCodeResource<Resource> implements GetableR
             throw new RuntimeException( ex );
         } catch( BadRequestException ex ) {
             throw new RuntimeException( ex );
-        }
-    }
-
-    public void delete() {
-        if( wrapped instanceof DeletableResource ) {
-            try {
-                ( (DeletableResource) wrapped ).delete();
-            } catch( NotAuthorizedException ex ) {
-                throw new RuntimeException( ex );
-            } catch( ConflictException ex ) {
-                throw new RuntimeException( ex );
-            } catch( BadRequestException ex ) {
-                throw new RuntimeException( ex );
-            }
-        } else {
-            throw new RuntimeException( "Need to replace current resource, but its not deletable: " + wrapped.getClass() );
         }
     }
 

@@ -1,6 +1,7 @@
 package com.bradmcevoy.web.console2;
 
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.web.code.CodeResourceFactory;
 import com.ettrema.console.ConsoleCommand;
 import java.util.List;
 
@@ -10,12 +11,16 @@ import java.util.List;
  */
 public class ImportFactory extends AbstractFactory{
 
-    public ImportFactory() {
-        super( "Import from a remote location", new String[]{"import","im"});
+	private final CodeResourceFactory codeResourceFactory;
+	
+    public ImportFactory(CodeResourceFactory codeResourceFactory) {
+        super( "Import from a remote location. Eg import http://www.host.com/ username password", new String[]{"import","im"});
+		this.codeResourceFactory = codeResourceFactory;
     }
 
+	@Override
     public ConsoleCommand create( List<String> args, String host, String currentDir, Auth auth ) {
-        return new Import(args,host,currentDir,resourceFactory);
+        return new Import(args,host,currentDir,resourceFactory, codeResourceFactory);
     }
 
 }

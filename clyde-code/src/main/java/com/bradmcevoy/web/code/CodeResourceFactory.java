@@ -58,6 +58,7 @@ public final class CodeResourceFactory implements ResourceFactory {
 		this.metaParser = new MetaParser(this);
 	}
 
+	@Override
 	public Resource getResource(String host, String path) {
 		Resource r = find(host, path);
 		return r;
