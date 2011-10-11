@@ -26,14 +26,15 @@ public class HttpFileTransport implements FileTransport {
 		host = new Host(hostName, "/_code" , port, user, pwd, null, null);
 	}
 	
-	
 
+	@Override
 	public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.trace("put: " + f.getAbsolutePath());
 		String url = CodeSynchUtils.toPath(f, root);
 		host.doPut(Path.path(url), f, new ConsoleProgressListener());
 	}
 
+	@Override
 	public void delete(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
 		String path = CodeSynchUtils.toPath(f, root);
 		String url = host.getHref(Path.path(path));
@@ -46,6 +47,7 @@ public class HttpFileTransport implements FileTransport {
 		}
 	}
 
+	@Override
 	public boolean isNewOrUpdated(File f, File root) {
 		String path = CodeSynchUtils.toPath(f, root);
 		Resource r;
@@ -66,10 +68,12 @@ public class HttpFileTransport implements FileTransport {
 	
 	private class ConsoleProgressListener implements ProgressListener {
 
+		@Override
 		public void onRead(int bytes) {
 			
 		}
 
+		@Override
 		public void onProgress(long bytesRead, Long totalBytes, String fileName) {
 			String progress;
 			if( totalBytes !=null && totalBytes > 0) {
@@ -80,10 +84,12 @@ public class HttpFileTransport implements FileTransport {
 			System.out.print("  " + progress);
 		}
 
+		@Override
 		public void onComplete(String fileName) {
 			log.info("Finished uploadeding: " + fileName);
 		}
 
+		@Override
 		public boolean isCancelled() {
 			return false;
 		}

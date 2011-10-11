@@ -33,6 +33,19 @@ public class FileLoader {
 		this.fileTransport = fileTransport;
     }
 	
+	/**
+	 * For backwards compatibility, sets the hostname into the direct file transport
+	 * 
+	 * @param s 
+	 */
+	public void	setHostName(String s) {
+		if( fileTransport instanceof DirectFileTransport) {
+			((DirectFileTransport)fileTransport).setHostName(s);
+		} else {
+			throw new RuntimeException("Not supported");
+		}
+	}
+	
     public void onNewFile(File f, File root) {
         try {
             check(f, root);
