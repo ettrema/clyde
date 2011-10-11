@@ -27,6 +27,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.CurrentUserService;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContext;
+import com.ettrema.context.RootContextLocator;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;
@@ -233,7 +234,7 @@ public final class GroupEmailCommand2 extends Command {
 			if (curUser != null) {
 				curUserId = curUser.getNameNodeId();
 			}
-			RootContext rootContext = _(RootContext.class);
+			RootContext rootContext = _(RootContextLocator.class).getRootContext();
 			_(RetryingMailService.class).sendMails(msgs, new NotifySenderEmailCallback(curUserId, rootContext));
 		}
 	}
