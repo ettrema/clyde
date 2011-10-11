@@ -36,7 +36,10 @@ public class RootHostCreator implements Service{
         
         List<NameNode> list = sess.find( Host.class, hostName);
         if( list != null && list.size()>0 ) {
-            log.debug("Found existing host(s) " + list.get( 0).getId() );
+            log.debug("Found existing host " + hostName + " with id: " + list.get( 0).getId() );
+			if( list.size() > 0 ) {
+				log.warn("Found multiple hosts with the same name: " + hostName);
+			}
             return ;
         }
 
@@ -52,6 +55,7 @@ public class RootHostCreator implements Service{
     private void checkAndCreate() {
         rootContext.execute( new Executable2() {
 
+			@Override
             public void execute( Context context ) {
                 checkAndCreate( context );
             }
@@ -83,10 +87,12 @@ public class RootHostCreator implements Service{
         }
     }
 
+	@Override
     public void start() {
         checkAndCreate();
     }
 
+	@Override
     public void stop() {
 
     }

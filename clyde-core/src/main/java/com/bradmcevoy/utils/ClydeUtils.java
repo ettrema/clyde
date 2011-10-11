@@ -1,9 +1,18 @@
 package com.bradmcevoy.utils;
 
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import java.util.UUID;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.web.BaseResource;
+import com.ettrema.vfs.VfsSession;
 import java.util.Calendar;
 import java.util.Date;
+
+
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  *
@@ -53,4 +62,23 @@ public class ClydeUtils {
             return i + "";
         }
     }
+	
+	public static BaseResource loadResource(UUID id) {
+		VfsSession vfs = _(VfsSession.class);
+		NameNode node = vfs.get(id);
+		if( node == null ) {
+			return null;
+		} else {
+			DataNode data = node.getData();
+			if( data == null ) {
+				return null;
+			} else {
+				if( data instanceof BaseResource ) {
+					return (BaseResource) data;
+				} else {
+					throw new RuntimeException("Item is not a " + BaseResource.class + " is a: " + data.getClass());
+				}
+			}
+		}
+	}
 }

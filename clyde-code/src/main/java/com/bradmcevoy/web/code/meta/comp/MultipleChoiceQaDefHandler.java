@@ -21,7 +21,7 @@ public class MultipleChoiceQaDefHandler implements ComponentDefHandler {
 
     public ComponentDef fromXml( Template res, Element el ) {
         String name = el.getAttributeValue( "name" );
-        MultipleChoiceQaDef def = new MultipleChoiceQaDef( res, name );
+        MultipleChoiceQaDef def = new MultipleChoiceQaDef( res, name ); 
         fromXml( el, def );
         return def;
     }

@@ -13,7 +13,7 @@
     <properties>
         <milton.version>1.6.4</milton.version>
         <berry.version>1.3</berry.version>
-        <geroa.version>1.3</geroa.version>
+        <geroa.version>1.4-SNAPSHOT</geroa.version>
         <morton.version>1.2</morton.version>
         <endrick.version>1.7.5-SNAPSHOT</endrick.version>
     </properties>

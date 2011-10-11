@@ -32,7 +32,7 @@ public class MultipleChoiceQaDef implements ComponentDef {
     private String name;
     private Addressable container;
 
-    public MultipleChoiceQaDef(ITemplate res, String name) {
+    public MultipleChoiceQaDef(ITemplate res, String name) { 
         this.container = (Addressable) res;
         this.name = name;
     }

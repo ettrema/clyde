@@ -47,6 +47,7 @@ public class DirectFileTransport  implements FileTransport{
      * No name transformations
      * @param f
      */
+	@Override
     public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.trace("put: " + f.getAbsolutePath());
         CollectionResource colParent = findCollection(f.getParentFile(), root);
@@ -113,13 +114,14 @@ public class DirectFileTransport  implements FileTransport{
             if (r instanceof CollectionResource) {
                 return (CollectionResource) r;
             } else {
-                throw new RuntimeException("Found resource but its not a collection: " + f.getAbsolutePath());
+                throw new RuntimeException("Found resource but its not a collection: " + f.getAbsolutePath() + "  maps to a: " + r.getClass());
             }
         }
 
 
     }
 
+	@Override
     public  void delete(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
         log.trace("delete: " + f.getAbsolutePath());
         File fMeta = CodeSynchUtils.toMetaFile(f);
@@ -135,6 +137,7 @@ public class DirectFileTransport  implements FileTransport{
 
     }	
 	
+	@Override
     public boolean isNewOrUpdated(File f, File root) {
         f = CodeSynchUtils.toMetaFile(f);
         Resource r = resourceFactory.getResource(hostName, CodeSynchUtils.toCodePath(f, root));
