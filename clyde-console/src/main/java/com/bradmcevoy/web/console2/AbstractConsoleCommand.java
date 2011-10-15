@@ -9,6 +9,7 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
+import com.bradmcevoy.web.Templatable;
 import com.ettrema.console.ConsoleCommand;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
@@ -78,8 +79,8 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
     protected BaseResource move(BaseResource cur, String p) {
         log.debug("move: " + cur.getClass());
         if( p.equals("..")) {
-            if( cur instanceof CommonTemplated ) {
-                CommonTemplated t = (CommonTemplated)cur;
+            if( cur instanceof Templatable ) {
+                Templatable t = (CommonTemplated)cur;
                 t = t.getParent();
                 return  (BaseResource) t;
             } else {
