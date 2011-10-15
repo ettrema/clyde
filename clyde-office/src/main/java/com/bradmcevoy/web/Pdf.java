@@ -16,6 +16,7 @@ import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
 import org.xhtmlrenderer.util.XRRuntimeException;
 import org.xml.sax.SAXException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 
 public class Pdf extends BinaryFile {
 
@@ -55,6 +56,8 @@ public class Pdf extends BinaryFile {
         }
         try {
             ct.sendContent( outContent, null, params, null );
+		} catch(NotFoundException e) {
+			throw new RuntimeException( e );
         } catch( BadRequestException e ) {
             throw new RuntimeException( e );
         } catch( IOException ex ) {
@@ -66,6 +69,7 @@ public class Pdf extends BinaryFile {
         final MyTextRenderer renderer = new MyTextRenderer();
         this.useOutputStream( new OutputStreamWriter<Long>() {
 
+			@Override
             public Long writeTo( OutputStream outToPersistence ) {
                 final CountingOutputStream cout = new CountingOutputStream( outToPersistence );
                 try {
