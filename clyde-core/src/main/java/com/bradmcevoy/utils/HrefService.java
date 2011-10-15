@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Utils;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.Host;
+import com.bradmcevoy.web.Templatable;
 
 /**
  * Utility methods for constructing href's and URL's for
@@ -56,13 +57,13 @@ public class HrefService {
      *
      * @return - the absolute path of this resource. does not include server
      */
-    public String getUrl( CommonTemplated ct ) {
+    public String getUrl( Templatable ct ) {
         if( ct == null ) {
             return "";
         } else if( ct instanceof Host) {
             return "/";
         } else {
-            CommonTemplated parent = ct.getParent();
+            Templatable parent = ct.getParent();
             String url = getUrl(parent) + Utils.percentEncode( ct.getName() );
             if( ct instanceof Folder ) {
                 url = url + "/";

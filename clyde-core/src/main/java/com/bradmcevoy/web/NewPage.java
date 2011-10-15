@@ -11,6 +11,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.ClydeUtils;
@@ -62,8 +63,8 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         if (editee != null) {
             return editee;
         }
-        ITemplate template = getTemplate(parameters);
-        if (template == null) {
+        ITemplate t = getTemplate(parameters);
+        if (t == null) {
             log.error("didnt locate template");
             return null;
         }
@@ -71,7 +72,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         if (newName.equals(AUTO_NAME)) {
             nameToUse = findAutoName(parameters);
         }
-        editee = template.createPageFromTemplate(folder, nameToUse);
+        editee = t.createPageFromTemplate(folder, nameToUse);
         return editee;
     }
 
@@ -154,7 +155,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
     }
 
     @Override
-    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
         String templateName = templateName(params);
         log.debug("sendContent: " + templateName);
         if (templateName == null || templateName.length() == 0) {
@@ -231,6 +232,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.authenticate(digestRequest);
     }
 
+	@Override
     public boolean isDigestAllowed() {
         return true;
     }
@@ -307,15 +309,15 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     @Override
     public void loadFromXml(Element el, Map<String, String> parameters) {
-        ITemplate template = getTemplate(parameters);
-        editee = (Page) template.createPageFromTemplate(folder, newName);
+        ITemplate t = getTemplate(parameters);
+        editee = (Page) t.createPageFromTemplate(folder, newName);
         editee.loadFromXml(el);
     }
 
     @Override
     public Element toXml(Element el, Map<String, String> parameters) {
-        ITemplate template = getTemplate(parameters);
-        editee = (Page) template.createPageFromTemplate(folder, newName);
+        ITemplate t = getTemplate(parameters);
+        editee = (Page) t.createPageFromTemplate(folder, newName);
         return editee.toXml(el);
     }
 

@@ -17,6 +17,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.utils.HrefService;
 import com.bradmcevoy.utils.RedirectService;
@@ -82,7 +83,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	public abstract String getName();
 
 	@Override
-	public abstract CommonTemplated getParent();
+	public abstract Templatable getParent();
 
 	/**
 	 * Called only when the persisted content type is null, this should be
@@ -128,7 +129,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
 	public String getTitle() {
 		String s = getTitleNoName();
-		if (s == null) {
+		if (s == null || s.trim().length() == 0 ) {
 			s = this.getName();
 		}
 		return s;
@@ -249,7 +250,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
 	@Override
 	public Path getPath() {
-		CommonTemplated lParent = getParent();
+		Templatable lParent = getParent();
 		if (lParent == null) {
 			return Path.root();
 		}
@@ -367,6 +368,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 		return o;
 	}
 
+	@Override
 	public boolean isDigestAllowed() {
 		return true;
 	}
@@ -404,7 +406,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
 	@Override
 	public String checkRedirect(Request request) {
-		return _(RedirectService.class).checkRedirect(this, request);
+		String s = _(RedirectService.class).checkRedirect(this, request);
+		System.out.println("checkredit: " + s);
+		return s;
 	}
 
 	@Override
@@ -636,7 +640,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	}
 
 	@Override
-	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 		generateContent(out);
 	}
 

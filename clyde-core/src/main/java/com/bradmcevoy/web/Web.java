@@ -21,7 +21,7 @@ public class Web extends Folder {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Web.class );
     private static final long serialVersionUID = 1L;
 
-    public static Web find( CommonTemplated t ) {
+    public static Web find( Templatable t ) {
         if( t == null ) return null;
         if( t instanceof Web ) return (Web) t;
         return find( t.getParent() );

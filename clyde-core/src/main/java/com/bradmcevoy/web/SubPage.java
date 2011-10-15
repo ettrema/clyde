@@ -54,6 +54,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return "text/html";
     }
 
+	@Override
     public void sendContent(WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
         requestedPage.generateContent(out);
     }
@@ -65,6 +66,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
      * @param in
      * @param length
      */
+	@Override
     public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
         log.error("Can't replace a SubPage content");
         throw new BadRequestException(this);
@@ -153,6 +155,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         params.attributes.put(this.getName() + "_validation", s);
     }
 
+	@Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
         return (String) params.attributes.get(this.getName() + "_validation");
@@ -265,7 +268,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return physicalParent(this.parentPage);
     }
 
-    private BaseResource physicalParent(CommonTemplated parentPage) {
+    private BaseResource physicalParent(Templatable parentPage) {
         if (parentPage instanceof BaseResource) {
             return (BaseResource) parentPage;
         }
@@ -277,6 +280,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return getPhysicalParent().getCreateDate();
     }
 
+	@Override
     public boolean isSecure() {
         return secure;
     }
@@ -289,11 +293,13 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         this.publicAccess = publicAccess;
     }
 
+	@Override
     public boolean isPublicAccess() {
         return publicAccess;
     }
     
 
+	@Override
     public String getRedirect() {
         return this.redirect;
     }

@@ -20,6 +20,7 @@ public class MultiRedirectService implements RedirectService {
         for( RedirectService svc : redirectServices) {
             String s = svc.checkRedirect( ct, request );
             if( s != null ) {
+				System.out.println("multi redirect, going to: " + s + " because of: " + svc.getClass());
                 return s;
             }
         }

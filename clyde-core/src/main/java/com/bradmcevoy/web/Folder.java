@@ -1,5 +1,7 @@
 package com.bradmcevoy.web;
 
+import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.values.HrefList;
 import com.bradmcevoy.utils.ClydeUtils;
 import java.util.Arrays;
@@ -59,7 +61,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Folder.class);
 	private static final long serialVersionUID = 1L;
 
-	static Folder find(CommonTemplated t) {
+	static Folder find(Templatable t) {
 //        log.debug( "find: " + t.getClass() + " - " + t.getName());
 		if (t.getParent() == null) {
 			return null;
@@ -197,7 +199,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 				s = this.getName();
 			}
 		}
-
+		if( s == null || s.trim().length() == 0 ) {
+			s = getName();
+		}
 		return s;
 	}
 
@@ -288,9 +292,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		}
 	}
 
-	@Override
-	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException {
-		throw new RuntimeException("Cannot produce content for a folder. Should redirect to index page");
+	@Override 
+	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
+		throw new RuntimeException("Cant generate content for a folder");
 	}
 
 	@Override
@@ -802,6 +806,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		return "httpd/unix-directory";
 	}
 
+	@Override
+	public Long getMaxAgeSeconds(Auth auth) {
+		Long l = super.getMaxAgeSeconds(auth);
+		System.out.println("folder max age: " + l);
+		return l;
+	}
+	
+	
+
 	void onRemoved(BaseResource aThis) {
 		log.trace("onRemoved: " + aThis);
 	}
@@ -1243,3 +1256,4 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		return list;
 	}
 }
+

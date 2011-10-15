@@ -41,12 +41,14 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
     }
 
 
+	@Override
     public Element toXml( Folder r ) {
         Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }
 
+	@Override
     public Folder createFromXml(CollectionResource parent, Element d, String name ) {
         Folder f = new Folder( (Folder) parent,name);
         updateFromXml(f, d );
@@ -68,6 +70,7 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
 
     }
 
+	@Override
     public void updateFromXml( Folder folder, Element d ) {
         _updateFromXml( folder, d );
         folder.save();

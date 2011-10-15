@@ -10,6 +10,7 @@ import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.Response;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.webdav.WebDavResponseHandler;
 import com.bradmcevoy.web.ajax.AjaxResourceFactory.AjaxPostResource;
 import java.io.IOException;
@@ -65,7 +66,9 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
                         request.getAttributes().put( "authReason", "required" );
                     }
                     gr.sendContent( response.getOutputStream(), null, null, "text/html" );
-                } catch( IOException ex ) {
+                } catch (NotFoundException ex) {
+					throw new RuntimeException( ex );
+				} catch( IOException ex ) {
                     throw new RuntimeException( ex );
                 } catch( NotAuthorizedException ex ) {
                     throw new RuntimeException( ex );

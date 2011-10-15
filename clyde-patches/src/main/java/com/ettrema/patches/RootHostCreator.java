@@ -20,80 +20,86 @@ import java.util.List;
  *
  * @author brad
  */
-public class RootHostCreator implements Service{
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RootHostCreator.class);
-    private final RootContext rootContext;
-    private String hostName;
+public class RootHostCreator implements Service {
 
-    public RootHostCreator( RootContext rootContext, String hostName ) {
-        this.rootContext = rootContext;
-        this.hostName = hostName;
-    }
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RootHostCreator.class);
+	private final RootContext rootContext;
+	private String hostName;
 
-    private void checkAndCreate( Context context ) {
-        VfsSession sess = context.get(VfsSession.class);
-        if( sess == null ) throw new RuntimeException( "No VfsSession could be obtained. Check configuration");
-        
-        List<NameNode> list = sess.find( Host.class, hostName);
-        if( list != null && list.size()>0 ) {
-            log.debug("Found existing host " + hostName + " with id: " + list.get( 0).getId() );
-			if( list.size() > 0 ) {
+	public RootHostCreator(RootContext rootContext, String hostName) {
+		this.rootContext = rootContext;
+		this.hostName = hostName;
+	}
+
+	private void checkAndCreate(Context context) {
+		VfsSession sess = context.get(VfsSession.class);
+		if (sess == null) {
+			throw new RuntimeException("No VfsSession could be obtained. Check configuration");
+		}
+
+		List<NameNode> list = sess.find(Host.class, hostName);
+		if (list != null && list.size() > 0) {
+			log.debug("Found existing host " + hostName + " with id: " + list.get(0).getId());
+			if (list.size() > 0) {
 				log.warn("Found multiple hosts with the same name: " + hostName);
 			}
-            return ;
-        }
+			return;
+		}
 
-        log.warn( "host not found, creating: " + hostName );
-        Folder rootFolder = findOrCreateRootFolder(sess);
-        Organisation org = new Organisation( rootFolder, hostName);
-        org.save();
-        sess.commit();
-        
+		log.warn("host not found, creating: " + hostName);
+		Folder rootFolder = findOrCreateRootFolder(sess);
+		Organisation org = new Organisation(rootFolder, hostName);
+		org.save();
+		sess.commit();
 
-    }
 
-    private void checkAndCreate() {
-        rootContext.execute( new Executable2() {
+	}
+
+	private void checkAndCreate() {
+		rootContext.execute(new Executable2() {
 
 			@Override
-            public void execute( Context context ) {
-                checkAndCreate( context );
-            }
-        } );
+			public void execute(Context context) {
+				try {
+					checkAndCreate(context);
+				} catch (Exception e) {
+					log.error("Exception occured checked root host, will continue anyway...", e);
+				}
+			}
+		});
 
-    }
+	}
 
-    private Folder findOrCreateRootFolder( VfsSession sess ) {
-        NameNode nn = sess.find( Path.path( "/root"));
-        if( nn == null ) {
-            RootFolder rootFolder = new RootFolder( sess.root());
-            rootFolder.save();
-            return rootFolder;
-        } else {
-            DataNode data = nn.getData();
-            if( data == null ) {
-                throw new RuntimeException( "RootFolder node contains a null datanode: " + nn.getId());
-            }
-            if( data instanceof RootFolder) {
-                return (RootFolder) data;
-            } else {
-                log.warn( "root is not a RootFolder: " + nn.getId());
-                if( data instanceof Folder ) {
-                    return (Folder) data;
-                } else {
-                    throw new RuntimeException( "Node at root folder location /root is not a folder. Is a: " + data.getClass());
-                }
-            }
-        }
-    }
+	private Folder findOrCreateRootFolder(VfsSession sess) {
+		NameNode nn = sess.find(Path.path("/root"));
+		if (nn == null) {
+			RootFolder rootFolder = new RootFolder(sess.root());
+			rootFolder.save();
+			return rootFolder;
+		} else {
+			DataNode data = nn.getData();
+			if (data == null) {
+				throw new RuntimeException("RootFolder node contains a null datanode: " + nn.getId());
+			}
+			if (data instanceof RootFolder) {
+				return (RootFolder) data;
+			} else {
+				log.warn("root is not a RootFolder: " + nn.getId());
+				if (data instanceof Folder) {
+					return (Folder) data;
+				} else {
+					throw new RuntimeException("Node at root folder location /root is not a folder. Is a: " + data.getClass());
+				}
+			}
+		}
+	}
 
 	@Override
-    public void start() {
-        checkAndCreate();
-    }
+	public void start() {
+		checkAndCreate();
+	}
 
 	@Override
-    public void stop() {
-
-    }
+	public void stop() {
+	}
 }

@@ -4,6 +4,7 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -36,7 +37,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 		Path path = Path.path(sPath);
 
 		Resource r = findPage(host, path);
-
+		
 		if (r != null) {
 			LogUtils.trace(log, "getResource: found", host, url, r.getClass());
 		} else {

@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.web.component.InitUtils;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,7 +47,7 @@ public class CombiningTextFile extends File {
     }
 
     @Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
+    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
         if( includes != null ) {
             //ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
             OutputStream tempOut = out;

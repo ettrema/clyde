@@ -30,8 +30,6 @@ public interface ISubPage extends Templatable, Redirectable{
     boolean isPublicAccess();
 
     Resource getChildResource( String childName );
-
-    String getContentType( String accepts );
     
     String getDefaultContentType();
 

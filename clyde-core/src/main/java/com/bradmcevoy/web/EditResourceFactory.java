@@ -20,13 +20,17 @@ public class EditResourceFactory extends CommonResourceFactory {
         Path path = Path.path(url);        
         if( EditPage.isEditPath(path)) {
             Path editee = EditPage.getEditeePath(path);        
+			System.out.println("edit rf: get: " + editee);
             Resource res = next.getResource(host,editee.toString());
             if( res == null ) {
                 return null;
             } else {
                 if( res instanceof EditableResource ) {
                     EditableResource er = (EditableResource) res;
-                    return er.getEditPage();
+					System.out.println("got editable resource: " + er.getClass());					
+                    Resource editPage = er.getEditPage();
+					System.out.println("edit rf, returning: " + editPage.getClass());
+					return editPage;
                 } else {
                     return null;
                 }

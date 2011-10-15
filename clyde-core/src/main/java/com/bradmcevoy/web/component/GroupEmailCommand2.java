@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.ettrema.context.Context;
 import com.ettrema.mail.send.RetryingMailService.DelayMessage;
 import com.ettrema.mail.send.RetryingMailService.EmailResultCallback;
@@ -288,6 +289,8 @@ public final class GroupEmailCommand2 extends Command {
 			} finally {
 				IOUtils.closeQuietly(in);
 			}
+		} catch (NotFoundException ex) {
+			throw new RuntimeException(ex);
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		} catch (NotAuthorizedException ex) {

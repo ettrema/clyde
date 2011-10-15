@@ -6,6 +6,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.web.CommonTemplated.Params;
 import com.bradmcevoy.web.component.Addressable;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 public interface Templatable extends Resource, Addressable, Comparable<Resource>, ComponentContainer {
 
-    void sendContent( OutputStream out, Range range, Map<String,String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException;
+    void sendContent( OutputStream out, Range range, Map<String,String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException;
 
     String getTemplateName();
 

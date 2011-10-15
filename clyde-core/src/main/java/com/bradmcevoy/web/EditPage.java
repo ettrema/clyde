@@ -122,6 +122,7 @@ public class EditPage implements PostableResource, DigestResource {
         return editee.authenticate( digestRequest );
     }
 
+	@Override
     public boolean isDigestAllowed() {
         return true;
     }
@@ -149,6 +150,9 @@ public class EditPage implements PostableResource, DigestResource {
     public String checkRedirect( Request request ) {
         //return null;
         if( editee instanceof ISubPage) {
+			System.out.println("editee is a subpage of type: " + editee.getClass());
+			System.out.println("editee href: " + editee.getHref());
+			System.out.println("will redirect to its parents edit page: " + editee.getParent().getHref());
             String s = editee.getParent().getHref();
             if( !s.endsWith("/")) s += "/";
             s =  s + ".edit";

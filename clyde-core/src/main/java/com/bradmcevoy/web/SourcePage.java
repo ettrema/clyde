@@ -114,6 +114,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return res.authenticate( digestRequest );
     }
 
+	@Override
     public boolean isDigestAllowed() {
         return true;
     }
@@ -157,6 +158,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return path.getName().endsWith( ".source" );
     }
 
+	@Override
     public Date getCreateDate() {
         return null;
     }
@@ -213,7 +215,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
                     String redirectTo = null;
                     if( SourcePage.this.res instanceof CommonTemplated ) {
                         CommonTemplated page = (CommonTemplated) SourcePage.this.res;
-                        CommonTemplated parent = page.getParent();
+                        Templatable parent = page.getParent();
                         if( parent != null ) {
                             redirectTo = parent.getHref();
                         }

@@ -44,20 +44,14 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
      * of the subpage
      * 
      */
-    final CommonTemplated actualParent;
+    final Templatable actualParent;
     final ISubPage subPage;
     
     
-    public WrappedSubPage(SubPage subPage, CommonTemplated actualParent) {
+    public WrappedSubPage(ISubPage subPage, Templatable actualParent) {
         this.subPage = subPage;
         this.actualParent = actualParent;
-        setContentType( subPage.getContentType());
-    }
-
-    public WrappedSubPage(WrappedSubPage subPage, CommonTemplated actualParent) {
-        this.subPage = subPage;
-        this.actualParent = actualParent;
-        setContentType( subPage.getContentType());
+        setContentType( subPage.getContentType(null));
     }
 
     @Override
@@ -166,7 +160,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
      * 
      * @return
      */
-    public CommonTemplated getFoundParent() {
+    public Templatable getFoundParent() {
         return getParent();
     }
     
@@ -207,7 +201,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
     }
 
     @Override
-    public CommonTemplated getParent() {
+    public Templatable getParent() {
         return this.actualParent;
     }
 
@@ -257,6 +251,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
      * @throws NotAuthorizedException
      * @throws BadRequestException
      */
+	@Override
     public void sendContent( WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         subPage.sendContent( this, out, range, params, contentType );
     }
@@ -304,21 +299,25 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
         return subPage.isSecure();
     }
 
+	@Override
     public boolean isPublicAccess() {
         return subPage.isPublicAccess();
     }
 
 
 
+	@Override
     public String getRedirect() {
         return subPage.getRedirect();
     }
 
+	@Override
     public void replaceContent(InputStream in, Long length) throws BadRequestException{
         log.trace("replaceContent1");
         subPage.replaceContent(this,in,length);
     }
 
+	@Override
     public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
         log.trace("replaceContent2");
         subPage.replaceContent(this, in, length);

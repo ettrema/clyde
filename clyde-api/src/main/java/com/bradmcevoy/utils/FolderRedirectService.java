@@ -10,33 +10,44 @@ import com.bradmcevoy.http.Resource;
  */
 public class FolderRedirectService implements RedirectService {
 
-    private String redirectPage = "index.html";
+	private String redirectPage = "index.html";
 
 	@Override
-    public String checkRedirect( Resource resource, Request request ) {
-        if( resource instanceof CollectionResource ) {
-            String s = request.getAbsoluteUrl();
-            if( !s.endsWith( "/" ) ) {
-                s = s + "/";
-            }
-            s = s + redirectPage;
+	public String checkRedirect(Resource resource, Request request) {
+		if (resource instanceof CollectionResource) {
+			String s = request.getAbsoluteUrl();
+			if (redirectPage.length() > 0) {
+				if (!s.endsWith("/")) {
+					s = s + "/";
+				}
+				s = s + redirectPage;
+				System.out.println("folder redirect1, going to: " + s);
+				return s;
+			} else {
+				// Just check that url ends with trailing slash and redirect if not
+				if (!s.endsWith("/")) {
+					s = s + "/";
+					System.out.println("folder redirect2, going to: " + s);
+					return s;
+				} else {
+					// if redirect is blank it means we want the folder to handle the GET
+					// Note that there must be some mechanism to generate content from
+					// a collection. At time of writing the ExistingResourceFactory will 
+					// look for an index page and swap it in for a GET to a collection url
+					// if the url has a trailing slash
+					return null;
+				}	
+			}
+		} else {
+			return null;
+		}
+	}
 
-            // if logged in and page doesnt exist, go to new page
-//            Resource r = folder.child( redirectPage );
-//            if( r == null && request.getAuthorization() != null ) {
-//                s = s + ".new";
-//            }
-            return s;
-        } else {
-            return null;
-        }
-    }
+	public String getRedirectPage() {
+		return redirectPage;
+	}
 
-    public String getRedirectPage() {
-        return redirectPage;
-    }
-
-    public void setRedirectPage( String redirectPage ) {
-        this.redirectPage = redirectPage;
-    }
+	public void setRedirectPage(String redirectPage) {
+		this.redirectPage = redirectPage;
+	}
 }

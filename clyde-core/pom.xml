@@ -25,6 +25,12 @@
     </build>
     <dependencies>
         <dependency>
+            <artifactId>milton-api</artifactId>
+            <groupId>com.ettrema</groupId>
+            <type>jar</type>
+            <version>${milton.version}</version>
+        </dependency>		
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>endrick-jdbc</artifactId>
             <version>${endrick.version}</version>
