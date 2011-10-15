@@ -14,6 +14,7 @@ import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.io.BufferingOutputStream;
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
@@ -49,6 +50,7 @@ public class FacebookResourceFactory implements ResourceFactory {
         this.wrapped = wrapped;
     }
 
+	@Override
     public Resource getResource( String host, String sPath ) {
         log.trace( "getResource" );
         Path path = Path.path( sPath );
@@ -154,6 +156,7 @@ public class FacebookResourceFactory implements ResourceFactory {
             this.resourcePath = resourcePath;
         }
 
+		@Override
         public String processForm( Map<String, String> parameters, Map<String, FileItem> files ) throws BadRequestException, NotAuthorizedException, ConflictException {
             log.debug( "processForm" );
             if( accessToken == null ) {
@@ -175,7 +178,9 @@ public class FacebookResourceFactory implements ResourceFactory {
                     destAlbumId = destAlbumId + "/photos";
                     FacebookType publishPhotoResponse = facebookClient.publish( destAlbumId, FacebookType.class, content, Parameter.with( "message", caption ) );
                     log.debug( "publishjed ok: " + publishPhotoResponse.getId() );
-                } catch( IOException ex ) {
+                } catch (NotFoundException ex) {
+					throw new RuntimeException( ex );
+				} catch( IOException ex ) {
                     throw new RuntimeException( ex );
                 } finally {
                     IOUtils.closeQuietly( content );
@@ -188,6 +193,7 @@ public class FacebookResourceFactory implements ResourceFactory {
             return null;
         }
 
+		@Override
         public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
             String s;
             if( result == null ) {
@@ -271,7 +277,7 @@ public class FacebookResourceFactory implements ResourceFactory {
             return resp.getId();
         }
 
-        private InputStream getContent() throws IOException, NotAuthorizedException, BadRequestException {
+        private InputStream getContent() throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
             BufferingOutputStream out = null;
             try {
                 out = new BufferingOutputStream( 50000 );
