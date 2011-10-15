@@ -1,7 +1,7 @@
 
 function initAjaxUploads(ajaxUploadCompleteHandler) {
 	var button = $('#doUpload');
-	
+	log("initAjaxUploads", button, ajaxUploadCompleteHandler);
 	new AjaxUpload(button,{
 		action: '_DAV/PUT',
 		name: 'picd',
@@ -25,7 +25,10 @@ function initAjaxUploads(ajaxUploadCompleteHandler) {
 				log(" - response file", f, i);
 				if( ajaxUploadCompleteHandler ) {
 					log(" - calling callback");
-					var f2 = {name: f.originalName, type: f.contentType};
+					var f2 = {
+						name: f.originalName, 
+						type: f.contentType
+						};
 					ajaxUploadCompleteHandler(f2);
 				} else {
 					log(" no callback");
@@ -62,6 +65,13 @@ function showUploadModal() {
 		initAjaxUploads(options.onUploaded);
 		log(" - options.onUploaded", options.onUploaded);
 
+		$("#filemanUpload").click(function() {
+			log("upload clicked");
+			showUploadModal();
+			initAjaxUploads(options.onUploaded);
+			log("upload clicked - done");
+		});
+	
 		return this.each(function() {
 			obj = $(this);
 			obj.bind("dragenter", function(event){

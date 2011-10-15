@@ -4,6 +4,7 @@ $(document).ready(function(){
 
 function initUploads() {
 	var button = $('#doUpload');
+	log("initUploads (uploads.js)", button);
 	
 	new AjaxUpload(button,{
 		action: '_DAV/PUT',

@@ -5,7 +5,7 @@ var userName = null;
 /**
  * returns true if there is a valid user
  */
-function initUser() {
+function initUser() {	
     if( userUrl ) {
         return true; // already done
     }
