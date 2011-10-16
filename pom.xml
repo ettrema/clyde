@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.ettrema</groupId>
     <artifactId>clyde</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.2.3</version>
     <packaging>pom</packaging>
     <name>Clyde Parent</name>
     <url>http://clyde.ettrema.com</url>
     <scm>
-        <connection>scm:svn:http://svn.ettrema.com/svn/clyde/trunk</connection>
+        <connection>scm:svn:http://svn.ettrema.com/svn/clyde/tags/clyde-1.2.3</connection>
     </scm>
     <properties>
         <milton.version>1.6.6</milton.version>
