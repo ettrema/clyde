@@ -407,7 +407,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	@Override
 	public String checkRedirect(Request request) {
 		String s = _(RedirectService.class).checkRedirect(this, request);
-		System.out.println("checkredit: " + s);
 		return s;
 	}
 

@@ -21,13 +21,11 @@ public class FolderRedirectService implements RedirectService {
 					s = s + "/";
 				}
 				s = s + redirectPage;
-				System.out.println("folder redirect1, going to: " + s);
 				return s;
 			} else {
 				// Just check that url ends with trailing slash and redirect if not
 				if (!s.endsWith("/")) {
 					s = s + "/";
-					System.out.println("folder redirect2, going to: " + s);
 					return s;
 				} else {
 					// if redirect is blank it means we want the folder to handle the GET

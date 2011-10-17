@@ -31,7 +31,6 @@ public class SqlExportEvaluatableToXml implements EvaluatableToXml<SqlExportEval
 
     @Override
     public SqlExportEvalutable fromXml(Element elEval, Namespace ns, Addressable container) {
-		System.out.println("fromXml: " + elEval.getName());
         SqlExportEvalutable sqlExport = new SqlExportEvalutable();
         
         updateQuery(sqlExport, elEval, ns, container);
@@ -62,9 +61,7 @@ public class SqlExportEvaluatableToXml implements EvaluatableToXml<SqlExportEval
 	}
 
 	private void updateTable(SqlExportEvalutable sqlExport, Element elEval, Namespace ns, Addressable container) {
-		System.out.println("updatetable");
 		Element elTable = elEval.getChild("table", tableXmlHelper.getNs());
-		System.out.println("table el " + elTable.getName());
 		Table table = tableXmlHelper.fromXml(elTable);
 		sqlExport.setTable(table);
 	}

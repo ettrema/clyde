@@ -41,12 +41,8 @@ public class IndexPageResourceFactory implements ResourceFactory {
 
 	@Override
 	public Resource getResource(String host, String url) {
-		System.out.println("inex page get: " + url);
 		Resource r = wrapped.getResource(host, url);
 		if (r != null) {
-			System.out.println("indexpage: r: " + r.getClass());
-			System.out.println("a1: " + (r instanceof CollectionResource));
-			System.out.println("a2: " + ( r instanceof Templatable));
 			if (r instanceof CollectionResource && r instanceof Templatable ) {
 				// if its a GET on a collection, and the url correctly ends with a slash
 				// then look for an index file and return that if it exists
@@ -54,7 +50,6 @@ public class IndexPageResourceFactory implements ResourceFactory {
 					CollectionResource cr = (CollectionResource) r;
 					Resource index = cr.child("index.html");
 					if (index != null) {
-						System.out.println("mapping request onto index page: " + index.getClass());
 						if (index instanceof ISubPage) {
 							ISubPage sp = (ISubPage) index;
 							index = new WrappedSubPage(sp, (Templatable)cr);													
@@ -64,7 +59,6 @@ public class IndexPageResourceFactory implements ResourceFactory {
 				}
 			}
 		}
-		System.out.println("index page rf: " + r);
 		return r;
 	}
 

@@ -472,7 +472,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 	}
 
 	private void appendChildrenRecursive(List list, int depth) {
-		System.out.println("appendChildrenRecursive: " + this.getName());
 		if (depth > 5) {
 			log.trace("exceeded max depth");
 			return;
@@ -809,7 +808,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 	@Override
 	public Long getMaxAgeSeconds(Auth auth) {
 		Long l = super.getMaxAgeSeconds(auth);
-		System.out.println("folder max age: " + l);
 		return l;
 	}
 	

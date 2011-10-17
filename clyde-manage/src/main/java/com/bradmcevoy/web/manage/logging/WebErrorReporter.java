@@ -44,7 +44,7 @@ public class WebErrorReporter implements Service, com.ettrema.logging.NotifyingA
 
     public void onEvent(org.apache.log4j.spi.LoggingEvent event) {
         if (event.getLevel() == Level.ERROR) {
-            System.out.println("report it");
+            System.out.println("WebErrorReporter: report it");
             String errorText = formatException(event);
             errorText += "------------------\n\n";
             errorText += formatRequest();

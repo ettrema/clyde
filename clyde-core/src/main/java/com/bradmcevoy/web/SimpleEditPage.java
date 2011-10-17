@@ -55,7 +55,6 @@ public class SimpleEditPage implements GetableResource, PostableResource {
 
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) {
-        System.out.println("processForm ---- ");
         if (parameters.containsKey("Save")) {
             editable.setContent(parameters.get("text"));
             editable.save();

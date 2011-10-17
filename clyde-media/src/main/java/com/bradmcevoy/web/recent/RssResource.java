@@ -218,7 +218,6 @@ public class RssResource implements GetableResource, DigestResource {
 	}
 
 	private BaseResourceList getResources() {
-		System.out.println("getResources: " + folder.getName());
 		return (BaseResourceList) folder.getPagesRecursive();
 	}
 

@@ -480,16 +480,13 @@ public class Template extends Page implements ITemplate, SimpleEditable {
 
     @Override
     public PostableResource getEditPage() {
-        System.out.println("get simple edit page ---");
         return new SimpleEditPage( this );
     }
 
     @Override
     public void setContent(String content) {
-        System.out.println("setContent: " + content);
         ComponentValue cvBody = this.getValues().get("body");
         if( cvBody == null ) {
-            System.out.println("add cv");
             cvBody = new ComponentValue("body", this);
             this.getValues().add(cvBody);
         }

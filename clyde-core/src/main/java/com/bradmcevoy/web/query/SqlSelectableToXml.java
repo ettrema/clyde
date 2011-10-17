@@ -60,7 +60,6 @@ public class SqlSelectableToXml implements EvaluatableToXml<SqlSelectable> {
 				log.warn("Found a sql element, but did not parse to an Evaluatable element");
 			}
 			selectable.setSql(sqlEval);
-			System.out.println("set sql eval: " + sqlEval);
 		} else {
 			log.warn("No sql element!!");
 		}
@@ -77,9 +76,7 @@ public class SqlSelectableToXml implements EvaluatableToXml<SqlSelectable> {
 		Element elParameters = elEval.getChild("parameters", ns);
 		List<Evaluatable> parameters = new ArrayList<Evaluatable>();
 		if (elParameters != null) {
-			System.out.println("have params");
 			for (Object oEl : elParameters.getChildren("parameter", ns)) {
-				System.out.println("have param");
 				Element elParam = (Element) oEl;
 				Evaluatable ev = EvalUtils.getEvalDirect(elParam, ns, container);
 				parameters.add(ev);
