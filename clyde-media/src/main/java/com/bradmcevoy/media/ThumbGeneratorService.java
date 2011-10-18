@@ -50,6 +50,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         this.rootContextLocator = rootContextLocator;
     }
 
+	@Override
     public void start() {
         log.info( "Starting thumbnail generator.." );
         VfsProvider vfsProvider = rootContextLocator.getRootContext().get( VfsProvider.class );
@@ -63,9 +64,11 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         eventManager.registerEventListener( this, PostSaveEvent.class );
     }
 
+	@Override
     public void stop() {
     }
 
+	@Override
     public void onEvent( Event e ) {
     }
 
@@ -75,6 +78,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     public void onRemove( Object item ) {
     }
 
+	@Override
     public void onCommit( NameNode n ) throws Exception {
         DataNode dn = n.getData();
         if( dn instanceof BinaryFile ) {
