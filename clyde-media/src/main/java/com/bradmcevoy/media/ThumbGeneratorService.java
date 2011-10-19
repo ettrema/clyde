@@ -5,6 +5,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.event.PostSaveEvent;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.video.FlashService;
 import com.bradmcevoy.web.BinaryFile;
@@ -97,7 +98,9 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
                     if( enqueue( (VideoFile) dn ) ) return;
                 } else if( dn instanceof FlashFile ) {
                     if( enqueue( (FlashFile) dn ) ) return;
-                }
+                } else {
+					LogUtils.trace(log, "Unsupported file type", dn.getClass());
+				}
             }
         } else {
             if( log.isTraceEnabled() ) {

@@ -18,10 +18,12 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.utils.ClydeUtils;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.UserGroup;
 import com.bradmcevoy.web.RenderContext;
+import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.groups.GroupService;
@@ -112,8 +114,52 @@ public final class GroupEmailCommand2 extends Command {
 	}
 
 	private List<User> getTo(RenderContext rc) {
-		Group group = getGroup(rc);
-		return group.getMembers();
+		Object o = EvalUtils.eval(toGroup, rc, rc.page);
+		if( o == null ) {
+			log.warn("getTo: 'to' expression evaluated to null");
+		} else {
+			LogUtils.trace(log, "getTo: 'to' evaluated to a", o.getClass());
+		}
+		List<User> list = new ArrayList<User>();
+		appendUsers(list, o);
+		return list;
+	}
+
+	private void appendUsers(List<User> list, Object o) {
+		if (o == null) {
+			log.warn("Got null value from 'to' expression");
+		} else if (o instanceof String) {
+			String itemName = (String) o;			
+			LogUtils.trace(log, "appendUsers: got a string to resolve: ", itemName);
+			GroupService groupService = _(GroupService.class);
+			UserGroup group = groupService.getGroup((Resource) this.getContainer(), itemName);
+			if (group != null) {
+				appendUsers(list, group);
+			} else {
+				// could also be a user name
+				if (this.getContainer() instanceof Templatable) {
+					Templatable parent = (Templatable) this.getContainer();
+					User user = parent.getHost().findUser(itemName);
+					if (user != null) {
+						list.add(user);
+					}
+				}
+			}
+		} else if (o instanceof User) {
+			User g = (User) o;
+			list.add(g);
+		} else if (o instanceof Group) {
+			Group g = (Group) o;
+			list.addAll(g.getMembers());
+		} else if (o instanceof List) {			
+			List items = (List) o;
+			LogUtils.trace(log, "appendTo: list of size", items.size());
+			for (Object oChild : items) {
+				appendUsers(list, oChild);
+			}
+		} else {
+			throw new RuntimeException("Un-supported group type: " + o.getClass().getName());
+		}
 	}
 
 	private MailboxAddress getAddress(User user) {
@@ -129,31 +175,6 @@ public final class GroupEmailCommand2 extends Command {
 			}
 		} else {
 			return null;
-		}
-	}
-
-	private Group getGroup(RenderContext rc) {
-		Object o = EvalUtils.eval(toGroup, rc, container);
-		if (o == null) {
-			throw new RuntimeException("Expression returned null, should have returned group or name of group");
-		} else if (o instanceof String) {
-			GroupService groupService = _(GroupService.class);
-			String groupName = (String) o;
-			UserGroup group = groupService.getGroup((Resource) this.getContainer(), groupName);
-			if (group == null) {
-				throw new RuntimeException("Unknown group: " + groupName);
-			}
-			if (group instanceof Group) {
-				Group g = (Group) group;
-				return g;
-			} else {
-				throw new RuntimeException("Group " + groupName + " is not an appropriate type. Is a: " + group.getClass() + " - but must be a: " + Group.class);
-			}
-
-		} else if (o instanceof Group) {
-			return (Group) o;
-		} else {
-			throw new RuntimeException("Un-supported group type: " + o.getClass().getName());
 		}
 	}
 
@@ -227,8 +248,7 @@ public final class GroupEmailCommand2 extends Command {
 			}
 		}
 		if (msgs.isEmpty()) {
-			Group group = getGroup(rc);
-			log.warn("No recipients (or none valid) in group: " + group.getHref());
+			log.warn("No recipients (or none valid) in group");
 		} else {
 			IUser curUser = _(CurrentUserService.class).getSecurityContextUser();
 			UUID curUserId = null;
