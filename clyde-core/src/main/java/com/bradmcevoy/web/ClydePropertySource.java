@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.property.PropertySource;
 import com.bradmcevoy.web.component.ComponentDef;
 import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.json.JsonResource;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -19,6 +20,11 @@ public class ClydePropertySource implements PropertySource {
 
     @Override
     public Object getProperty(QName name, Resource r) {
+		if( r instanceof JsonResource) {
+			// return properties on the underlying
+			JsonResource jr = (JsonResource) r;
+			return getProperty(name, jr.getWrappedResource());
+		}
         if (r instanceof Templatable) {
             if (isClydeNs(name)) {
                 Templatable t = (Templatable) r;
@@ -44,7 +50,14 @@ public class ClydePropertySource implements PropertySource {
         }
     }
 
+	@Override
     public void setProperty(QName name, Object value, Resource r) {
+		if( r instanceof JsonResource) {
+			// return properties on the underlying
+			JsonResource jr = (JsonResource) r;
+			setProperty(name, value, jr.getWrappedResource());
+			return ;
+		}		
         ITemplate template;
         ComponentDef def;
         if (r instanceof Templatable) {
@@ -76,7 +89,13 @@ public class ClydePropertySource implements PropertySource {
 
     }
 
+	@Override
     public PropertyMetaData getPropertyMetaData(QName name, Resource r) {
+		if( r instanceof JsonResource) {
+			// return properties on the underlying
+			JsonResource jr = (JsonResource) r;
+			return getPropertyMetaData(name, jr.getWrappedResource());
+		}		
         Component c;
         if (r instanceof Templatable) {
             Templatable t = (Templatable) r;

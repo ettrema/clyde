@@ -25,6 +25,12 @@
     </build>
     <dependencies>
         <dependency>
+            <artifactId>milton-json</artifactId>
+            <groupId>com.ettrema</groupId>
+            <type>jar</type>
+            <version>${milton.version}</version>
+        </dependency>		
+        <dependency>
             <artifactId>milton-api</artifactId>
             <groupId>com.ettrema</groupId>
             <type>jar</type>

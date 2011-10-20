@@ -1,24 +1,37 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.Range;
+import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
+import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.bradmcevoy.web.mail.RetryingMailService.DelayMessage;
+import com.bradmcevoy.web.mail.RetryingMailService.EmailResultCallback;
+import com.bradmcevoy.web.mail.RetryingMailService;
 import com.bradmcevoy.http.exceptions.NotFoundException;
+import com.bradmcevoy.web.mail.RetryingMailService.SendJob;
 import com.ettrema.context.Context;
-import com.ettrema.mail.send.RetryingMailService.DelayMessage;
-import com.ettrema.mail.send.RetryingMailService.EmailResultCallback;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.UUID;
 import org.jdom.Namespace;
 import java.util.Arrays;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.web.Group;
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.GetableResource;
+import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.io.BufferingOutputStream;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.ClydeUtils;
 import com.bradmcevoy.utils.LogUtils;
+import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.web.User;
 import com.bradmcevoy.web.security.UserGroup;
@@ -35,7 +48,6 @@ import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;
 import com.ettrema.mail.send.MailSender;
-import com.ettrema.mail.send.RetryingMailService;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +63,8 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public final class GroupEmailCommand2 extends Command {
+@BeanPropertyResource(value="clyde")
+public final class GroupEmailCommand2 extends Command implements Resource, DigestResource, GetableResource, PropFindableResource {
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GroupEmailCommand2.class);
 	private static final long serialVersionUID = 1L;
@@ -72,6 +85,44 @@ public final class GroupEmailCommand2 extends Command {
 	public GroupEmailCommand2(Addressable container, Element el) {
 		super(container, el);
 		parseXml(el);
+	}
+	
+	public boolean isCancelled() {
+		String href = BaseResource.getTargetContainer().getHref();
+		System.out.println("href1: " + href);
+		SendJob job = _(RetryingMailService.class).getJob(href);
+		if( job == null ) {
+			return false;
+		} else {
+			return job.isCancelled();
+		}
+	}
+	
+	/**
+	 * Used for propatch'ing
+	 * @param b 
+	 */
+	public void setCancelled(boolean b) {
+		String href = BaseResource.getTargetContainer().getHref();
+		System.out.println("href2: " + href);
+		_(RetryingMailService.class).cancel(href);
+	}
+	
+	public List<SendStatus> getStatus() {
+		String href = BaseResource.getTargetContainer().getHref();
+		SendJob job = _(RetryingMailService.class).getJob(href);
+		if( job == null ) {
+			return null;
+		} else {
+			List<SendStatus> list = new ArrayList<SendStatus>();
+			for( RetryingMailService.DelayMessage msg : job.getMsgs()) {
+				String email = toEmail(msg);
+				String status = toStatus(msg);
+				SendStatus ss = new SendStatus(email, msg.getAttempts(), status);
+				list.add(ss);
+			}
+			return list;
+		}
 	}
 
 	public void parseXml(Element el) {
@@ -256,7 +307,9 @@ public final class GroupEmailCommand2 extends Command {
 				curUserId = curUser.getNameNodeId();
 			}
 			RootContext rootContext = _(RootContextLocator.class).getRootContext();
-			_(RetryingMailService.class).sendMails(msgs, new NotifySenderEmailCallback(curUserId, rootContext));
+			String href = rc.getTargetPage().getHref();
+			System.out.println("href: " + href);
+			_(RetryingMailService.class).sendMails(href, msgs, new NotifySenderEmailCallback(curUserId, rootContext));
 		}
 	}
 
@@ -320,6 +373,92 @@ public final class GroupEmailCommand2 extends Command {
 		}
 	}
 
+	private String toEmail(RetryingMailService.DelayMessage msg) {
+		StringBuilder sb = new StringBuilder();
+		for( MailboxAddress mbox : msg.getSm().getTo() ) {
+			sb.append(mbox.toPlainAddress()).append(";");
+		}
+		return sb.toString();
+	}
+
+	private String toStatus(RetryingMailService.DelayMessage msg) {
+		if( msg.isCompletedOk() ) {
+			return "Sent";
+		} else if ( msg.isFatal() ) {
+			return "Failed";
+		} else if( msg.getAttempts() > 0 ) {
+			return "Retrying";
+		} else {
+			return "";
+		}
+	}
+
+	@Override
+	public String getUniqueId() {
+		return null;
+	}
+
+	@Override
+	public Object authenticate(String user, String password) {
+		return ((Templatable)getContainer()).authenticate(user, password);
+	}
+
+	@Override
+	public boolean authorise(Request request, Method method, Auth auth) {
+		return ((Templatable)getContainer()).authorise(request, method, auth);
+	}
+
+	@Override
+	public String getRealm() {
+		return ((Templatable)getContainer()).getRealm();
+	}
+
+	@Override
+	public Date getModifiedDate() {
+		return null;
+	}
+
+	@Override
+	public String checkRedirect(Request request) {
+		return null;
+	}
+
+	@Override
+	public Object authenticate(DigestResponse digestRequest) {
+		return ((DigestResource)getContainer()).authenticate(digestRequest);
+	}
+
+	@Override
+	public boolean isDigestAllowed() {
+		return ((DigestResource)getContainer()).isDigestAllowed();
+	}
+
+	@Override
+	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
+		
+	}
+
+	@Override
+	public Long getMaxAgeSeconds(Auth auth) {
+		return null;
+	}
+
+	@Override
+	public String getContentType(String accepts) {
+		return null;
+	}
+
+	@Override
+	public Long getContentLength() {
+		return null;
+	}
+
+	@Override
+	public Date getCreateDate() {
+		return null;
+	}
+
+
 	private static class NotifySenderEmailCallback implements EmailResultCallback {
 
 		private final UUID sender;
@@ -342,7 +481,7 @@ public final class GroupEmailCommand2 extends Command {
 		}
 
 		@Override
-		public void finished(UUID id, final Collection<DelayMessage> msgs) {
+		public void finished(String id, final Collection<DelayMessage> msgs) {
 			log.info("Finished mail job: " + id);
 			rootContext.execute(new Executable2() {
 
@@ -390,5 +529,31 @@ public final class GroupEmailCommand2 extends Command {
 			}
 
 		}
+	}
+	
+	public static class	SendStatus {
+		private String email;
+		private int retries;
+		private String status;
+
+		public SendStatus(String email, int retries, String status) {
+			this.email = email;
+			this.retries = retries;
+			this.status = status;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public int getRetries() {
+			return retries;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+		
+		
 	}
 }
