@@ -72,7 +72,17 @@ $.extend({
  */
 function log() {
     if( typeof(console) != "undefined" ) {
-        console.log(arguments);
+		if( arguments.length > 3 ) {
+			console.log(arguments);
+		} else if( arguments.length == 3) {
+			console.log(arguments[0], arguments[1], arguments[2]);	
+		} else if( arguments.length == 2) {
+			console.log(arguments[0], arguments[1]);	
+		} else if( arguments.length == 1) {
+			console.log(arguments[0]);
+		} else {
+			console.log(arguments);
+		}
     }
 }
 

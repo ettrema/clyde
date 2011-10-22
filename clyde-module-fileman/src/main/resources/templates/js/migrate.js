@@ -24,7 +24,7 @@ function initStatus() {
 			if( response && response.statuses ) {
 				showStatus(response[0].status);
 			} else {
-				$("#headline").html("No migration in progress");
+				$("#migrator #headline").html("No migration in progress");
 				$("#migrateFiles tbody").html("<tr><td colspan='5'>No files</td></tr>");
 				buttonControl(null);
 			}
