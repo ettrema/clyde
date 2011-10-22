@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.component;
 
+import com.bradmcevoy.web.security.BeanProperty;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
@@ -41,6 +42,7 @@ import com.bradmcevoy.web.eval.EvalUtils;
 import com.bradmcevoy.web.eval.Evaluatable;
 import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.security.CurrentUserService;
+import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContext;
 import com.ettrema.context.RootContextLocator;
@@ -63,7 +65,7 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-@BeanPropertyResource(value="clyde")
+@BeanPropertyResource(value = "clyde")
 public final class GroupEmailCommand2 extends Command implements Resource, DigestResource, GetableResource, PropFindableResource {
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GroupEmailCommand2.class);
@@ -86,36 +88,40 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 		super(container, el);
 		parseXml(el);
 	}
-	
-	public boolean isCancelled() {
+
+	@BeanProperty(readRole = Role.AUTHENTICATED, writeRole = Role.AUTHENTICATED)
+	public boolean isRunning() {
 		String href = BaseResource.getTargetContainer().getHref();
-		System.out.println("href1: " + href);
 		SendJob job = _(RetryingMailService.class).getJob(href);
-		if( job == null ) {
+		if (job == null) {
 			return false;
 		} else {
-			return job.isCancelled();
+			return !job.isComplete();
 		}
 	}
-	
-	/**
-	 * Used for propatch'ing
-	 * @param b 
-	 */
-	public void setCancelled(boolean b) {
-		String href = BaseResource.getTargetContainer().getHref();
-		System.out.println("href2: " + href);
-		_(RetryingMailService.class).cancel(href);
+
+	public void setRunning(boolean b) {
+		BaseResource targetPage = BaseResource.getTargetContainer();
+		String href = targetPage.getHref();
+		if (b) {
+			LogUtils.info(log, "setRunning - start", href);
+			RenderContext rc = new RenderContext(targetPage.getTemplate(), targetPage, null, false);
+			doProcess(rc, null, null);
+		} else {
+			LogUtils.info(log, "setRunning - cancel", href);
+			_(RetryingMailService.class).cancel(href);
+		}
 	}
-	
+
+	@BeanProperty(readRole = Role.AUTHENTICATED, writeRole = Role.AUTHENTICATED)
 	public List<SendStatus> getStatus() {
 		String href = BaseResource.getTargetContainer().getHref();
 		SendJob job = _(RetryingMailService.class).getJob(href);
-		if( job == null ) {
+		if (job == null) {
 			return null;
 		} else {
 			List<SendStatus> list = new ArrayList<SendStatus>();
-			for( RetryingMailService.DelayMessage msg : job.getMsgs()) {
+			for (RetryingMailService.DelayMessage msg : job.getMsgs()) {
 				String email = toEmail(msg);
 				String status = toStatus(msg);
 				SendStatus ss = new SendStatus(email, msg.getAttempts(), status);
@@ -166,7 +172,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
 	private List<User> getTo(RenderContext rc) {
 		Object o = EvalUtils.eval(toGroup, rc, rc.page);
-		if( o == null ) {
+		if (o == null) {
 			log.warn("getTo: 'to' expression evaluated to null");
 		} else {
 			LogUtils.trace(log, "getTo: 'to' evaluated to a", o.getClass());
@@ -180,7 +186,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 		if (o == null) {
 			log.warn("Got null value from 'to' expression");
 		} else if (o instanceof String) {
-			String itemName = (String) o;			
+			String itemName = (String) o;
 			LogUtils.trace(log, "appendUsers: got a string to resolve: ", itemName);
 			GroupService groupService = _(GroupService.class);
 			UserGroup group = groupService.getGroup((Resource) this.getContainer(), itemName);
@@ -202,7 +208,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 		} else if (o instanceof Group) {
 			Group g = (Group) o;
 			list.addAll(g.getMembers());
-		} else if (o instanceof List) {			
+		} else if (o instanceof List) {
 			List items = (List) o;
 			LogUtils.trace(log, "appendTo: list of size", items.size());
 			for (Object oChild : items) {
@@ -285,6 +291,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 			if (address != null) {
 				log.info("send email to: " + address + " ...");
 				StandardMessage sm = new StandardMessageImpl();
+				rc.getAttributes().put("recipient", user);
 				sm.setText(EvalUtils.evalToString(bodyText, rc, container));
 				sm.setHtml(EvalUtils.evalToString(bodyHtml, rc, container));
 				sm.setSubject(getSubject(rc));
@@ -308,7 +315,6 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 			}
 			RootContext rootContext = _(RootContextLocator.class).getRootContext();
 			String href = rc.getTargetPage().getHref();
-			System.out.println("href: " + href);
 			_(RetryingMailService.class).sendMails(href, msgs, new NotifySenderEmailCallback(curUserId, rootContext));
 		}
 	}
@@ -375,18 +381,18 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
 	private String toEmail(RetryingMailService.DelayMessage msg) {
 		StringBuilder sb = new StringBuilder();
-		for( MailboxAddress mbox : msg.getSm().getTo() ) {
+		for (MailboxAddress mbox : msg.getSm().getTo()) {
 			sb.append(mbox.toPlainAddress()).append(";");
 		}
 		return sb.toString();
 	}
 
 	private String toStatus(RetryingMailService.DelayMessage msg) {
-		if( msg.isCompletedOk() ) {
+		if (msg.isCompletedOk()) {
 			return "Sent";
-		} else if ( msg.isFatal() ) {
+		} else if (msg.isFatal()) {
 			return "Failed";
-		} else if( msg.getAttempts() > 0 ) {
+		} else if (msg.getAttempts() > 0) {
 			return "Retrying";
 		} else {
 			return "";
@@ -400,17 +406,17 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
 	@Override
 	public Object authenticate(String user, String password) {
-		return ((Templatable)getContainer()).authenticate(user, password);
+		return ((Templatable) getContainer()).authenticate(user, password);
 	}
 
 	@Override
 	public boolean authorise(Request request, Method method, Auth auth) {
-		return ((Templatable)getContainer()).authorise(request, method, auth);
+		return ((Templatable) getContainer()).authorise(request, method, auth);
 	}
 
 	@Override
 	public String getRealm() {
-		return ((Templatable)getContainer()).getRealm();
+		return ((Templatable) getContainer()).getRealm();
 	}
 
 	@Override
@@ -425,17 +431,16 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
 	@Override
 	public Object authenticate(DigestResponse digestRequest) {
-		return ((DigestResource)getContainer()).authenticate(digestRequest);
+		return ((DigestResource) getContainer()).authenticate(digestRequest);
 	}
 
 	@Override
 	public boolean isDigestAllowed() {
-		return ((DigestResource)getContainer()).isDigestAllowed();
+		return ((DigestResource) getContainer()).isDigestAllowed();
 	}
 
 	@Override
 	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
-		
 	}
 
 	@Override
@@ -457,7 +462,6 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 	public Date getCreateDate() {
 		return null;
 	}
-
 
 	private static class NotifySenderEmailCallback implements EmailResultCallback {
 
@@ -497,7 +501,9 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 					} else {
 						String s = formatResultMessage(msgs);
 						List<String> to = Arrays.asList(user.getExternalEmailText());
-						_(MailSender.class).sendMail(fromAddress, null, to, fromAddress, "Group email notification", s);
+						if (fromAddress != null) {
+							_(MailSender.class).sendMail(fromAddress, null, to, fromAddress, "Group email notification", s);
+						}
 					}
 				}
 
@@ -530,8 +536,9 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
 		}
 	}
-	
-	public static class	SendStatus {
+
+	public static class SendStatus {
+
 		private String email;
 		private int retries;
 		private String status;
@@ -553,7 +560,5 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 		public String getStatus() {
 			return status;
 		}
-		
-		
 	}
 }

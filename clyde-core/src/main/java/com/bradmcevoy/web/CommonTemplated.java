@@ -794,7 +794,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	public Resource getChildResource(String childName) {
 //        log.debug( "getChildResource: " + childName + " from: " + this.getHref());
 		Component c = getAnyComponent(childName);
-		System.out.println("get component: " + childName + " - got " + c);
+		//System.out.println("get component: " + childName + " - got " + c);
 		Resource r = null;
 		if (c != null) {
 			// nasty hacks to ensure the physical resource is always available

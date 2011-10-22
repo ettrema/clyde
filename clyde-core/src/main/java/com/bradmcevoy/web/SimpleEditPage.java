@@ -22,6 +22,9 @@ import static com.ettrema.context.RequestContext._;
 
 public class SimpleEditPage implements GetableResource, PostableResource {
 
+	
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SimpleEditPage.class);
+	
     final SimpleEditable editable;
 
     public SimpleEditPage(SimpleEditable editable) {
@@ -60,7 +63,7 @@ public class SimpleEditPage implements GetableResource, PostableResource {
             editable.save();
             editable.commit();
         } else {
-            System.out.println("no save command");
+            log.warn("no save command");
         }
         return null;
     }

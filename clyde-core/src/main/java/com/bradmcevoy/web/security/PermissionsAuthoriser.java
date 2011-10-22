@@ -7,6 +7,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response.Status;
 import com.bradmcevoy.property.PropertyAuthoriser;
 import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.bradmcevoy.utils.LogUtils;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;
 import com.bradmcevoy.web.Templatable;
@@ -57,6 +58,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
     @Override
     public Boolean authorise(Resource resource, Request request, Method method, Auth auth) {
         Role requiredRole = findRole(resource, method);
+		LogUtils.trace(log, "authorise: Required role is: " , requiredRole);
         if (requiredRole == null) {
             // This means the authoriser has no opinion. Another authoriser might
             // be in the chain, or else we fall through to the default policy

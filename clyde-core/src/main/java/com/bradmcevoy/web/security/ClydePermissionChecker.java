@@ -15,6 +15,7 @@ import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.User;
+import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 
 import static com.ettrema.context.RequestContext._;
@@ -98,6 +99,16 @@ public class ClydePermissionChecker implements PermissionChecker {
 				log.warn("user does not have role: " + role + " on resource: " + templatable.getHref());
 			}
 			return b;
+		} else if( r instanceof Addressable) {
+			BaseResource actualRes = BaseResource.getTargetContainer();
+			log.info("Found component, so check if user does has role: " + role + " on resource: " + actualRes.getHref());
+			boolean b = hasRole(role, actualRes, auth);
+			log.info("  - " + b);
+			if(!b) {
+				Thread.dumpStack();
+			}
+			return b;
+			
 		} else {
 			log.warn("ClydePermissionChecker cannot check permission on resource of type: " + r.getClass() + " Saying no to be safe");
 			return false;
@@ -220,6 +231,14 @@ public class ClydePermissionChecker implements PermissionChecker {
 				t = t.getTemplate();
 			}
 			LogUtils.trace(log, "checkRules: no rules on resource, and no template returned a value");
+			return null;
+		}
+	}
+
+	private Resource getParentResource(Addressable add) {
+		if( add.getContainer() instanceof Resource ) {
+			return (Resource) add.getContainer();
+		} else {
 			return null;
 		}
 	}

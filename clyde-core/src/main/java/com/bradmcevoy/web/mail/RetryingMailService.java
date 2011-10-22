@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.mail;
 
 import com.ettrema.common.Service;
-import com.ettrema.mail.StandardMessage; 
+import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.send.MailSender;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author brad
  */
-public class RetryingMailService implements Service{
+public class RetryingMailService implements Service {
 
 	private final static Logger log = LoggerFactory.getLogger(RetryingMailService.class);
 	private final MailSender mailSender;
-	private Map<String,SendJob> mapOfJobs = new ConcurrentHashMap<String, SendJob>();
+	private Map<String, SendJob> mapOfJobs = new ConcurrentHashMap<String, SendJob>();
 	private DelayQueue<DelayMessage> delayQueue = new DelayQueue<DelayMessage>();
 	private boolean running;
 	private Consumer consumer;
@@ -41,6 +41,7 @@ public class RetryingMailService implements Service{
 		this.mailSender = mailSender;
 	}
 
+	@Override
 	public void start() {
 		running = true;
 		mailSender.start();
@@ -50,6 +51,7 @@ public class RetryingMailService implements Service{
 
 	}
 
+	@Override
 	public void stop() {
 		running = false;
 		delayQueue.clear();
@@ -67,7 +69,6 @@ public class RetryingMailService implements Service{
 		this.maxRetries = maxRetries;
 	}
 
-
 	/**
 	 * Submit the list of emails to send and associate with an id for this job
 	 * 
@@ -75,30 +76,34 @@ public class RetryingMailService implements Service{
 	 * @param callback
 	 * @return 
 	 */
-	public void sendMails(String id, List<StandardMessage> msgs, EmailResultCallback callback) { 
+	public void sendMails(String id, List<StandardMessage> msgs, EmailResultCallback callback) {
+		// First make sure any previous job with the same id is cancelled
+		cancel(id);
+		mapOfJobs.remove(id);
+		
 		List<DelayMessage> list = new ArrayList<DelayMessage>();
 		SendJob sendJob = new SendJob(id);
-		for (StandardMessage sm  : msgs) { 
+		for (StandardMessage sm : msgs) {
 			DelayMessage dm = new DelayMessage(sendJob, sm, callback);
 			list.add(dm);
 		}
 		sendJob.msgs = list;
-		
+
 		mapOfJobs.put(sendJob.id, sendJob);
-		
-		for(DelayMessage dm : sendJob.msgs) {
+
+		for (DelayMessage dm : sendJob.msgs) {
 			delayQueue.add(dm);
 		}
 		log.info("Queue size is now: " + delayQueue.size());
 	}
-	
+
 	public SendJob getJob(String id) {
 		return mapOfJobs.get(id);
 	}
-	
+
 	public void cancel(String id) {
 		SendJob job = mapOfJobs.get(id);
-		if( job != null ) {
+		if (job != null) {
 			job.cancel();
 			job.cancelled = true;
 		}
@@ -117,7 +122,13 @@ public class RetryingMailService implements Service{
 			try {
 				log.info("Starting queue processing consumer");
 				while (running) {
-					consume(queue.take());
+					try {
+						consume(queue.take());
+					} catch (InterruptedException e) {
+						throw e;
+					} catch (Throwable e) {
+						log.error("Caught exception sending email", e);
+					}
 					log.info("Remaining queue items: " + queue.size());
 				}
 			} catch (InterruptedException ex) {
@@ -127,9 +138,9 @@ public class RetryingMailService implements Service{
 
 		void consume(DelayMessage dm) {
 			log.info("Attempt to send: " + dm);
-			if( dm.completedOk || dm.failed ) {
+			if (dm.completedOk || dm.failed) {
 				log.info("Email is marked as failed or complete");
-				return ;
+				return;
 			}
 			try {
 				send(dm);
@@ -148,8 +159,8 @@ public class RetryingMailService implements Service{
 				}
 			} finally {
 				// If there is a sendJob, and all emails are sent, then call the finished callback
-				if( dm.sendJob != null ) {
-					if( dm.sendJob.checkComplete() ) {						
+				if (dm.sendJob != null) {
+					if (dm.sendJob.checkComplete()) {
 						dm.callback.finished(dm.sendJob.id, dm.sendJob.msgs);
 					}
 				}
@@ -175,48 +186,51 @@ public class RetryingMailService implements Service{
 			return msgs;
 		}
 
-		
 		public boolean isCancelled() {
 			return cancelled;
 		}
 
-		
+		public boolean isComplete() {
+			return checkComplete();
+		}
+
 		private boolean checkComplete() {
-			for( DelayMessage dm : msgs) {
+			for (DelayMessage dm : msgs) {
 				boolean isComplete = dm.completedOk || dm.failed;
-				if( !isComplete ) {
+				if (!isComplete) {
 					return false;
 				}
 			}
 			return true;
 		}
-		
+
 		private void cancel() {
-			for( DelayMessage dm : msgs) {
+			for (DelayMessage dm : msgs) {
 				boolean isComplete = dm.completedOk || dm.failed;
-				if( !isComplete ) {
+				if (!isComplete) {
 					dm.failed = true;
 				}
-			}			
+			}
 		}
 	}
 
 	public class DelayMessage implements Delayed {
+
 		private final SendJob sendJob;
-		private final StandardMessage sm; 
+		private final StandardMessage sm;
 		private final EmailResultCallback callback;
 		private int attempts;
 		private boolean completedOk;
 		private boolean failed;
 		private Throwable lastException;
 
-		public DelayMessage(SendJob sendJob, StandardMessage sm, EmailResultCallback callback) { 
+		public DelayMessage(SendJob sendJob, StandardMessage sm, EmailResultCallback callback) {
 			this.sendJob = sendJob;
 			this.sm = sm;
 			this.callback = callback;
 		}
 
-		public StandardMessage getSm() { 
+		public StandardMessage getSm() {
 			return sm;
 		}
 
@@ -272,18 +286,14 @@ public class RetryingMailService implements Service{
 		public Throwable getLastException() {
 			return lastException;
 		}
-		
-		
 	}
 
 	public interface EmailResultCallback {
 
-		void onSuccess(StandardMessage sm); 
+		void onSuccess(StandardMessage sm);
 
-		void onFailed(StandardMessage sm, Throwable lastException); 
+		void onFailed(StandardMessage sm, Throwable lastException);
 
 		void finished(String id, Collection<DelayMessage> msgs);
 	}
 }
-
-
