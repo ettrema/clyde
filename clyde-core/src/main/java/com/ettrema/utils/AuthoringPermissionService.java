@@ -1,8 +1,8 @@
 package com.ettrema.utils;
 
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.Templatable;
 import com.ettrema.web.security.PermissionRecipient.Role;
 
 /**

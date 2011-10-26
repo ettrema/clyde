@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.migrate;
+package com.ettrema.web.migrate;
 
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.http.Auth;
@@ -11,11 +11,11 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.migrate.Arguments;
-import com.bradmcevoy.migrate.MigrationHelper;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.migrate.Arguments;
+import com.ettrema.migrate.MigrationHelper;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.vfs.NameNode;

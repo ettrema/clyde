@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
@@ -6,9 +6,9 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.StreamToStream;
-import com.bradmcevoy.web.BinaryFile;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.TextFile;
+import com.ettrema.web.BinaryFile;
+import com.ettrema.web.Folder;
+import com.ettrema.web.TextFile;
 import com.ettrema.console.Result;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

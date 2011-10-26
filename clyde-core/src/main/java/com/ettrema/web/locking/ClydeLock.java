@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.locking;
+package com.ettrema.web.locking;
 
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;

@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.eval;
+package com.ettrema.web.eval;
 
-import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.web.component.Addressable;
 import org.jdom.Element;
 import org.jdom.Namespace;
 

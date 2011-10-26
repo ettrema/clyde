@@ -1,9 +1,9 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
-import com.bradmcevoy.web.FlashFileCreator;
-import com.bradmcevoy.web.ImageFileCreator;
-import com.bradmcevoy.web.VideoFileCreator;
-import com.bradmcevoy.web.creation.ResourceCreator;
+import com.ettrema.web.FlashFileCreator;
+import com.ettrema.web.ImageFileCreator;
+import com.ettrema.web.VideoFileCreator;
+import com.ettrema.web.creation.ResourceCreator;
 import com.ettrema.context.Context;
 import com.ettrema.context.Factory;
 import com.ettrema.context.Registration;

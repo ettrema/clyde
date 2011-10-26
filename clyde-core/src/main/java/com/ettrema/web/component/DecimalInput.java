@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.utils.IntegerUtils;
 import java.math.BigDecimal;

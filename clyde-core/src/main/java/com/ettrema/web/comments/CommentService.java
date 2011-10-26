@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.comments;
+package com.ettrema.web.comments;
 
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.vfs.NameNode;

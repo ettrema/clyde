@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.mail;
 
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

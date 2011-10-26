@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.component.ComponentValue;
 import org.jdom.Element;
 
 /**

@@ -5,7 +5,7 @@ import com.ettrema.vfs.NameNode;
 import java.util.UUID;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import com.ettrema.vfs.VfsSession;
 import java.util.Calendar;
 import java.util.Date;

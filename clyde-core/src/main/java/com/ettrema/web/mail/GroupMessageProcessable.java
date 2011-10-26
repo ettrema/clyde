@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
-import com.bradmcevoy.web.ClydeStandardMessage;
+import com.ettrema.web.ClydeStandardMessage;
 import com.ettrema.context.Context;
 import com.ettrema.grid.Processable;
 import com.ettrema.mail.MailboxAddress;

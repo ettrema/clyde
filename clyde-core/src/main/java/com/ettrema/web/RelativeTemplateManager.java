@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 

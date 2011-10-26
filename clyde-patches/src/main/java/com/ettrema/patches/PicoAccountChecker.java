@@ -1,12 +1,12 @@
 package com.ettrema.patches;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.console2.PatchApplicator;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.IUser;
+import com.ettrema.web.console2.PatchApplicator;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.context.Context;
 import com.ettrema.vfs.VfsSession;
 import java.util.UUID;

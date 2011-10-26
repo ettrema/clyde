@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.RenderContext;
+import com.ettrema.web.RenderContext;
 import com.ettrema.mail.MailboxAddress;
 import org.jdom.Element;
 

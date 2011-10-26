@@ -3,16 +3,16 @@ package com.ettrema.patches;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.security.PasswordStorageService;
+import com.ettrema.web.security.PasswordStorageService;
 import com.ettrema.httpclient.File;
 import com.ettrema.vfs.VfsSession;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.XmlPersistableResource;
-import com.bradmcevoy.web.console2.PatchApplicator;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.User;
+import com.ettrema.web.XmlPersistableResource;
+import com.ettrema.web.console2.PatchApplicator;
 import com.ettrema.context.Context;
 import com.ettrema.httpclient.Host;
 import com.ettrema.httpclient.HttpException;
@@ -49,6 +49,7 @@ public class ShmegoMover implements PatchApplicator, Serializable {
 	
 	private int numFiles;
 
+	@Override
 	public void doProcess(Context context) {
 		Folder currentResource = (Folder) _(VfsSession.class).get(currentFolderId).getData();
 		try {
@@ -87,7 +88,7 @@ public class ShmegoMover implements PatchApplicator, Serializable {
 	public void pleaseImplementSerializable() {
 	}
 
-	private void migrateUser(Host remoteHost, com.bradmcevoy.web.Host localHost) throws IOException, HttpException, Exception {
+	private void migrateUser(Host remoteHost, com.ettrema.web.Host localHost) throws IOException, HttpException, Exception {
 		Resource rUser = remoteHost.find("/users/" + accountName);
 		if (rUser == null) {
 			throw new Exception("User not found: " + accountName);
@@ -117,13 +118,13 @@ public class ShmegoMover implements PatchApplicator, Serializable {
 		}
 	}
 
-	private void migrateFiles(Host remoteHost, com.bradmcevoy.web.Host localHost) throws HttpException, UnsupportedEncodingException, Exception {
+	private void migrateFiles(Host remoteHost, com.ettrema.web.Host localHost) throws HttpException, UnsupportedEncodingException, Exception {
 		log.info("migrateFiles");
 		String customerSiteName = accountName + ".shmego.com";
-		com.bradmcevoy.web.Host customerHost = (com.bradmcevoy.web.Host) localHost.find("/sites/" + customerSiteName);
+		com.ettrema.web.Host customerHost = (com.ettrema.web.Host) localHost.find("/sites/" + customerSiteName);
 		if (customerHost == null) {
 			Folder sites = (Folder) localHost.child("sites");
-			customerHost = new com.bradmcevoy.web.Host(sites, customerSiteName);
+			customerHost = new com.ettrema.web.Host(sites, customerSiteName);
 			customerHost.save();
 		}
 		String sourcePath = "/sites/" + customerSiteName + ".source";
@@ -133,7 +134,7 @@ public class ShmegoMover implements PatchApplicator, Serializable {
 		customerHostSource = customerHostSource.replace("free", "enabled");
 		
 		replaceContent(customerHostSource, customerHost);
-		com.bradmcevoy.web.Folder localFiles = customerHost.getSubFolder("files");
+		com.ettrema.web.Folder localFiles = customerHost.getSubFolder("files");
 		if (localFiles == null) {
 			localFiles = (Folder) customerHost.createCollection("files", false);
 		}

@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.Component;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.User;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;

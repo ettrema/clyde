@@ -2,10 +2,10 @@ package com.bradmcevoy.web.mail;
 
 import com.bradmcevoy.grid.AsynchProcessor;
 import com.bradmcevoy.grid.MockAsynchProcessor;
-import com.bradmcevoy.web.ClydeStandardMessage;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.RootFolder;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.ClydeStandardMessage;
+import com.ettrema.web.Folder;
+import com.ettrema.web.RootFolder;
+import com.ettrema.web.User;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.send.MailSender;
 import com.ettrema.mail.send.MockMailSender;

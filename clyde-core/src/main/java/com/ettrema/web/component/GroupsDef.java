@@ -1,15 +1,15 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.utils.StringUtils;
-import com.bradmcevoy.web.Group;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.groups.RelationalGroupHelper;
-import com.bradmcevoy.web.security.UserGroup;
+import com.ettrema.web.Group;
+import com.ettrema.web.Host;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.User;
+import com.ettrema.web.groups.RelationalGroupHelper;
+import com.ettrema.web.security.UserGroup;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;

@@ -3,8 +3,8 @@ package com.ettrema.event;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.RenderContext;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.RenderContext;
 
 /**
  * TODO: execute groovy scripts on templated resource

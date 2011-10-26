@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.comments;
+package com.ettrema.web.comments;
 
-import com.bradmcevoy.web.IUser;
+import com.ettrema.web.IUser;
 
 /**
  *

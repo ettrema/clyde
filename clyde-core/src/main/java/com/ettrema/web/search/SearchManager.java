@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

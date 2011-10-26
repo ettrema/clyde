@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -10,9 +10,9 @@ import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.Redirectable;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.utils.Redirectable;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.InitUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

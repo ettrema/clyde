@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.csv;
+package com.ettrema.web.csv;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Templatable;
 
 /**
  *

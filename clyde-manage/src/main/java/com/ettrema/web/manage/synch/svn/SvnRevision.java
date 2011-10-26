@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.synch.svn;
+package com.ettrema.web.manage.synch.svn;
 
 import java.util.Map;
 import org.tmatesoft.svn.core.ISVNDirEntryHandler;

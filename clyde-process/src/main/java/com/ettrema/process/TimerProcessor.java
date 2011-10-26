@@ -1,9 +1,9 @@
 
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.component.ComponentValue;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import java.io.Serializable;

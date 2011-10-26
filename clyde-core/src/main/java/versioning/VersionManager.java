@@ -2,8 +2,8 @@ package versioning;
 
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.ComponentValueMap;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.ComponentValueMap;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.RelationalNameNode;

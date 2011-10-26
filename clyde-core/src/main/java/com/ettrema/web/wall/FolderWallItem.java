@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.wall;
+package com.ettrema.web.wall;
 
-import com.bradmcevoy.web.wall.FolderUpdateWallItem.UpdatedFile;
+import com.ettrema.web.wall.FolderUpdateWallItem.UpdatedFile;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;

@@ -9,11 +9,11 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-patches</artifactId>
     <packaging>jar</packaging>
-    <name>Clyde Patches</name>
+    <name>clyde-patches</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-coreapi</artifactId>
+            <artifactId>clyde-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

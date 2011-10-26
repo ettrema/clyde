@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.manage.logging;
+package com.ettrema.web.manage.logging;
 
 import com.bradmcevoy.http.Request;
-import com.bradmcevoy.utils.CurrentRequestService;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.utils.CurrentRequestService;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.CurrentUserService;
 import com.ettrema.berry.event.Notifier;
 import com.ettrema.common.Service;
 import org.apache.log4j.Level;

@@ -1,15 +1,15 @@
-package com.bradmcevoy.web.calendar;
+package com.ettrema.web.calendar;
 
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.creation.Creator;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.IUser;
+import com.ettrema.web.User;
+import com.ettrema.web.creation.Creator;
+import com.ettrema.web.security.CurrentUserService;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 

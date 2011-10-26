@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.code.content;
+package com.ettrema.web.code.content;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.TextFile;
-import com.bradmcevoy.web.code.ContentTypeHandler;
+import com.ettrema.web.TextFile;
+import com.ettrema.web.code.ContentTypeHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

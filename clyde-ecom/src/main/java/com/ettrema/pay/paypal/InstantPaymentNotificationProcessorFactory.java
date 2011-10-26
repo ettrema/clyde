@@ -1,4 +1,4 @@
-package com.bradmcevoy.pay.paypal;
+package com.ettrema.pay.paypal;
 
 import com.ettrema.context.Context;
 import com.ettrema.context.Factory;

@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.comments;
+package com.ettrema.web.comments;
 
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.CurrentUserService;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;

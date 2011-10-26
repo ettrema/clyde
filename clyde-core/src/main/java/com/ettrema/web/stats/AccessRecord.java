@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web.stats;
+package com.ettrema.web.stats;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;

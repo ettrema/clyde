@@ -1,13 +1,13 @@
 
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.search.BaseResourceIndexer;
+import com.ettrema.web.search.BaseResourceIndexer;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;

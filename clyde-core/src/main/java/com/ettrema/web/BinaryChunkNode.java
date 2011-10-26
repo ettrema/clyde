@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;

@@ -1,6 +1,6 @@
-package com.bradmcevoy.event;
+package com.ettrema.event;
 
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import com.ettrema.event.ResourceEvent;
 
 /**

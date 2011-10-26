@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import java.io.Serializable;
 

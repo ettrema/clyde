@@ -1,12 +1,12 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
 import java.io.Serializable;
 import org.jdom.Element;
 

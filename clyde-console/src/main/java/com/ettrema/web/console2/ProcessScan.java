@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.process.ProcessDef;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.process.ProcessDef;
+import com.ettrema.web.Folder;
 import com.ettrema.console.Result;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.VfsSession;

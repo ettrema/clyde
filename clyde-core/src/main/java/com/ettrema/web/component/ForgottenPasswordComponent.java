@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.utils.JDomUtils;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.security.ForgottenPasswordHelper;
+import com.ettrema.web.Component;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.security.ForgottenPasswordHelper;
 import java.util.Map;
 import org.jdom.Element;
 import org.jdom.Namespace;

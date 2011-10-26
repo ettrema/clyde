@@ -1,11 +1,11 @@
-package com.bradmcevoy.query.persistence;
+package com.ettrema.query.persistence;
 
 import java.sql.SQLException;
 import java.util.Map;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.query.FieldSource;
-import com.bradmcevoy.web.query.Selectable;
+import com.ettrema.web.Folder;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.query.FieldSource;
+import com.ettrema.web.query.Selectable;
 import com.ettrema.db.Table;
 import com.ettrema.db.dialects.Dialect;
 import java.sql.Connection;

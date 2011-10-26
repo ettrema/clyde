@@ -1,6 +1,6 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.VfsCommon;
 
 /**
  * Just to support mocking out the dependency

@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.children;
+package com.ettrema.web.children;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.SubPage;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.SubPage;
+import com.ettrema.web.Templatable;
 import java.util.ArrayList;
 import java.util.List;
 

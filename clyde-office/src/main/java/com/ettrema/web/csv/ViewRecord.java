@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.csv;
+package com.ettrema.web.csv;
 
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

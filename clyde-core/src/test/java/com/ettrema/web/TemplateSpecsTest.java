@@ -1,10 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.TemplateSpecs.AllowTemplateSpec;
-import com.bradmcevoy.web.TemplateSpecs.TemplateSpec;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.ettrema.web.TemplateSpecs;
+import com.ettrema.web.TemplateSpecs.AllowTemplateSpec;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

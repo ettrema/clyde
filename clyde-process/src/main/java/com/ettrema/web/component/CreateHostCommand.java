@@ -1,15 +1,15 @@
 
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.process.ProcessDef;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.ComponentMap;
-import com.bradmcevoy.web.Group;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.User;
+import com.ettrema.process.ProcessDef;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Component;
+import com.ettrema.web.ComponentMap;
+import com.ettrema.web.Group;
+import com.ettrema.web.Host;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.User;
 import com.ettrema.vfs.NameNode;
 import java.util.List;
 import java.util.Map;

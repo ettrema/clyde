@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.web.code.CodeResourceFactory;
+import com.ettrema.web.code.CodeResourceFactory;
 import com.ettrema.console.ConsoleCommand;
 import java.util.List;
 

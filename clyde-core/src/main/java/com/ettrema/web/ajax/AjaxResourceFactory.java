@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.ajax;
+package com.ettrema.web.ajax;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -14,14 +14,14 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.NewPage;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentUtils;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.NewPage;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentUtils;
+import com.ettrema.web.component.ComponentValue;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;

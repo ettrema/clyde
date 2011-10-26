@@ -1,9 +1,9 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.stats.CountingOutputStream;
+import com.ettrema.web.stats.CountingOutputStream;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

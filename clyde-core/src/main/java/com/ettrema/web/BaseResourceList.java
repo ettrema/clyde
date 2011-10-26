@@ -1,7 +1,7 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.calc.Calc;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.calc.Calc;
+import com.ettrema.web.component.ComponentValue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

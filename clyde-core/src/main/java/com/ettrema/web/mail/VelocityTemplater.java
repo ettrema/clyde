@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import com.ettrema.mail.StandardMessage;
 import org.apache.velocity.VelocityContext;
 

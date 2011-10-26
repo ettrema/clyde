@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.GetableResource;
@@ -7,7 +7,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.NotFoundException;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.component.InitUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;

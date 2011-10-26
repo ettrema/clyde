@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import java.util.ArrayList;
 import java.util.List;

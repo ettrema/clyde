@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.calc;
+package com.ettrema.web.calc;
 
-import com.bradmcevoy.web.BaseResourceList;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.ValueHolder;
+import com.ettrema.web.BaseResourceList;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.ValueHolder;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package com.bradmcevoy.pay.paypal;
+package com.ettrema.pay.paypal;
 
 import java.math.BigDecimal;
 

@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.security.EmailAuthenticator;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.User;
+import com.ettrema.web.security.EmailAuthenticator;
 import com.ettrema.mail.MailboxAddress;
 import org.jdom.Element;
 

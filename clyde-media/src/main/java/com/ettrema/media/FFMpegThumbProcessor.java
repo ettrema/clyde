@@ -1,12 +1,12 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.io.StreamUtils;
-import com.bradmcevoy.video.FFMPEGConverter;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.Thumb;
+import com.ettrema.video.FFMPEGConverter;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.Thumb;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

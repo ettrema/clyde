@@ -1,6 +1,6 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.security.Subject;
+import com.ettrema.web.security.Subject;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
@@ -8,11 +8,11 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.utils.LogUtils;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.groups.ClydeGroupHelper;
-import com.bradmcevoy.web.mail.MailProcessor;
-import com.bradmcevoy.web.security.CustomUserGroup;
-import com.bradmcevoy.web.security.PermissionRecipient;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.groups.ClydeGroupHelper;
+import com.ettrema.web.mail.MailProcessor;
+import com.ettrema.web.security.CustomUserGroup;
+import com.ettrema.web.security.PermissionRecipient;
 import com.ettrema.mail.MailboxAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

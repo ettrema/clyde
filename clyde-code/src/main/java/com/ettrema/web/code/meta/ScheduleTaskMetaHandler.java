@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.code.meta;
+package com.ettrema.web.code.meta;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.scheduled.ScheduleTask;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.code.MetaHandler;
+import com.ettrema.scheduled.ScheduleTask;
+import com.ettrema.web.Folder;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.code.MetaHandler;
 import org.jdom.Element;
 
 /**

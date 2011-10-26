@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.SubPage;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.code.meta.CommonTemplatedMetaHandler;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.SubPage;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.code.meta.CommonTemplatedMetaHandler;
+import com.ettrema.web.component.InitUtils;
 import org.jdom.Element;
 
 /**

@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import com.bradmcevoy.utils.IntegerUtils;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.security.PasswordValidationService;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.security.PasswordValidationService;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.code;
+package com.ettrema.web.code;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableResource;
@@ -10,7 +10,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.code.content.CodeUtils;
+import com.ettrema.web.code.content.CodeUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;

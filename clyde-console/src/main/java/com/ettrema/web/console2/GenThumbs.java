@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
-import com.bradmcevoy.media.ThumbGeneratorService;
+import com.ettrema.media.ThumbGeneratorService;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Thumb;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Thumb;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;

@@ -9,11 +9,11 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-ecom</artifactId>
     <packaging>jar</packaging>
-    <name>Clyde ECommerce</name>
+    <name>clyde-ecom</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-coreapi</artifactId>
+            <artifactId>clyde-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

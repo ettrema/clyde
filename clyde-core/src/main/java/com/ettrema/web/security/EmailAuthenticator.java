@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.IUser;
+import com.ettrema.web.User;
 import com.ettrema.mail.MailboxAddress;
 
 /**

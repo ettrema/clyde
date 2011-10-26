@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.ExistingResourceFactory;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.ExistingResourceFactory;
+import com.ettrema.web.Folder;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;

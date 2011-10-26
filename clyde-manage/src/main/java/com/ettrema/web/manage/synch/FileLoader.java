@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.manage.synch;
+package com.ettrema.web.manage.synch;
 
 import java.io.FileOutputStream;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.code.CodeResourceFactory;
+import com.ettrema.web.code.CodeResourceFactory;
 import com.ettrema.vfs.VfsSession;
 import java.io.File;
 import java.io.FileNotFoundException;

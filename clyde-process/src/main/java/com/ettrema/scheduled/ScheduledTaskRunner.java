@@ -1,6 +1,6 @@
-package com.bradmcevoy.scheduled;
+package com.ettrema.scheduled;
 
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.ettrema.common.Service;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContextLocator;
@@ -36,6 +36,7 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 		this.rootContextLocator = rootContextLocator;
 	}
 
+	@Override
 	public void doProcess(Context context) {
 		log.trace("doProcess");
 		if (!started) {
@@ -80,9 +81,11 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 		}
 	}
 
+	@Override
 	public void pleaseImplementSerializable() {
 	}
 
+	@Override
 	public void start() {
 		started = true;
 		consumer = new Consumer();
@@ -91,12 +94,14 @@ public class ScheduledTaskRunner implements Processable, Serializable, Service {
 		consumerThread.start();
 	}
 
+	@Override
 	public void stop() {
 		started = false;
 	}
 
 	class Consumer implements Runnable {
 
+		@Override
 		public void run() {
 			try {
 				while (true) {

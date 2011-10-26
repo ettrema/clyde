@@ -1,8 +1,8 @@
-package com.bradmcevoy.thumbs;
+package com.ettrema.thumbs;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ImageFile;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ImageFile;
 
 /**
  * Populates a folder with a thumb href based on the contents of the folder

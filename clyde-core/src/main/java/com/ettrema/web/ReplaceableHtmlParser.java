@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import java.util.Collection;
 import java.util.Map;

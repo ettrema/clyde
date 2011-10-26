@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
-import com.bradmcevoy.web.Component;
+import com.ettrema.web.Component;
 
 /**
  *

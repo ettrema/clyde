@@ -1,14 +1,14 @@
-package com.bradmcevoy.query.persistence;
+package com.ettrema.query.persistence;
 
-import com.bradmcevoy.web.query.Query;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.query.Query;
+import com.ettrema.web.Folder;
 import com.ettrema.db.Table;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.Evaluatable;
 
-import com.bradmcevoy.web.query.Selectable;
+import com.ettrema.web.query.Selectable;
 import java.io.Serializable;
 import static com.ettrema.context.RequestContext._;
 

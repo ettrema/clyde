@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.calendar.utils;
+package com.ettrema.web.calendar.utils;
 
 import java.util.Calendar;
 import java.util.Date;

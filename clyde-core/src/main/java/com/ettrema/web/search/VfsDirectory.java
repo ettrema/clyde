@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.DataNode;

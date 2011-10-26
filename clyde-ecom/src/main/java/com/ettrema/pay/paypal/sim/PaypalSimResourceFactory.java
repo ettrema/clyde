@@ -1,4 +1,4 @@
-package com.bradmcevoy.pay.paypal.sim;
+package com.ettrema.pay.paypal.sim;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;

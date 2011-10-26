@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.SystemComponent;
-import com.bradmcevoy.web.Template;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.SystemComponent;
+import com.ettrema.web.Template;
 import java.util.List;
 import org.jdom.Element;
 

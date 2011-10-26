@@ -1,15 +1,15 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.children.ThemeFinder;
-import com.bradmcevoy.web.component.ThemeSelect;
-import com.bradmcevoy.web.wall.Wall;
-import com.bradmcevoy.web.wall.WallItem;
-import com.bradmcevoy.web.wall.WallService;
+import com.ettrema.web.children.ThemeFinder;
+import com.ettrema.web.component.ThemeSelect;
+import com.ettrema.web.wall.Wall;
+import com.ettrema.web.wall.WallItem;
+import com.ettrema.web.wall.WallService;
 import java.util.Collections;
 import java.util.List;
 

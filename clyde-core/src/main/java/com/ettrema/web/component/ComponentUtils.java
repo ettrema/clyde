@@ -1,15 +1,15 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.ComponentContainer;
-import com.bradmcevoy.web.ExistingResourceFactory;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.ComponentContainer;
+import com.ettrema.web.ExistingResourceFactory;
+import com.ettrema.web.Host;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -180,7 +180,7 @@ public class ComponentUtils {
         Set set = new HashSet(map.values());
         List<Component> list = new ArrayList<Component>();
         list.addAll(set);
-        Collections.sort(list, new com.bradmcevoy.web.ComponentComparator());
+        Collections.sort(list, new com.ettrema.web.ComponentComparator());
         return list;
     }
 

@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Web;
-import com.bradmcevoy.web.wall.WallService;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Web;
+import com.ettrema.web.wall.WallService;
 import com.ettrema.console.Result;
 import java.util.List;
 

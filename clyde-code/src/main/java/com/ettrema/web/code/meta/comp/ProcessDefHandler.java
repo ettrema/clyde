@@ -1,16 +1,16 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.process.ClydeState;
-import com.bradmcevoy.process.ClydeTransition;
-import com.bradmcevoy.process.ProcessDef;
+import com.ettrema.process.ClydeState;
+import com.ettrema.process.ClydeTransition;
+import com.ettrema.process.ProcessDef;
 import com.bradmcevoy.process.ProcessImpl;
 import com.bradmcevoy.process.State;
 import com.bradmcevoy.process.StateImpl;
 import com.bradmcevoy.process.Transition;
-import com.bradmcevoy.web.Template;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.Template;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.InitUtils;
 import java.util.HashMap;
 import java.util.Map;
 import org.jdom.Element;

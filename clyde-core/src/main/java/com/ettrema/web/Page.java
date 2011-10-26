@@ -1,12 +1,12 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.HtmlInput;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.HtmlInput;
+import com.ettrema.web.component.Text;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Map;

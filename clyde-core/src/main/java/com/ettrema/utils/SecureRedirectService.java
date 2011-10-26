@@ -2,8 +2,8 @@ package com.ettrema.utils;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Host;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Host;
 import java.util.List;
 import java.util.Map;
 

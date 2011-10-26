@@ -1,14 +1,14 @@
-package com.bradmcevoy.web.code.meta;
+package com.ettrema.web.code.meta;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.JDomUtils;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.TemplateSpecs;
-import com.bradmcevoy.web.Thumb;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.code.MetaHandler;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.utils.JDomUtils;
+import com.ettrema.web.Folder;
+import com.ettrema.web.TemplateSpecs;
+import com.ettrema.web.Thumb;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.code.MetaHandler;
+import com.ettrema.web.component.InitUtils;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;

@@ -1,5 +1,7 @@
 package com.bradmcevoy.web.captcha;
 
+import com.ettrema.web.captcha.CaptchaServiceImpl;
+import com.ettrema.web.captcha.SystemTimeService;
 import org.junit.Test;
 
 import static org.easymock.EasyMock.*;

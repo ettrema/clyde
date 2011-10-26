@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.wall;
+package com.ettrema.web.wall;
 
-import com.bradmcevoy.event.LogicalDeleteEvent;
-import com.bradmcevoy.event.PhysicalDeleteEvent;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.Web;
-import com.bradmcevoy.web.image.ThumbHrefService;
+import com.ettrema.event.LogicalDeleteEvent;
+import com.ettrema.event.PhysicalDeleteEvent;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.User;
+import com.ettrema.web.Web;
+import com.ettrema.web.image.ThumbHrefService;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;

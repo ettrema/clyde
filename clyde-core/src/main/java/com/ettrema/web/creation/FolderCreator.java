@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.creation;
+package com.ettrema.web.creation;
 
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.WritingException;
 import com.ettrema.utils.LogUtils;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.Template;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.Template;
 import java.io.InputStream;
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.bradmcevoy.migrate;
+package com.ettrema.migrate;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import java.util.Date;
 
 public class RemoteResource {

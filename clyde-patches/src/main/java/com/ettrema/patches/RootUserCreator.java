@@ -1,8 +1,8 @@
 package com.ettrema.patches;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Organisation;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.Organisation;
+import com.ettrema.web.User;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;

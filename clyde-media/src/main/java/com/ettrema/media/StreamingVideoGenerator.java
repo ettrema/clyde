@@ -1,6 +1,6 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
-import com.bradmcevoy.web.VideoFile;
+import com.ettrema.web.VideoFile;
 
 /**
  *

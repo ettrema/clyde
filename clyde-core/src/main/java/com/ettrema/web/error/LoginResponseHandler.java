@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.error;
+package com.ettrema.web.error;
 
 import com.bradmcevoy.http.AbstractWrappingResponseHandler;
 import com.bradmcevoy.http.Auth;
@@ -12,7 +12,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.webdav.WebDavResponseHandler;
-import com.bradmcevoy.web.ajax.AjaxResourceFactory.AjaxPostResource;
+import com.ettrema.web.ajax.AjaxResourceFactory.AjaxPostResource;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;

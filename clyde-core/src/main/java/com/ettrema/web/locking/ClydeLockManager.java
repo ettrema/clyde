@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.locking;
+package com.ettrema.web.locking;
 
 import com.bradmcevoy.http.LockInfo;
 import com.bradmcevoy.http.LockResult;
@@ -7,7 +7,7 @@ import com.bradmcevoy.http.LockToken;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 
 /**
  *

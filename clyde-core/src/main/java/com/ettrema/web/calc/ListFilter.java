@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.calc;
+package com.ettrema.web.calc;
 
-import com.bradmcevoy.web.BaseResourceList;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResourceList;
+import com.ettrema.web.Templatable;
 
 /**
  *

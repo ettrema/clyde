@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.recent;
+package com.ettrema.web.recent;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.Folder;
 
 /**
  * Not to be used with decorator pattern. To be used with MultipleResourceFactory

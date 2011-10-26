@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
 import com.bradmcevoy.http.Utils;
-import com.bradmcevoy.web.ClydeStandardMessage;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.ClydeStandardMessage;
+import com.ettrema.web.Folder;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.mail.StandardMessageFactoryImpl;

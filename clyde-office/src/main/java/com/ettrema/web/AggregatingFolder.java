@@ -1,11 +1,11 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import org.apache.velocity.VelocityContext;
 import org.jdom.Element;
 

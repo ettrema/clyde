@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.ResourceFactory;
 import com.ettrema.console.Result;

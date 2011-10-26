@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.amazon.thirdparty.Base64;
 import com.bradmcevoy.http.ResourceFactory;

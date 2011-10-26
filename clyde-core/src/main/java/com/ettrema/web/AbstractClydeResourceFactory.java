@@ -1,10 +1,10 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.VfsCommon;
 import com.ettrema.vfs.NameNode;
 import java.util.List;
 

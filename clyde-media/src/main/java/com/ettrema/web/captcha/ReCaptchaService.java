@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.captcha;
+package com.ettrema.web.captcha;
 
 import com.bradmcevoy.http.Request;
 import java.io.ByteArrayOutputStream;

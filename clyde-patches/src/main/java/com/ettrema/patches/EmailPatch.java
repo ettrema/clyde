@@ -1,13 +1,13 @@
 package com.ettrema.patches;
 
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.EmailDef;
-import com.bradmcevoy.web.component.EmailVal;
-import com.bradmcevoy.web.console2.PatchApplicator;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.User;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.EmailDef;
+import com.ettrema.web.component.EmailVal;
+import com.ettrema.web.console2.PatchApplicator;
 import com.ettrema.context.Context;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;

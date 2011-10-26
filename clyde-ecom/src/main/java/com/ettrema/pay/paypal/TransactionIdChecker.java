@@ -1,4 +1,4 @@
-package com.bradmcevoy.pay.paypal;
+package com.ettrema.pay.paypal;
 
 /**
  * Interface to report if a given transaction id has been used before.

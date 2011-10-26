@@ -1,7 +1,7 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.media.MediaLogService.MediaType;
+import com.ettrema.media.MediaLogService.MediaType;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.GetableResource;
@@ -14,11 +14,11 @@ import com.bradmcevoy.http.XmlWriter.Element;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.security.ClydeAuthenticator;
-import com.bradmcevoy.web.security.ClydeAuthoriser;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.ClydeAuthenticator;
+import com.ettrema.web.security.ClydeAuthoriser;
 import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.OutputStream;

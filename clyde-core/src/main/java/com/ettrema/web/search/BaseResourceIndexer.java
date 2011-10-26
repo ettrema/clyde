@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Host;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Host;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.grid.Processable;

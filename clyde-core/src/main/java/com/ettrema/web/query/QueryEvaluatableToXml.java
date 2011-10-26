@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
 import com.bradmcevoy.common.Path;
 import com.ettrema.utils.JDomUtils;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
-import com.bradmcevoy.web.eval.EvaluatableToXml;
-import com.bradmcevoy.web.query.OrderByField.Direction;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
+import com.ettrema.web.eval.EvaluatableToXml;
+import com.ettrema.web.query.OrderByField.Direction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,5 +1,6 @@
-package com.bradmcevoy.web.error;
+package com.ettrema.web.error;
 
+import com.ettrema.web.error.HtmlExceptionFormatter;
 import junit.framework.TestCase;
 
 /**

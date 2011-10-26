@@ -1,17 +1,17 @@
-package com.bradmcevoy.web.stats;
+package com.ettrema.web.stats;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.CallableStatement;

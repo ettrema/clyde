@@ -1,7 +1,7 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.video.FlashService;
+import com.ettrema.video.FlashService;
 
 
 import static com.ettrema.context.RequestContext._;

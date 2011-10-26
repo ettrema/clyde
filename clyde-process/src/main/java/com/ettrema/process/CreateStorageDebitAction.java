@@ -1,7 +1,10 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
-import com.bradmcevoy.pay.CreditManager;
-import com.bradmcevoy.web.Host;
+import com.bradmcevoy.process.ActionHandler;
+import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.SetVariable;
+import com.ettrema.pay.CreditManager;
+import com.ettrema.web.Host;
 import java.io.Serializable;
 import org.jdom.Element;
 

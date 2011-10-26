@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
@@ -9,8 +9,8 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.utils.AuthoringPermissionService;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.OutputStream;

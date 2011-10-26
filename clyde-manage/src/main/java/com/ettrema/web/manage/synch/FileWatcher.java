@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.synch;
+package com.ettrema.web.manage.synch;
 
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;

@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 
 /**
  * Just checks to see if a password is valid, and if not reports the reason

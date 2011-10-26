@@ -1,4 +1,4 @@
-package com.bradmcevoy.video;
+package com.ettrema.video;
 
 import com.bradmcevoy.common.ScriptExecutor;
 import com.bradmcevoy.io.ReadingException;

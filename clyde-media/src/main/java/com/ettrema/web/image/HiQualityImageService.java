@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.image;
+package com.ettrema.web.image;
 
 import com.imageresize4j.ImageResizeProcessor;
 import java.awt.image.BufferedImage;

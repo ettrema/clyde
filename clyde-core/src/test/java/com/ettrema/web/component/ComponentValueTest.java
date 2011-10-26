@@ -1,5 +1,6 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
+import com.ettrema.web.component.ComponentValue;
 import java.util.List;
 import junit.framework.TestCase;
 import org.jdom.Element;

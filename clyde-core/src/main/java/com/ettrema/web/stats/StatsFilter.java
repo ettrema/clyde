@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.stats;
+package com.ettrema.web.stats;
 
 import com.bradmcevoy.http.AbstractResponse;
 import com.bradmcevoy.http.Cookie;
@@ -6,7 +6,7 @@ import com.bradmcevoy.http.Filter;
 import com.bradmcevoy.http.FilterChain;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.VfsCommon;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContext;

@@ -1,6 +1,6 @@
-package com.bradmcevoy.migrate;
+package com.ettrema.migrate;
 
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import java.util.Date;
 
 public class FileExportStatus {

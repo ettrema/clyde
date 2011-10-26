@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.eval;
+package com.ettrema.web.eval;
 
 import com.ettrema.utils.GroovyUtils;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.Addressable;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

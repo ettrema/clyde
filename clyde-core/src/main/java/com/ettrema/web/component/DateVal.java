@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Templatable;
 import java.util.Date;
 import org.jdom.Element;
 import org.joda.time.DateTime;

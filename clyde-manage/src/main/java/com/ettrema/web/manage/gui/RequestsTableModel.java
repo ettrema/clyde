@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.gui;
+package com.ettrema.web.manage.gui;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;

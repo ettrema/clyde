@@ -1,11 +1,11 @@
-package com.bradmcevoy.manage;
+package com.ettrema.manage;
 
 import com.bradmcevoy.process.ProcessContext;
 import com.bradmcevoy.process.Rule;
 import com.bradmcevoy.process.Token;
-import com.bradmcevoy.process.TokenValue;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.process.TokenValue;
+import com.ettrema.web.Host;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import org.jdom.Element;

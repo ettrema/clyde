@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.web.component.ComponentUtils;
+import com.ettrema.web.component.ComponentUtils;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import java.util.List;

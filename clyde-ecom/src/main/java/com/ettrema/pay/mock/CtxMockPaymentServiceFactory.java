@@ -1,7 +1,7 @@
 
-package com.bradmcevoy.pay.mock;
+package com.ettrema.pay.mock;
 
-import com.bradmcevoy.pay.PaymentService;
+import com.ettrema.pay.PaymentService;
 import com.ettrema.context.Context;
 import com.ettrema.context.Factory;
 import com.ettrema.context.Registration;

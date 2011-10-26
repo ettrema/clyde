@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.locking;
+package com.ettrema.web.locking;
 
 import com.bradmcevoy.http.LockInfo;
 import com.bradmcevoy.http.LockResult;
@@ -9,9 +9,9 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.CurrentUserService;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;

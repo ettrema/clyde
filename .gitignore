@@ -1,1 +1,11 @@
 /clyde-api/target/
+/clyde-core/target/
+/clyde-media/target/
+/clyde-process/target/
+/clyde-ecom/target/
+/clyde-office/target/
+/clyde-code/target/
+/clyde-console/target/
+/clyde-manage/target/
+/clyde-facebook/target/
+/clyde-patches/target/

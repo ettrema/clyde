@@ -9,7 +9,7 @@
  * Created on 1/02/2011, 3:05:55 PM
  */
 
-package com.bradmcevoy.web.manage.gui;
+package com.ettrema.web.manage.gui;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;

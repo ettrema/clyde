@@ -1,14 +1,14 @@
 
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.exceptions.MiltonException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;

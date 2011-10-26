@@ -1,6 +1,6 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.mail.Attachment;
 import com.ettrema.mail.InputStreamConsumer;
 import com.ettrema.mail.Utils;

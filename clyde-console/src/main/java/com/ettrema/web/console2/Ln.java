@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.LinkedFolder;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.LinkedFolder;
+import com.ettrema.web.User;
 import com.ettrema.console.Result;
 import java.util.ArrayList;
 import java.util.List;

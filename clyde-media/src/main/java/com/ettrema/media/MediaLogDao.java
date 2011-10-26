@@ -1,8 +1,8 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
-import com.bradmcevoy.media.MediaLogService.MediaType;
-import com.bradmcevoy.media.MediaLogService.ResultCollector;
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.media.MediaLogService.MediaType;
+import com.ettrema.media.MediaLogService.ResultCollector;
+import com.ettrema.web.BaseResource;
 import com.ettrema.db.Table;
 import com.ettrema.db.Table.Field;
 import com.ettrema.db.types.FieldTypes;

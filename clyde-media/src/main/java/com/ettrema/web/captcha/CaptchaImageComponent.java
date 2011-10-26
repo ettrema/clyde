@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.captcha;
+package com.ettrema.web.captcha;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
@@ -7,11 +7,11 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.Component;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.context.RequestContext;
 import java.awt.Color;
 import java.awt.Font;

@@ -1,13 +1,13 @@
 package com.ettrema.secure;
 
 import com.bradmcevoy.http.exceptions.ConflictException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.ClydeMessageFolder;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.mail.MailProcessor;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.ClydeMessageFolder;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.IUser;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.mail.MailProcessor;
 import com.ettrema.mail.MessageFolder;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;

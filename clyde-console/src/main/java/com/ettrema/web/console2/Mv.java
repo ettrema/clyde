@@ -1,15 +1,15 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.utils.CurrentRequestService;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.utils.CurrentRequestService;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.console.Result;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;

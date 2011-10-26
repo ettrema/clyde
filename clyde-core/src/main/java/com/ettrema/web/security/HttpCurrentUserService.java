@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.web.IUser;
+import com.ettrema.web.IUser;
 
 /**
  * Just

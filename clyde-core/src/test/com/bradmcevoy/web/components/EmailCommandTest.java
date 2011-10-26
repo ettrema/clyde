@@ -3,12 +3,12 @@ package com.bradmcevoy.web.components;
 import com.bradmcevoy.AbstractTest;
 import com.bradmcevoy.vfs.MemoryNameNode;
 import com.bradmcevoy.vfs.MemoryVfsProvider;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RootFolder;
-import com.bradmcevoy.web.component.EmailCommand;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Page;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RootFolder;
+import com.ettrema.web.component.EmailCommand;
+import com.ettrema.web.component.Text;
 
 public class EmailCommandTest extends AbstractTest {
 

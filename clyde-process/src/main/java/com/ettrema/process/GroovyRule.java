@@ -1,6 +1,9 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
-import com.bradmcevoy.web.Formatter;
+import com.bradmcevoy.process.AbstractRule;
+import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.SetVariable;
+import com.ettrema.web.Formatter;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.Serializable;

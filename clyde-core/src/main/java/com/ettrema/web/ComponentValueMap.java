@@ -1,10 +1,10 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.InitUtils;
 import java.util.LinkedHashMap;
 import org.jdom.Element;
 

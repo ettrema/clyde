@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

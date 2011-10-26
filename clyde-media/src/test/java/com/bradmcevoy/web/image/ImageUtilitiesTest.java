@@ -1,5 +1,6 @@
 package com.bradmcevoy.web.image;
 
+import com.ettrema.web.image.ImageUtilities;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

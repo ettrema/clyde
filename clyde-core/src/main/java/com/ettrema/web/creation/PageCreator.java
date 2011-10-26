@@ -1,18 +1,18 @@
-package com.bradmcevoy.web.creation;
+package com.ettrema.web.creation;
 
+import com.ettrema.web.security.CurrentUserService;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.HtmlInput;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.IUser;
+import com.ettrema.web.Page;
+import com.ettrema.web.User;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.security.CurrentUserService;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 

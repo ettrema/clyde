@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.Formatter;
+import com.ettrema.web.Formatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

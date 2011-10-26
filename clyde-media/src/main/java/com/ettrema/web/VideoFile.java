@@ -1,9 +1,9 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.video.FlashService;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.video.FlashService;
+import com.ettrema.web.component.InitUtils;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;

@@ -1,9 +1,9 @@
-package com.bradmcevoy.query.persistence;
+package com.ettrema.query.persistence;
 
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.EvaluatableToXml;
-import com.bradmcevoy.web.query.Query;
-import com.bradmcevoy.web.query.QueryEvaluatableToXml;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.EvaluatableToXml;
+import com.ettrema.web.query.Query;
+import com.ettrema.web.query.QueryEvaluatableToXml;
 import com.ettrema.db.Table;
 import com.ettrema.db.TableXmlHelper;
 import org.jdom.Element;

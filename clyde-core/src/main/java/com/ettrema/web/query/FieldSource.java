@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
 import java.util.Set;
 

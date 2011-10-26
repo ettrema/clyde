@@ -1,16 +1,16 @@
 
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.TemplateInput;
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.TemplateInput;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import org.apache.velocity.VelocityContext;
 
 /**

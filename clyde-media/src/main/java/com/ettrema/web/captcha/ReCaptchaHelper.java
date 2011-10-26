@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.captcha;
+package com.ettrema.web.captcha;
 
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.web.RenderContext;
+import com.ettrema.web.RenderContext;
 import java.io.IOException;
 import java.util.Map;
 

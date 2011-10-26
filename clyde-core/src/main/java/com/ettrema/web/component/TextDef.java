@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.utils.IntegerUtils;
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import java.util.List;
 import java.util.Map;
 import org.apache.velocity.VelocityContext;

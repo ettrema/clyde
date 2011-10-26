@@ -1,7 +1,7 @@
 package com.ettrema.event;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.RenderContext;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.RenderContext;
 
 /**
  *

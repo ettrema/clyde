@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.csv;
+package com.ettrema.web.csv;
 
 import java.io.Serializable;
 

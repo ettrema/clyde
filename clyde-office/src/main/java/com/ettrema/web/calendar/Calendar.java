@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.calendar;
+package com.ettrema.web.calendar;
 
 import com.bradmcevoy.http.ReportableResource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
 import com.ettrema.http.AccessControlledResource;
 import com.ettrema.http.CalendarResource;
 

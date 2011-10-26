@@ -1,9 +1,9 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.TextDef;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.TextDef;
 import java.util.Map;
 
 public class NameDef extends TextDef {

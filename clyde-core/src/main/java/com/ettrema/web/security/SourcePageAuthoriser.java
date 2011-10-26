@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.SourcePage;
+import com.ettrema.web.SourcePage;
 
 /**
  * Grants permission to operate of the source if the user has permission to delete

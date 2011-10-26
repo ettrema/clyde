@@ -1,11 +1,11 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.ImageFile;
+import com.ettrema.web.ImageFile;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.component.AbstractInput;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.DateInput;
+import com.ettrema.web.component.AbstractInput;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.DateInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

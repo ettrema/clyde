@@ -1,14 +1,14 @@
-package com.bradmcevoy.web.recent;
+package com.ettrema.web.recent;
 
-import com.bradmcevoy.event.PostSaveEvent;
+import com.ettrema.event.PostSaveEvent;
 import com.ettrema.event.DeleteEvent;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Web;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Web;
 
 /**
  *

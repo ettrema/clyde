@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

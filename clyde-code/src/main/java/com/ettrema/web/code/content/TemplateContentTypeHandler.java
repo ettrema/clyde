@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.code.content;
+package com.ettrema.web.code.content;
 
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.Template;
-import com.bradmcevoy.web.code.ContentTypeHandler;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.Template;
+import com.ettrema.web.code.ContentTypeHandler;
+import com.ettrema.web.component.ComponentValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

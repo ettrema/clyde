@@ -1,8 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentDef;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentDef;
 import java.util.LinkedHashMap;
 import org.jdom.Element;
 

@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.Component;
+import com.ettrema.web.User;
+import com.ettrema.web.component.Text;
 
 /**
  *

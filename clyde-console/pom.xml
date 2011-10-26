@@ -10,7 +10,7 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-console</artifactId>
     <packaging>jar</packaging>
-    <name>Clyde Console</name>
+    <name>clyde-console</name>
     <dependencies>
 
         <dependency>

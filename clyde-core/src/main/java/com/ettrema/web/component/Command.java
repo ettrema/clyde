@@ -1,17 +1,17 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.process.ActionHandler;
 import com.bradmcevoy.process.ProcessContext;
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.eval.Evaluatable;
 import java.util.Map;
 import org.jdom.Element;
 

@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import com.ettrema.console.Result;
 import java.util.List;
 
@@ -24,8 +24,8 @@ public class Group extends AbstractConsoleCommand {
         }
         String cmd = args.get( 0 );
         Resource cur = this.currentResource();
-        if( cur instanceof com.bradmcevoy.web.Group ) {
-            com.bradmcevoy.web.Group g = (com.bradmcevoy.web.Group) cur;
+        if( cur instanceof com.ettrema.web.Group ) {
+            com.ettrema.web.Group g = (com.ettrema.web.Group) cur;
             if( cmd.equals( "add" ) || cmd.equals( "remove" ) ) {
                 if( args.size() == 1 ) {
                     return result( "please enter a user to add to the current group" );
@@ -60,7 +60,7 @@ public class Group extends AbstractConsoleCommand {
         }
     }
 
-    private Result okResult( String desc, com.bradmcevoy.web.Group g ) {
+    private Result okResult( String desc, com.ettrema.web.Group g ) {
         String s = desc + "<br/>";
         s += "<ul>";
         for( User u : g.getMembers() ) {

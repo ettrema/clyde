@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage;
+package com.ettrema.web.manage;
 
 /**
  * Hello world!

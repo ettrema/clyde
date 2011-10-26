@@ -1,17 +1,17 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import java.util.Iterator;
 import java.util.ArrayList;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.utils.CurrentRequestService;
-import com.bradmcevoy.web.component.Command;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentUtils;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.DeleteCommand;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.utils.CurrentRequestService;
+import com.ettrema.web.component.Command;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentUtils;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.DeleteCommand;
+import com.ettrema.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.context.RequestContext;
 import java.util.Collection;
 import java.util.Date;

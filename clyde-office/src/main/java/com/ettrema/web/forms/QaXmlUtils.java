@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.forms;
+package com.ettrema.web.forms;
 
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.forms.MultipleChoiceQaDef.Item;
+import com.ettrema.web.forms.MultipleChoiceQaDef.Item;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;

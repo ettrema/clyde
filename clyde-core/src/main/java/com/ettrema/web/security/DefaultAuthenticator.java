@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.NameAndAuthority;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.Host;
+import com.ettrema.web.NameAndAuthority;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.User;
 
 /**
  * Authenticator which checks the current host and then parent hosts until

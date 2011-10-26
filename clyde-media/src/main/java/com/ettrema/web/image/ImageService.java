@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.image;
+package com.ettrema.web.image;
 
 import java.text.ParseException;
 import org.apache.sanselan.*;

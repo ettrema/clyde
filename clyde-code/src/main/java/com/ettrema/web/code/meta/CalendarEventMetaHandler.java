@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.code.meta;
+package com.ettrema.web.code.meta;
 
 /**
  *

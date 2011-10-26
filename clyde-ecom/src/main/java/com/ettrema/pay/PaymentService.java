@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.pay;
+package com.ettrema.pay;
 
 public interface PaymentService {
     /**

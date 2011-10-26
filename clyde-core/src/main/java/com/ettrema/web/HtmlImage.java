@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 /**
  * Represents something that can be used as an image in HTML.

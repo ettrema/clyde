@@ -1,9 +1,15 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.SubPage;
-import com.bradmcevoy.web.WrappedSubPage;
+import com.bradmcevoy.process.ActionHandler;
+import com.bradmcevoy.process.State;
+import com.bradmcevoy.process.Process;
+import com.bradmcevoy.process.State.TimeDependentInterval;
+import com.bradmcevoy.process.StateImpl;
+import com.bradmcevoy.process.Transitions;
+import com.ettrema.web.Component;
+import com.ettrema.web.SubPage;
+import com.ettrema.web.WrappedSubPage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

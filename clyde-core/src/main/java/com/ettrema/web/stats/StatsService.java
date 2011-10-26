@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.stats;
+package com.ettrema.web.stats;
 
 import com.bradmcevoy.utils.DateUtils;
-import com.bradmcevoy.web.Host;
+import com.ettrema.web.Host;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;

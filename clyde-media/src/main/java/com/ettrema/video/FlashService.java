@@ -1,17 +1,17 @@
-package com.bradmcevoy.video;
+package com.ettrema.video;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.FileUtils;
-import com.bradmcevoy.media.MediaLogService;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.BinaryFile;
-import com.bradmcevoy.web.FlashFile;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Thumb;
-import com.bradmcevoy.web.VideoFile;
+import com.ettrema.media.MediaLogService;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.BinaryFile;
+import com.ettrema.web.FlashFile;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Thumb;
+import com.ettrema.web.VideoFile;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.IOException;
 import java.io.InputStream;

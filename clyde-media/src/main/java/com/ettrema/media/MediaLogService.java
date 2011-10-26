@@ -1,16 +1,16 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
-import com.bradmcevoy.event.LogicalDeleteEvent;
-import com.bradmcevoy.event.PhysicalDeleteEvent;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.BinaryFile;
-import com.bradmcevoy.web.FlashFile;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.VideoFile;
-import com.bradmcevoy.web.image.ImageService;
-import com.bradmcevoy.web.image.ImageService.ExifData;
-import com.bradmcevoy.web.image.ThumbHrefService;
+import com.ettrema.event.LogicalDeleteEvent;
+import com.ettrema.event.PhysicalDeleteEvent;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.BinaryFile;
+import com.ettrema.web.FlashFile;
+import com.ettrema.web.Host;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.VideoFile;
+import com.ettrema.web.image.ImageService;
+import com.ettrema.web.image.ImageService.ExifData;
+import com.ettrema.web.image.ThumbHrefService;
 import com.ettrema.db.Table;
 import com.ettrema.db.TableDefinitionSource;
 import com.ettrema.event.Event;
@@ -56,6 +56,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         eventManager.registerEventListener( this, PhysicalDeleteEvent.class );
     }
 
+	@Override
     public void onEvent( Event e ) {
         if( e instanceof LogicalDeleteEvent ) {
             onDelete( ( (LogicalDeleteEvent) e ).getResource() );
@@ -93,6 +94,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         void onResult( UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type );
     }
 
+	@Override
     public List<Table> getTableDefinitions() {
         List<Table> list = new ArrayList<Table>();
         list.add( MediaLogDao.TABLE );

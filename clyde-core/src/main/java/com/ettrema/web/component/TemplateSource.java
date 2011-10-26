@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.Templatable;
 
 public class TemplateSource {
     

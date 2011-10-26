@@ -1,15 +1,15 @@
-package com.bradmcevoy.scheduled;
+package com.ettrema.scheduled;
 
 import java.util.Date;
-import com.bradmcevoy.utils.CurrentDateService;
-import com.bradmcevoy.utils.LogUtils;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.EvaluatableComponent;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.utils.CurrentDateService;
+import com.ettrema.utils.LogUtils;
+import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Page;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.EvaluatableComponent;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.eval.Evaluatable;
 import org.jdom.Element;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

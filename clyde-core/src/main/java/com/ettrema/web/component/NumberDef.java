@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.jdom.Element;

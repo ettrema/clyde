@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;

@@ -1,10 +1,10 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.Redirectable;
+import com.ettrema.utils.Redirectable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

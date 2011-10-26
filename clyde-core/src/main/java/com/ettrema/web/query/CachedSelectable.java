@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Folder;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.Evaluatable;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.OutputStreamWriter;

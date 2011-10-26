@@ -1,6 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.Page;
+import com.ettrema.web.RootFolder;
+import com.ettrema.web.component.ComponentValue;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

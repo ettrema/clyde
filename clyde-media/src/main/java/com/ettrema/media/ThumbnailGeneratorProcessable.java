@@ -1,4 +1,4 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.ettrema.context.Context;
 import com.ettrema.grid.Processable;

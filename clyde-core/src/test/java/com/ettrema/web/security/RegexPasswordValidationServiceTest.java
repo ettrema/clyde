@@ -1,5 +1,6 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
+import com.ettrema.web.security.RegexPasswordValidationService;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;

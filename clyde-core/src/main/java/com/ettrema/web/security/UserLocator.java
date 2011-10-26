@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.EmailAddress;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.EmailAddress;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.User;
 import com.ettrema.context.RequestContext;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.vfs.DataNode;

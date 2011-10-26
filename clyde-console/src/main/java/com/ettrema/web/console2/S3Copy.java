@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.AWSAuthConnection.CopyFailedException;

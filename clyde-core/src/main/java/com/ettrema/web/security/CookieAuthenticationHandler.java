@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.AuthenticationHandler;
@@ -7,7 +7,7 @@ import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;

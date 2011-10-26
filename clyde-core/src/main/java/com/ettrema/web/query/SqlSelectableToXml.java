@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
-import com.bradmcevoy.web.eval.EvaluatableToXml;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
+import com.ettrema.web.eval.EvaluatableToXml;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;

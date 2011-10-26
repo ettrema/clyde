@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
@@ -8,11 +8,11 @@ import com.bradmcevoy.http.Response.Status;
 import com.bradmcevoy.property.PropertyAuthoriser;
 import com.ettrema.utils.AuthoringPermissionService;
 import com.ettrema.utils.LogUtils;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.creation.FolderCreator;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.creation.FolderCreator;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;

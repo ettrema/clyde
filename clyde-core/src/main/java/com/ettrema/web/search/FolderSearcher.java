@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResourceList;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResourceList;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Templatable;
 
 /**
  *

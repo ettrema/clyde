@@ -1,14 +1,14 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Response.Status;
 import com.bradmcevoy.http.http11.auth.DigestGenerator;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.PropertySource.PropertySetException;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.User;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.Text;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;

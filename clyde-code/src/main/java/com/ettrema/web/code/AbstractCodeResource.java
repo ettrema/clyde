@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.code;
+package com.ettrema.web.code;
 
 import com.bradmcevoy.http.DeletableResource;
 import com.bradmcevoy.http.LockInfo;
@@ -10,7 +10,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
-import com.bradmcevoy.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionChecker;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.LockableResource;
@@ -19,7 +19,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.util.Date;
 
 import static com.ettrema.context.RequestContext._;

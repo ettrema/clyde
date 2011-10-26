@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import com.ettrema.console.ConsoleCommand;
 import java.util.List;
 

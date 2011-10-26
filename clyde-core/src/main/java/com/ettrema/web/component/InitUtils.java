@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.Component;
+import com.ettrema.web.Component;
 import com.bradmcevoy.xml.XmlHelper;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;

@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Templatable;
 import org.jdom.Element;
 
 public class EmailVal extends ComponentValue {

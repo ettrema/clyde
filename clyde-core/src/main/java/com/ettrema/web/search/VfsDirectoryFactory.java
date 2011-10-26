@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
-import com.bradmcevoy.web.Host;
+import com.ettrema.web.Host;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;

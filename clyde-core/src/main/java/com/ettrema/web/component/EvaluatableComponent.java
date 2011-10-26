@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
 import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;

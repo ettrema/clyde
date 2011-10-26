@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.eval;
+package com.ettrema.web.eval;
 
-import com.bradmcevoy.query.persistence.SqlExportEvaluatableToXml;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.query.QueryEvaluatableToXml;
-import com.bradmcevoy.web.query.SqlSelectableToXml;
+import com.ettrema.query.persistence.SqlExportEvaluatableToXml;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.query.QueryEvaluatableToXml;
+import com.ettrema.web.query.SqlSelectableToXml;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

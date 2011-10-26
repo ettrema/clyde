@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

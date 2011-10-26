@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import java.io.IOException;
 import org.apache.lucene.store.Directory;

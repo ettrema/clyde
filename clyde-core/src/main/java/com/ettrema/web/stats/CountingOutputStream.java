@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.stats;
+package com.ettrema.web.stats;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -1,8 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.TemplateSpecs.TemplateSpec;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.TemplateSpecs.TemplateSpec;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;

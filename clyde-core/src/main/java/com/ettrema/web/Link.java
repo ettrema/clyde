@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;

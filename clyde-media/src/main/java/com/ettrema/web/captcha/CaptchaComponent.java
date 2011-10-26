@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.captcha;
+package com.ettrema.web.captcha;
 
 import static com.ettrema.context.RequestContext.*;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.component.ValidatingComponent;
+import com.ettrema.web.Component;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.component.ValidatingComponent;
 import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;

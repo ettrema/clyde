@@ -1,4 +1,4 @@
-package com.bradmcevoy.manage;
+package com.ettrema.manage;
 
 import com.ettrema.event.DeleteEvent;
 import com.ettrema.event.Event;
@@ -6,13 +6,13 @@ import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.PutEvent;
 import com.ettrema.event.ResourceEvent;
-import com.bradmcevoy.process.ProcessDef;
-import com.bradmcevoy.process.TokenValue;
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.process.ProcessDef;
+import com.ettrema.process.TokenValue;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.component.ComponentValue;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.context.RootContext;

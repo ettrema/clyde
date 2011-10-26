@@ -1,6 +1,6 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
-import com.bradmcevoy.web.ImageFile;
+import com.ettrema.web.ImageFile;
 
 /**
  *

@@ -1,10 +1,10 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BinaryFile;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.HtmlImage;
-import com.bradmcevoy.web.image.ThumbHrefService;
+import com.ettrema.web.BinaryFile;
+import com.ettrema.web.Host;
+import com.ettrema.web.HtmlImage;
+import com.ettrema.web.image.ThumbHrefService;
 
 /**
  * We want a full path from www.shmego.com, not from the user's account

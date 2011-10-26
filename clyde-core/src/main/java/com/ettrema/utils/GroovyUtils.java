@@ -1,9 +1,9 @@
 package com.ettrema.utils;
 
-import com.bradmcevoy.web.RequestParams;
-import com.bradmcevoy.web.Formatter;
+import com.ettrema.web.RequestParams;
+import com.ettrema.web.Formatter;
 import com.ettrema.web.IUser;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.Templatable;
 import com.ettrema.web.security.CurrentUserService;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;

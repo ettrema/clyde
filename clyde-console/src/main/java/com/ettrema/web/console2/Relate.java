@@ -1,10 +1,10 @@
 
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
 import com.ettrema.console.Result;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.Relationship;

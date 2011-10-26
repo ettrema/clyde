@@ -1,12 +1,14 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.pay.Credit;
-import com.bradmcevoy.pay.CreditManager;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.SubPage;
-import com.bradmcevoy.web.Templatable;
+import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.Rule;
+import com.ettrema.pay.Credit;
+import com.ettrema.pay.CreditManager;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.SubPage;
+import com.ettrema.web.Templatable;
 import java.util.List;
 import org.jdom.Element;
 

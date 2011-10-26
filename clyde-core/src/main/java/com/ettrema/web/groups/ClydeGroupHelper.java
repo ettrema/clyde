@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.groups;
+package com.ettrema.web.groups;
 
-import com.bradmcevoy.web.Group;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.security.CustomUserGroup;
-import com.bradmcevoy.web.security.Subject;
-import com.bradmcevoy.web.security.UserGroup;
+import com.ettrema.web.Group;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.CustomUserGroup;
+import com.ettrema.web.security.Subject;
+import com.ettrema.web.security.UserGroup;
 import java.util.List;
 
 /**

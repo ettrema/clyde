@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.component.AbstractInput;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.component.AbstractInput;
+import com.ettrema.web.component.InitUtils;
 import org.jdom.Element;
 
 /**

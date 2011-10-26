@@ -1,8 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
-import com.bradmcevoy.web.security.Subject;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.Subject;
 import java.io.InputStream;
 
 /**

@@ -1,16 +1,16 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
-import com.bradmcevoy.facebook.FaceBookSessionValue.FaceBookSession;
+import com.ettrema.facebook.FaceBookSessionValue.FaceBookSession;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.context.RequestContext;
 import java.io.Serializable;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -8,11 +8,11 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.CommonTemplated.Params;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
-import com.bradmcevoy.web.security.Subject;
+import com.ettrema.web.CommonTemplated.Params;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.Subject;
 import com.ettrema.context.RequestContext;
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.web.component.Addressable;
 import java.math.BigDecimal;
 import org.jdom.Element;
 

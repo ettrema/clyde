@@ -1,22 +1,22 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
-import com.bradmcevoy.web.BaseResource.RoleAndGroup;
-import com.bradmcevoy.web.groups.GroupService;
-import com.bradmcevoy.web.IUser;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
+import com.ettrema.web.BaseResource.RoleAndGroup;
+import com.ettrema.web.groups.GroupService;
+import com.ettrema.web.IUser;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.utils.LogUtils;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Host;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.User;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.security.PermissionRecipient.Role;
 
 import static com.ettrema.context.RequestContext._;
 import java.util.List;

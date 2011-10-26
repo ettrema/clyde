@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.calendar;
+package com.ettrema.web.calendar;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.DigestResource;
@@ -11,12 +11,12 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.calendar.utils.CalendarUtils;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.DateVal;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.calendar.utils.CalendarUtils;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.DateVal;
 import com.ettrema.http.ICalResource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

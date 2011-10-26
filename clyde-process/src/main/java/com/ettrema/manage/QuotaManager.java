@@ -1,4 +1,4 @@
-package com.bradmcevoy.manage;
+package com.ettrema.manage;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.CollectionResource;
@@ -7,12 +7,12 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.quota.QuotaDataAccessor;
 import com.bradmcevoy.http.quota.StorageChecker;
 import com.bradmcevoy.process.Token;
-import com.bradmcevoy.process.TokenValue;
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.HostFinder;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.process.TokenValue;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.Host;
+import com.ettrema.web.HostFinder;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.ComponentValue;
 
 /**
  *

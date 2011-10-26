@@ -1,11 +1,11 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.io.StreamUtils;
-import com.bradmcevoy.media.ThumbProcessor;
+import com.ettrema.media.ThumbProcessor;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.image.Dimensions;
-import com.bradmcevoy.web.image.ImageService;
+import com.ettrema.web.image.Dimensions;
+import com.ettrema.web.image.ImageService;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

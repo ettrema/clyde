@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.SystemComponent;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.SystemComponent;
 
 public class NameInput extends Text implements SystemComponent {
 

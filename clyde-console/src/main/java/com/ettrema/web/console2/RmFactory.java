@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Auth;
 import com.ettrema.console.ConsoleCommand;

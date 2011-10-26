@@ -1,4 +1,4 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;

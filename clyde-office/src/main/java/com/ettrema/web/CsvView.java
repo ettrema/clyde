@@ -1,9 +1,9 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Range;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.csv.CsvService;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.csv.CsvService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +12,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
-public class CsvView extends com.bradmcevoy.web.File implements Replaceable {
+public class CsvView extends com.ettrema.web.File implements Replaceable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CsvView.class );
     private static final long serialVersionUID = 1L;

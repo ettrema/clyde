@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.Folder;
 import com.ettrema.grid.Processable;
 
 

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.wall;
+package com.ettrema.web.wall;
 
 import java.util.Date;
 

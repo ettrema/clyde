@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.RequestParams;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.RequestParams;
 import java.util.ArrayList;
 import java.util.List;
 

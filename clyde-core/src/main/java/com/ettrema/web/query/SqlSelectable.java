@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
 import com.ettrema.utils.LogUtils;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.Evaluatable;
 import java.sql.Connection;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.Folder;
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Expression;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Expression;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.User;
 import com.ettrema.console.Result;
 import java.util.HashMap;
 import java.util.List;

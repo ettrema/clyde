@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.synch;
+package com.ettrema.web.manage.synch;
 
 import java.util.Date;
 import com.bradmcevoy.common.ContentTypeUtils;
@@ -11,7 +11,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.code.CodeResourceFactory;
+import com.ettrema.web.code.CodeResourceFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.CommonComponent;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.User;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.CommonComponent;
 import com.ettrema.console.Result;
 import java.util.List;
 import java.util.Map;

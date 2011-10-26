@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.calc;
+package com.ettrema.web.calc;
 
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.Templatable;
 import java.math.BigDecimal;
 
 class Sumor implements Accumulator {

@@ -1,10 +1,10 @@
 package com.ettrema.patches;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.Organisation;
-import com.bradmcevoy.web.RootFolder;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.Organisation;
+import com.ettrema.web.RootFolder;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;

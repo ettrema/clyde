@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.InitUtils;
 import com.bradmcevoy.xml.XmlHelper;
 import java.util.List;
 import org.jdom.Element;

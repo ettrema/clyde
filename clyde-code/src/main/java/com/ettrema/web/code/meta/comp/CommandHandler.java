@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.component.Command;
+import com.ettrema.web.component.Command;
 import org.jdom.Element;
 
 /**

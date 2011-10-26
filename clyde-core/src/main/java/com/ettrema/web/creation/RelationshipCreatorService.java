@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.creation;
+package com.ettrema.web.creation;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.IUser;
+import com.ettrema.web.User;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;

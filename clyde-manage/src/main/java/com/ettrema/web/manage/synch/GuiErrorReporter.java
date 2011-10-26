@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.synch;
+package com.ettrema.web.manage.synch;
 
 import java.io.File;
 import javax.swing.JOptionPane;

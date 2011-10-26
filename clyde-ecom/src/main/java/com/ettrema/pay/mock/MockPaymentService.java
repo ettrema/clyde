@@ -1,11 +1,11 @@
 
-package com.bradmcevoy.pay.mock;
+package com.ettrema.pay.mock;
 
-import com.bradmcevoy.pay.Amount;
-import com.bradmcevoy.pay.CardDetails;
-import com.bradmcevoy.pay.PaymentService;
-import com.bradmcevoy.pay.Result;
-import com.bradmcevoy.pay.Transaction;
+import com.ettrema.pay.Amount;
+import com.ettrema.pay.CardDetails;
+import com.ettrema.pay.PaymentService;
+import com.ettrema.pay.Result;
+import com.ettrema.pay.Transaction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

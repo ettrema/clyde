@@ -1,14 +1,14 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.process.ClydeTransition;
+import com.ettrema.process.ClydeTransition;
 import com.bradmcevoy.process.ProcessContext;
 import com.bradmcevoy.process.TimerService;
-import com.bradmcevoy.process.TokenValue;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.WrappedSubPage;
+import com.ettrema.process.TokenValue;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.WrappedSubPage;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -30,10 +30,12 @@ public class ScanCommand extends Command {
         super(container, el);
     }
 
+	@Override
     public boolean validate(RenderContext rc) {
         return ComponentUtils.validateComponents(this, rc);
     }
 
+	@Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         String s = parameters.get(this.getName());
         if (s == null) {

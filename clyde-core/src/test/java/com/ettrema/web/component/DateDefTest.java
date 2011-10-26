@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
+import com.ettrema.web.component.DateDef;
 import java.text.ParseException;
 import java.util.Date;
 import org.junit.After;

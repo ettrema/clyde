@@ -1,14 +1,14 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import org.jdom.Namespace;
 import java.util.Arrays;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.User;
+import com.ettrema.web.User;
 import com.ettrema.mail.MailServer;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.eval.EvalUtils;
-import com.bradmcevoy.web.eval.Evaluatable;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;

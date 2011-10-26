@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.pay;
+package com.ettrema.pay;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;

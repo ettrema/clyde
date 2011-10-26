@@ -1,20 +1,20 @@
 
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Template;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.Command;
-import com.bradmcevoy.web.component.NumberInput;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Template;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.Command;
+import com.ettrema.web.component.NumberInput;
+import com.ettrema.web.component.Text;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;

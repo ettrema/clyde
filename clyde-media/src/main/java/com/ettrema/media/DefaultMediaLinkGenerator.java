@@ -1,7 +1,7 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.media.MediaLogService.MediaType;
+import com.ettrema.media.MediaLogService.MediaType;
 import org.apache.commons.lang.StringUtils;
 
 /**

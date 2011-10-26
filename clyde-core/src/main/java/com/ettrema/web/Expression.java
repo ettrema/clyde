@@ -1,10 +1,10 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.component.WrappableComponent;
-import com.bradmcevoy.web.security.CurrentUserService;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.component.WrappableComponent;
+import com.ettrema.web.security.CurrentUserService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;

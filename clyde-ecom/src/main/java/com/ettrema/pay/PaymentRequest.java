@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.pay;
+package com.ettrema.pay;
 
 import java.math.BigDecimal;
 

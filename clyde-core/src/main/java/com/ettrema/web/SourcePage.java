@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -16,8 +16,8 @@ import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.bradmcevoy.vfs.VfsCommon;
-import com.bradmcevoy.web.security.ClydeAuthoriser;
+import com.ettrema.vfs.VfsCommon;
+import com.ettrema.web.security.ClydeAuthoriser;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

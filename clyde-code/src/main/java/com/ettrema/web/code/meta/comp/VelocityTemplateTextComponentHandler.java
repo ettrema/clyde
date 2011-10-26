@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.code.meta.comp;
+package com.ettrema.web.code.meta.comp;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.code.CodeMeta;
-import com.bradmcevoy.web.component.TemplateInput;
-import com.bradmcevoy.web.component.VelocityTemplateText;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.component.TemplateInput;
+import com.ettrema.web.component.VelocityTemplateText;
 import org.jdom.Element;
 
 /**

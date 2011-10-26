@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 /**
  * Marker interface to indicate that components of this type can't be removed and

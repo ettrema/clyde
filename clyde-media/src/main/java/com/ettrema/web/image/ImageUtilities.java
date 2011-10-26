@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.image;
+package com.ettrema.web.image;
 
 import com.bradmcevoy.common.UnrecoverableException;
 import java.awt.Graphics2D;

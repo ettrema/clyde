@@ -1,8 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.binary.BinaryContainer;
-import com.bradmcevoy.binary.ClydeBinaryService;
-import com.bradmcevoy.binary.VersionDescriptor;
+import com.ettrema.binary.BinaryContainer;
+import com.ettrema.binary.ClydeBinaryService;
+import com.ettrema.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.PostableResource;
@@ -14,7 +14,7 @@ import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.web.SimpleEditPage.SimpleEditable;
+import com.ettrema.web.SimpleEditPage.SimpleEditable;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

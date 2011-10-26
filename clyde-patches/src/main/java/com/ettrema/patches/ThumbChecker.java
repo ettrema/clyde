@@ -1,8 +1,8 @@
 package com.ettrema.patches;
 
-import com.bradmcevoy.web.console2.PatchApplicator;
+import com.ettrema.web.console2.PatchApplicator;
 
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.Folder;
 import com.ettrema.context.Context;
 import com.ettrema.grid.AsynchProcessor;
 import com.ettrema.vfs.DataNode;

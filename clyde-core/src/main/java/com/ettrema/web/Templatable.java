@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
@@ -7,8 +7,8 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.NotFoundException;
-import com.bradmcevoy.web.CommonTemplated.Params;
-import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.web.CommonTemplated.Params;
+import com.ettrema.web.component.Addressable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;

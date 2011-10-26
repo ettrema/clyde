@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.Folder;
 import java.util.List;
 
 /**

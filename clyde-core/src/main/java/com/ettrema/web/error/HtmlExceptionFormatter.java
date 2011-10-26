@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.error;
+package com.ettrema.web.error;
 
 /**
  *

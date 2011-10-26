@@ -1,19 +1,19 @@
 
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.ettrema.utils.ClydeUtils;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.ComponentMap;
-import com.bradmcevoy.web.Expression;
-import com.bradmcevoy.web.File;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.Web;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Component;
+import com.ettrema.web.ComponentMap;
+import com.ettrema.web.Expression;
+import com.ettrema.web.File;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.Web;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;

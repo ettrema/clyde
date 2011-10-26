@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -12,10 +12,10 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentUtils;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.security.ClydeAuthenticator;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentUtils;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.security.ClydeAuthenticator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

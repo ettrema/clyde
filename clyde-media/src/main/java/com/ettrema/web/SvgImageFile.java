@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.AbstractInput;
-import com.bradmcevoy.web.component.Text;
+import com.ettrema.web.component.AbstractInput;
+import com.ettrema.web.component.Text;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

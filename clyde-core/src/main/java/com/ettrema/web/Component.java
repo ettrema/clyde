@@ -1,8 +1,8 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.component.Addressable;
+import com.ettrema.web.component.Addressable;
 import java.io.Serializable;
 import java.util.Map;
 import org.jdom.Element;

@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.vfs;
+package com.ettrema.vfs;
 
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.VfsSession;

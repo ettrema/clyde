@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.velocity;
+package com.ettrema.web.velocity;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.Page;
+import com.ettrema.web.component.ComponentValue;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsUtils;

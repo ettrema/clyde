@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.EventListener;
 import com.bradmcevoy.http.FileItem;
@@ -6,7 +6,7 @@ import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.web.stats.StatsFilter;
+import com.ettrema.web.stats.StatsFilter;
 import com.ettrema.context.RootContext;
 import java.util.Map;
 

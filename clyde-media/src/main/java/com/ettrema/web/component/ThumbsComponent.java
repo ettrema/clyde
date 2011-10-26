@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.web.Thumb;
+import com.ettrema.web.Thumb;
 import java.util.List;
 import org.jdom.Element;
 

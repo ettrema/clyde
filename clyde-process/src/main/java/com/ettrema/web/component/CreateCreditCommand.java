@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
-import com.bradmcevoy.pay.CreditManager;
+import com.ettrema.pay.CreditManager;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.Host;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
 import java.math.BigDecimal;
 import java.util.Map;
 import org.jdom.Element;

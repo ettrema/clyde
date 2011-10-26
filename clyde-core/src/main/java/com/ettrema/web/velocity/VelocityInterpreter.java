@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.velocity;
+package com.ettrema.web.velocity;
 
 import java.io.IOException;
 import java.io.OutputStream;

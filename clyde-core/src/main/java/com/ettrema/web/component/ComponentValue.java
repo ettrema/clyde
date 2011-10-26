@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Request;
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import com.bradmcevoy.xml.XmlHelper;
 import java.io.Serializable;
 import java.math.BigDecimal;

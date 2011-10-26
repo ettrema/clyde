@@ -9,7 +9,7 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-media</artifactId>
     <packaging>jar</packaging>
-    <name>Clyde Media</name>
+    <name>clyde-media</name>
     <dependencies>
         <dependency>
             <groupId>com.mortennobel</groupId>
@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-coreapi</artifactId>
+            <artifactId>clyde-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

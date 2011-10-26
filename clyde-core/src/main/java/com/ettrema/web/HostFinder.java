@@ -1,7 +1,7 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.VfsCommon;
 import com.ettrema.vfs.NameNode;
 import java.util.List;
 import java.util.Map;

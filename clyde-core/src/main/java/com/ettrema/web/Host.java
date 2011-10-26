@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.CollectionResource;
@@ -8,9 +8,9 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.component.InitUtils;
-import com.bradmcevoy.web.security.UserLocator;
-import com.bradmcevoy.web.stats.StatsService;
+import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.security.UserLocator;
+import com.ettrema.web.stats.StatsService;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.aws.BucketOwner;

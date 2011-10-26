@@ -1,9 +1,9 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.property.PropertySource;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
 import com.ettrema.json.JsonResource;
 import java.util.ArrayList;
 import java.util.List;

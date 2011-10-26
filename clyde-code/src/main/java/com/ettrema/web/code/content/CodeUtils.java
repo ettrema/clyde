@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.code.content;
+package com.ettrema.web.code.content;
 
-import com.bradmcevoy.web.ITemplate;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.component.ComponentDef;
-import com.bradmcevoy.web.component.ComponentValue;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Page;
+import com.ettrema.web.component.ComponentDef;
+import com.ettrema.web.component.ComponentValue;
 import com.bradmcevoy.xml.XmlHelper;
 import com.ettrema.vfs.VfsSession;
 import java.io.IOException;

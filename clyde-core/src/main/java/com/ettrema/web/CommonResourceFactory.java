@@ -1,8 +1,8 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.ResourceFactory;
-import com.bradmcevoy.vfs.VfsCommon;
+import com.ettrema.vfs.VfsCommon;
 
 public abstract class CommonResourceFactory extends VfsCommon implements ResourceFactory {
 

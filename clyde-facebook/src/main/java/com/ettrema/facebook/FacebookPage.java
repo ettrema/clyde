@@ -1,4 +1,4 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
 /**
  *

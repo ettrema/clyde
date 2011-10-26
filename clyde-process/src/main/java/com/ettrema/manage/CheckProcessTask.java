@@ -1,4 +1,4 @@
-package com.bradmcevoy.manage;
+package com.ettrema.manage;
 
 import com.ettrema.context.Context;
 import com.ettrema.grid.Processable;

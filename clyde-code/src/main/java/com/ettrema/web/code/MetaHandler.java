@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.code;
+package com.ettrema.web.code;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;

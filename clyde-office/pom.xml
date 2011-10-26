@@ -9,7 +9,7 @@
     <groupId>com.ettrema</groupId>
     <artifactId>clyde-office</artifactId>
     <packaging>jar</packaging>
-    <name>Clyde Office</name>
+    <name>clyde-office</name>
 
     <repositories>
         <repository>
@@ -35,7 +35,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>clyde-coreapi</artifactId>
+            <artifactId>clyde-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.captcha;
+package com.ettrema.web.captcha;
 
 /**
  *

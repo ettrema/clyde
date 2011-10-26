@@ -1,7 +1,7 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.Thumb;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.Thumb;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;

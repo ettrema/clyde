@@ -1,7 +1,11 @@
 
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
-import com.bradmcevoy.web.SubPage;
+import com.bradmcevoy.process.Rule;
+import com.bradmcevoy.process.State;
+import com.bradmcevoy.process.Transition;
+import com.bradmcevoy.process.TransitionImpl;
+import com.ettrema.web.SubPage;
 import org.jdom.Element;
 
 public class ClydeTransition extends SubPage implements Transition {

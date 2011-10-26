@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
-import com.bradmcevoy.web.ClydeStandardMessage;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.ClydeStandardMessage;
+import com.ettrema.web.Folder;
 import javax.mail.internet.MimeMessage;
 
 /**

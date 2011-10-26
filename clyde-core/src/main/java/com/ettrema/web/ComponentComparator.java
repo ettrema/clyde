@@ -1,7 +1,7 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.Command;
-import com.bradmcevoy.web.component.DeleteCommand;
+import com.ettrema.web.component.Command;
+import com.ettrema.web.component.DeleteCommand;
 import java.util.Comparator;
 
 public class ComponentComparator implements Comparator<Component> {

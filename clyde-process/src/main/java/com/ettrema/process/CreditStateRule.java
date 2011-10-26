@@ -1,8 +1,10 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
+import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.Rule;
 import java.io.Serializable;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.pay.CreditManager;
+import com.ettrema.web.Host;
+import com.ettrema.pay.CreditManager;
 import java.math.BigDecimal;
 import org.jdom.Element;
 

@@ -1,11 +1,11 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.utils.CurrentDateService;
+import com.ettrema.utils.CurrentDateService;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.web.component.ComponentUtils;
-import com.bradmcevoy.web.component.ComponentValue;
-import com.bradmcevoy.web.component.DateDef;
-import com.bradmcevoy.web.component.DateVal;
+import com.ettrema.web.component.ComponentUtils;
+import com.ettrema.web.component.ComponentValue;
+import com.ettrema.web.component.DateDef;
+import com.ettrema.web.component.DateVal;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;

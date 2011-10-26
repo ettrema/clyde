@@ -1,8 +1,8 @@
-package com.bradmcevoy.web.children;
+package com.ettrema.web.children;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.web.BaseResourceList;
-import com.bradmcevoy.web.CommonTemplated;
+import com.ettrema.web.BaseResourceList;
+import com.ettrema.web.CommonTemplated;
 
 /**
  * TODO

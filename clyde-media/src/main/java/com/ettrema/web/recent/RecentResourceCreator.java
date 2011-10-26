@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.recent;
+package com.ettrema.web.recent;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
@@ -6,10 +6,10 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.Web;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.IUser;
+import com.ettrema.web.Web;
 import java.util.Date;
 import java.util.List;
 

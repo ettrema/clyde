@@ -1,15 +1,15 @@
-package com.bradmcevoy.media;
+package com.ettrema.media;
 
 import com.bradmcevoy.io.FileUtils;
 import java.io.InputStream;
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.image.ImageService;
+import com.ettrema.web.Folder;
+import com.ettrema.web.image.ImageService;
 import java.awt.image.BufferedImage;
-import com.bradmcevoy.web.ImageFile;
-import com.bradmcevoy.web.Thumb;
+import com.ettrema.web.ImageFile;
+import com.ettrema.web.Thumb;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;

@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.mail;
+package com.ettrema.web.mail;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

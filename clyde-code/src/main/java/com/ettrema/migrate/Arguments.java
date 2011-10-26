@@ -1,9 +1,9 @@
-package com.bradmcevoy.migrate;
+package com.ettrema.migrate;
 
 import com.bradmcevoy.http.DateUtils;
 import com.bradmcevoy.http.DateUtils.DateParseException;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.Folder;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;

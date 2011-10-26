@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.image;
+package com.ettrema.web.image;
 
-import com.bradmcevoy.web.image.ImageService.ExifData;
+import com.ettrema.web.image.ImageService.ExifData;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;

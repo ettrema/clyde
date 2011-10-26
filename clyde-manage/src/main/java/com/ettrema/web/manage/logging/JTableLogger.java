@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.logging;
+package com.ettrema.web.manage.logging;
 
 import com.ettrema.logging.NotifyingAppender;
 import java.awt.Rectangle;

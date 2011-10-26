@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.manage.synch;
+package com.ettrema.web.manage.synch;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.exceptions.BadRequestException;

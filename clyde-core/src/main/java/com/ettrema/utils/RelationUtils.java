@@ -1,6 +1,6 @@
 package com.ettrema.utils;
 
-import com.bradmcevoy.web.BaseResource;
+import com.ettrema.web.BaseResource;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;

@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.eval.Evaluatable;
-import com.bradmcevoy.web.query.OrderByField.Direction;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.eval.Evaluatable;
+import com.ettrema.web.query.OrderByField.Direction;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;

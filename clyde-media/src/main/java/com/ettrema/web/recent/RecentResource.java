@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.recent;
+package com.ettrema.web.recent;
 
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
@@ -6,12 +6,12 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.BinaryFile;
-import com.bradmcevoy.web.File;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.BinaryFile;
+import com.ettrema.web.File;
+import com.ettrema.web.Folder;
+import com.ettrema.web.IUser;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import java.io.IOException;

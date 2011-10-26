@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.search;
+package com.ettrema.web.search;
 
 import java.io.File;
 import java.io.IOException;

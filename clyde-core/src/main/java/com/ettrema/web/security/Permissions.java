@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.ettrema.utils.LogUtils;
-import com.bradmcevoy.web.BaseResource;
-import com.bradmcevoy.web.BaseResource.RoleAndGroup;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.groups.GroupService;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.BaseResource.RoleAndGroup;
+import com.ettrema.web.User;
+import com.ettrema.web.groups.GroupService;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.RelationalNameNode;

@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.security;
+package com.ettrema.web.security;
 
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.User;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Host;
+import com.ettrema.web.IUser;
+import com.ettrema.web.User;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import java.util.UUID;
 
 /**

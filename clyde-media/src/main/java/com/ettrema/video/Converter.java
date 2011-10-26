@@ -1,4 +1,4 @@
-package com.bradmcevoy.video;
+package com.ettrema.video;
 
 import java.io.OutputStream;
 

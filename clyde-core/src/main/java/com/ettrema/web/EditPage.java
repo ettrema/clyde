@@ -1,4 +1,4 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
@@ -12,9 +12,9 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.FileUtils;
-import com.bradmcevoy.web.security.PermissionChecker;
-import com.bradmcevoy.web.security.PermissionRecipient.Role;
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.security.PermissionChecker;
+import com.ettrema.web.security.PermissionRecipient.Role;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.NameNode;
 import java.io.IOException;

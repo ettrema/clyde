@@ -1,9 +1,9 @@
-package com.bradmcevoy.pay;
+package com.ettrema.pay;
 
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Page;
+import com.ettrema.web.component.InitUtils;
 import java.math.BigDecimal;
 import org.jdom.Element;
 

@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.Templatable;
 import java.util.Map;
 import org.jdom.Element;
 

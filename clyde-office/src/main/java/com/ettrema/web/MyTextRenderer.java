@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.utils.XmlUtils2;
 import java.io.InputStream;

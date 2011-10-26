@@ -1,6 +1,6 @@
-package com.bradmcevoy.facebook;
+package com.ettrema.facebook;
 
-import com.bradmcevoy.web.ImageFile;
+import com.ettrema.web.ImageFile;
 import com.google.code.facebookapi.FacebookException;
 import com.google.code.facebookapi.FacebookJaxbRestClient;
 import com.google.code.facebookapi.FacebookXmlRestClient;

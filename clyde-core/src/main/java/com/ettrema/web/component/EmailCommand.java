@@ -1,12 +1,12 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.ettrema.mail.MailServer;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Page;
-import com.bradmcevoy.web.RenderContext;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Component;
+import com.ettrema.web.Page;
+import com.ettrema.web.RenderContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

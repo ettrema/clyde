@@ -1,13 +1,13 @@
-package com.bradmcevoy.web.console2;
+package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.ReplaceableResource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.code.CodeFolder;
-import com.bradmcevoy.web.code.CodeResourceFactory;
+import com.ettrema.web.Folder;
+import com.ettrema.web.code.CodeFolder;
+import com.ettrema.web.code.CodeResourceFactory;
 import com.ettrema.console.Result;
 import com.ettrema.httpclient.Host;
 import com.ettrema.httpclient.HttpException;

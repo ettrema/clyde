@@ -1,7 +1,7 @@
-package com.bradmcevoy.web.component;
+package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import java.util.Map;
 import org.jdom.Element;
 

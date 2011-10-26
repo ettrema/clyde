@@ -1,13 +1,13 @@
-package com.bradmcevoy.pay;
+package com.ettrema.pay;
 
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.manage.QuotaManager;
+import com.ettrema.manage.QuotaManager;
 import com.bradmcevoy.process.Token;
-import com.bradmcevoy.utils.ClydeUtils;
-import com.bradmcevoy.utils.CurrentDateService;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Formatter;
-import com.bradmcevoy.web.Host;
+import com.ettrema.utils.ClydeUtils;
+import com.ettrema.utils.CurrentDateService;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.Host;
 import java.math.BigDecimal;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

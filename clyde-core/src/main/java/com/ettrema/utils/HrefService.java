@@ -1,10 +1,10 @@
 package com.ettrema.utils;
 
 import com.bradmcevoy.http.Utils;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Host;
-import com.bradmcevoy.web.Templatable;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.Templatable;
 
 /**
  * Utility methods for constructing href's and URL's for

@@ -1,4 +1,4 @@
-package com.bradmcevoy.web.comments;
+package com.ettrema.web.comments;
 
 /**
  *

@@ -1,9 +1,9 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
-import com.bradmcevoy.web.Component;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.Templatable;
-import com.bradmcevoy.web.component.EvaluatableComponent;
+import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
+import com.ettrema.web.Templatable;
+import com.ettrema.web.component.EvaluatableComponent;
 import java.io.Serializable;
 import java.util.List;
 

@@ -1,5 +1,8 @@
-package com.bradmcevoy.process;
+package com.ettrema.process;
 
+import com.bradmcevoy.process.ProcessContext;
+import com.bradmcevoy.process.Rule;
+import com.bradmcevoy.process.State;
 import com.bradmcevoy.process.State.TimeDependentInterval;
 import org.jdom.Element;
 import org.joda.time.DateTime;
@@ -8,7 +11,7 @@ import org.joda.time.ReadableDuration;
 
 /**
  *
- * @author HP
+ * @author bradm
  */
 public class IntervalRule implements Rule {
 

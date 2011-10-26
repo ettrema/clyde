@@ -1,10 +1,10 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.web.mail.MessageHelper;
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.mail.MessageHelper;
+import com.ettrema.web.component.InitUtils;
 import com.ettrema.mail.Attachment;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.MessageResource;

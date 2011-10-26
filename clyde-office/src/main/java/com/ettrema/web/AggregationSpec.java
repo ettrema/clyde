@@ -1,7 +1,7 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.InitUtils;
+import com.ettrema.web.component.InitUtils;
 import java.io.Serializable;
 import org.jdom.Element;
 

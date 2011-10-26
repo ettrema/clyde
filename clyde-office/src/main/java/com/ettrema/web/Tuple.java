@@ -1,5 +1,5 @@
 
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
 public class Tuple {
         public String key;

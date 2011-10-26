@@ -1,11 +1,11 @@
-package com.bradmcevoy.web.eval;
+package com.ettrema.web.eval;
 
-import com.bradmcevoy.web.IUser;
-import com.bradmcevoy.web.RenderContext;
-import com.bradmcevoy.web.component.Addressable;
-import com.bradmcevoy.web.component.CommonComponent;
-import com.bradmcevoy.web.security.CurrentUserService;
-import com.bradmcevoy.web.velocity.VelocityInterpreter;
+import com.ettrema.web.IUser;
+import com.ettrema.web.RenderContext;
+import com.ettrema.web.component.Addressable;
+import com.ettrema.web.component.CommonComponent;
+import com.ettrema.web.security.CurrentUserService;
+import com.ettrema.web.velocity.VelocityInterpreter;
 import java.io.Serializable;
 import org.apache.velocity.VelocityContext;
 

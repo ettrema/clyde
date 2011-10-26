@@ -3,12 +3,12 @@
  *
  * Created on 29/01/2011, 10:20:22 AM
  */
-package com.bradmcevoy.web.manage.gui;
+package com.ettrema.web.manage.gui;
 
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Response;
-import com.bradmcevoy.web.manage.logging.JTableLogger;
-import com.bradmcevoy.web.manage.synch.FileWatcher;
+import com.ettrema.web.manage.logging.JTableLogger;
+import com.ettrema.web.manage.synch.FileWatcher;
 import com.ettrema.cache.Cache;
 import com.ettrema.context.RootContext;
 import com.ettrema.event.EventManager;

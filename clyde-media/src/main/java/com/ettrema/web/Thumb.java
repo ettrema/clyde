@@ -1,6 +1,6 @@
-package com.bradmcevoy.web;
+package com.ettrema.web;
 
-import com.bradmcevoy.web.component.ThumbsComponent;
+import com.ettrema.web.component.ThumbsComponent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

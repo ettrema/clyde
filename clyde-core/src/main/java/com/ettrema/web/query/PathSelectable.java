@@ -1,10 +1,10 @@
-package com.bradmcevoy.web.query;
+package com.ettrema.web.query;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.web.CommonTemplated;
-import com.bradmcevoy.web.Folder;
-import com.bradmcevoy.web.ResourceQueryProcessor;
+import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ResourceQueryProcessor;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

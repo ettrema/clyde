@@ -1,6 +1,6 @@
-package com.bradmcevoy.web.creation;
+package com.ettrema.web.creation;
 
-import com.bradmcevoy.web.*;
+import com.ettrema.web.*;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.WritingException;
 import java.io.InputStream;
