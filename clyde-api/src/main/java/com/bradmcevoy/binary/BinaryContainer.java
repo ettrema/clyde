@@ -26,6 +26,4 @@ public interface BinaryContainer extends Resource {
 
     Long getLocalContentLength();
 
-
-
 }
