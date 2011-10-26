@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.query;
 
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.component.Addressable;

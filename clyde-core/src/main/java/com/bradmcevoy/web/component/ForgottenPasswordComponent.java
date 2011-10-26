@@ -2,7 +2,7 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.RequestParams;

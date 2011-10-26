@@ -1,6 +1,6 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.utils.GroovyUtils;
+import com.ettrema.utils.GroovyUtils;
 import java.util.HashMap;
 import com.bradmcevoy.web.component.Command;
 import com.bradmcevoy.web.component.ComponentUtils;
@@ -19,7 +19,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.utils.HrefService;
+import com.ettrema.utils.HrefService;
 import com.bradmcevoy.utils.RedirectService;
 import com.bradmcevoy.vfs.VfsCommon;
 import com.bradmcevoy.web.component.Addressable;

@@ -8,7 +8,7 @@ import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.ettrema.utils.AuthoringPermissionService;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;
 import com.ettrema.context.RequestContext;

@@ -14,7 +14,7 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.vfs.VfsCommon;

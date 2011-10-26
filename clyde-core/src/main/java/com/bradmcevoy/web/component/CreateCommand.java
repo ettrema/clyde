@@ -3,7 +3,7 @@ package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.utils.ClydeUtils;
+import com.ettrema.utils.ClydeUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.ComponentMap;

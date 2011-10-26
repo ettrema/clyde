@@ -12,7 +12,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;

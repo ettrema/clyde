@@ -12,7 +12,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;

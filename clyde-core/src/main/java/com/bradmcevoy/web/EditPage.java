@@ -10,7 +10,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.ettrema.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.FileUtils;
 import com.bradmcevoy.web.security.PermissionChecker;
 import com.bradmcevoy.web.security.PermissionRecipient.Role;

@@ -5,7 +5,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
 import com.bradmcevoy.web.component.InitUtils;

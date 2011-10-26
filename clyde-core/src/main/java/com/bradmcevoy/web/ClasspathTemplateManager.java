@@ -1,6 +1,6 @@
 package com.bradmcevoy.web;
 
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 
 /**
  * Loads classes to use as templates

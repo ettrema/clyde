@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.query;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.web.Templatable;
 import com.bradmcevoy.web.component.Addressable;
 import com.bradmcevoy.web.eval.EvalUtils;

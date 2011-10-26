@@ -7,7 +7,7 @@
         <version>1.2.6-SNAPSHOT</version>
     </parent>
     <groupId>com.ettrema</groupId>
-    <artifactId>clyde-coreapi</artifactId>
+    <artifactId>clyde-core</artifactId>
     <packaging>jar</packaging>
     <name>clyde-core</name>
     <build>

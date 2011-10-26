@@ -10,7 +10,7 @@ import com.bradmcevoy.web.groups.GroupService;
 import com.bradmcevoy.web.IUser;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Host;
 import com.bradmcevoy.web.Templatable;

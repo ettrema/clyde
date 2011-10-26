@@ -3,7 +3,7 @@ package com.bradmcevoy.web.component;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.ettrema.utils.AuthoringPermissionService;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.web.ComponentMap;

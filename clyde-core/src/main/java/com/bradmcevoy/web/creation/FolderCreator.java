@@ -2,7 +2,7 @@ package com.bradmcevoy.web.creation;
 
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.WritingException;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.Folder;
 import com.bradmcevoy.web.ITemplate;

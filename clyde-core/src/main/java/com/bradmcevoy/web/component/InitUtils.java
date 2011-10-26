@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.web.Component;
 import com.bradmcevoy.xml.XmlHelper;

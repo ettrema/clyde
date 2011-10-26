@@ -1,7 +1,7 @@
 package com.bradmcevoy.web.component;
 
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.utils.GroovyUtils;
+import com.ettrema.utils.GroovyUtils;
 import com.bradmcevoy.web.CommonTemplated;
 import com.bradmcevoy.web.RenderContext;
 import java.util.Map;

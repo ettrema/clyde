@@ -29,7 +29,7 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
 import com.bradmcevoy.io.FileUtils;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.bradmcevoy.utils.AuthoringPermissionService;
+import com.ettrema.utils.AuthoringPermissionService;
 import com.bradmcevoy.utils.CurrentRequestService;
 import com.bradmcevoy.utils.Redirectable;
 import com.bradmcevoy.utils.ReflectionUtils;

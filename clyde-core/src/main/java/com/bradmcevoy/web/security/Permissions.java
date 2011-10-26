@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.security;
 
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.BaseResource.RoleAndGroup;
 import com.bradmcevoy.web.User;

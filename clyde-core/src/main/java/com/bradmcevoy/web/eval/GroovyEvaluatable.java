@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.eval;
 
-import com.bradmcevoy.utils.GroovyUtils;
+import com.ettrema.utils.GroovyUtils;
 import com.bradmcevoy.web.BaseResource;
 import com.bradmcevoy.web.RenderContext;
 import com.bradmcevoy.web.Templatable;

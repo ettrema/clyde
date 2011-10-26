@@ -1,6 +1,6 @@
 package com.bradmcevoy.web.eval;
 
-import com.bradmcevoy.utils.JDomUtils;
+import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.web.component.Addressable;
 import java.util.List;
 import org.jdom.Element;

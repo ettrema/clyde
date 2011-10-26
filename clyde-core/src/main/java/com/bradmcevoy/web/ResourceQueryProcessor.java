@@ -2,7 +2,7 @@ package com.bradmcevoy.web;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.utils.LogUtils;
+import com.ettrema.utils.LogUtils;
 
 /**
  *
