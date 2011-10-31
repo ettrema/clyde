@@ -1,5 +1,6 @@
 package com.ettrema.media;
 
+import com.ettrema.media.dao.MediaLogCollector;
 import com.bradmcevoy.common.Path;
 import com.ettrema.media.MediaLogService.MediaType;
 import com.bradmcevoy.http.Auth;
@@ -42,7 +43,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     public static final String PATTERN_RESPONSE_HEADER = "E, dd MMM yyyy HH:mm:ss Z"; // Tue, 29 Jun 2010 10:37:14 +1200
     private final String name;
     private final MediaFeedLinkGenerator linkGenerator;
-    private final MediaLogService logService;
+    private final MediaLogService mediaLogService;
     private final Folder folder;
     private final Long cacheSeconds;
     private final String basePath;
@@ -50,15 +51,17 @@ public class MediaFeedResource implements GetableResource, DigestResource {
 
     public MediaFeedResource( MediaLogService logService, MediaFeedLinkGenerator linkGenerator, String name, Folder folder, Long cacheSeconds, String basePath ) {
         this.name = name;
-        this.logService = logService;
+        this.mediaLogService = logService;
         this.linkGenerator = linkGenerator;
         this.folder = folder;
         this.cacheSeconds = cacheSeconds;
         this.basePath = basePath;
     }
 
+	@Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
         int page = getIntParam( params, "page" );
+		boolean isAlbum = getBoolParam(params,"album");
         final int skip = page < 10 ? page * 2 : 20; //
         log.warn( "sendContent: page:" + page );
 
@@ -68,12 +71,15 @@ public class MediaFeedResource implements GetableResource, DigestResource {
 
         Host host = folder.getHost();
 
+		// TODO: if isAlbum load albums. And do content type check for JSON
+		
         final Element elChannel = writer.begin( "rss" ).writeAtt( "version", "2.0" ).writeAtt( "xmlns:media", "http://search.yahoo.com/mrss/" ).writeAtt( "xmlns:atom", "http://www.w3.org/2005/Atom" ).begin( "channel" ).prop( "title", host.getName() ).prop( "link", hostUrl );
 
         String folderPath = toFolderPath( HttpManager.request().getAbsolutePath() );
 
-        int numResults = logService.search( host.getNameNodeId(), folderPath, page, new MediaLogService.ResultCollector() {
+        int numResults = mediaLogService.search( host.getNameNodeId(), folderPath, page, new MediaLogCollector() {
 
+			@Override
             public void onResult( UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
                 log.debug( "onResult: " + type );
                 if( itemCount++ >= skip ) {
@@ -94,7 +100,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         if( page > 0 ) {
             appendPageLink( "previous", elChannel, page - 1 );
         }
-        if( numResults >= logService.getPageSize() ) {
+        if( numResults >= mediaLogService.getPageSize() ) {
             appendPageLink( "next", elChannel, page + 1 );
         }
 
@@ -103,23 +109,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         writer.flush();
     }
 
-    private String getTitleFromDate( Date dateTaken ) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime( dateTaken );
-        String s = cal.getDisplayName( Calendar.MONTH, Calendar.SHORT, Locale.ENGLISH ) + " " + cal.get( Calendar.YEAR );
-        return s;
-    }
-
-    private int getIntParam( Map<String, String> params, String name ) throws NumberFormatException {
-        String sPage = params.get( name );
-        int page;
-        if( StringUtils.isEmpty( sPage ) ) {
-            page = 0;
-        } else {
-            page = Integer.parseInt( sPage );
-        }
-        return page;
-    }
+	
 
     private void appendPageLink( String rel, Element elChannel, int page ) {
         log.trace( "appendPage: " + rel + " - " + page );
@@ -156,39 +146,48 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         elImg.close( true );
     }
 
+	@Override
     public Long getMaxAgeSeconds( Auth auth ) {
         return cacheSeconds;
     }
 
+	@Override
     public String getContentType( String accepts ) {
         return "application/rss+xml ";
     }
 
+	@Override
     public Long getContentLength() {
         return null;
     }
 
+	@Override
     public String getUniqueId() {
         return null;
     }
 
+	@Override
     public String getName() {
         return name;
     }
 
+	@Override
     public boolean authorise( Request request, Method method, Auth auth ) {
         ClydeAuthoriser authoriser = requestContext().get( ClydeAuthoriser.class );
         return authoriser.authorise( folder, request, method, auth );
     }
 
+	@Override
     public String getRealm() {
         return folder.getName();
     }
 
+	@Override
     public Date getModifiedDate() {
         return null;
     }
 
+	@Override
     public String checkRedirect( Request request ) {
         return null;
     }
@@ -213,6 +212,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         return o;
     }
 
+	@Override
     public boolean isDigestAllowed() {
         return folder.isDigestAllowed();
     }
@@ -227,4 +227,34 @@ public class MediaFeedResource implements GetableResource, DigestResource {
         int pos = basePath.lastIndexOf( "/" );
         return basePath.substring( 0, pos );
     }
+
+    private String getTitleFromDate( Date dateTaken ) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime( dateTaken );
+        String s = cal.getDisplayName( Calendar.MONTH, Calendar.SHORT, Locale.ENGLISH ) + " " + cal.get( Calendar.YEAR );
+        return s;
+    }
+
+    private int getIntParam( Map<String, String> params, String name ) throws NumberFormatException {
+        String sPage = params.get( name );
+        int page;
+        if( StringUtils.isEmpty( sPage ) ) {
+            page = 0;
+        } else {
+            page = Integer.parseInt( sPage );
+        }
+        return page;
+    }
+	
+	private boolean getBoolParam(Map<String, String> params, String string) {
+        String s = params.get( name );
+        boolean b;
+        if( StringUtils.isEmpty( s ) ) {
+            b = false;
+        } else {
+            b = Boolean.parseBoolean(s);
+        }
+        return b;
+		
+	}	
 }

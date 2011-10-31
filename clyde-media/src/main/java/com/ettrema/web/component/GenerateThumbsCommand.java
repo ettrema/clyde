@@ -3,12 +3,16 @@ package com.ettrema.web.component;
 
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
+import com.ettrema.media.ThumbGeneratorService;
+import com.ettrema.vfs.VfsSession;
 import com.ettrema.web.Folder;
 import com.ettrema.web.ImageFile;
 import com.ettrema.web.RenderContext;
 import com.ettrema.web.Templatable;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class GenerateThumbsCommand extends Command {
     
@@ -49,11 +53,13 @@ public class GenerateThumbsCommand extends Command {
         log.debug( "doProcess");
         Templatable tr = rc.getTargetPage();
         if( tr instanceof Folder ) {
+			ThumbGeneratorService thumbGeneratorService = _(ThumbGeneratorService.class);
+			VfsSession vfs = _(VfsSession.class);
             Folder folder = (Folder)tr;
             for( Resource res : folder.getChildren() ) {
                 if( res instanceof ImageFile ) {
                     ImageFile img = (ImageFile) res;
-                    img.generateThumbs();
+                    thumbGeneratorService.doGeneration(img, vfs);
                 }
             }
             commit();

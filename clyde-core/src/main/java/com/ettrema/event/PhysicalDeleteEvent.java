@@ -1,7 +1,6 @@
 package com.ettrema.event;
 
 import com.ettrema.web.BaseResource;
-import com.ettrema.event.ResourceEvent;
 
 /**
  * Called when a resource is physically deleted

@@ -25,6 +25,7 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         this.logService = logService;
     }
 
+	@Override
     public Resource getResource( String host, String sPath ) {
         log.trace( "getResource: " + sPath );
         Path path = Path.path( sPath );

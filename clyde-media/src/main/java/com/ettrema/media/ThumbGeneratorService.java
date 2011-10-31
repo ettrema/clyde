@@ -1,19 +1,17 @@
 package com.ettrema.media;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
-import com.ettrema.event.PostSaveEvent;
 import com.ettrema.utils.LogUtils;
-import com.ettrema.vfs.VfsCommon;
 import com.ettrema.video.FlashService;
 import com.ettrema.web.BinaryFile;
 import com.ettrema.web.FlashFile;
 import com.ettrema.web.Folder;
-import com.ettrema.event.Event;
 import com.ettrema.web.ImageFile;
-import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.web.Thumb;
 import com.ettrema.web.VideoFile;
@@ -22,17 +20,14 @@ import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.grid.AsynchProcessor;
-import com.ettrema.grid.Processable;
 import com.ettrema.vfs.CommitListener;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsProvider;
 import com.ettrema.vfs.VfsSession;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-import static com.ettrema.context.RequestContext._;
 
 /**
  * This service is responsible for causing thumbnail generation to occur, although
@@ -40,15 +35,23 @@ import static com.ettrema.context.RequestContext._;
  *
  * @author brad
  */
-public class ThumbGeneratorService implements Service, CommitListener, EventListener {
+public class ThumbGeneratorService implements Service, CommitListener {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbGeneratorService.class );
     private final RootContextLocator rootContextLocator;
+	private final EventManager eventManager;
+	private final ThumbProcessor thumbProcessor;
+	private final AsynchProcessor asynchProc;
+	private final FlashService flashService;
     private MediaLogService mediaLogService;
     private WallService wallService;
 
-    public ThumbGeneratorService( RootContextLocator rootContextLocator ) {
+    public ThumbGeneratorService( RootContextLocator rootContextLocator, EventManager eventManager, ThumbProcessor thumbProcessor, AsynchProcessor asynchProc, FlashService flashService ) {
         this.rootContextLocator = rootContextLocator;
+		this.eventManager = eventManager;
+		this.thumbProcessor = thumbProcessor;
+		this.asynchProc = asynchProc;
+		this.flashService = flashService;
     }
 
 	@Override
@@ -56,28 +59,12 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
         log.info( "Starting thumbnail generator.." );
         VfsProvider vfsProvider = rootContextLocator.getRootContext().get( VfsProvider.class );
         vfsProvider.addCommitListener( this );
-
-        log.info( "registering to listen for save events" );
-        EventManager eventManager = rootContextLocator.getRootContext().get( EventManager.class );
-        if( eventManager == null ) {
-            throw new RuntimeException( "Not available in config: " + EventManager.class );
-        }
-        eventManager.registerEventListener( this, PostSaveEvent.class );
     }
 
 	@Override
     public void stop() {
     }
 
-	@Override
-    public void onEvent( Event e ) {
-    }
-
-    public void destroy() {
-    }
-
-    public void onRemove( Object item ) {
-    }
 
 	@Override
     public void onCommit( NameNode n ) throws Exception {
@@ -174,7 +161,6 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
                 List<Thumb> thumbSpecs = Thumb.getThumbSpecs( f.getParentFolder() );
                 if( thumbSpecs == null || thumbSpecs.isEmpty() ) return true;
                 ThumbnailGeneratorProcessable proc = new ThumbnailGeneratorProcessable( f.getNameNodeId(), f.getName() );
-                AsynchProcessor asynchProc = _( AsynchProcessor.class );
                 asynchProc.enqueue( proc );
             } else {
                 log.warn( "image has no parent folder! " + f.getName() );
@@ -190,14 +176,24 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
      * @return - number of thumbs generated
      */
     private int generate( ImageFile targetPage ) {
-        int num = targetPage.generateThumbs();
+		List<Thumb> thumbs = Thumb.getThumbSpecs( targetPage.getParent() );
+		int num;
+        try {
+            num = thumbProcessor.generateThumbs( targetPage,thumbs, false );
+        } catch( FileNotFoundException ex ) {
+            throw new RuntimeException( targetPage.getHref(), ex );
+        } catch( IOException ex ) {
+            throw new RuntimeException( targetPage.getHref(),ex );
+        }
+    		
+        //int num = targetPage.generateThumbs();
         return num;
     }
 
     private int generate( VideoFile videoFile ) {
         int num;
 		try {
-			num = _( FlashService.class ).generateStreamingVideo( videoFile );
+			num = flashService.generateStreamingVideo( videoFile );
 		} catch (NotAuthorizedException ex) {
 			throw new RuntimeException(ex);
 		} catch (ConflictException ex) {
@@ -209,7 +205,7 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
     }
 
     private int generate( FlashFile flashFile ) {
-        int num = _( FlashService.class ).generateThumbs( flashFile );
+        int num = flashService.generateThumbs( flashFile );
         return num;
     }
 
@@ -219,57 +215,19 @@ public class ThumbGeneratorService implements Service, CommitListener, EventList
             return;
         }
         if( numThumbs > 0 ) {
-            if( mediaLogService != null ) {
-                mediaLogService.onThumbGenerated( file );
-            }
-
-            if( wallService != null ) {
-                log.trace( "updating wall" );
-                wallService.onUpdatedFile( file );
-            }
+			ThumbGeneratedEvent event = new ThumbGeneratedEvent(file);
+			try {
+				// Will probably fire WallServiceImpl and MediaLogService
+				eventManager.fireEvent(event);
+			} catch (ConflictException ex) {
+				log.warn("exception on event", ex);
+			} catch (BadRequestException ex) {
+				log.warn("exception on event", ex);
+			} catch (NotAuthorizedException ex) {
+				log.warn("exception on event", ex);
+			}			
         } else {
             log.trace( "not checking thumbs because no thumbs generated" );
-        }
-    }
-
-    public static class StreamingVideoProcessable extends VfsCommon implements Processable, Serializable {
-
-        private static final long serialVersionUID = 1L;
-        private final String sourceName;
-        private final UUID id;
-
-        public StreamingVideoProcessable( String sourceName, UUID id ) {
-            this.sourceName = sourceName;
-            this.id = id;
-        }
-
-        public void doProcess( Context context ) {
-            log.debug( "processing: " + sourceName );
-            VfsSession vfs = context.get( VfsSession.class );
-            NameNode nn = vfs.get( id );
-            if( nn == null ) {
-                log.warn( "Couldnt find node: " + id );
-                return;
-            }
-            DataNode data = nn.getData();
-            if( data == null ) {
-                log.warn( "node was found but datanode was null: name node id: " + id );
-            } else if( data instanceof VideoFile ) {
-                VideoFile file = (VideoFile) data;
-                FlashService gen = _( FlashService.class );
-                try {
-                    gen.generateStreamingVideo( file );
-                    commit();
-                } catch( Exception e ) {
-                    log.warn( "Exception generating streaming video: " + file.getHref(), e );
-                    rollback();
-                }
-            } else {
-                log.warn( "Not an instanceof video file: " + data.getClass() );
-            }
-        }
-
-        public void pleaseImplementSerializable() {
         }
     }
 

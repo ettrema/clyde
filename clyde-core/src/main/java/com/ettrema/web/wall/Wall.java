@@ -20,18 +20,22 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
     private transient NameNode nameNode;
     private List<WallItem> wallItems;
 
+	@Override
     public void setId( UUID id ) {
         this.id = id;
     }
 
+	@Override
     public UUID getId() {
         return id;
     }
 
+	@Override
     public void init( NameNode nameNode ) {
         this.nameNode = nameNode;
     }
 
+	@Override
     public void onDeleted( NameNode nameNode ) {
 
     }
@@ -51,6 +55,7 @@ public class Wall implements DataNode, Serializable, Iterable<WallItem> {
         wallItems.add( fu );
     }
 
+	@Override
     public Iterator<WallItem> iterator() {
         if( wallItems == null ) {
             wallItems = new ArrayList<WallItem>();

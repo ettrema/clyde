@@ -43,32 +43,7 @@ public class ImageFile extends BinaryFile {
     @Override
     protected void afterSetContent() {
         super.afterSetContent();
-//        this.generateThumbs();
     }
-
-
-
-    public int generateThumbs() {
-        return generateThumbs( false );
-    }
-
-    public int generateThumbs( boolean skipIfExists ) {        
-        return generateThumbs( skipIfExists, null );
-    }
-
-    public int generateThumbs( boolean skipIfExists, List<Thumb> thumbs ) {
-        if( thumbs == null ) {
-            thumbs = Thumb.getThumbSpecs( getParent() );
-        }
-        try {
-            return _(ThumbProcessor.class).generateThumbs( this,thumbs, skipIfExists );
-        } catch( FileNotFoundException ex ) {
-            throw new RuntimeException( this.getHref(), ex );
-        } catch( IOException ex ) {
-            throw new RuntimeException( this.getHref(),ex );
-        }
-    }
-
 
 
     public ImageData getImageData() {

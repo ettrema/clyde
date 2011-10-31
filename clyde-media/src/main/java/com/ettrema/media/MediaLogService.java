@@ -1,10 +1,13 @@
 package com.ettrema.media;
 
+import com.ettrema.media.dao.MediaLogCollector;
+import com.ettrema.media.dao.MediaLogDao;
 import com.ettrema.event.LogicalDeleteEvent;
 import com.ettrema.event.PhysicalDeleteEvent;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.BinaryFile;
 import com.ettrema.web.FlashFile;
+import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
 import com.ettrema.web.ImageFile;
 import com.ettrema.web.VideoFile;
@@ -16,6 +19,10 @@ import com.ettrema.db.TableDefinitionSource;
 import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
+import com.ettrema.event.PostSaveEvent;
+import com.ettrema.web.MusicFile;
+import com.ettrema.web.User;
+import com.ettrema.web.Web;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -32,8 +39,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MediaLogService.class );
 
-    public enum MediaType {
 
+    public enum MediaType {
+		AUDIO,
         IMAGE,
         VIDEO
     }
@@ -54,6 +62,9 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         this.hrefService = hrefService;
         eventManager.registerEventListener( this, LogicalDeleteEvent.class );
         eventManager.registerEventListener( this, PhysicalDeleteEvent.class );
+		// will listen to save events, but this is only for logging music files
+		// image and video logging is triggered from the ThumbGeneratorService when thumbs are generated
+        eventManager.registerEventListener( this, PostSaveEvent.class );		
     }
 
 	@Override
@@ -62,7 +73,12 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             onDelete( ( (LogicalDeleteEvent) e ).getResource() );
         } else if( e instanceof PhysicalDeleteEvent ) {
             onDelete( ( (PhysicalDeleteEvent) e ).getResource() );
-        }
+        } else if( e instanceof PostSaveEvent ) {
+			PostSaveEvent psw = (PostSaveEvent) e;
+			if( psw.getResource() instanceof MusicFile) {
+				onMusicFileSaved((MusicFile)psw.getResource());
+			}
+		}
     }
 
     private void onDelete( BaseResource resource ) {
@@ -73,6 +89,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             mediaLogDao.deleteLogByNameId( resource.getNameNodeId() );
         }
     }
+	
 
     /**
      *
@@ -80,28 +97,30 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
      * @param page - zero indexed. Ie 0 = first page
      * @return - the number of results processed
      */
-    public int search( UUID hostId, String folderPath, int page, ResultCollector collector ) {
+    public int search( UUID hostId, String folderPath, int page, MediaLogCollector collector ) {
         if( log.isTraceEnabled() ) {
             log.trace( "search: hostId:" + hostId + " path: " + folderPath );
         }
         int limit = pageSize;
         int offset = page * pageSize;
-        return mediaLogDao.search( hostId, folderPath, limit, offset, collector );
-    }
-
-    public interface ResultCollector {
-
-        void onResult( UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type );
+        return mediaLogDao.searchMedia( hostId, folderPath, limit, offset, collector );
     }
 
 	@Override
     public List<Table> getTableDefinitions() {
         List<Table> list = new ArrayList<Table>();
-        list.add( MediaLogDao.TABLE );
+        list.add( MediaLogDao.ALBUM_TABLE );
+		list.add( MediaLogDao.MEDIA_TABLE );
         return list;
     }
 
-    public void onThumbGenerated( BinaryFile file ) {
+	private void onMusicFileSaved(MusicFile m) {
+		UUID hostId = getOwnerId(m);
+		addMusic(hostId, m);
+	}
+		
+	
+    public void onThumbGenerated( BinaryFile file ) {		
         if( file instanceof ImageFile ) {
             onThumbGenerated( (ImageFile) file );
         } else if( file instanceof FlashFile ) {
@@ -114,7 +133,8 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     }
 
     public void onThumbGenerated( FlashFile file ) {
-        addFlash( file.getHost().getNameNodeId(), file );
+		UUID hostId = getOwnerId(file);
+        addFlash( hostId, file );
     }
 
     public void addFlash( UUID hostId, FlashFile file ) {
@@ -122,17 +142,44 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         String thumbPath = getThumbUrl( thumbSuffix, file );
         String contentPath = file.getUrl();
         if( thumbPath != null && contentPath != null ) {
-            mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
+			UUID galleryId = file.getParentFolder().getNameNodeId();
+            mediaLogDao.createOrUpdateMedia(galleryId, hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
         } else {
             log.debug( "no thumb, or not right type" );
         }
     }
 
     public void onThumbGenerated( VideoFile file ) {
-        addVideo( file.getHost().getNameNodeId(), file );
+		UUID hostId = getOwnerId(file);
+        addVideo( hostId, file );
     }
 
-    public void addVideo( UUID hostId, VideoFile file ) {
+    private void onThumbGenerated( ImageFile file ) {
+		UUID hostId = getOwnerId(file);
+        addImage( hostId, file );
+    }	
+	
+	private void addMusic(UUID hostId, MusicFile file) {
+        log.trace( "addMusic" );
+        String thumbPath = getThumbUrl( thumbSuffix, file );
+        if( thumbPath == null ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "no thumb for: " + file.getUrl() );
+            }
+            return;
+        }
+        String contentPath = file.getUrl();
+        if( contentPath == null ) {
+            if( log.isTraceEnabled() ) {
+                log.trace( "no content path for: " + file.getUrl() );
+            }
+            return;
+        }
+		UUID galleryId = file.getParentFolder().getNameNodeId();
+        mediaLogDao.createOrUpdateMedia(galleryId, hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.AUDIO );
+	}	
+	
+    public void addVideo(UUID hostId, VideoFile file ) {
         log.trace( "onThumbGenerated: video" );
         String thumbPath = getThumbUrl( thumbSuffix, file );
         if( thumbPath == null ) {
@@ -148,12 +195,8 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             }
             return;
         }
-
-        mediaLogDao.createOrUpdate( hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
-    }
-
-    private void onThumbGenerated( ImageFile file ) {
-        addImage( file.getHost().getNameNodeId(), file );
+		UUID galleryId = file.getParentFolder().getNameNodeId();
+        mediaLogDao.createOrUpdateMedia(galleryId, hostId, file, file.getCreateDate(), null, null, contentPath, thumbPath, MediaType.VIDEO );
     }
 
     public void addImage( UUID hostId, ImageFile file ) {
@@ -181,7 +224,8 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
             String thumbPath = getThumbUrl( thumbSuffix, file );
             String previewPath = getThumbUrl( previewSuffix, file );
             if( thumbPath != null && previewPath != null ) {
-                mediaLogDao.createOrUpdate( hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
+				UUID galleryId = file.getParentFolder().getNameNodeId();
+                mediaLogDao.createOrUpdateMedia(galleryId, hostId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE );
             } else {
                 log.trace( "no thumb, or not right type" );
             }
@@ -193,22 +237,6 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 
     private String getThumbUrl( String suffix, BinaryFile file ) {
         return hrefService.getThumbPath( file, suffix );
-//        if( log.isTraceEnabled() ) {
-//            log.trace( "getThumbUrl: " + suffix + " for " + file.getUrl() );
-//        }
-//        HtmlImage thumb = file.thumb( suffix );
-//        if( thumb == null ) {
-//            log.trace( "no thumb" );
-//            return null;
-//        } else if( thumb instanceof BinaryFile ) {
-//            BinaryFile bf = (BinaryFile) thumb;
-//            String s = bf.getUrl();
-//            log.trace( "thumb url: " + s );
-//            return s;
-//        } else {
-//            log.trace( "thumb not right type: " + thumb.getClass() );
-//            return null;
-//        }
     }
 
     public int getPageSize() {
@@ -219,9 +247,24 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         this.pageSize = pageSize;
     }
 
+	@Override
     public void onCreate(Table t, Connection con) {
 
     }
     
+	private UUID getOwnerId(BaseResource file) {
+		if( file instanceof User ) {
+			return file.getNameNodeId();
+		} else if ( file instanceof Web ) {
+			return file.getNameNodeId();
+		} else {
+			Folder parent = file.getParent();
+			if( parent != null ) {
+				return getOwnerId(parent);
+			} else {
+				return null;
+			}
+		}
+	}
     
 }

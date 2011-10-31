@@ -1,16 +1,15 @@
-package com.ettrema.media;
+package com.ettrema.media.dao;
 
 import com.ettrema.media.MediaLogService.MediaType;
-import com.ettrema.media.MediaLogService.ResultCollector;
 import com.ettrema.web.BaseResource;
 import com.ettrema.db.Table;
 import com.ettrema.db.Table.Field;
 import com.ettrema.db.types.FieldTypes;
+import com.ettrema.media.DaoUtils;
 import com.ettrema.vfs.PostgresUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Date;
 import java.util.UUID;
 
@@ -21,21 +20,22 @@ import java.util.UUID;
 public class MediaLogDao {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( MediaLogDao.class );
-    public final static MediaTable TABLE = new MediaTable();
+    public final static MediaTable MEDIA_TABLE = new MediaTable();
+	public final static AlbumTable ALBUM_TABLE = new AlbumTable();
 
-    public int search( UUID hostId, int limit, int offset, ResultCollector collector ) {
-        return search( hostId, null, limit, offset, collector );
+    public int searchMedia( UUID hostId, int limit, int offset, MediaLogCollector collector ) {
+        return searchMedia( hostId, null, limit, offset, collector );
     }
 
-    public int search( UUID hostId, String path, int limit, int offset, ResultCollector collector ) {
+    public int searchMedia( UUID hostId, String path, int limit, int offset, MediaLogCollector collector ) {
 
         // ORder by date descending so newest pics first
-        String sql = TABLE.getSelect() + " WHERE " + TABLE.hostId.getName() + " = ? ";
+        String sql = MEDIA_TABLE.getSelect() + " WHERE " + MEDIA_TABLE.ownerId.getName() + " = ? ";
         if( path != null ) {
             log.trace( "adding path clause: " + path );
-            sql = sql + " AND " + TABLE.mainContentPath.getName() + " LIKE ? || '%' ";
+            sql = sql + " AND " + MEDIA_TABLE.mainContentPath.getName() + " LIKE ? || '%' ";
         }
-        sql = sql + " ORDER BY " + TABLE.dateTaken.getName() + " DESC LIMIT " + limit + " OFFSET " + offset;
+        sql = sql + " ORDER BY " + MEDIA_TABLE.dateTaken.getName() + " DESC LIMIT " + limit + " OFFSET " + offset;
         if( log.isTraceEnabled() ) {
             log.trace( "search: hostid: " + hostId + " sql: " + sql );
         }
@@ -66,8 +66,8 @@ public class MediaLogDao {
                         log.warn( "invalid UUID in media log: " + sNameId );
                     }
                     Date dateTaken = rs.getTimestamp( 3 );
-                    Double locLat = getDouble( rs, 4 );
-                    Double locLong = getDouble( rs, 5 );
+                    Double locLat = DaoUtils.getDouble( rs, 4 );
+                    Double locLong = DaoUtils.getDouble( rs, 5 );
                     String mainPath = rs.getString( 6 );
                     String sType = rs.getString( 7 );
                     MediaType type = MediaType.valueOf( sType );
@@ -88,47 +88,15 @@ public class MediaLogDao {
 
     }
 
-    public void createOrUpdate( UUID hostId, BaseResource file, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
+    public void createOrUpdateMedia( UUID galleryId, UUID hostId, BaseResource file, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
         UUID nameId = file.getNameNodeId();
         deleteLogByNameId( nameId );
-        insert( nameId, hostId, dateTaken, locLat, locLong, mainContentPath, thumbPath, type.name() );
-
+        insertMedia( nameId, galleryId, hostId, dateTaken, locLat, locLong, mainContentPath, thumbPath, type.name() );
     }
 
-    private void insert( UUID nameId, UUID hostId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, String type ) {
-        String sql = TABLE.getInsert();
-        try {
-            PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
-            stmt.setString( 1, nameId.toString() );
-            stmt.setString( 2, hostId.toString() );
-            stmt.setTimestamp( 3, new java.sql.Timestamp( dateTaken.getTime() ) );
-            setDouble( stmt, 4, locLat );
-            setDouble( stmt, 5, locLong );
-            stmt.setString( 6, mainContentPath );
-            stmt.setString( 7, type );
-            stmt.setString( 8, thumbPath );
-
-            stmt.execute();
-        } catch( SQLException ex ) {
-            throw new RuntimeException( "nameId:" + nameId + " - " + sql, ex );
-        }
-    }
-
-    private void setDouble( PreparedStatement stmt, int param, Double d ) throws SQLException {
-        if( d == null ) {
-            stmt.setNull( param, Types.DOUBLE );
-        } else {
-            stmt.setDouble( param, d );
-        }
-    }
-
-    private Double getDouble( ResultSet rs, int i ) throws SQLException {
-        Double d = (Double) rs.getObject( i );
-        return d;
-    }
 
     public void deleteAllByHostId( UUID hostId ) {
-        String sql = TABLE.getDeleteBy( TABLE.hostId );
+        String sql = MEDIA_TABLE.getDeleteBy( MEDIA_TABLE.ownerId );
         try {
             PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
             stmt.setString( 1, hostId.toString() );
@@ -142,7 +110,7 @@ public class MediaLogDao {
     }
 
     public void deleteLogByNameId( UUID nameId ) {
-        String sql = TABLE.getDelete();
+        String sql = MEDIA_TABLE.getDelete();
         try {
             PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
             stmt.setString( 1, nameId.toString() );
@@ -155,20 +123,23 @@ public class MediaLogDao {
         }
     }
 
-    public static class MediaTable extends Table {
+    private void insertMedia( UUID nameId, UUID galleryId, UUID ownerId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, String type ) {
+        String sql = MEDIA_TABLE.getInsert();
+        try {
+            PreparedStatement stmt = PostgresUtils.con().prepareStatement( sql );
+            stmt.setString( 1, nameId.toString() );
+			stmt.setString( 2, galleryId.toString() );
+            stmt.setString( 3, ownerId.toString() );
+            stmt.setTimestamp( 4, new java.sql.Timestamp( dateTaken.getTime() ) );
+            DaoUtils.setDouble( stmt, 5, locLat );
+            DaoUtils.setDouble( stmt, 6, locLong );
+            stmt.setString( 7, mainContentPath );
+            stmt.setString( 8, type );
+            stmt.setString( 9, thumbPath );
 
-        public final Field nameId = add( "name_uuid",FieldTypes.CHARACTER_VARYING, false );
-        public final Field hostId = add( "host_uuid", FieldTypes.CHARACTER_VARYING, false );
-        public final Field dateTaken = add( "date_taken", FieldTypes.TIMESTAMP, false );
-        public final Field locLat = add( "loc_lat", FieldTypes.FLOAT8, true );
-        public final Field locLong = add( "loc_long", FieldTypes.FLOAT8, true );
-        public final Field mainContentPath = add( "main_path", FieldTypes.CHARACTER_VARYING, false );
-        public final Field mainContentType = add( "main_type", FieldTypes.CHARACTER_VARYING, false );
-        public final Field thumbPath = add( "thumbPath", FieldTypes.CHARACTER_VARYING, false );
-
-        public MediaTable() {
-            super( "media" );
-            this.setPrimaryKey( nameId );
+            stmt.execute();
+        } catch( SQLException ex ) {
+            throw new RuntimeException( "nameId:" + nameId + " - " + sql, ex );
         }
     }
 }
