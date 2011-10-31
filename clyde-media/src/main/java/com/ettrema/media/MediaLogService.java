@@ -20,6 +20,7 @@ import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.PostSaveEvent;
+import com.ettrema.media.dao.AlbumLogDao;
 import com.ettrema.web.MusicFile;
 import com.ettrema.web.User;
 import com.ettrema.web.Web;
@@ -46,6 +47,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
         VIDEO
     }
     private final MediaLogDao mediaLogDao;
+	private final AlbumLogDao albumLogDao;
     private final ImageService imageService;
     private final ThumbHrefService hrefService;
     private int pageSize = 100;
@@ -53,11 +55,12 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
     private String previewSuffix = "_sys_slideshow";
 
     public MediaLogService( ImageService imageService, EventManager eventManager, ThumbHrefService hrefService ) {
-        this( new MediaLogDao(), imageService, eventManager, hrefService );
+        this( new MediaLogDao(), new AlbumLogDao(), imageService, eventManager, hrefService );
     }
 
-    public MediaLogService( MediaLogDao mediaLogDao, ImageService imageService, EventManager eventManager, ThumbHrefService hrefService ) {
+    public MediaLogService( MediaLogDao mediaLogDao, AlbumLogDao albumLogDao, ImageService imageService, EventManager eventManager, ThumbHrefService hrefService ) {
         this.mediaLogDao = mediaLogDao;
+		this.albumLogDao = albumLogDao;
         this.imageService = imageService;
         this.hrefService = hrefService;
         eventManager.registerEventListener( this, LogicalDeleteEvent.class );
