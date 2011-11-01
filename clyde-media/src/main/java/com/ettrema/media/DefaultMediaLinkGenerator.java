@@ -15,6 +15,7 @@ public class DefaultMediaLinkGenerator implements MediaFeedLinkGenerator {
 
     private String pageName = "index.html";
 
+	@Override
     public String generateLink( MediaType mediaType, String mainContentPath ) {
         Path p = Path.path( mainContentPath );
         if( p.getParent() == null || p.getParent().getParent() == null ) {

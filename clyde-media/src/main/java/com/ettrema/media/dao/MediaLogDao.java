@@ -2,9 +2,6 @@ package com.ettrema.media.dao;
 
 import com.ettrema.media.MediaLogService.MediaType;
 import com.ettrema.web.BaseResource;
-import com.ettrema.db.Table;
-import com.ettrema.db.Table.Field;
-import com.ettrema.db.types.FieldTypes;
 import com.ettrema.media.DaoUtils;
 import com.ettrema.vfs.PostgresUtils;
 import java.sql.PreparedStatement;

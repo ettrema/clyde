@@ -1,7 +1,8 @@
 package com.ettrema.media.dao;
 
-import com.ettrema.media.MediaLogService.MediaType;
 import com.ettrema.media.DaoUtils;
+import com.ettrema.media.MediaLogService.AlbumLog;
+import com.ettrema.media.MediaLogService.MediaType;
 import com.ettrema.vfs.PostgresUtils;
 import com.ettrema.web.Folder;
 import java.sql.PreparedStatement;
@@ -51,6 +52,7 @@ public class AlbumLogDao {
 	}
 	
 	public void createOrUpdate(Folder file, UUID ownerId, Date dateStart, Date endDate, Double locLat, Double locLong, String mainPath, String thumbPath1, String thumbPath2, String thumbPath3, MediaType type) {
+		System.out.println("createOrUpdate1");
 		UUID nameId = file.getNameNodeId();
 		deleteByNameId(nameId);
 		insert(nameId, ownerId, dateStart, endDate, locLat, locLong, mainPath, thumbPath1, thumbPath2, thumbPath3, type.name());

@@ -472,7 +472,7 @@ public class Formatter {
 			return new java.sql.Date(dt.getTime());
 		}
 	}
-	
+
 	public java.sql.Timestamp toSqlTimestamp(Object oVal) {
 		Date dt = toDate(oVal);
 		if (dt == null) {
@@ -480,7 +480,7 @@ public class Formatter {
 		} else {
 			return new java.sql.Timestamp(dt.getTime());
 		}
-	}	
+	}
 
 	public org.joda.time.DateTime toJodaDate(Object oVal) {
 		Date dt = toDate(oVal);
@@ -528,6 +528,37 @@ public class Formatter {
 		DateTime jodaFn = toJodaDate(finish);
 		Duration d = new Duration(jodaSt, jodaFn);
 		return d.getStandardSeconds();
+	}
+
+	public String getMonthName(int i) {
+		switch (i) {
+			case 0:
+				return "January";
+			case 1:
+				return "February";
+			case 2:
+				return "March";
+			case 3:
+				return "April";
+			case 4:
+				return "May";
+			case 5:
+				return "June";
+			case 6:
+				return "July";
+			case 7:
+				return "August";
+			case 8:
+				return "September";
+			case 9:
+				return "October";
+			case 10:
+				return "November";
+			case 11:
+				return "December";
+			default:
+				return "Unknown month " + i;
+		}
 	}
 
 	public CurrentDateService getCurrentDateService() {

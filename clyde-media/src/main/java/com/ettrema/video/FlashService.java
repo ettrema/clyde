@@ -5,7 +5,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.FileUtils;
-import com.ettrema.media.MediaLogService;
+import com.ettrema.media.MediaLogServiceImpl;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.BinaryFile;
 import com.ettrema.web.FlashFile;
@@ -26,7 +26,7 @@ import java.util.List;
 public class FlashService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( FlashService.class );
-    private MediaLogService mediaLogService;
+    private MediaLogServiceImpl mediaLogService;
     /**
      * This is the thumb folder that flash videos will be generated in
      */
@@ -140,11 +140,11 @@ public class FlashService {
         }
     }
 
-    public MediaLogService getMediaLogService() {
+    public MediaLogServiceImpl getMediaLogService() {
         return mediaLogService;
     }
 
-    public void setMediaLogService( MediaLogService mediaLogService ) {
+    public void setMediaLogService( MediaLogServiceImpl mediaLogService ) {
         this.mediaLogService = mediaLogService;
     }
 

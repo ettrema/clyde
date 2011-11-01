@@ -15,11 +15,11 @@ public class MediaFeedResourceFactory implements ResourceFactory {
     private final String feedName;
     private final ResourceFactory wrapped;
     private MediaFeedLinkGenerator linkGenerator;
-    private final MediaLogService logService;
+    private final MediaLogServiceImpl logService;
     private Long cacheSeconds;
     private boolean secure;
 
-    public MediaFeedResourceFactory( String rssName, ResourceFactory wrapped, MediaLogService logService ) {
+    public MediaFeedResourceFactory( String rssName, ResourceFactory wrapped, MediaLogServiceImpl logService ) {
         this.feedName = rssName;
         this.wrapped = wrapped;
         this.logService = logService;

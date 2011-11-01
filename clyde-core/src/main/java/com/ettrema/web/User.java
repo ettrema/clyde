@@ -22,6 +22,8 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
+import com.ettrema.media.MediaLogService;
+import com.ettrema.media.MediaLogService.MediaLog;
 import com.ettrema.web.component.ComponentValue;
 import com.ettrema.web.component.InitUtils;
 import com.ettrema.web.component.Text;
@@ -494,4 +496,25 @@ public class User extends Folder implements IUser {
     public void setAccountDisabled(boolean accountDisabled) {
         this.accountDisabled = accountDisabled;
     }
+	
+	public List<MediaLog> getMedia() {
+		return _(MediaLogService.class).getMedia(this, null, 0);
+	}
+	
+	public List<MediaLog> getMedia(int page) {
+		return _(MediaLogService.class).getMedia(this, null, page);
+	}	
+	
+	public List<MediaLogService.AlbumLog> getAlbums() {
+		return _(MediaLogService.class).getAlbums(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> getAlbumTimeline() {
+		return _(MediaLogService.class).getAlbumTimeline(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> albumTimeline(String path) {
+		return _(MediaLogService.class).getAlbumTimeline(this, path);
+	}	
+		
 }

@@ -1,6 +1,5 @@
 package com.ettrema.media;
 
-import com.ettrema.media.dao.AlbumLog;
 import com.ettrema.media.dao.MediaLogCollector;
 import com.ettrema.media.dao.MediaLogDao;
 import com.ettrema.event.LogicalDeleteEvent;
@@ -21,7 +20,9 @@ import com.ettrema.event.Event;
 import com.ettrema.event.EventListener;
 import com.ettrema.event.EventManager;
 import com.ettrema.event.PostSaveEvent;
+import com.ettrema.media.dao.AlbumLogCollector;
 import com.ettrema.media.dao.AlbumLogDao;
+import com.ettrema.web.Formatter;
 import com.ettrema.web.MusicFile;
 import com.ettrema.web.User;
 import com.ettrema.web.Web;
@@ -29,7 +30,9 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 
@@ -37,29 +40,22 @@ import org.apache.commons.io.IOUtils;
  *
  * @author brad
  */
-public class MediaLogService implements TableDefinitionSource, EventListener {
+public class MediaLogServiceImpl implements TableDefinitionSource, EventListener, MediaLogService {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MediaLogService.class);
-
-	public enum MediaType {
-
-		AUDIO,
-		IMAGE,
-		VIDEO
-	}
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MediaLogServiceImpl.class);
 	private final MediaLogDao mediaLogDao;
 	private final AlbumLogDao albumLogDao;
 	private final ImageService imageService;
 	private final ThumbHrefService hrefService;
 	private int pageSize = 100;
-	private String thumbSuffix = "_sys_hero";
-	private String previewSuffix = "_sys_slideshow";
+	private String thumbSuffix = "_sys_thumb";
+	private String previewSuffix = "_sys_reg";
 
-	public MediaLogService(ImageService imageService, EventManager eventManager, ThumbHrefService hrefService) {
+	public MediaLogServiceImpl(ImageService imageService, EventManager eventManager, ThumbHrefService hrefService) {
 		this(new MediaLogDao(), new AlbumLogDao(), imageService, eventManager, hrefService);
 	}
 
-	public MediaLogService(MediaLogDao mediaLogDao, AlbumLogDao albumLogDao, ImageService imageService, EventManager eventManager, ThumbHrefService hrefService) {
+	public MediaLogServiceImpl(MediaLogDao mediaLogDao, AlbumLogDao albumLogDao, ImageService imageService, EventManager eventManager, ThumbHrefService hrefService) {
 		this.mediaLogDao = mediaLogDao;
 		this.albumLogDao = albumLogDao;
 		this.imageService = imageService;
@@ -69,6 +65,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 		// will listen to save events, but this is only for logging music files
 		// image and video logging is triggered from the ThumbGeneratorService when thumbs are generated
 		eventManager.registerEventListener(this, PostSaveEvent.class);
+		eventManager.registerEventListener(this, ThumbGeneratedEvent.class);
 	}
 
 	@Override
@@ -82,6 +79,12 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 			if (psw.getResource() instanceof MusicFile) {
 				onMusicFileSaved((MusicFile) psw.getResource());
 			}
+		} else if (e instanceof ThumbGeneratedEvent) {
+			ThumbGeneratedEvent tge = (ThumbGeneratedEvent) e;
+			if (tge.getResource() instanceof BinaryFile) {
+				BinaryFile bf = (BinaryFile) tge.getResource();
+				onThumbGenerated(bf);
+			}
 		}
 	}
 
@@ -94,19 +97,71 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 		}
 	}
 
+	@Override
+	public List<MediaLog> getMedia(BaseResource owner, String folderPath, int page) {
+		final List<MediaLog> list = new ArrayList<MediaLog>();
+		searchMedia(owner.getNameNodeId(), folderPath, page, new MediaLogCollector() {
+
+			@Override
+			public void onResult(UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type) {
+				list.add(new MediaLog(nameId, dateTaken, locLat, locLong, mainContentPath, thumbPath, type));
+			}
+		});
+		return list;
+	}
+
+	@Override
+	public List<AlbumLog> getAlbums(BaseResource owner, String folderPath) {
+		final List<AlbumLog> list = new ArrayList<AlbumLog>();
+		searchAlbums(owner.getNameNodeId(), folderPath, new AlbumLogCollector() {
+
+			@Override
+			public void onResult(UUID nameId, UUID ownerId, Date dateStart, Date endDate, Double locLat, Double locLong, String mainPath, String thumbPath1, String thumbPath2, String thumbPath3, MediaType type) {
+				list.add(new AlbumLog(nameId, ownerId, dateStart, endDate, locLat, locLong, mainPath, thumbPath1, thumbPath2, thumbPath3, type));
+			}
+		});
+		return list;
+	}
+
+	@Override
+	public List<AlbumYear> getAlbumTimeline(BaseResource owner, String folderPath) {
+		List<AlbumYear> list = new ArrayList<AlbumYear>();
+		List<AlbumLog> logs = getAlbums(owner, folderPath);
+		Map<Integer, AlbumYear> byYear = new HashMap<Integer, AlbumYear>();
+		Formatter f = Formatter.getInstance();
+		for (AlbumLog l : logs) {
+			Integer year = f.getYear(l.getDateStart());
+			AlbumYear ay = byYear.get(year);
+			if (ay == null) {
+				ay = new AlbumYear(year);
+				byYear.put(year, ay);
+				list.add(ay);
+			}
+			ay.add(l);
+		}
+		return list;
+	}
+
 	/**
 	 *
-	 * @param hostId
+	 * @param ownerId
 	 * @param page - zero indexed. Ie 0 = first page
 	 * @return - the number of results processed
 	 */
-	public int search(UUID hostId, String folderPath, int page, MediaLogCollector collector) {
+	public int searchMedia(UUID ownerId, String folderPath, int page, MediaLogCollector collector) {
 		if (log.isTraceEnabled()) {
-			log.trace("search: hostId:" + hostId + " path: " + folderPath);
+			log.trace("search: hostId:" + ownerId + " path: " + folderPath);
 		}
 		int limit = pageSize;
 		int offset = page * pageSize;
-		return mediaLogDao.searchMedia(hostId, folderPath, limit, offset, collector);
+		return mediaLogDao.searchMedia(ownerId, folderPath, limit, offset, collector);
+	}
+
+	public int searchAlbums(UUID ownerId, String folderPath, AlbumLogCollector collector) {
+		if (log.isTraceEnabled()) {
+			log.trace("search: hostId:" + ownerId + " path: " + folderPath);
+		}
+		return albumLogDao.search(ownerId, folderPath, 100000, 0, collector);
 	}
 
 	@Override
@@ -203,6 +258,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 	}
 
 	public void addImage(UUID ownerId, ImageFile file) {
+		System.out.println("addImage");
 		InputStream in = null;
 		// try to extract location and date taken info from EXIF
 		try {
@@ -228,15 +284,16 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 			String thumbPath = getThumbUrl(thumbSuffix, file);
 			String previewPath = getThumbUrl(previewSuffix, file);
 			if (thumbPath != null && previewPath != null) {
-				UUID galleryId = file.getParentFolder().getNameNodeId();
+				Folder album = file.getParentFolder();
+				UUID galleryId = album.getNameNodeId();
 				mediaLogDao.createOrUpdateMedia(galleryId, ownerId, file, takenDate, locLat, locLong, previewPath, thumbPath, MediaType.IMAGE);
-				
+
 				// Now update the album
 				AlbumLog a = albumLogDao.get(galleryId);
 				if (a == null) {
 					// create a new one
 					System.out.println("create new album");
-					a = new AlbumLog(galleryId, ownerId, takenDate, takenDate, locLat, locLong, previewPath, thumbPath, null, null, MediaType.IMAGE);
+					a = new AlbumLog(galleryId, ownerId, takenDate, takenDate, locLat, locLong, album.getUrl(), thumbPath, null, null, MediaType.IMAGE);
 				} else {
 					// update thumb path 
 					System.out.println("update album");
@@ -248,7 +305,7 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 						a.setThumbPath3(thumbPath);
 					}
 				}
-				
+
 				// If we have lat long set them on the gallery. Note that we don't
 				// have any means of recording multiple locations, so last one wins
 				if (locLat != null && locLong != null) {
@@ -268,12 +325,12 @@ public class MediaLogService implements TableDefinitionSource, EventListener {
 					if (a.getEndDate() != null) {
 						a.setEndDate(takenDate);
 					} else {
-						if( a.getEndDate().before(takenDate)) {
+						if (a.getEndDate().before(takenDate)) {
 							a.setEndDate(takenDate);
 						}
 					}
 				}
-				
+
 				albumLogDao.createOrUpdate(a);
 			} else {
 				log.trace("no thumb, or not right type");

@@ -29,11 +29,13 @@ public class AlbumTable extends Table {
 	// url to the gallery
 	public final Field contentPath = add("main_path", FieldTypes.CHARACTER_VARYING, false);
 	// sample thumbnail
-	public final Field thumbPath1 = add("thumbPath1", FieldTypes.CHARACTER_VARYING, false);
+	public final Field thumbPath1 = add("thumbPath1", FieldTypes.CHARACTER_VARYING, true);
 	// sample thumbnail
-	public final Field thumbPath2 = add("thumbPath2", FieldTypes.CHARACTER_VARYING, false);
+	public final Field thumbPath2 = add("thumbPath2", FieldTypes.CHARACTER_VARYING, true);
 	// sample thumbnail
-	public final Field thumbPath3 = add("thumbPath3", FieldTypes.CHARACTER_VARYING, false);
+	public final Field thumbPath3 = add("thumbPath3", FieldTypes.CHARACTER_VARYING, true);
+	
+	public final Field mainContentType = add("main_type", FieldTypes.CHARACTER_VARYING, false);
 
 	public AlbumTable() {
 		super("album");

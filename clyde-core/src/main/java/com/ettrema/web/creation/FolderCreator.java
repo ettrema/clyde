@@ -20,11 +20,11 @@ public class FolderCreator implements Creator {
 
     public static ITemplate findNewFolderTemplate(Folder parent ){
 		LogUtils.trace(log, "findNewFolderTemplate: folder name: ", parent.getName());
-		ITemplate folderTemplate = parent.getTemplate( "folder" );
-		if( folderTemplate != null ) {
-			log.trace("findNewFolderTemplate: found a template called 'folder'");
-			return folderTemplate;
-		}
+//		ITemplate folderTemplate = parent.getTemplate( "folder" );
+//		if( folderTemplate != null ) {
+//			log.trace("findNewFolderTemplate: found a template called 'folder'");
+//			return folderTemplate;
+//		}
 		List<Template> templateSpecs = parent.getAllowedTemplates();
 		LogUtils.trace(log, "findNewFolderTemplate: got template specs", templateSpecs.size());
 		for( Template t : templateSpecs ) {

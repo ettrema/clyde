@@ -43,13 +43,13 @@ public class MediaFeedResource implements GetableResource, DigestResource {
     public static final String PATTERN_RESPONSE_HEADER = "E, dd MMM yyyy HH:mm:ss Z"; // Tue, 29 Jun 2010 10:37:14 +1200
     private final String name;
     private final MediaFeedLinkGenerator linkGenerator;
-    private final MediaLogService mediaLogService;
+    private final MediaLogServiceImpl mediaLogService;
     private final Folder folder;
     private final Long cacheSeconds;
     private final String basePath;
     private int itemCount;
 
-    public MediaFeedResource( MediaLogService logService, MediaFeedLinkGenerator linkGenerator, String name, Folder folder, Long cacheSeconds, String basePath ) {
+    public MediaFeedResource( MediaLogServiceImpl logService, MediaFeedLinkGenerator linkGenerator, String name, Folder folder, Long cacheSeconds, String basePath ) {
         this.name = name;
         this.mediaLogService = logService;
         this.linkGenerator = linkGenerator;
@@ -77,7 +77,7 @@ public class MediaFeedResource implements GetableResource, DigestResource {
 
         String folderPath = toFolderPath( HttpManager.request().getAbsolutePath() );
 
-        int numResults = mediaLogService.search( host.getNameNodeId(), folderPath, page, new MediaLogCollector() {
+        int numResults = mediaLogService.searchMedia( host.getNameNodeId(), folderPath, page, new MediaLogCollector() {
 
 			@Override
             public void onResult( UUID nameId, Date dateTaken, Double locLat, Double locLong, String mainContentPath, String thumbPath, MediaType type ) {
