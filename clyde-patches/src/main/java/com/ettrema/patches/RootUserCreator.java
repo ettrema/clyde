@@ -22,18 +22,20 @@ public class RootUserCreator implements Service {
 	private String hostName;
 	private String userName;
 	private String password;
+	private String templateName;
 
-	public RootUserCreator(RootContext rootContext, String hostName, String userName, String password) {
+	public RootUserCreator(RootContext rootContext, String hostName, String userName, String password, String templateName) {
 		this.rootContext = rootContext;
 		this.hostName = hostName;
 		this.userName = userName;
 		this.password = password;
+		this.templateName = templateName;
 	}
 
 	private void checkAndCreate(Context context) {
 		VfsSession sess = context.get(VfsSession.class);
 		List<NameNode> list = sess.find(Organisation.class, hostName);
-		if (list == null || list.size() == 0) {
+		if (list == null || list.isEmpty()) {
 			log.debug("no organisation found: " + hostName);
 			return;
 		}
@@ -46,6 +48,7 @@ public class RootUserCreator implements Service {
 				if (r == null) {
 					log.debug("creating user: " + userName + " in organisation: " + org.getPath());
 					User u = org.createUser(userName, password);
+					u.setTemplateName(templateName);
 					u.save();
 				} else {
 					log.debug("found an existing resource: " + r.getClass());

@@ -38,7 +38,7 @@ import java.util.UUID;
 public class ThumbGeneratorService implements Service, CommitListener {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( ThumbGeneratorService.class );
-    private final RootContextLocator rootContextLocator;
+	private final VfsProvider vfsProvider;
 	private final EventManager eventManager;
 	private final ThumbProcessor thumbProcessor;
 	private final AsynchProcessor asynchProc;
@@ -46,8 +46,8 @@ public class ThumbGeneratorService implements Service, CommitListener {
     private MediaLogService mediaLogService;
     private WallService wallService;
 
-    public ThumbGeneratorService( RootContextLocator rootContextLocator, EventManager eventManager, ThumbProcessor thumbProcessor, AsynchProcessor asynchProc, FlashService flashService ) {
-        this.rootContextLocator = rootContextLocator;
+    public ThumbGeneratorService( VfsProvider vfsProvider, EventManager eventManager, ThumbProcessor thumbProcessor, AsynchProcessor asynchProc, FlashService flashService ) {
+		this.vfsProvider = vfsProvider;
 		this.eventManager = eventManager;
 		this.thumbProcessor = thumbProcessor;
 		this.asynchProc = asynchProc;
@@ -57,7 +57,6 @@ public class ThumbGeneratorService implements Service, CommitListener {
 	@Override
     public void start() {
         log.info( "Starting thumbnail generator.." );
-        VfsProvider vfsProvider = rootContextLocator.getRootContext().get( VfsProvider.class );
         vfsProvider.addCommitListener( this );
     }
 
