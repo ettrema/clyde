@@ -77,13 +77,15 @@ public class ThumbGeneratorService implements Service, CommitListener {
                     log.trace( "parent is a system folder,not generating: " + n.getName() );
                 }
                 return;
-            } else {
-                log.trace( "enqueuing" );
+            } else {                
                 if( dn instanceof ImageFile ) {
+					log.trace( "enqueuing image" );
                     if( enqueue( (ImageFile) dn ) ) return;
                 } else if( dn instanceof VideoFile ) {
-                    if( enqueue( (VideoFile) dn ) ) return;
+					log.trace( "enqueuing video" );
+                    if( enqueue( (VideoFile) dn ) ) return;					
                 } else if( dn instanceof FlashFile ) {
+					log.trace( "enqueuing flash" );
                     if( enqueue( (FlashFile) dn ) ) return;
                 } else {
 					LogUtils.trace(log, "Unsupported file type", dn.getClass());

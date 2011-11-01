@@ -7,7 +7,9 @@ import com.ettrema.web.Folder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -27,8 +29,20 @@ public class AlbumLogDao {
 			stmt = PostgresUtils.con().prepareStatement(sql);
 			stmt.setString(1, nameNodeId.toString());
 			rs = stmt.executeQuery();
-			// TODO
-			return null;
+			final List<AlbumLog> list = new ArrayList<AlbumLog>();
+			processResultSet(rs, new AlbumLogCollector() {
+
+				@Override
+				public void onResult(UUID nameId, UUID ownerId, Date dateStart, Date endDate, Double locLat, Double locLong, String mainPath, String thumbPath1, String thumbPath2, String thumbPath3, MediaType type) {
+					AlbumLog a = new AlbumLog(nameId, ownerId, dateStart, endDate, locLat, locLong, mainPath, thumbPath1, thumbPath2, thumbPath3, type);
+					list.add(a);
+				}
+			});
+			if( list.isEmpty()) {
+				return null;
+			} else {
+				return list.get(0);
+			}
 		} catch(SQLException e) {
 			throw new RuntimeException(sql, e);
 		} finally {
@@ -41,6 +55,13 @@ public class AlbumLogDao {
 		deleteByNameId(nameId);
 		insert(nameId, ownerId, dateStart, endDate, locLat, locLong, mainPath, thumbPath1, thumbPath2, thumbPath3, type.name());
 	}
+
+	public void createOrUpdate(AlbumLog a) {
+		System.out.println("createOrUpdate: " + a.getMainPath());
+		deleteByNameId(a.getNameId());
+		insert(a.getNameId(), a.getOwnerId(), a.getDateStart(), a.getEndDate(), a.getLocLat(), a.getLocLong(), a.getMainPath(), a.getThumbPath1(), a.getThumbPath2(), a.getThumbPath3(), a.getType().name());		
+	}
+	
 	
 	public void deleteAllByHostId(UUID hostId) {
 		String sql = ALBUM_TABLE.getDeleteBy(ALBUM_TABLE.ownerId);
@@ -171,4 +192,5 @@ public class AlbumLogDao {
 			throw new RuntimeException("nameId:" + nameId + " - " + sql, ex);
 		}
 	}
+
 }
