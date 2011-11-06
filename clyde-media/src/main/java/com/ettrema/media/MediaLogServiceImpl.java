@@ -174,7 +174,7 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 
 	private void onMusicFileSaved(MusicFile m) {
 		log.trace("onMusicFileSaved");
-		UUID ownerId = getOwnerId(m);
+		UUID ownerId = DaoUtils.getOwnerId(m);
 		addMusic(ownerId, m);
 	}
 
@@ -191,7 +191,7 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 	}
 
 	public void onThumbGenerated(FlashFile file) {
-		UUID hostId = getOwnerId(file);
+		UUID hostId = DaoUtils.getOwnerId(file);
 		addFlash(hostId, file);
 	}
 
@@ -208,12 +208,12 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 	}
 
 	public void onThumbGenerated(VideoFile file) {
-		UUID hostId = getOwnerId(file);
+		UUID hostId = DaoUtils.getOwnerId(file);
 		addVideo(hostId, file);
 	}
 
 	private void onThumbGenerated(ImageFile file) {
-		UUID hostId = getOwnerId(file);
+		UUID hostId = DaoUtils.getOwnerId(file);
 		addImage(hostId, file);
 	}
 
@@ -357,18 +357,4 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 	public void onCreate(Table t, Connection con) {
 	}
 
-	private UUID getOwnerId(BaseResource file) {
-		if (file instanceof User) {
-			return file.getNameNodeId();
-		} else if (file instanceof Web) {
-			return file.getNameNodeId();
-		} else {
-			Folder parent = file.getParent();
-			if (parent != null) {
-				return getOwnerId(parent);
-			} else {
-				return null;
-			}
-		}
-	}
 }

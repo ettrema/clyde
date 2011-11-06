@@ -14,7 +14,6 @@ import com.ettrema.web.XmlPersistableResource;
 import com.ettrema.web.code.CodeContentPage;
 import com.ettrema.web.code.CodeMeta;
 import com.ettrema.web.code.CodeResourceFactory;
-import com.ettrema.web.recent.RecentResource;
 import com.ettrema.httpclient.HttpException;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
@@ -158,9 +157,6 @@ public class MigrationHelper {
 
     private boolean isImportable(BaseResource ct, Arguments arguments) {
         if (ct instanceof XmlPersistableResource) {
-            if (ct instanceof RecentResource) {
-                return false;
-            }
             if (ct instanceof BaseResource) {
                 BaseResource bres = (BaseResource) ct;
                 if (bres.isTrash()) {

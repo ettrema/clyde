@@ -52,5 +52,4 @@ public class ClydeMediaService implements Factory{
     public void onRemove( Object item ) {
 
     }
-
 }
