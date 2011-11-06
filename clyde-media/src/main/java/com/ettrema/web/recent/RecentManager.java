@@ -84,20 +84,20 @@ public class RecentManager implements EventListener, TableDefinitionSource {
 		}
 	}
 
-	private boolean recordAction(BaseResource res, RecentActionType actionType, String moveDestHref) {
+	private void recordAction(BaseResource res, RecentActionType actionType, String moveDestHref) {
 		if (HttpManager.request() == null) {
 			log.trace("no current request, so dont create a recent file");
-			return true;
+			return ;
 		}
 		IUser user = currentUserService.getSecurityContextUser();
 		Folder parent = res.getParent();
 		if (parent != null && parent.isSystemFolder()) {
 			log.trace("not creating recent, because parent is a system folder");
-			return true;
+			return ;
 		}
 		if (res instanceof Web) {
 			log.trace("not creating recent for Web");
-			return true;
+			return ;
 		}
 		log.trace("create recent record");
 		UUID ownerId = DaoUtils.getOwnerId(res);
@@ -107,12 +107,16 @@ public class RecentManager implements EventListener, TableDefinitionSource {
 			userId = user.getNameNodeId();
 			userName = user.getName();
 		}
+		if( userId == null )  {
+			log.trace("No current user, so don't record action");
+			return ;
+		}
 		Date dateMod = new Date();
 		String targetHref = res.getHref();
 		String targetName = res.getName();
 		RecentDao.RecentResourceType resourceType = getResourceType(res);
 		recentDao.insert(res.getNameNodeId(), ownerId, userId, dateMod, targetHref, targetName, userName, resourceType, actionType, moveDestHref);
-		return false;
+		return ;
 	}
 
 	private RecentResourceType getResourceType(BaseResource res) {
