@@ -39,6 +39,8 @@ public class RecentDao {
 	private final String insertSql;
 	private final String searchByOwnerAndPathSql;
 	private final String searchByOwnerAndDateSql;
+	private final String deleteByNameId;
+	private final String deleteByNameIdAndActionType;
 
 	public RecentDao() {
 		insertSql = recentTable.getInsert();
@@ -48,6 +50,9 @@ public class RecentDao {
 		
 		// ordered ASC by date, so that entries are processed oldest to newest
 		searchByOwnerAndDateSql = recentTable.getSelect() + " WHERE " + recentTable.ownerId.getName() + " = ? AND " + recentTable.dateModified.getName() + " > ?" + orderBy;
+		
+		deleteByNameId = recentTable.getDeleteBy(recentTable.nameId);
+		deleteByNameIdAndActionType = deleteByNameId + " AND " + recentTable.actionType.getName() + " = ?";
 	}
 
 	public void search(String ownerId, Date since, RecentCollector collector) {
@@ -116,6 +121,37 @@ public class RecentDao {
 		}
 	}
 
+	public void delete(UUID nameId) {
+		Connection con = PostgresUtils.con();
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(deleteByNameId);
+			// name_uuid,owner_id,updated_by_id,date_modified,target_href,target_name,updated_by_name,resource_type,action_type,move_dest_href
+			recentTable.nameId.set(stmt, 1, nameId.toString());
+			stmt.execute();
+		} catch (SQLException ex) {
+			throw new RuntimeException(insertSql, ex);
+		} finally {
+			PostgresUtils.close(stmt);
+		}		
+	}
+	
+	public void delete(UUID nameId, RecentActionType actionType) {
+		Connection con = PostgresUtils.con();
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(deleteByNameIdAndActionType);
+			// name_uuid,owner_id,updated_by_id,date_modified,target_href,target_name,updated_by_name,resource_type,action_type,move_dest_href
+			recentTable.nameId.set(stmt, 1, nameId.toString());
+			recentTable.nameId.set(stmt, 2, actionType.toString());
+			stmt.execute();
+		} catch (SQLException ex) {
+			throw new RuntimeException(insertSql, ex);
+		} finally {
+			PostgresUtils.close(stmt);
+		}		
+	}	
+	
 	public void insert(UUID nameId, UUID ownerId, UUID updatedById, Date dateModified, String targetHref, String targetName, String updatedByName, RecentResourceType resourceType, RecentActionType actionType, String moveDestHref) {
 		Connection con = PostgresUtils.con();
 		PreparedStatement stmt = null;

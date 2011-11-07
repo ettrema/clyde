@@ -12,6 +12,7 @@ import com.ettrema.event.MoveEvent;
 import com.ettrema.media.DaoUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.BinaryFile;
+import com.ettrema.web.File;
 import com.ettrema.web.Folder;
 import com.ettrema.web.IUser;
 import com.ettrema.web.Web;
@@ -56,7 +57,7 @@ public class RecentManager implements EventListener, TableDefinitionSource {
 		if (e instanceof PostSaveEvent) {
 			log.trace("onEvent: PostSaveEvent");
 			PostSaveEvent pse = (PostSaveEvent) e;
-			if (!(pse.getResource() instanceof BaseResource)) {
+			if (!(pse.getResource() instanceof File)) { // not folders
 				log.trace("not a baseresource");
 				return;
 			}
@@ -115,6 +116,13 @@ public class RecentManager implements EventListener, TableDefinitionSource {
 		String targetHref = res.getHref();
 		String targetName = res.getName();
 		RecentDao.RecentResourceType resourceType = getResourceType(res);
+		switch( actionType ) {
+			case delete:
+				recentDao.delete(res.getNameNodeId()); // if deleted, then remove all other notifications
+				break;
+			case update:
+				recentDao.delete(res.getNameNodeId(), actionType); // if updated, remove all other updated notifications
+		}
 		recentDao.insert(res.getNameNodeId(), ownerId, userId, dateMod, targetHref, targetName, userName, resourceType, actionType, moveDestHref);
 		return ;
 	}

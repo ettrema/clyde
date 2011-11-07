@@ -773,7 +773,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	 */
 	@Override
 	public String link(String text) {
-		return "<a href='" + getHref() + "'>" + text + "</a>";
+		return "<a href='" + getUrl() + "'>" + text + "</a>";
 	}
 
 	@Override
