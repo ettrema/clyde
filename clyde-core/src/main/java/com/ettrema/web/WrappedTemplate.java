@@ -178,6 +178,11 @@ public class WrappedTemplate implements ITemplate {
     public String getHref() {
         return web.getHref() + "/templates/" + physicalTemplate.getName();
     }
+	
+	@Override
+	public String getUrl() {
+		return "/templates/" + physicalTemplate.getName();
+	}	
 
     @Override
     public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
@@ -261,25 +266,31 @@ public class WrappedTemplate implements ITemplate {
         physicalTemplate.onBeforeSave( aThis );
     }
 
+	@Override
     public void onAfterSave( BaseResource aThis ) {
         physicalTemplate.onAfterSave( aThis );
     }
 
+	@Override
     public DocType getDocType() {
         return physicalTemplate.getDocType();
     }
 
+	@Override
     public Boolean isSecure() {
         return physicalTemplate.isSecure();
     }
 
+	@Override
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         return physicalTemplate.hasRole(user, role, target);
     }
 
+	@Override
     public String onPost(CommonTemplated aThis) {
         return physicalTemplate.onPost(aThis);
     }
+
     
     
 }

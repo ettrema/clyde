@@ -506,7 +506,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 				Folder f = (Folder) r;
 				list.add(r);
 				if (!f.getName().equals("templates")) {
-					f.appendChildrenRecursive(list, depth++);
+					f.appendFoldersRecursive(list, depth++);
 				}
 			} else {
 				// do nothing

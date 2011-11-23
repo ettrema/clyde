@@ -167,6 +167,13 @@ public class ComponentUtilsTest {
             throw new UnsupportedOperationException( "Not supported yet." );
         }
 
+		@Override
+		public String getUrl() {
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+		
+		
+
         public Web getWeb() {
             return root;
         }
