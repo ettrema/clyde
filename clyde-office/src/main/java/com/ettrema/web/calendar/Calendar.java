@@ -13,6 +13,8 @@ public class Calendar extends Folder implements CalendarResource, AccessControll
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Calendar.class );
     private static final long serialVersionUID = 1L;
 
+	private String color;
+	
     public Calendar( Folder parentFolder, String name ) {
         super( parentFolder, name );
     }
@@ -28,9 +30,20 @@ public class Calendar extends Folder implements CalendarResource, AccessControll
         return new Calendar( parent, newName );
     }
 
+	@Override
     public String getCalendarDescription() {
         return this.getTitle();
     }
+
+	@Override
+	public String getColor() {
+		return color;
+	}
+
+	@Override
+	public void setColor(String s) {
+		this.color = s;
+	}
 
 
 }
