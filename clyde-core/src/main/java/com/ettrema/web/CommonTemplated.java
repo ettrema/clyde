@@ -1100,4 +1100,74 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	public void setOnPostScript(String onPostScript) {
 		this.onPostScript = onPostScript;
 	}
+	
+	public BaseResourceList getBreadCrumbList() {
+		return breadCrumbList(getWeb(), true);
+	}
+	
+	public BaseResourceList breadCrumbList(Folder start) {
+		return breadCrumbList(start, true);
+	}
+	
+	public BaseResourceList breadCrumbList(Folder start, boolean inclusive) {
+		if( start == null ) {
+			start = getWeb();
+		}
+		return _breadCrumbs(start, inclusive);
+	}
+	
+	/**
+	 * 
+	 * @param start - must not be null
+	 * @param inclusive
+	 * @return 
+	 */
+	private BaseResourceList _breadCrumbs(Folder start, boolean inclusive) {
+		Folder parent;
+		if( this instanceof Folder ) {
+			parent = (Folder) this;
+		} else {
+			parent = getParentFolder();
+		}
+		BaseResourceList list = new BaseResourceList();
+		while( parent != null ) {
+			if( parent != start || inclusive) {
+				list.add(parent);
+			}
+			if( parent == start || parent == null ) {
+				break;
+			} else {
+				parent = parent.getParentFolder();
+			}
+		}
+		return list;
+	}
+
+	public String getBreadCrumbs() {
+		return breadCrumbs(0);
+	}
+	
+	public String breadCrumbs(int skipFirst) {
+		return breadCrumbs(skipFirst, "/");
+	}
+	
+	public String breadCrumbs(int skipFirst, String seperator) {
+		BaseResourceList list = getBreadCrumbList().getReverse();
+		StringBuilder sb = new StringBuilder();
+		for( int i=skipFirst; i<list.size(); i++) {
+			Templatable f = list.get(i);
+			String link;
+			if( f instanceof CommonTemplated) {
+				CommonTemplated ct = (CommonTemplated) f;
+				link = ct.getLink();
+			} else {
+				link = "<a href=\"" + f.getUrl() + " \">" + f.getName() + "</a>";
+			}
+			sb.append(link);
+			if( i<list.size()-1) {
+				sb.append(seperator);
+			}
+		}
+		return sb.toString();
+	}
 }
