@@ -44,6 +44,4 @@ public class Calendar extends Folder implements CalendarResource, AccessControll
 	public void setColor(String s) {
 		this.color = s;
 	}
-
-
 }
