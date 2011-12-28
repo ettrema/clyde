@@ -1,14 +1,11 @@
 package com.ettrema.web;
 
-import com.ettrema.http.acl.Principal;
+import java.util.Map;
 import com.ettrema.vfs.RelationalNameNode;
 import com.ettrema.vfs.Relationship;
 import com.ettrema.web.security.BeanProperty;
-import com.ettrema.web.security.Permission;
 import com.ettrema.web.security.Permissions;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import com.ettrema.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
@@ -43,6 +40,7 @@ import com.ettrema.web.mail.MailProcessor;
 import com.ettrema.web.security.CookieAuthenticationHandler;
 import com.ettrema.web.security.CurrentUserService;
 import com.ettrema.web.security.UserGroup;
+import java.util.HashMap;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -537,27 +535,34 @@ public class User extends Folder implements IUser {
 	@BeanProperty
 	public Collection<SharedWithMe> getSharedWithMe() {
 		System.out.println("getShares");
-		Permissions perms = this.permissions();
-		List<SharedWithMe> list = new ArrayList<SharedWithMe>();
+		Permissions perms = this.permissions();		
+		Map<Resource,SharedWithMe> map = new HashMap<Resource, SharedWithMe>();
 		if (perms != null) {			
 			List<Relationship> relsViewer = perms.getNameNode().findToRelations(Role.VIEWER.toString());
 			for( Relationship r : relsViewer) {
 				BaseResource shared = (BaseResource) r.from().getParent().getData();
 				User sharingUser = shared.getCreator();
-				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.VIEWER, shared);
-				list.add(sharedWithMe);
+				SharedWithMe sharedWithMe = map.get(shared);
+				if( sharedWithMe == null ) {
+					sharedWithMe = new SharedWithMe(sharingUser, shared);
+					map.put(shared, sharedWithMe);
+				}
 			}
 			List<Relationship> relsAuthor = perms.getNameNode().findToRelations(Role.AUTHOR.toString());
 			for( Relationship r : relsAuthor) {
 				BaseResource shared = (BaseResource) r.from().getParent().getData();
 				User sharingUser = shared.getCreator();
-				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.AUTHOR, shared);
-				list.add(sharedWithMe);
-			}
 			
-		} else {
-			System.out.println("perms is null");
+				SharedWithMe sharedWithMe = map.get(shared);
+				if( sharedWithMe == null ) {
+					sharedWithMe = new SharedWithMe(sharingUser, shared);
+					map.put(shared, sharedWithMe);
+				}
+				sharedWithMe.setWritable(true);
+			}
 		}
+		List<SharedWithMe> list = new ArrayList<SharedWithMe>();
+		list.addAll(map.values());
 		return list;
 	}
 
@@ -568,26 +573,29 @@ public class User extends Folder implements IUser {
 	
 	public static class SharedWithMe {
 		private final Subject subject;
-		private final Role role;
+		private boolean writable;
 		private final Resource resource;
 
-		public SharedWithMe(Subject subject, Role role, Resource resource) {
+		public SharedWithMe(Subject subject, Resource resource) {
 			this.subject = subject;
-			this.role = role;
 			this.resource = resource;
 		}
 
 		public Resource getResource() {
 			return resource;
 		}
-
-		public Role getRole() {
-			return role;
-		}
-
+		
 		public Subject getSubject() {
 			return subject;
-		}			
+		}
+
+		public boolean isWritable() {
+			return writable;
+		}
+
+		public void setWritable(boolean writable) {
+			this.writable = writable;
+		}				
 	}
 	
 }

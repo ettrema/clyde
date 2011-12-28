@@ -1,11 +1,9 @@
 package com.ettrema.web;
 
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.values.HrefList;
 import com.ettrema.utils.ClydeUtils;
-import com.ettrema.vfs.Relationship;
 import java.util.Arrays;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.exceptions.BadRequestException;
@@ -25,7 +23,6 @@ import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.utils.LogUtils;
 import com.ettrema.web.children.ChildFinder;
 import com.ettrema.web.component.ComponentValue;
@@ -61,10 +58,10 @@ import static com.ettrema.context.RequestContext.*;
 @BeanPropertyResource("clyde")
 public class Folder extends BaseResource implements com.bradmcevoy.http.FolderResource, XmlPersistableResource, DeletableCollectionResource {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Folder.class);
-    private static final long serialVersionUID = 1L;
+	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Folder.class);
+	private static final long serialVersionUID = 1L;
 
-    static Folder find(Templatable t) {
+	static Folder find(Templatable t) {
 //        log.debug( "find: " + t.getClass() + " - " + t.getName());
 		if (t.getParent() == null) {
 			return null;
@@ -202,7 +199,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 				s = this.getName();
 			}
 		}
-		if( s == null || s.trim().length() == 0 ) {
+		if (s == null || s.trim().length() == 0) {
 			s = getName();
 		}
 		return s;
@@ -295,7 +292,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		}
 	}
 
-	@Override 
+	@Override
 	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
 		// Don't have content for folders
 	}
@@ -405,321 +402,384 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 //                    }
 //                }
 //            }
-            return null;
-        }
-    }
+			return null;
+		}
+	}
 
-    public <T> T findFirst(Class<T> c) {
-        for (NameNode n : getNameNode().children()) {
-            if (c.isAssignableFrom(n.getDataClass())) {
-                return (T) n.getData();
-            }
-        }
-        return null;
-    }
+	public <T> T findFirst(Class<T> c) {
+		for (NameNode n : getNameNode().children()) {
+			if (c.isAssignableFrom(n.getDataClass())) {
+				return (T) n.getData();
+			}
+		}
+		return null;
+	}
 
-    @Override
-    public List<? extends Resource> getChildren() {
-        List<Templatable> children = getChildren(null);
-        return children;
-    }
+	@Override
+	public List<? extends Resource> getChildren() {
+		List<Templatable> children = getChildren(null);
+		return children;
+	}
 
-    public List<Templatable> getChildren(String isA) {
-        return getChildren(isA, null);
-    }
+	public List<Templatable> getChildren(String isA) {
+		return getChildren(isA, null);
+	}
 
-    public List<Templatable> getChildren(String isA, String except) {
-        List<Templatable> children = new BaseResourceList();
-        NameNode nThis = getNameNode();
-        if (nThis != null) {
-            List<NameNode> list = nThis.children();
-            if (list != null) {
-                for (NameNode n : nThis.children()) {
-                    DataNode dn = n.getData();
-                    if (dn != null && dn instanceof BaseResource) {
-                        BaseResource res = (BaseResource) dn;
-                        if (isA == null || res.is(isA)) {
-                            if (!res.getName().equals(except)) {
-                                children.add(res);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            log.debug("null namenode");
-        }
+	public List<Templatable> getChildren(String isA, String except) {
+		List<Templatable> children = new BaseResourceList();
+		NameNode nThis = getNameNode();
+		if (nThis != null) {
+			List<NameNode> list = nThis.children();
+			if (list != null) {
+				for (NameNode n : nThis.children()) {
+					DataNode dn = n.getData();
+					if (dn != null && dn instanceof BaseResource) {
+						BaseResource res = (BaseResource) dn;
+						if (isA == null || res.is(isA)) {
+							if (!res.getName().equals(except)) {
+								children.add(res);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			log.debug("null namenode");
+		}
 
 
-        if (isA == null && except == null) {
-            List<Templatable> subPages = _(ChildFinder.class).getSubPages(this);
-            if (subPages != null) {
-                for (Templatable t : subPages) {
-                    children.add(t);
-                }
-            }
-        }
+		if (isA == null && except == null) {
+			List<Templatable> subPages = _(ChildFinder.class).getSubPages(this);
+			if (subPages != null) {
+				for (Templatable t : subPages) {
+					children.add(t);
+				}
+			}
+		}
 
-        Collections.sort(children);
-        return children;
-    }
+		Collections.sort(children);
+		return children;
+	}
 
-    public List<Templatable> children(String template) {
-        return getChildren(template);
-    }
+	public List<Templatable> children(String template) {
+		return getChildren(template);
+	}
 
-    public BaseResourceList getPagesRecursive() {
-        BaseResourceList list = new BaseResourceList();
-        appendChildrenRecursive(list, 0);
-        return list;
-    }
+	public BaseResourceList getPagesRecursive() {
+		BaseResourceList list = new BaseResourceList();
+		appendChildrenRecursive(list, 0, null, null);
+		return list;
+	}
 
-    private void appendChildrenRecursive(List list, int depth) {
-        if (depth > 5) {
-            log.trace("exceeded max depth");
-            return;
-        }
-        for (Resource r : this.getChildren()) {
-            if (r instanceof Folder) {
-                Folder f = (Folder) r;
-                if (!f.getName().equals("templates")) {
-                    f.appendChildrenRecursive(list, depth++);
-                }
-            } else if (r instanceof BaseResource) {
-                BaseResource p = (BaseResource) r;
-                list.add(p);
-            } else {
-                // do nothing
-            }
-        }
-    }
+	public BaseResourceList pagesRecursive(int limit) {
+		BaseResourceList list = new BaseResourceList();
+		appendChildrenRecursive(list, 0, null, limit);
+		return list;
+	}
 
-    public BaseResourceList getFoldersRecursive() {
-        BaseResourceList list = new BaseResourceList();
-        appendFoldersRecursive(list, 0);
-        return list;
-    }
+	public BaseResourceList pagesRecursive(int limit, String type) {
+		BaseResourceList list = new BaseResourceList();
+		appendChildrenRecursive(list, 0, type, limit);
+		return list;
+	}
 
-    private void appendFoldersRecursive(List list, int depth) {
-        if (depth > 5) {
-            return;
-        }
-        for (Resource r : this.getChildren()) {
-            if (r instanceof Folder) {
-                Folder f = (Folder) r;
-                list.add(r);
-                if (!f.getName().equals("templates")) {
-                    f.appendFoldersRecursive(list, depth++);
-                }
-            } else {
-                // do nothing
-            }
-        }
-    }
+	private void appendChildrenRecursive(List list, int depth, String type, Integer limit) {
+		if (depth > 5) {
+			log.trace("exceeded max depth");
+			return;
+		}
+		if( limit != null ) {
+		if (list.size() > limit) {
+			return;
+		}
+		}
 
-    @Override
-    public Resource createNew(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
-        if (newName.equals(NewPage.AUTO_NAME)) {
-            String headerName = HttpManager.request().getHeaders().get("X-Filename");
-            Map<String, String> params = null;
-            if (headerName != null) {
-                params = new HashMap<String, String>();
-                params.put("name", headerName);
-            }
-            newName = NewPage.findAutoName(this, params);
-            LogUtils.trace(log, "autoname, with header name", headerName, "final name", newName);
-        }
-        Resource res = createNew_notx(newName, in, length, contentType);
-        fireEvent(new PutEvent((BaseResource) res));
-        commit();
-        return res;
-    }
+		for (Resource r : this.getChildren()) {
+			if (r instanceof Folder) {
+				Folder f = (Folder) r;
+				if (!f.getName().equals("templates")) {
+					f.appendChildrenRecursive(list, depth++, type, limit);
+				}
+			} else if (r instanceof BaseResource) {
+				BaseResource p = (BaseResource) r;
+				if (type == null || p.is(type)) {
+					list.add(p);
+					if (limit != null) {
+						if (list.size() > limit) {
+							return;
+						}
+					}
+				}
+			} else {
+				// do nothing
+			}
+		}
+	}
 
-    public Resource createNew_notx(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
-        checkHost();
-        Resource rExisting = child(newName);
-        if (rExisting != null) {
-            if (rExisting instanceof Replaceable) {
-                log.debug("PUT to a replaceable resource. replacing content...");
-                Replaceable replaceTarget = (Replaceable) rExisting;
-                doReplace(replaceTarget, in, length);
-                return rExisting;
-            } else if (rExisting instanceof BaseResource) {
-                log.debug("deleting existing item:" + rExisting.getName());
-                ((BaseResource) rExisting).delete();
-                return doCreate(newName, in, length, contentType);
-            } else {
-                throw new RuntimeException("Cannot delete: " + rExisting.getClass().getName());
-            }
-        } else {
-            log.debug("creating new item");
-            return doCreate(newName, in, length, contentType);
-        }
+	public BaseResourceList thumbsList(int limit) {
+		return thumbsList(limit, "_sys_thumb");
+	}
 
-    }
+	public BaseResourceList thumbsList(int limit, String thumbSpec) {
+		BaseResourceList list = new BaseResourceList();
+		appendThumbsRecursive(list, limit, thumbSpec);
+		return list;
+	}
 
-    private void checkHost() throws ConflictException {
-        Host h = this.getHost();
-        if (h.isDisabled()) {
-            log.warn("Attempt to put to a disabled host: " + h.getName());
-            throw new ConflictException(this);
-        }
-    }
+	private void appendThumbsRecursive(List list, int limit, String thumbSpec) {
+		if (list.size() >= limit) {
+			log.trace("exceeded max limit");
+			return;
+		}
 
-    public Folder getOrCreateFolder(ComponentValue cv) throws ConflictException, NotAuthorizedException, BadRequestException {
-        return getOrCreateFolder(cv.getValue().toString());
+		Folder thumbsFolder = this.thumbs(thumbSpec);
+		if (thumbsFolder != null) {
+			for (Templatable r : thumbsFolder.getChildren("image")) {
+				if (r instanceof BinaryFile) {
+					list.add(r);
+				}
+				if (list.size() >= limit) {
+					return;
+				}
+			}
+		}
 
-    }
+		for (Resource r : this.getChildren()) {
+			if (r instanceof Folder) {
+				Folder f = (Folder) r;
+				if (!f.getName().equals("templates")) {
+					f.appendThumbsRecursive(list, limit, thumbSpec);
+				}
+			}
+		}
+	}
 
-    /**
-     * Return a folder if one exists with the given name. Otherwise, and if
-     * not resource exists, create a generic folder.
-     * 
-     * If a resource does exist which is not a folder it will throw a ConflictException
-     * 
-     * @param name
-     * @return
-     */
-    public Folder getOrCreateFolder(String name) throws ConflictException, NotAuthorizedException, BadRequestException {
-        Resource res = this.child(name);
-        if (res == null) {
-            return (Folder) createCollection(name, false); // will commit elsewhere
-        } else {
-            if (res instanceof Folder) {
-                return (Folder) res;
-            } else {
-                log.error("Couldnt create folder, because a resource exists with the same name but is not a folder: " + res.getName() + " - " + res.getClass());
-                throw new ConflictException(res);
-            }
-        }
-    }
+	public BaseResourceList getFoldersRecursive() {
+		BaseResourceList list = new BaseResourceList();
+		appendFoldersRecursive(list, 0);
+		return list;
+	}
 
-    public Templatable createPage(String name, String template) {
-        ITemplate t = this.getTemplate(template);
-        return t.createPageFromTemplate(this, name);
-    }
+	private void appendFoldersRecursive(List list, int depth) {
+		if (depth > 5) {
+			return;
+		}
+		for (Resource r : this.getChildren()) {
+			if (r instanceof Folder) {
+				Folder f = (Folder) r;
+				list.add(r);
+				if (!f.getName().equals("templates")) {
+					f.appendFoldersRecursive(list, depth++);
+				}
+			} else {
+				// do nothing
+			}
+		}
+	}
 
-    public Resource doCreate(String newName) {
-        try {
-            return doCreate(newName, null, null, null);
-        } catch (ReadingException ex) {
-            throw new RuntimeException(ex);
-        } catch (WritingException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
+	@Override
+	public Resource createNew(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
+		if (newName.equals(NewPage.AUTO_NAME)) {
+			String headerName = HttpManager.request().getHeaders().get("X-Filename");
+			Map<String, String> params = null;
+			if (headerName != null) {
+				params = new HashMap<String, String>();
+				params.put("name", headerName);
+			}
+			newName = NewPage.findAutoName(this, params);
+			LogUtils.trace(log, "autoname, with header name", headerName, "final name", newName);
+		}
+		Resource res = createNew_notx(newName, in, length, contentType);
+		fireEvent(new PutEvent((BaseResource) res));
+		commit();
+		return res;
+	}
 
-    /**
-     * Create a resource from a template
-     *
-     * Does a save, but does not commit
-     * 
-     * @param name - the name of the resource to create. May be null, which will cause
-     * a unique name to be generated
-     * @param templateName - the name of the template to assign to the resource. Is validated.
-     * @return
-     */
-    public Resource create(String name, String templateName) {
-        if (name == null) {
-            name = ClydeUtils.getDateAsNameUnique(this);
-        }
-        if (this.childExists(name)) {
-            throw new RuntimeException("A file already exists called: " + name);
-        }
-        ITemplate t = getTemplate(templateName);
-        if (t == null) {
-            throw new RuntimeException("No such template: " + templateName);
-        }
-        BaseResource res = t.createPageFromTemplate(this, name);
-        res.save();
-        return res;
-    }
+	public Resource createNew_notx(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
+		checkHost();
+		Resource rExisting = child(newName);
+		if (rExisting != null) {
+			if (rExisting instanceof Replaceable) {
+				log.debug("PUT to a replaceable resource. replacing content...");
+				Replaceable replaceTarget = (Replaceable) rExisting;
+				doReplace(replaceTarget, in, length);
+				return rExisting;
+			} else if (rExisting instanceof BaseResource) {
+				log.debug("deleting existing item:" + rExisting.getName());
+				((BaseResource) rExisting).delete();
+				return doCreate(newName, in, length, contentType);
+			} else {
+				throw new RuntimeException("Cannot delete: " + rExisting.getClass().getName());
+			}
+		} else {
+			log.debug("creating new item");
+			return doCreate(newName, in, length, contentType);
+		}
 
-    public Resource doCreate(String newName, InputStream in, Long length, String contentType) throws ReadingException, WritingException {
-        log.debug("doCreate: " + newName + " contentType: " + contentType);
-        BaseResource res = null;
-        Iterable<Path> contentTypePaths;
-        if (contentType == null || contentType.length() == 0 || contentType.equals("application/octet-stream")) {
-            contentTypePaths = ContentTypeUtil.getContentTypeList(newName);
-        } else {
-            contentTypePaths = Arrays.asList(Path.path(contentType));
-        }
+	}
 
-        List<TypeMapping> typeMappings = getTypeMappings();
+	private void checkHost() throws ConflictException {
+		Host h = this.getHost();
+		if (h.isDisabled()) {
+			log.warn("Attempt to put to a disabled host: " + h.getName());
+			throw new ConflictException(this);
+		}
+	}
 
-        if (typeMappings != null) {
-            for (Path p : contentTypePaths) {
-                for (TypeMapping tm : typeMappings) {
-                    if (tm.contentType.equals(p.toString())) {
-                        ITemplate t = getTemplate(tm.templateName);
-                        if (t == null) {
-                            log.warn("Couldnt find template associated with type mapping: type mapping: " + tm.contentType + " template: " + tm.templateName);
-                        } else {
-                            log.debug("found template: " + t.getName() + " from content type: " + tm.contentType);
-                            res = t.createPageFromTemplate(this, newName, in, length);
-                            res.save();
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
-            for (Path p : contentTypePaths) {
-                contentType = p.toString();
-            }
-        }
-        if (res == null) {
+	public Folder getOrCreateFolder(ComponentValue cv) throws ConflictException, NotAuthorizedException, BadRequestException {
+		return getOrCreateFolder(cv.getValue().toString());
+
+	}
+
+	/**
+	 * Return a folder if one exists with the given name. Otherwise, and if
+	 * not resource exists, create a generic folder.
+	 * 
+	 * If a resource does exist which is not a folder it will throw a ConflictException
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Folder getOrCreateFolder(String name) throws ConflictException, NotAuthorizedException, BadRequestException {
+		Resource res = this.child(name);
+		if (res == null) {
+			return (Folder) createCollection(name, false); // will commit elsewhere
+		} else {
+			if (res instanceof Folder) {
+				return (Folder) res;
+			} else {
+				log.error("Couldnt create folder, because a resource exists with the same name but is not a folder: " + res.getName() + " - " + res.getClass());
+				throw new ConflictException(res);
+			}
+		}
+	}
+
+	public Templatable createPage(String name, String template) {
+		ITemplate t = this.getTemplate(template);
+		return t.createPageFromTemplate(this, name);
+	}
+
+	public Resource doCreate(String newName) {
+		try {
+			return doCreate(newName, null, null, null);
+		} catch (ReadingException ex) {
+			throw new RuntimeException(ex);
+		} catch (WritingException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	/**
+	 * Create a resource from a template
+	 *
+	 * Does a save, but does not commit
+	 * 
+	 * @param name - the name of the resource to create. May be null, which will cause
+	 * a unique name to be generated
+	 * @param templateName - the name of the template to assign to the resource. Is validated.
+	 * @return
+	 */
+	public Resource create(String name, String templateName) {
+		if (name == null) {
+			name = ClydeUtils.getDateAsNameUnique(this);
+		}
+		if (this.childExists(name)) {
+			throw new RuntimeException("A file already exists called: " + name);
+		}
+		ITemplate t = getTemplate(templateName);
+		if (t == null) {
+			throw new RuntimeException("No such template: " + templateName);
+		}
+		BaseResource res = t.createPageFromTemplate(this, name);
+		res.save();
+		return res;
+	}
+
+	public Resource doCreate(String newName, InputStream in, Long length, String contentType) throws ReadingException, WritingException {
+		log.debug("doCreate: " + newName + " contentType: " + contentType);
+		BaseResource res = null;
+		Iterable<Path> contentTypePaths;
+		if (contentType == null || contentType.length() == 0 || contentType.equals("application/octet-stream")) {
+			contentTypePaths = ContentTypeUtil.getContentTypeList(newName);
+		} else {
+			contentTypePaths = Arrays.asList(Path.path(contentType));
+		}
+
+		List<TypeMapping> typeMappings = getTypeMappings();
+
+		if (typeMappings != null) {
+			for (Path p : contentTypePaths) {
+				for (TypeMapping tm : typeMappings) {
+					if (tm.contentType.equals(p.toString())) {
+						ITemplate t = getTemplate(tm.templateName);
+						if (t == null) {
+							log.warn("Couldnt find template associated with type mapping: type mapping: " + tm.contentType + " template: " + tm.templateName);
+						} else {
+							log.debug("found template: " + t.getName() + " from content type: " + tm.contentType);
+							res = t.createPageFromTemplate(this, newName, in, length);
+							res.save();
+							break;
+						}
+					}
+				}
+			}
+		} else {
+			for (Path p : contentTypePaths) {
+				contentType = p.toString();
+			}
+		}
+		if (res == null) {
 //            log.debug("res was not created through type mappings. falling back to default");
-            res = defaultCreateItem(contentType, in, newName, length);
-        }
+			res = defaultCreateItem(contentType, in, newName, length);
+		}
 
-        return res;
-    }
+		return res;
+	}
 
-    public List<TypeMapping> getTypeMappings() {
-        Component c = this.getComponent("typeMappings");
-        List<TypeMapping> typeMappings = null;
-        if (c != null) {
-            if (c instanceof TypeMappingsComponent) {
-                typeMappings = ((TypeMappingsComponent) c).getValue();
-            } else {
-                throw new IllegalArgumentException("typeMappings component must be of type: " + TypeMappingsComponent.class.getName());
-            }
-        }
-        return typeMappings;
-    }
+	public List<TypeMapping> getTypeMappings() {
+		Component c = this.getComponent("typeMappings");
+		List<TypeMapping> typeMappings = null;
+		if (c != null) {
+			if (c instanceof TypeMappingsComponent) {
+				typeMappings = ((TypeMappingsComponent) c).getValue();
+			} else {
+				throw new IllegalArgumentException("typeMappings component must be of type: " + TypeMappingsComponent.class.getName());
+			}
+		}
+		return typeMappings;
+	}
 
-    public Folder thumbs(String thumbSpec) {
-        return thumbs(thumbSpec, false);
-    }
+	public Folder thumbs(String thumbSpec) {
+		return thumbs(thumbSpec, false);
+	}
 
-    public Folder thumbs(String thumbSpec, boolean create) {
-        String name = thumbSpec + "s";
-        Resource res = child(name);
-        if (res == null) {
-            if (create) {
-                Folder f = new Folder(this, name);
-                f.save();
-                return f;
-            } else {
-                return null;
-            }
-        } else {
-            if (res instanceof Folder) {
-                Folder f = (Folder) res;
-                return f;
-            } else {
-                log.warn("File of same name as thumbs folder exists: " + name);
-                return null;
-            }
-        }
-    }
+	public Folder thumbs(String thumbSpec, boolean create) {
+		String name = thumbSpec + "s";
+		Resource res = child(name);
+		if (res == null) {
+			if (create) {
+				Folder f = new Folder(this, name);
+				f.save();
+				return f;
+			} else {
+				return null;
+			}
+		} else {
+			if (res instanceof Folder) {
+				Folder f = (Folder) res;
+				return f;
+			} else {
+				log.warn("File of same name as thumbs folder exists: " + name);
+				return null;
+			}
+		}
+	}
 
-    /** Called by a child object when it is constructed
-     *
-     *  Create and return a suitable NameNode
-     */
-    NameNode onChildCreated(String newName, BaseResource baseResource) {
+	/** Called by a child object when it is constructed
+	 *
+	 *  Create and return a suitable NameNode
+	 */
+	NameNode onChildCreated(String newName, BaseResource baseResource) {
 //        NameNode nn = nameNode.add(newName,baseResource);
 //        if( transientNameNodes == null ) {
 //            transientNameNodes = new ArrayList<TransientNameNode>();
@@ -813,8 +873,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		Long l = super.getMaxAgeSeconds(auth);
 		return l;
 	}
-	
-	
 
 	void onRemoved(BaseResource aThis) {
 		log.trace("onRemoved: " + aThis);
