@@ -1,7 +1,6 @@
 package com.ettrema.web.security;
 
 import com.ettrema.vfs.RelationalNameNode;
-import java.util.UUID;
 
 
 /**
@@ -84,19 +83,12 @@ public interface PermissionRecipient extends Subject {
     }
 
     /**
-     * The ID of this resource.
-     *
-     * @return
-     */
-    public UUID getNameNodeId();
-
-    /**
      *  The name node, used to create relationships to the resources being
      * granted permission
      *
      * @return
      */
-    public RelationalNameNode getNameNode();
+    public RelationalNameNode getPermissionsNameNode();
 
     /**
      * Returns true if this permission containing object applies to the 

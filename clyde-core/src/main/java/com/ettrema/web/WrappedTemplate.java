@@ -258,10 +258,12 @@ public class WrappedTemplate implements ITemplate {
         return physicalTemplate.getContentType( accepts );
     }
 
+	@Override
     public boolean canCreateFolder() {
         return physicalTemplate.canCreateFolder();
     }
 
+	@Override
     public void onBeforeSave( BaseResource aThis ) {
         physicalTemplate.onBeforeSave( aThis );
     }

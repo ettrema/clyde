@@ -1,8 +1,14 @@
 package com.ettrema.web;
 
-import com.ettrema.vfs.DataNode;
-import com.ettrema.vfs.NameNode;
+import com.ettrema.http.acl.Principal;
+import com.ettrema.vfs.RelationalNameNode;
 import com.ettrema.vfs.Relationship;
+import com.ettrema.web.security.BeanProperty;
+import com.ettrema.web.security.Permission;
+import com.ettrema.web.security.Permissions;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import com.ettrema.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
@@ -23,6 +29,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.ettrema.http.acl.HrefPrincipleId;
 import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
 import com.ettrema.media.MediaLogService;
@@ -500,53 +507,87 @@ public class User extends Folder implements IUser {
     public void setAccountDisabled(boolean accountDisabled) {
         this.accountDisabled = accountDisabled;
     }
+	
+	public List<MediaLog> getMedia() {
+		return _(MediaLogService.class).getMedia(this, null, 0);
+	}
+	
+	public List<MediaLog> getMedia(int page) {
+		return _(MediaLogService.class).getMedia(this, null, page);
+	}	
+	
+	public List<MediaLogService.AlbumLog> getAlbums() {
+		return _(MediaLogService.class).getAlbums(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> getAlbumTimeline() {
+		return _(MediaLogService.class).getAlbumTimeline(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> albumTimeline(String path) {
+		return _(MediaLogService.class).getAlbumTimeline(this, path);
+	}
 
-    public List<MediaLog> getMedia() {
-        return _(MediaLogService.class).getMedia(this, null, 0);
-    }
+	@Override
+	public PrincipleId getIdenitifer() {
+		return new HrefPrincipleId(this.getHref());
+	}
+		
+	
+	@BeanProperty
+	public Collection<SharedWithMe> getSharedWithMe() {
+		System.out.println("getShares");
+		Permissions perms = this.permissions();
+		List<SharedWithMe> list = new ArrayList<SharedWithMe>();
+		if (perms != null) {			
+			List<Relationship> relsViewer = perms.getNameNode().findToRelations(Role.VIEWER.toString());
+			for( Relationship r : relsViewer) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.VIEWER, shared);
+				list.add(sharedWithMe);
+			}
+			List<Relationship> relsAuthor = perms.getNameNode().findToRelations(Role.AUTHOR.toString());
+			for( Relationship r : relsAuthor) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.AUTHOR, shared);
+				list.add(sharedWithMe);
+			}
+			
+		} else {
+			System.out.println("perms is null");
+		}
+		return list;
+	}
 
-    public List<MediaLog> getMedia(int page) {
-        return _(MediaLogService.class).getMedia(this, null, page);
-    }
+	@Override
+	public RelationalNameNode getPermissionsNameNode() {
+		return permissions(true).getNameNode();
+	}
+	
+	public static class SharedWithMe {
+		private final Subject subject;
+		private final Role role;
+		private final Resource resource;
 
-    public List<MediaLogService.AlbumLog> getAlbums() {
-        return _(MediaLogService.class).getAlbums(this, null);
-    }
+		public SharedWithMe(Subject subject, Role role, Resource resource) {
+			this.subject = subject;
+			this.role = role;
+			this.resource = resource;
+		}
 
-    public List<MediaLogService.AlbumYear> getAlbumTimeline() {
-        return _(MediaLogService.class).getAlbumTimeline(this, null);
-    }
+		public Resource getResource() {
+			return resource;
+		}
 
-    public List<MediaLogService.AlbumYear> albumTimeline(String path) {
-        return _(MediaLogService.class).getAlbumTimeline(this, path);
-    }
-    
-    public List<Folder> getShared() {
-        List<Relationship> rels = this.getNameNode().findToRelations(REL_SHARED);
-        if (rels == null || rels.isEmpty()) {
-            return null;
-        } else {
-            List<Folder> list = new ArrayList<Folder>();
-            for (Relationship rel : rels) {
-                NameNode nFrom = rel.from();
-                if (nFrom == null) {
-                    log.warn("from node does not exist");
-                    return null;
-                } else {
-                    DataNode dnFrom = nFrom.getData();
-                    if (dnFrom == null) {
-                        log.warn("to node has no data");
-                    } else {
-                        if (dnFrom instanceof Folder) {
-                            Folder cr = (Folder) dnFrom;
-                            list.add(cr);
-                        } else {
-                            log.warn("from node is not a: " + Folder.class + " is a: " + dnFrom.getClass());                            
-                        }
-                    }
-                }
-            }
-            return list;
-        }        
-    }
+		public Role getRole() {
+			return role;
+		}
+
+		public Subject getSubject() {
+			return subject;
+		}			
+	}
+	
 }

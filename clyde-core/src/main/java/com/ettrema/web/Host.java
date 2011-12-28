@@ -196,13 +196,13 @@ public class Host extends Web implements BucketOwner {
     }
 
     public User findUser(String name) {
-        UserLocator userLocator = new UserLocator();
+        UserLocator userLocator = _(UserLocator.class);
         return userLocator.findUser(this, name);
     }
 
     public User findByEmail(String s) {
         // look for a matching email address       
-        UserLocator userLocator = new UserLocator();
+        UserLocator userLocator = _(UserLocator.class);
         MailboxAddress add = userLocator.parse(s);
         if( add != null ) {            
             User user = userLocator.findUserByEmail(add, this);
@@ -214,7 +214,7 @@ public class Host extends Web implements BucketOwner {
     }
     
     public List<User> searchForUsers(String s) {
-        UserLocator userLocator = new UserLocator();
+        UserLocator userLocator = _(UserLocator.class);
         return userLocator.search(s, this);
     }
     

@@ -12,6 +12,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.ettrema.forms.FormProcessor;
 import com.ettrema.web.component.ComponentDef;
 import com.ettrema.web.component.ComponentUtils;
 import com.ettrema.web.component.ComponentValue;
@@ -22,6 +23,8 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * Subpages defined in templates are inherited from pages which extend the template
@@ -207,8 +210,7 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
 
     @Override
     public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
-        preProcess(null,parameters,files);
-        return process(null,parameters,files);
+		return _(FormProcessor.class).processForm(this, parameters, files);
     }
     
     /** Components should read their values from request params
@@ -323,5 +325,3 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
         subPage.replaceContent(this, in, length);
     }
 }
-
-

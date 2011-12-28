@@ -50,8 +50,18 @@ public interface Templatable extends Resource, Addressable, Comparable<Resource>
      */
     String process( RenderContext rcChild,Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException;
 
+	/**
+	 * Return the fully qualified address of the resource
+	 * 
+	 * @return 
+	 */
     String getHref();
 	
+	/**
+	 * Return the path of the resouce, not including host name, port or protocol
+	 * 
+	 * @return 
+	 */
 	String getUrl();
 
     Web getWeb();

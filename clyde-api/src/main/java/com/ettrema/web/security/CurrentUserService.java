@@ -51,5 +51,4 @@ public interface CurrentUserService {
      * @param user - the user to make current
      */
     void setOnBehalfOf(IUser user);
-
 }
