@@ -71,7 +71,8 @@ public class SaveCommand extends Command {
         }
         Templatable ct = doProcess(rc, parameters);
         if (ct != null) {
-            return ct.getHref();// if all ok, force redirect to ensure changes saved
+            //return ct.getHref();// if all ok, force redirect to ensure changes saved
+			return ct.getUrl();
         } else {
             return null;
         }

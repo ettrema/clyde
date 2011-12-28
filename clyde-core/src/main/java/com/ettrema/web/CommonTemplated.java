@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.ettrema.forms.FormProcessor;
 import com.ettrema.utils.GroovyUtils;
 import java.util.HashMap;
 import com.ettrema.web.component.Command;
@@ -170,13 +171,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 	@Override
 	public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
 		log.info("processForm");
-		String redirect = doOnPost(parameters, files);
-		if (redirect != null) {
-			return redirect;
-		}
-		preProcess(null, parameters, files);
-		String s = process(null, parameters, files);
-		return s;
+		return _(FormProcessor.class).processForm(this, parameters, files);
 	}
 
 	/** Components should read their values from request params
@@ -269,6 +264,26 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 		return Web.find(this);
 	}
 
+	public Templatable parentOfType(String type) {
+		System.out.println("parentOfTRype: " + type + " - " + this.getUrl());
+		return _parentOfType(this.getParent(), type);
+	}
+	
+	private Templatable _parentOfType(Templatable t, String type) {
+		System.out.println("parentOfTRype2: " + t);
+		if( t == null) {
+			return null;
+		}		
+		if( t.is(type)) {
+			return t;
+		}		
+		if( t instanceof Host) {
+			return null;
+		}
+		t = t.getParent();
+		return _parentOfType(t, type);
+	}
+	
 	/**
 	 * 
 	 * @return - size in bytes of persisted components and component values
@@ -969,7 +984,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
 	}
 
-	private String doOnPost(Map<String, String> parameters, Map<String, FileItem> files) {
+	public String doOnPost(Map<String, String> parameters, Map<String, FileItem> files) {
 		if (this.onPostScript != null) {
 			log.trace("onAfterSave: run script");
 			Map map = new HashMap();

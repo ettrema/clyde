@@ -182,6 +182,7 @@ public class SourcePage extends VfsCommon implements GetableResource, EditableRe
         return new SourceEditPage();
     }
 
+	
     public class SourceEditPage implements GetableResource, PostableResource, DigestResource {
 
         public String err;

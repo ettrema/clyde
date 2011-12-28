@@ -1,5 +1,14 @@
 package com.ettrema.web;
 
+import com.ettrema.http.acl.Principal;
+import com.ettrema.vfs.RelationalNameNode;
+import com.ettrema.vfs.Relationship;
+import com.ettrema.web.security.BeanProperty;
+import com.ettrema.web.security.Permission;
+import com.ettrema.web.security.Permissions;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import com.ettrema.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
@@ -20,6 +29,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.ettrema.http.acl.HrefPrincipleId;
 import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.mail.MessageFolder;
 import com.ettrema.media.MediaLogService;
@@ -515,6 +525,68 @@ public class User extends Folder implements IUser {
 	
 	public List<MediaLogService.AlbumYear> albumTimeline(String path) {
 		return _(MediaLogService.class).getAlbumTimeline(this, path);
-	}	
+	}
+
+	@Override
+	public PrincipleId getIdenitifer() {
+		return new HrefPrincipleId(this.getHref());
+	}
 		
+	
+	@BeanProperty
+	public Collection<SharedWithMe> getSharedWithMe() {
+		System.out.println("getShares");
+		Permissions perms = this.permissions();
+		List<SharedWithMe> list = new ArrayList<SharedWithMe>();
+		if (perms != null) {			
+			List<Relationship> relsViewer = perms.getNameNode().findToRelations(Role.VIEWER.toString());
+			for( Relationship r : relsViewer) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.VIEWER, shared);
+				list.add(sharedWithMe);
+			}
+			List<Relationship> relsAuthor = perms.getNameNode().findToRelations(Role.AUTHOR.toString());
+			for( Relationship r : relsAuthor) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+				SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.AUTHOR, shared);
+				list.add(sharedWithMe);
+			}
+			
+		} else {
+			System.out.println("perms is null");
+		}
+		return list;
+	}
+
+	@Override
+	public RelationalNameNode getPermissionsNameNode() {
+		return permissions(true).getNameNode();
+	}
+	
+	public static class SharedWithMe {
+		private final Subject subject;
+		private final Role role;
+		private final Resource resource;
+
+		public SharedWithMe(Subject subject, Role role, Resource resource) {
+			this.subject = subject;
+			this.role = role;
+			this.resource = resource;
+		}
+
+		public Resource getResource() {
+			return resource;
+		}
+
+		public Role getRole() {
+			return role;
+		}
+
+		public Subject getSubject() {
+			return subject;
+		}			
+	}
+	
 }

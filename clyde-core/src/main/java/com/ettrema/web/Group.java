@@ -1,10 +1,13 @@
 package com.ettrema.web;
 
+import com.ettrema.http.acl.DiscretePrincipal;
+import com.ettrema.vfs.RelationalNameNode;
 import com.ettrema.web.security.Subject;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.ettrema.http.acl.HrefPrincipleId;
 import com.ettrema.utils.LogUtils;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MessageFolder;
@@ -24,7 +27,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 
-public class Group extends Folder implements Mailbox, CustomUserGroup, PermissionRecipient {
+public class Group extends Folder implements Mailbox, CustomUserGroup, PermissionRecipient, DiscretePrincipal {
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Group.class);
 	private static final long serialVersionUID = 1L;
@@ -244,4 +247,16 @@ public class Group extends Folder implements Mailbox, CustomUserGroup, Permissio
 	public boolean isOrContains(Subject s) {
 		return appliesTo(s);
 	}
+
+	@Override
+	public PrincipleId getIdenitifer() {
+		return new HrefPrincipleId(this.getHref());
+	}
+
+	@Override
+	public RelationalNameNode getPermissionsNameNode() {
+		return permissions(true).getNameNode();
+	}
+	
+	
 }

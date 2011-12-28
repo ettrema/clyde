@@ -2,6 +2,7 @@ package com.ettrema.utils;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Request;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 
 /**
@@ -14,19 +15,30 @@ public class FolderRedirectService implements RedirectService {
 
 	@Override
 	public String checkRedirect(Resource resource, Request request) {
+		// Only redirect on GET
+		Method m = request.getMethod();
+		if( !m.equals(Method.GET)) { // do not redirect unless its a GET request
+			return null;
+		}		
+		if( request.getHeaders().containsKey("X-Requested-With")) { // Don't redirect on AJAX requests
+			String req = request.getHeaders().get("X-Requested-With");
+			if( req.equals("XMLHttpRequest")) {
+				return null;
+			}				
+		}
 		if (resource instanceof CollectionResource) {
-			String s = request.getAbsoluteUrl();
+			String path = request.getAbsoluteUrl();
 			if (redirectPage.length() > 0) {
-				if (!s.endsWith("/")) {
-					s = s + "/";
+				if (!path.endsWith("/")) {
+					path = path + "/";
 				}
-				s = s + redirectPage;
-				return s;
+				path = path + redirectPage;
+				return path;
 			} else {
 				// Just check that url ends with trailing slash and redirect if not
-				if (!s.endsWith("/")) {
-					s = s + "/";
-					return s;
+				if (!path.endsWith("/")) {
+					path = path + "/";
+					return path;
 				} else {
 					// if redirect is blank it means we want the folder to handle the GET
 					// Note that there must be some mechanism to generate content from

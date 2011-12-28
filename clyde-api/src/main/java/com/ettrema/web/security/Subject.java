@@ -1,5 +1,7 @@
 package com.ettrema.web.security;
 
+import com.ettrema.http.acl.Principal;
+
 /**
  * A security Subject is anything which can be the subject of a security rule
  *
@@ -10,7 +12,7 @@ package com.ettrema.web.security;
  *
  * @author brad
  */
-public interface Subject {
+public interface Subject extends Principal {
     /**
      * The identifying name of this resource, within its collection (if there is one)
      *

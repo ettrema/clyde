@@ -13,3 +13,4 @@ public interface ClydeAuthenticator {
 
     IUser authenticate( Resource resource, DigestResponse digestRequest );
 }
+

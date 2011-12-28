@@ -12,7 +12,6 @@ import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;

@@ -7,6 +7,7 @@ import com.ettrema.web.security.Subject;
 import com.ettrema.web.security.UserGroup;
 import java.util.List;
 
+
 /**
  * Only knows about system groups
  *
@@ -26,6 +27,7 @@ public class SystemGroupService implements GroupService {
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
+	@Override
     public UserGroup getGroup( Resource relativeTo, String name ) {
         if( anonymousUserGroup.getSubjectName().equals( name )) {
             return anonymousUserGroup;

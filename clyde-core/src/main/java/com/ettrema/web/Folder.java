@@ -1,6 +1,7 @@
 package com.ettrema.web;
 
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.values.HrefList;
 import com.ettrema.utils.ClydeUtils;
@@ -23,6 +24,7 @@ import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.utils.LogUtils;
 import com.ettrema.web.children.ChildFinder;
 import com.ettrema.web.component.ComponentValue;
@@ -294,7 +296,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
 	@Override 
 	public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
-		throw new RuntimeException("Cant generate content for a folder");
+		// Don't have content for folders
 	}
 
 	@Override
@@ -907,274 +909,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		return false; // TODO: lookup from clydelock thingo
 	}
 
-	/**
-	 * TODO: using this as the name node until save is called. better solution then
-	 *  relying on connections closing to flush transient data
-	 */
-	/**
-	public class TransientNameNode implements RelationalNameNode {
-	
-	final UUID id;
-	final String name;
-	final DataNode data;
-	//final List<Relationship> relations = new ArrayList<Relationship>();
-	RelationalNameNode persistedNameNode;
-	private boolean isNew = true;
-	
-	public TransientNameNode( String name, BaseResource data ) {
-	this.id = UUID.randomUUID();
-	this.name = name;
-	this.data = data;
-	data.setId( id );
-	}
-	
-	@Override
-	public InputStream getBinaryContent() {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	return persistedNameNode.getBinaryContent();
-	}
-	
-	@Override
-	public long setBinaryContent( InputStream in ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	return persistedNameNode.setBinaryContent( in );
-	}
-	
-	@Override
-	public String getName() {
-	return name;
-	}
-	
-	@Override
-	public boolean hasBinaryContent() {
-	if( persistedNameNode == null ) {
-	return false;
-	}
-	return persistedNameNode.hasBinaryContent();
-	}
-	
-	@Override
-	public void setName( String s ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	persistedNameNode.setName( s );
-	}
-	
-	@Override
-	public NameNode getParent() {
-	return Folder.this.getNameNode();
-	}
-	
-	@Override
-	public NameNode child( String name ) {
-	if( persistedNameNode == null ) {
-	return null;
-	}
-	return persistedNameNode.child( name );
-	}
-	
-	@Override
-	public List<NameNode> children() {
-	if( persistedNameNode == null ) {
-	return null;
-	}
-	return persistedNameNode.children( true );
-	}
-	
-	@Override
-	public List<NameNode> children( boolean preloadDataNodes ) {
-	return children();
-	}
-	
-	@Override
-	public DataNode getData() {
-	return data;
-	}
-	
-	@Override
-	public Class getDataClass() {
-	return data.getClass();
-	}
-	
-	@Override
-	public UUID getId() {
-	return id;
-	}
-	
-	@Override
-	public NameNode add( String name, DataNode data ) {
-	if( persistedNameNode == null ) {
-	save();
-	}
-	return persistedNameNode.add( name, data );
-	}
-	
-	@Override
-	public void delete() {
-	if( persistedNameNode != null ) {
-	persistedNameNode.delete();
-	persistedNameNode = null;
-	}
-	transientNameNodes.remove( this );
-	}
-	
-	@Override
-	public void save() {
-	persistedNameNode = (RelationalNameNode) getNameNode().add( name, data );
-	persistedNameNode.save();
-	//            isNew = false;
-	//            ( (BaseResource) data ).nameNode = persistedNameNode;
-	//            for( Relationship r : relations ) {
-	//                persistedNameNode.makeRelation( (RelationalNameNode) r.to(), r.relationship() );
-	//            }
-	}
-	
-	@Override
-	public UUID getParentId() {
-	return Folder.this.getNameNodeId();
-	}
-	
-	@Override
-	public Date getCreatedDate() {
-	if( persistedNameNode != null ) {
-	return persistedNameNode.getCreatedDate();
-	}
-	return new Date();
-	}
-	
-	@Override
-	public Date getModifiedDate() {
-	if( persistedNameNode != null ) {
-	return persistedNameNode.getModifiedDate();
-	}
-	return new Date();
-	}
-	
-	@Override
-	public void onChildNameChanged( String oldName, NameNode childNode ) {
-	if( persistedNameNode != null ) {
-	persistedNameNode.onChildNameChanged( oldName, childNode );
-	}
-	}
-	
-	@Override
-	public void onChildDeleted( NameNode child ) {
-	if( persistedNameNode != null ) {
-	persistedNameNode.onChildDeleted( child );
-	}
-	}
-	
-	@Override
-	public void move( NameNode newParent, String newName ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	persistedNameNode.move( newParent, newName );
-	}
-	
-	@Override
-	public void onChildMoved( NameNode child ) {
-	if( persistedNameNode != null ) {
-	persistedNameNode.onChildMoved( child );
-	}
-	}
-	
-	@Override
-	public long writeToBinaryOutputStream( OutputStreamWriter<Long> writer ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	return persistedNameNode.writeToBinaryOutputStream( writer );
-	}
-	
-	@Override
-	public Relationship makeRelation( final RelationalNameNode toNode, final String relationshipName ) {
-	if( persistedNameNode == null ) {
-	this.save();
-	//                Relationship r = new Relationship() {
-	//
-	//                    public NameNode from() {
-	//                        return getNameNode();
-	//                    }
-	//
-	//                    public NameNode to() {
-	//                        return toNode;
-	//                    }
-	//
-	//                    public String relationship() {
-	//                        return relationshipName;
-	//                    }
-	//
-	//                    public void delete() {
-	//                        relations.remove( this );
-	//                    }
-	//                };
-	//                relations.add( r );
-	//                log.debug( "makeRelation: no persisted node, use temp: " + relations.size());
-	//                return r;
-	//            } else {
-	//                log.debug( "makeRelation: using persisted node");
-	//                return persistedNameNode.makeRelation( toNode, relationshipName );
-	}
-	return persistedNameNode.makeRelation( toNode, relationshipName );
-	}
-	
-	@Override
-	public List<Relationship> findToRelations( String relationshipName ) {
-	if( persistedNameNode == null ) {
-	return new ArrayList<Relationship>();
-	}
-	return persistedNameNode.findToRelations( relationshipName );
-	}
-	
-	
-	@Override
-	public List<Relationship> findFromRelations( String relationshipName ) {
-	if( persistedNameNode == null ) {
-	return Collections.EMPTY_LIST;
-	//                return relations;
-	} else {
-	return persistedNameNode.findFromRelations( relationshipName );
-	}
-	}
-	
-	@Override
-	public void onNewRelationship( Relationship r ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	persistedNameNode.onNewRelationship( r );
-	}
-	
-	@Override
-	public void onDeletedFromRelationship( Relationship r ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	persistedNameNode.onDeletedFromRelationship( r );
-	}
-	
-	@Override
-	public void onDeletedToRelationship( Relationship r ) {
-	if( persistedNameNode == null ) {
-	throw new RuntimeException( "TransientNameNode not yet saved" );
-	}
-	persistedNameNode.onDeletedToRelationship( r );
-	}
-	
-	public boolean isNew() {
-	log.debug( "isNew: " + isNew);
-	return isNew;
-	}
-	
-	
-	}
-	 **/
 	@Override
 	public void loadFromXml(Element el, Map<String, String> params) {
 		loadFromXml(el);

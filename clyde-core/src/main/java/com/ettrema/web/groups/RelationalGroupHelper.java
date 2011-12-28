@@ -33,8 +33,8 @@ import static com.ettrema.context.RequestContext._;
 public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RelationalGroupHelper.class);
-    public static final String REL_NAME = "memberOf";
-    private final GroupService wrapped = new SystemGroupService();
+    public static final String REL_NAME = "memberOf"; 
+    private final GroupService wrapped = new SystemGroupService(); 
     private final PermissionChecker permissionChecker;
 
     public RelationalGroupHelper(PermissionChecker permissionChecker) {

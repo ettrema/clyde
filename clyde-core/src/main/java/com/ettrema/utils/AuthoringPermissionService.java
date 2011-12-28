@@ -1,9 +1,11 @@
 package com.ettrema.utils;
 
+import com.ettrema.http.AccessControlledResource.Priviledge;
 import com.ettrema.web.Folder;
 import com.ettrema.web.ITemplate;
 import com.ettrema.web.Templatable;
 import com.ettrema.web.security.PermissionRecipient.Role;
+import java.util.Set;
 
 /**
  * Determines the necessary roles for creating and editing resources
@@ -28,4 +30,6 @@ public interface AuthoringPermissionService {
      * @return - the necessary role
      */
     Role getEditRole(Templatable res);
+	
+	Set<Priviledge> toPriviledges(Role role);
 }

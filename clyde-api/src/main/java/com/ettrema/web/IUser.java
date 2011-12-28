@@ -2,17 +2,19 @@ package com.ettrema.web;
 
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import com.ettrema.http.acl.DiscretePrincipal;
 import com.ettrema.web.security.PermissionRecipient;
 import com.ettrema.mail.Mailbox;
-import com.ettrema.mail.MessageFolder;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.RelationalNameNode;
+import java.util.UUID;
 import javax.mail.Address;
-import javax.mail.internet.MimeMessage;
 
 /**
  *
  * @author brad
  */
-public interface IUser extends Mailbox, PermissionRecipient {
+public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
 
     /**
      *
@@ -31,17 +33,9 @@ public interface IUser extends Mailbox, PermissionRecipient {
      */
     String getExternalEmailText();
 
-    MessageFolder getInbox();
-
-    MessageFolder getMailFolder(String name);
-
     CollectionResource getMailFolder(String name, boolean create);
 
     boolean is(String type);
-
-    boolean isEmailDisabled();
-
-    void storeMail(MimeMessage mm);
 
     /**
      * The fully qualified url of this user, including the protocol. Use getUrl
@@ -75,4 +69,7 @@ public interface IUser extends Mailbox, PermissionRecipient {
      */    
     boolean canAuthor(Resource r);
 
+	RelationalNameNode getNameNode();
+	
+	UUID getNameNodeId();
 }

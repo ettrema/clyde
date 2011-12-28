@@ -20,13 +20,15 @@ import com.ettrema.mail.MailboxAddress;
 public class EmailAuthenticator implements ClydeAuthenticator {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EmailAuthenticator.class);
-    private final UserLocator userLocator = new UserLocator();
+    private final UserLocator userLocator;
     private final ClydeAuthenticator wrapped;
 
-    public EmailAuthenticator(ClydeAuthenticator wrapped) {
+    public EmailAuthenticator(ClydeAuthenticator wrapped, UserLocator userLocator) {
         this.wrapped = wrapped;
+		this.userLocator = userLocator;
     }
 
+	@Override
     public IUser authenticate(Resource resource, String userName, String password) {
         if (resource instanceof CommonTemplated) {
             MailboxAddress email = userLocator.parse(userName);
@@ -49,6 +51,7 @@ public class EmailAuthenticator implements ClydeAuthenticator {
         return wrapped.authenticate(resource, userName, password);
     }
 
+	@Override
     public IUser authenticate(Resource resource, DigestResponse digestRequest) {
         if (resource instanceof CommonTemplated) {
             MailboxAddress email = userLocator.parse(digestRequest.getUser());
