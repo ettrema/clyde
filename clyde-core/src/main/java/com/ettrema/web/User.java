@@ -1,5 +1,8 @@
 package com.ettrema.web;
 
+import com.ettrema.vfs.DataNode;
+import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.Relationship;
 import com.ettrema.web.security.PasswordStorageService;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.HttpManager;
@@ -46,6 +49,9 @@ public class User extends Folder implements IUser {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(User.class);
     private static final long serialVersionUID = 1L;
+    
+    public static final String REL_SHARED = "_sys_isshared";
+    
     private Text password;
     private boolean emailDisabled;
     private boolean accountDisabled;
@@ -142,12 +148,12 @@ public class User extends Folder implements IUser {
     /**
      *         // note that this can cause an error sometimes, eg if the user name
     // has a space in it
-
+    
      * 
      * @return - the email address for this user on this domain. NOT their specified
      *  external email
      */
-	@Override
+    @Override
     public Address getEmailAddress() {
         Host h = this.getHost();
         String s = this.getName() + "@" + h.getName();
@@ -171,12 +177,12 @@ public class User extends Folder implements IUser {
         return new ClydeMessageFolder(f);
     }
 
-	@Override
+    @Override
     public Folder getEmailFolder() {
         return getEmailFolder(false);
     }
 
-	@Override
+    @Override
     public Folder getEmailFolder(boolean create) {
         String emailFolderName = "inbox";
         Folder emailFolder = getMailFolder(emailFolderName, create);
@@ -192,7 +198,7 @@ public class User extends Folder implements IUser {
         return new ClydeMessageFolder(f);
     }
 
-	@Override
+    @Override
     public Folder getMailFolder(String name, boolean create) {
         String emailFolderName = "email_" + name;
         Folder emailFolder = getSubFolder(emailFolderName);
@@ -231,7 +237,7 @@ public class User extends Folder implements IUser {
      * 
      * @return - the user's specified external email address as a string. Null if not specified
      */
-	@Override
+    @Override
     public String getExternalEmailText() {
         String s = getExternalEmailTextV2("default");
         if (s != null) {
@@ -273,7 +279,7 @@ public class User extends Folder implements IUser {
         return super.is(type);
     }
 
-	@Override
+    @Override
     public boolean isInGroup(String groupName) {
         UserGroup group = _(GroupService.class).getGroup(this, groupName);
         if (group != null) {
@@ -304,7 +310,7 @@ public class User extends Folder implements IUser {
         return s;
     }
 
-	@Override
+    @Override
     public String getSubjectName() {
         return getName();
     }
@@ -394,9 +400,9 @@ public class User extends Folder implements IUser {
         _(CookieAuthenticationHandler.class).setLoginCookies(this, req);
     }
 
-	@Override
+    @Override
     public boolean appliesTo(Subject user) {
-		log.trace("appliesTo");
+        log.trace("appliesTo");
         if (user instanceof User) {
             User u = (User) user;
             return u.getNameNodeId().equals(this.getNameNodeId());
@@ -405,12 +411,10 @@ public class User extends Folder implements IUser {
         }
     }
 
-	@Override
+    @Override
     public boolean isOrContains(Subject s) {
         return appliesTo(s);
     }
-
-
 
     /**
      * Checks to see if the given user is the same as this user
@@ -434,7 +438,7 @@ public class User extends Folder implements IUser {
      * @param r
      * @return
      */
-	@Override
+    @Override
     public boolean canAuthor(Resource r) {
         Auth auth = null;
         Request req = _(CurrentRequestService.class).request();
@@ -496,25 +500,53 @@ public class User extends Folder implements IUser {
     public void setAccountDisabled(boolean accountDisabled) {
         this.accountDisabled = accountDisabled;
     }
-	
-	public List<MediaLog> getMedia() {
-		return _(MediaLogService.class).getMedia(this, null, 0);
-	}
-	
-	public List<MediaLog> getMedia(int page) {
-		return _(MediaLogService.class).getMedia(this, null, page);
-	}	
-	
-	public List<MediaLogService.AlbumLog> getAlbums() {
-		return _(MediaLogService.class).getAlbums(this, null);
-	}
-	
-	public List<MediaLogService.AlbumYear> getAlbumTimeline() {
-		return _(MediaLogService.class).getAlbumTimeline(this, null);
-	}
-	
-	public List<MediaLogService.AlbumYear> albumTimeline(String path) {
-		return _(MediaLogService.class).getAlbumTimeline(this, path);
-	}	
-		
+
+    public List<MediaLog> getMedia() {
+        return _(MediaLogService.class).getMedia(this, null, 0);
+    }
+
+    public List<MediaLog> getMedia(int page) {
+        return _(MediaLogService.class).getMedia(this, null, page);
+    }
+
+    public List<MediaLogService.AlbumLog> getAlbums() {
+        return _(MediaLogService.class).getAlbums(this, null);
+    }
+
+    public List<MediaLogService.AlbumYear> getAlbumTimeline() {
+        return _(MediaLogService.class).getAlbumTimeline(this, null);
+    }
+
+    public List<MediaLogService.AlbumYear> albumTimeline(String path) {
+        return _(MediaLogService.class).getAlbumTimeline(this, path);
+    }
+    
+    public List<Folder> getShared() {
+        List<Relationship> rels = this.getNameNode().findToRelations(REL_SHARED);
+        if (rels == null || rels.isEmpty()) {
+            return null;
+        } else {
+            List<Folder> list = new ArrayList<Folder>();
+            for (Relationship rel : rels) {
+                NameNode nFrom = rel.from();
+                if (nFrom == null) {
+                    log.warn("from node does not exist");
+                    return null;
+                } else {
+                    DataNode dnFrom = nFrom.getData();
+                    if (dnFrom == null) {
+                        log.warn("to node has no data");
+                    } else {
+                        if (dnFrom instanceof Folder) {
+                            Folder cr = (Folder) dnFrom;
+                            list.add(cr);
+                        } else {
+                            log.warn("from node is not a: " + Folder.class + " is a: " + dnFrom.getClass());                            
+                        }
+                    }
+                }
+            }
+            return list;
+        }        
+    }
 }
