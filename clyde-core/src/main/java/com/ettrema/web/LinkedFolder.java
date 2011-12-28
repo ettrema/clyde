@@ -10,6 +10,7 @@ import com.bradmcevoy.http.Resource;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,12 +23,41 @@ import java.util.List;
  */
 public class LinkedFolder extends BaseResource implements CollectionResource, GetableResource, PropFindableResource, XmlPersistableResource {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( LinkedFolder.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LinkedFolder.class);
     private static final long serialVersionUID = 1L;
     public static String REL_LINKED_TO = "_sys_linked_to";
 
-    public LinkedFolder( Folder parentFolder, String newName ) {
-        super( null, parentFolder, newName );
+    public static List<LinkedFolder> getLinkedDestinations(Folder from) {
+        List<Relationship> rels = from.getNameNode().findFromRelations(REL_LINKED_TO);
+        if (rels == null || rels.isEmpty()) {
+            return null;
+        } else {
+            List<LinkedFolder> list = new ArrayList<LinkedFolder>();
+            for (Relationship rel : rels) {
+                NameNode nFrom = rel.from();
+                if (nFrom == null) {
+                    log.warn("from node does not exist");
+                    return null;
+                } else {
+                    DataNode dnFrom = nFrom.getData();
+                    if (dnFrom == null) {
+                        log.warn("to node has no data");
+                    } else {
+                        if (dnFrom instanceof LinkedFolder) {
+                            LinkedFolder cr = (LinkedFolder) dnFrom;
+                            list.add(cr);
+                        } else {
+                            log.warn("from node is not a: " + LinkedFolder.class + " is a: " + dnFrom.getClass());                            
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+    }
+
+    public LinkedFolder(Folder parentFolder, String newName) {
+        super(null, parentFolder, newName);
     }
 
     @Override
@@ -35,11 +65,9 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         return null;
     }
 
-
-
     @Override
-    protected BaseResource newInstance( Folder parent, String newName ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    protected BaseResource newInstance(Folder parent, String newName) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -48,57 +76,57 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public void onDeleted( NameNode nameNode ) {
+    public void onDeleted(NameNode nameNode) {
     }
 
     @Override
-    public Resource child( String childName ) {
-        for( Resource r : getChildren() ) {
-            if( r.getName().equals( childName ) ) {
+    public Resource child(String childName) {
+        for (Resource r : getChildren()) {
+            if (r.getName().equals(childName)) {
                 return r;
             }
         }
         return null;
     }
 
-    public void setLinkedTo( Folder cr ) {
-        List<Relationship> rels = this.getNameNode().findToRelations( REL_LINKED_TO );
+    public void setLinkedTo(Folder cr) {
+        List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
 
         // delete previous relations
-        if( rels != null && rels.size() > 0 ) {
-            for( Relationship rel : rels ) {
+        if (rels != null && rels.size() > 0) {
+            for (Relationship rel : rels) {
                 rel.delete();
             }
         }
         // create new relation
-        Relationship newRel = this.getNameNode().makeRelation( cr.getNameNode(), REL_LINKED_TO );
-        cr.getNameNode().onNewRelationship( newRel );
+        Relationship newRel = this.getNameNode().makeRelation(cr.getNameNode(), REL_LINKED_TO);
+        cr.getNameNode().onNewRelationship(newRel);
     }
 
     public Folder getLinkedTo() {
-        List<Relationship> rels = this.getNameNode().findToRelations( REL_LINKED_TO );
-        if( rels == null || rels.size() == 0 ) {
+        List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
+        if (rels == null || rels.isEmpty()) {
             return null;
         } else {
-            if( rels.size() > 1 ) {
-                log.warn( "multiple relations found, using first only" );
+            if (rels.size() > 1) {
+                log.warn("multiple relations found, using first only");
             }
-            Relationship rel = rels.get( 0 );
+            Relationship rel = rels.get(0);
             NameNode nTo = rel.to();
-            if( nTo == null ) {
-                log.warn( "to node does not exist" );
+            if (nTo == null) {
+                log.warn("to node does not exist");
                 return null;
             } else {
                 DataNode dnTo = nTo.getData();
-                if( dnTo == null ) {
-                    log.warn( "to node has no data" );
+                if (dnTo == null) {
+                    log.warn("to node has no data");
                     return null;
                 } else {
-                    if( dnTo instanceof Folder ) {
+                    if (dnTo instanceof Folder) {
                         Folder cr = (Folder) dnTo;
                         return cr;
                     } else {
-                        log.warn( "to node is not a: " + Folder.class + " is a: " + dnTo.getClass() );
+                        log.warn("to node is not a: " + Folder.class + " is a: " + dnTo.getClass());
                         return null;
                     }
                 }
@@ -109,7 +137,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     @Override
     public List<? extends Resource> getChildren() {
         CollectionResource cr = getLinkedTo();
-        if( cr == null ) {
+        if (cr == null) {
             return Collections.EMPTY_LIST;
         } else {
             return cr.getChildren();
@@ -117,24 +145,24 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public boolean authorise( Request request, Method method, Auth auth ) {
-        log.trace( "authorise: " + auth );
+    public boolean authorise(Request request, Method method, Auth auth) {
+        log.trace("authorise: " + auth);
         boolean result;
         // Certain methods delegate to the wrapped collection, eg PROPFIND. While others apply to this link eg DELETE
-        if( method.equals( Method.DELETE ) ) {
-            log.trace( "is a delete, so authorise against this resource");
-            result = super.authorise( request, method, auth );
+        if (method.equals(Method.DELETE)) {
+            log.trace("is a delete, so authorise against this resource");
+            result = super.authorise(request, method, auth);
         } else {
             Folder linkedTo = getLinkedTo();
-            if( linkedTo == null ) {
-                log.trace( "couldnt find linkedTo, so authorise against this link");
-                result = super.authorise( request, method, auth );
+            if (linkedTo == null) {
+                log.trace("couldnt find linkedTo, so authorise against this link");
+                result = super.authorise(request, method, auth);
             } else {
-                log.trace( "forward auth request to target");
-                result = linkedTo.authorise( request, method, auth );
+                log.trace("forward auth request to target");
+                result = linkedTo.authorise(request, method, auth);
             }
         }
-        log.trace( "authorise: " + auth + " -> " + result );
+        log.trace("authorise: " + auth + " -> " + result);
         return result;
     }
 }

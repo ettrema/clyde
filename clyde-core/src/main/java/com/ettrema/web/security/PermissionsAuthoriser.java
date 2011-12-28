@@ -150,6 +150,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
      * @param resource
      * @return
      */
+    @Override
     public Set<CheckResult> checkPermissions(Request request, com.bradmcevoy.http.Request.Method method, PropertyPermission perm, Set<QName> fields, Resource resource) {
         log.trace("checkPermissions");
         Set<CheckResult> results = null;
@@ -167,7 +168,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
                 if (nonClydeAccess == null) {
                     Role role = defaultRequiredRole(resource, perm);
                     Auth auth = request.getAuthorization();
-                    log.trace("auth: " + auth);
+                    LogUtils.trace(log, "checkPermissions: auth: ", auth);
                     nonClydeAccess = permissionChecker.hasRole(role, resource, request.getAuthorization());
                     if (log.isTraceEnabled()) {
                         log.trace("does user have access to non-clyde properties with default role: " + role + " = " + nonClydeAccess);
