@@ -10,5 +10,4 @@ import com.ettrema.web.Component;
  */
 public interface SecureComponent extends Component {
     public boolean authorise(Request request, Request.Method method, Auth auth);
-
 }
