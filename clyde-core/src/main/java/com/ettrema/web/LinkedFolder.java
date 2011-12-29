@@ -7,12 +7,16 @@ import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.Relationship;
+import com.ettrema.web.children.ChildFinder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.ettrema.context.RequestContext.*;
 
 /**
  * Implements a collectionresource whose children is that of another linked folder
@@ -60,6 +64,17 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         super(null, parentFolder, newName);
     }
 
+	@Override
+	public boolean is(String type) {
+		if (super.is(type)) {
+			return true;
+		} else {
+			return type.equals("folder") || type.equals("link");
+		}
+	}
+	
+	
+
     @Override
     public String getDefaultContentType() {
         return null;
@@ -80,13 +95,15 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public Resource child(String childName) {
-        for (Resource r : getChildren()) {
-            if (r.getName().equals(childName)) {
-                return r;
-            }
-        }
-        return null;
+    public Resource child(String childName) {		
+		Folder linkedTo = getLinkedTo();
+		if( linkedTo != null ) {
+			LogUtils.trace(log, "child: delegate to childFinder with linkedto folder", childName);
+			return _(ChildFinder.class).find(childName, linkedTo);
+		} else {
+			LogUtils.trace(log, "child: did not find linkedto folder", childName);
+			return null;
+		}
     }
 
     public void setLinkedTo(Folder cr) {
@@ -101,11 +118,14 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         // create new relation
         Relationship newRel = this.getNameNode().makeRelation(cr.getNameNode(), REL_LINKED_TO);
         cr.getNameNode().onNewRelationship(newRel);
+		LogUtils.trace(log, "setLinkedTo: created relationship to", cr.getName());
     }
 
     public Folder getLinkedTo() {
-        List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
+        //List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
+		List<Relationship> rels = this.getNameNode().findFromRelations(REL_LINKED_TO);
         if (rels == null || rels.isEmpty()) {
+			log.trace("getLinkedto: No relationships");
             return null;
         } else {
             if (rels.size() > 1) {
@@ -124,6 +144,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
                 } else {
                     if (dnTo instanceof Folder) {
                         Folder cr = (Folder) dnTo;
+						log.trace("Found linked to folder");
                         return cr;
                     } else {
                         log.warn("to node is not a: " + Folder.class + " is a: " + dnTo.getClass());
@@ -138,8 +159,10 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     public List<? extends Resource> getChildren() {
         CollectionResource cr = getLinkedTo();
         if (cr == null) {
+			log.trace("getChildren: no linked resource");
             return Collections.EMPTY_LIST;
         } else {
+			log.trace("getChildren: delegate to linked resource");
             return cr.getChildren();
         }
     }

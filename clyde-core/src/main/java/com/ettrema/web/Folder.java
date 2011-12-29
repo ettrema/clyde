@@ -1,5 +1,8 @@
 package com.ettrema.web;
 
+import com.ettrema.forms.FormAction;
+import com.ettrema.forms.FormParameter;
+import com.ettrema.web.security.PermissionRecipient.Role;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.values.HrefList;
@@ -1046,4 +1049,18 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 		list.add(getHost().getUsers().getHref());
 		return list;
 	}
+	
+	@FormAction(requiredRole = Role.VIEWER)
+	public void bind(@FormParameter(name = "url") String url) {
+		Path newPath = Path.path(url);
+		Folder destParent = (Folder) getHost().find(newPath.getParent());
+		if( destParent == null ) {
+			throw new RuntimeException("Parent does not exist: " + newPath.getParent());
+		}
+		LinkedFolder linkedFolder = new LinkedFolder(destParent, newPath.getName());
+		linkedFolder.save();
+		linkedFolder.setLinkedTo(this);
+		commit();
+	}	
+		
 }

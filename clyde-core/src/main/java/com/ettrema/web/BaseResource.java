@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.bradmcevoy.common.Path;
 import java.util.Collection;
 import com.ettrema.web.security.UserLocator;
 import com.bradmcevoy.http.Request;
@@ -1188,11 +1189,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 		return relations;
 	}
 
-	@FormAction(requiredRole = Role.AUTHOR)
-	public void share(@FormParameter(name = "friend") String otherPrincipal, @FormParameter(name = "role") String sRole) {
-		Role role = Role.valueOf(sRole);
-		share(otherPrincipal, role);
-	}
 
 	public void share(String otherPrincipal, Role role) {
 		System.out.println("share: " + otherPrincipal + " - " + role);
@@ -1206,6 +1202,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 		}
 	}
 
+	@FormAction(requiredRole = Role.AUTHOR)
+	public void share(@FormParameter(name = "friend") String otherPrincipal, @FormParameter(name = "role") String sRole) {
+		Role role = Role.valueOf(sRole);
+		share(otherPrincipal, role);
+	}	
+	
 	@FormAction(requiredRole = Role.AUTHOR)
 	public void unshare(String otherPrincipal) {
 		User user = _(UserLocator.class).findUser(getHost(), otherPrincipal);

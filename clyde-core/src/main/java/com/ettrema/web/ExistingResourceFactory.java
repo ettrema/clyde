@@ -69,7 +69,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 	}
 
 	public static Resource findChild(Resource parent, String childSpec) {
-        LogUtils.trace(log, "findChild: parent", parent.getName(), " - childspec" + childSpec);
+        LogUtils.trace(log, "findChild: parent", parent.getName(), " - childspec", childSpec);
 		if (childSpec.equals(".")) {
 			return parent;
 		} else if (childSpec.equals("..")) {
