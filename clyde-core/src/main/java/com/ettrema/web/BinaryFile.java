@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.bradmcevoy.http.Request;
 import com.ettrema.binary.BinaryContainer;
 import com.ettrema.binary.ClydeBinaryService;
 import com.ettrema.binary.VersionDescriptor;
@@ -14,6 +15,7 @@ import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
 import com.bradmcevoy.utils.FileUtils;
+import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.web.SimpleEditPage.SimpleEditable;
 import com.ettrema.vfs.OutputStreamWriter;
 import java.io.ByteArrayInputStream;
@@ -27,6 +29,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 @BeanPropertyResource( "clyde" )
 public class BinaryFile extends File implements XmlPersistableResource, HtmlImage, Replaceable, BinaryContainer, SimpleEditable {
@@ -362,30 +366,23 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
         this.crc = value;
     }
 
-    public long getCrc() {
-        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
-        if( svc == null ) {
-            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
+    public long getCrc() {             
+        String versionNum = null;
+        Request req = _(CurrentRequestService.class).request();
+        if( req != null ) {
+            versionNum = req.getParams().get( "_version" );
         }
-        String versionNum = HttpManager.request().getParams().get( "_version" );
-        return svc.getCrc( this, versionNum );
+        return _( ClydeBinaryService.class ).getCrc( this, versionNum );
     }
 
     @Override
     public Long getContentLength() {
-        ClydeBinaryService svc = requestContext().get( ClydeBinaryService.class );
-        if( svc == null ) {
-            throw new RuntimeException( "Missing from context: " + ClydeBinaryService.class.getCanonicalName() );
-        }
-
         String versionNum = null;
-        if( HttpManager.request() != null ) {
-            Map<String, String> ps = HttpManager.request().getParams();
-            if( ps != null ) {
-                versionNum = ps.get( "_version" );
-            }
+        Request req = _(CurrentRequestService.class).request();
+        if( req != null ) {
+            versionNum = req.getParams().get( "_version" );
         }
-        return svc.getContentLength( this, versionNum );
+        return _( ClydeBinaryService.class ).getContentLength( this, versionNum );
     }
 
     @Override

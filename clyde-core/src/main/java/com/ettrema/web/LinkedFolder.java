@@ -31,6 +31,12 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     private static final long serialVersionUID = 1L;
     public static String REL_LINKED_TO = "_sys_linked_to";
 
+    /**
+     * Get all the linked folders that are links to this folder
+     * 
+     * @param from
+     * @return 
+     */
     public static List<LinkedFolder> getLinkedDestinations(Folder from) {
         List<Relationship> rels = from.getNameNode().findFromRelations(REL_LINKED_TO);
         if (rels == null || rels.isEmpty()) {
@@ -51,7 +57,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
                             LinkedFolder cr = (LinkedFolder) dnFrom;
                             list.add(cr);
                         } else {
-                            log.warn("from node is not a: " + LinkedFolder.class + " is a: " + dnFrom.getClass());                            
+                            log.warn("from node is not a: " + LinkedFolder.class + " is a: " + dnFrom.getClass());
                         }
                     }
                 }
@@ -64,16 +70,14 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         super(null, parentFolder, newName);
     }
 
-	@Override
-	public boolean is(String type) {
-		if (super.is(type)) {
-			return true;
-		} else {
-			return type.equals("folder") || type.equals("link");
-		}
-	}
-	
-	
+    @Override
+    public boolean is(String type) {
+        if (super.is(type)) {
+            return true;
+        } else {
+            return type.equals("folder") || type.equals("link");
+        }
+    }
 
     @Override
     public String getDefaultContentType() {
@@ -95,15 +99,15 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public Resource child(String childName) {		
-		Folder linkedTo = getLinkedTo();
-		if( linkedTo != null ) {
-			LogUtils.trace(log, "child: delegate to childFinder with linkedto folder", childName);
-			return _(ChildFinder.class).find(childName, linkedTo);
-		} else {
-			LogUtils.trace(log, "child: did not find linkedto folder", childName);
-			return null;
-		}
+    public Resource child(String childName) {
+        Folder linkedTo = getLinkedTo();
+        if (linkedTo != null) {
+            LogUtils.trace(log, "child: delegate to childFinder with linkedto folder", childName);
+            return _(ChildFinder.class).find(childName, linkedTo);
+        } else {
+            LogUtils.trace(log, "child: did not find linkedto folder", childName);
+            return null;
+        }
     }
 
     public void setLinkedTo(Folder cr) {
@@ -118,14 +122,16 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         // create new relation
         Relationship newRel = this.getNameNode().makeRelation(cr.getNameNode(), REL_LINKED_TO);
         cr.getNameNode().onNewRelationship(newRel);
-		LogUtils.trace(log, "setLinkedTo: created relationship to", cr.getName());
+        LogUtils.trace(log, "setLinkedTo: created relationship to", cr.getName());
+        cr.setLinkedFolders(true);
+        cr.save();
     }
 
     public Folder getLinkedTo() {
         //List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
-		List<Relationship> rels = this.getNameNode().findFromRelations(REL_LINKED_TO);
+        List<Relationship> rels = this.getNameNode().findFromRelations(REL_LINKED_TO);
         if (rels == null || rels.isEmpty()) {
-			log.trace("getLinkedto: No relationships");
+            log.trace("getLinkedto: No relationships");
             return null;
         } else {
             if (rels.size() > 1) {
@@ -144,7 +150,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
                 } else {
                     if (dnTo instanceof Folder) {
                         Folder cr = (Folder) dnTo;
-						log.trace("Found linked to folder");
+                        log.trace("Found linked to folder");
                         return cr;
                     } else {
                         log.warn("to node is not a: " + Folder.class + " is a: " + dnTo.getClass());
@@ -159,10 +165,10 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     public List<? extends Resource> getChildren() {
         CollectionResource cr = getLinkedTo();
         if (cr == null) {
-			log.trace("getChildren: no linked resource");
+            log.trace("getChildren: no linked resource");
             return Collections.EMPTY_LIST;
         } else {
-			log.trace("getChildren: delegate to linked resource");
+            log.trace("getChildren: delegate to linked resource");
             return cr.getChildren();
         }
     }

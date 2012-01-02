@@ -1,7 +1,6 @@
 package com.ettrema.event;
 
 import com.bradmcevoy.http.Resource;
-import com.ettrema.event.ResourceEvent;
 
 /**
  *

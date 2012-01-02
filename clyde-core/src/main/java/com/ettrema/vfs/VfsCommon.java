@@ -2,7 +2,6 @@
 package com.ettrema.vfs;
 
 import com.ettrema.context.RequestContext;
-import com.ettrema.vfs.VfsSession;
 
 
 public abstract class VfsCommon {

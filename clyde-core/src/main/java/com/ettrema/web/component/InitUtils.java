@@ -118,6 +118,14 @@ public class InitUtils {
         }
     }
 
+    public static void setLong(Element e2,String name, Long l) {
+        if (l == null) {
+            e2.removeAttribute(name);
+        } else {
+            e2.setAttribute(name, l + "");
+        }        
+    }    
+    
     public static String getValue(Element el, String name, String def) {
         String s = getValue(el, name);
         if (s == null) {
@@ -358,5 +366,7 @@ public class InitUtils {
         }
         return XmlHelper.getAllText(el);
     }
+
+
 
 }
