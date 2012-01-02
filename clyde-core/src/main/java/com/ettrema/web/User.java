@@ -42,6 +42,7 @@ import com.ettrema.web.mail.MailProcessor;
 import com.ettrema.web.security.CookieAuthenticationHandler;
 import com.ettrema.web.security.CurrentUserService;
 import com.ettrema.web.security.UserGroup;
+import java.util.HashMap;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -504,116 +505,97 @@ public class User extends Folder implements IUser {
     public void setAccountDisabled(boolean accountDisabled) {
         this.accountDisabled = accountDisabled;
     }
+	
+	public List<MediaLog> getMedia() {
+		return _(MediaLogService.class).getMedia(this, null, 0);
+	}
+	
+	public List<MediaLog> getMedia(int page) {
+		return _(MediaLogService.class).getMedia(this, null, page);
+	}	
+	
+	public List<MediaLogService.AlbumLog> getAlbums() {
+		return _(MediaLogService.class).getAlbums(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> getAlbumTimeline() {
+		return _(MediaLogService.class).getAlbumTimeline(this, null);
+	}
+	
+	public List<MediaLogService.AlbumYear> albumTimeline(String path) {
+		return _(MediaLogService.class).getAlbumTimeline(this, path);
+	}
 
-    public List<MediaLog> getMedia() {
-        return _(MediaLogService.class).getMedia(this, null, 0);
-    }
+	@Override
+	public PrincipleId getIdenitifer() {
+		return new HrefPrincipleId(this.getHref());
+	}
+		
+	
+	@BeanProperty
+	public Collection<SharedWithMe> getSharedWithMe() {
+		System.out.println("getShares");
+		Permissions perms = this.permissions();		
+		Map<Resource,SharedWithMe> map = new HashMap<Resource, SharedWithMe>();
+		if (perms != null) {			
+			List<Relationship> relsViewer = perms.getNameNode().findToRelations(Role.VIEWER.toString());
+			for( Relationship r : relsViewer) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+				SharedWithMe sharedWithMe = map.get(shared);
+				if( sharedWithMe == null ) {
+					sharedWithMe = new SharedWithMe(sharingUser, shared);
+					map.put(shared, sharedWithMe);
+				}
+			}
+			List<Relationship> relsAuthor = perms.getNameNode().findToRelations(Role.AUTHOR.toString());
+			for( Relationship r : relsAuthor) {
+				BaseResource shared = (BaseResource) r.from().getParent().getData();
+				User sharingUser = shared.getCreator();
+			
+				SharedWithMe sharedWithMe = map.get(shared);
+				if( sharedWithMe == null ) {
+					sharedWithMe = new SharedWithMe(sharingUser, shared);
+					map.put(shared, sharedWithMe);
+				}
+				sharedWithMe.setWritable(true);
+			}
+		}
+		List<SharedWithMe> list = new ArrayList<SharedWithMe>();
+		list.addAll(map.values());
+		return list;
+	}
 
-    public List<MediaLog> getMedia(int page) {
-        return _(MediaLogService.class).getMedia(this, null, page);
-    }
+	@Override
+	public RelationalNameNode getPermissionsNameNode() {
+		return permissions(true).getNameNode();
+	}
+	
+	public static class SharedWithMe {
+		private final Subject subject;
+		private boolean writable;
+		private final Resource resource;
 
-    public List<MediaLogService.AlbumLog> getAlbums() {
-        return _(MediaLogService.class).getAlbums(this, null);
-    }
+		public SharedWithMe(Subject subject, Resource resource) {
+			this.subject = subject;
+			this.resource = resource;
+		}
 
-    public List<MediaLogService.AlbumYear> getAlbumTimeline() {
-        return _(MediaLogService.class).getAlbumTimeline(this, null);
-    }
+		public Resource getResource() {
+			return resource;
+		}
+		
+		public Subject getSubject() {
+			return subject;
+		}
 
-    public List<MediaLogService.AlbumYear> albumTimeline(String path) {
-        return _(MediaLogService.class).getAlbumTimeline(this, path);
-    }
+		public boolean isWritable() {
+			return writable;
+		}
 
-    @Override
-    public PrincipleId getIdenitifer() {
-        return new HrefPrincipleId(this.getHref());
-    }
-
-    @BeanProperty
-    public Collection<SharedWithMe> getSharedWithMe() {
-        System.out.println("getShares");
-        Permissions perms = this.permissions();
-        List<SharedWithMe> list = new ArrayList<SharedWithMe>();
-        if (perms != null) {
-            List<Relationship> relsViewer = perms.getNameNode().findToRelations(Role.VIEWER.toString());
-            for (Relationship r : relsViewer) {
-                BaseResource shared = (BaseResource) r.from().getParent().getData();
-                User sharingUser = shared.getCreator();
-                SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.VIEWER, shared);
-                list.add(sharedWithMe);
-            }
-            List<Relationship> relsAuthor = perms.getNameNode().findToRelations(Role.AUTHOR.toString());
-            for (Relationship r : relsAuthor) {
-                BaseResource shared = (BaseResource) r.from().getParent().getData();
-                User sharingUser = shared.getCreator();
-                SharedWithMe sharedWithMe = new SharedWithMe(sharingUser, Role.AUTHOR, shared);
-                list.add(sharedWithMe);
-            }
-
-        } else {
-            System.out.println("perms is null");
-        }
-        return list;
-    }
-
-    @Override
-    public RelationalNameNode getPermissionsNameNode() {
-        return permissions(true).getNameNode();
-    }
-
-    public List<Folder> getShared() {
-        List<Relationship> rels = this.getNameNode().findToRelations(REL_SHARED);
-        if (rels == null || rels.isEmpty()) {
-            return null;
-        } else {
-            List<Folder> list = new ArrayList<Folder>();
-            for (Relationship rel : rels) {
-                NameNode nFrom = rel.from();
-                if (nFrom == null) {
-                    log.warn("from node does not exist");
-                    return null;
-                } else {
-                    DataNode dnFrom = nFrom.getData();
-                    if (dnFrom == null) {
-                        log.warn("to node has no data");
-                    } else {
-                        if (dnFrom instanceof Folder) {
-                            Folder cr = (Folder) dnFrom;
-                            list.add(cr);
-                        } else {
-                            log.warn("from node is not a: " + Folder.class + " is a: " + dnFrom.getClass());
-                        }
-                    }
-                }
-            }
-            return list;
-        }
-    }    
-    
-    public static class SharedWithMe {
-
-        private final Subject subject;
-        private final Role role;
-        private final Resource resource;
-
-        public SharedWithMe(Subject subject, Role role, Resource resource) {
-            this.subject = subject;
-            this.role = role;
-            this.resource = resource;
-        }
-
-        public Resource getResource() {
-            return resource;
-        }
-
-        public Role getRole() {
-            return role;
-        }
-
-        public Subject getSubject() {
-            return subject;
-        }
-    }
-
+		public void setWritable(boolean writable) {
+			this.writable = writable;
+		}				
+	}
+	
 }

@@ -9,6 +9,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.LockedException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.PreConditionFailedException;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.IUser;
 import com.ettrema.web.security.CurrentUserService;
@@ -34,6 +35,7 @@ public class ClydeLockManagerImpl implements ClydeLockManager {
         this.currentUserService = currentUserService;
     }
 
+	@Override
     public LockResult lock( LockTimeout timeout, LockInfo lockInfo, BaseResource resource ) throws NotAuthorizedException, LockedException {
         log.info( "lock: " + resource.getHref() );
         // need to record: uid, timeoutdate, who locked it
@@ -52,7 +54,7 @@ public class ClydeLockManagerImpl implements ClydeLockManager {
         ClydeLock lock = new ClydeLock();
         IUser user = currentUserService.getOnBehalfOf();
         if( user == null ) {
-            log.warn( "no current user" );
+            log.warn( "no current user, so not authorized" );
             throw new NotAuthorizedException( resource );
         }
         lock.setLockedByUserId( user.getNameNodeId() );
@@ -66,10 +68,12 @@ public class ClydeLockManagerImpl implements ClydeLockManager {
         token.tokenId = lock.getTokenId();
         token.info = new LockInfo( LockInfo.LockScope.EXCLUSIVE, LockInfo.LockType.WRITE, user.getName(), LockInfo.LockDepth.ZERO );
         token.timeout = new LockTimeout( das.seconds );
+		LogUtils.trace(log, "lock: new token", token.tokenId,"owner", token.info.lockedByUser);
         return LockResult.success( token );
 
     }
 
+	@Override
     public LockResult refresh( String currentToken, BaseResource resource ) throws NotAuthorizedException, PreConditionFailedException {
         log.info( "refresh: " + resource.getHref() );
         IUser user = currentUserService.getOnBehalfOf();
@@ -100,6 +104,7 @@ public class ClydeLockManagerImpl implements ClydeLockManager {
 
     }
 
+	@Override
     public void unlock( String requestedToken, BaseResource resource ) throws PreConditionFailedException, NotAuthorizedException {
         log.info( "unlock: " + resource.getHref() );
         IUser user = currentUserService.getOnBehalfOf();
@@ -120,6 +125,7 @@ public class ClydeLockManagerImpl implements ClydeLockManager {
         lockNode.delete();
     }
 
+	@Override
     public LockToken getCurrentLock( BaseResource resource ) {
         log.debug( "getCurrentLock: " + resource.getHref() );
         NameNode itemNode = resource.getNameNode();

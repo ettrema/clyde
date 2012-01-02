@@ -37,7 +37,7 @@ public class HttpFileTransport implements FileTransport {
 	@Override
 	public void delete(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
 		String path = CodeSynchUtils.toPath(f, root);
-		String url = host.getHref(Path.path(path));
+		String url = host.buildEncodedUrl(Path.path(path));
 		try {			
 			host.doDelete(url);
 		} catch (IOException ex) {
