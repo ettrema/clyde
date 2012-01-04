@@ -5,7 +5,6 @@ import com.ettrema.binary.BinaryContainer;
 import com.ettrema.binary.ClydeBinaryService;
 import com.ettrema.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
@@ -369,7 +368,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public long getCrc() {             
         String versionNum = null;
         Request req = _(CurrentRequestService.class).request();
-        if( req != null ) {
+        if( req != null && req.getParams() != null ) {
             versionNum = req.getParams().get( "_version" );
         }
         return _( ClydeBinaryService.class ).getCrc( this, versionNum );
@@ -379,7 +378,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public Long getContentLength() {
         String versionNum = null;
         Request req = _(CurrentRequestService.class).request();
-        if( req != null ) {
+        if( req != null && req.getParams() != null ) {
             versionNum = req.getParams().get( "_version" );
         }
         return _( ClydeBinaryService.class ).getContentLength( this, versionNum );
