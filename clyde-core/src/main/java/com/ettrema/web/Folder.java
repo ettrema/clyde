@@ -91,7 +91,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      */
     private Boolean versioningEnabled;
     //private transient List<TransientNameNode> transientNameNodes;
-
     /**
      * performance optimisation, record the fact that there is (or may be) at least one 
      * linked folder which links to this one. This allows us to update binary crc's
@@ -1086,7 +1085,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public Long getBinaryStateToken() {
         return _(StateTokenManager.class).getStateToken(this);
     }
-    
+
     /**
      * Alias for getBinaryStateToken so the same property name, crc, can be used
      * for folders and binary files
@@ -1096,13 +1095,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return getBinaryStateToken();
     }
 
-	public String getBinaryStateTokenData() {
-		return _(StateTokenManager.class).getStateTokenData(this);
-	}
-	
-	public Long getCrc() {
-		return getBinaryStateToken();
-	}
+    public String getBinaryStateTokenData() {
+        return _(StateTokenManager.class).getStateTokenData(this);
+    }
 
     /**
      * True if there are, or may be, linked folders which link to this one
@@ -1111,11 +1106,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public boolean hasLinkedFolders() {
         return linkedFolders;
     }
-    
+
     public void setLinkedFolders(boolean linkedFolders) {
         this.linkedFolders = linkedFolders;
-    }             
-    
+    }
+
     public List<LinkedFolder> getLinkedFolders() {
         return LinkedFolder.getLinkedDestinations(this);
     }
