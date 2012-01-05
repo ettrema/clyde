@@ -1086,6 +1086,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public Long getBinaryStateToken() {
         return _(StateTokenManager.class).getStateToken(this);
     }
+    
+    /**
+     * Alias for getBinaryStateToken so the same property name, crc, can be used
+     * for folders and binary files
+     * @return 
+     */
+    public Long getCrc() {
+        return getBinaryStateToken();
+    }
 
 
     /**

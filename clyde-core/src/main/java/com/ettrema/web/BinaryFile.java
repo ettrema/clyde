@@ -369,7 +369,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public long getCrc() {             
         String versionNum = null;
         Request req = _(CurrentRequestService.class).request();
-        if( req != null ) {
+        if( req != null && req.getParams() != null ) {
             versionNum = req.getParams().get( "_version" );
         }
         return _( ClydeBinaryService.class ).getCrc( this, versionNum );
@@ -379,7 +379,7 @@ public class BinaryFile extends File implements XmlPersistableResource, HtmlImag
     public Long getContentLength() {
         String versionNum = null;
         Request req = _(CurrentRequestService.class).request();
-        if( req != null ) {
+        if( req != null && req.getParams() != null ) {
             versionNum = req.getParams().get( "_version" );
         }
         return _( ClydeBinaryService.class ).getContentLength( this, versionNum );
