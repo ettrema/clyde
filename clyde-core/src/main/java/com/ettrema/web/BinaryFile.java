@@ -5,7 +5,6 @@ import com.ettrema.binary.BinaryContainer;
 import com.ettrema.binary.ClydeBinaryService;
 import com.ettrema.binary.VersionDescriptor;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;

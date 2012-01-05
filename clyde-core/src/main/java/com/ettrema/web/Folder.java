@@ -1096,6 +1096,13 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return getBinaryStateToken();
     }
 
+	public String getBinaryStateTokenData() {
+		return _(StateTokenManager.class).getStateTokenData(this);
+	}
+	
+	public Long getCrc() {
+		return getBinaryStateToken();
+	}
 
     /**
      * True if there are, or may be, linked folders which link to this one
