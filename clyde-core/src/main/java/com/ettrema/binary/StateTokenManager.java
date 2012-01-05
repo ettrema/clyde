@@ -50,6 +50,7 @@ public class StateTokenManager {
 	}
 
 	private void setStateToken(Folder f, long token) {
+		LogUtils.trace(log, "setStateToken", f.getName(), token);
 		StateToken stateToken = getOrCreateStateToken(f, true);
 		stateToken.setCrc(token);
 	}
@@ -79,7 +80,7 @@ public class StateTokenManager {
 
 	public String getStateTokenData(Folder f) {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		long crc = _calcBinaryCrc(f, bout);
+		long crc = _calcBinaryCrc(f, bout, false);
 		return bout.toString() + " ==> " + crc;
 	}
 
@@ -89,21 +90,24 @@ public class StateTokenManager {
 	 * 
 	 */
 	public void calcBinaryCrc(Folder f) {
+		calcBinaryCrc(f, false);
+	}
+	public void calcBinaryCrc(Folder f, boolean forceRefresh) {
 		NullOutputStream nullOut = new NullOutputStream();
-		long crc = _calcBinaryCrc(f, nullOut);
+		long crc = _calcBinaryCrc(f, nullOut, forceRefresh);
 		setStateToken(f, crc);
 	}
 
-	private long _calcBinaryCrc(Folder f, OutputStream nullOut) {
-		LogUtils.trace(log, "calcBinaryCrc", f.getName());
+	private long _calcBinaryCrc(Folder f, OutputStream nullOut, boolean forceRefresh) {
+		LogUtils.trace(log, "_calcBinaryCrc", f.getName());
 		CheckedOutputStream cout = new CheckedOutputStream(nullOut, new Adler32());
 		for (Resource r : f.getChildren()) {
 			String line;
 			if (r instanceof Folder) {
 				Folder child = (Folder) r;
 				if (!child.isSystemFolder()) {
-					if (child.getBinaryStateToken() == null) {
-						calcBinaryCrc(child);
+					if (child.getBinaryStateToken() == null || forceRefresh) {
+						calcBinaryCrc(child, forceRefresh);
 					}
 					line = toHashableText(child.getName(), child.getBinaryStateToken());
 				} else {
