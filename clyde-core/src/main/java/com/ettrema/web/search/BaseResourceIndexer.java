@@ -68,6 +68,10 @@ public class BaseResourceIndexer implements Processable, Serializable{
         }
         String hostName = host.getName();
         SearchManager sm = RequestContext.getCurrent().get(SearchManager.class);        
+		if( sm == null ) {
+			log.warn("No " + SearchManager.class + " in context, so cant' do search indexing");
+			return ;
+		}
         try {
             sm.index(res);
         } catch (CorruptIndexException ex) {
