@@ -20,32 +20,33 @@ import static com.ettrema.context.RequestContext._;
 public class FileLoader {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileLoader.class);
-	private final FileTransport fileTransport;    
+    private final FileTransport fileTransport;
     private final ErrorReporter errorReporter;
 
     public FileLoader(CodeResourceFactory resourceFactory, ErrorReporter errorReporter) {
         this.errorReporter = errorReporter;
-		this.fileTransport = new DirectFileTransport(resourceFactory);
+        this.fileTransport = new DirectFileTransport(resourceFactory);
     }
 
     public FileLoader(ErrorReporter errorReporter, FileTransport fileTransport) {
         this.errorReporter = errorReporter;
-		this.fileTransport = fileTransport;
+        this.fileTransport = fileTransport;
     }
-	
-	/**
-	 * For backwards compatibility, sets the hostname into the direct file transport
-	 * 
-	 * @param s 
-	 */
-	public void	setHostName(String s) {
-		if( fileTransport instanceof DirectFileTransport) {
-			((DirectFileTransport)fileTransport).setHostName(s);
-		} else {
-			throw new RuntimeException("Not supported");
-		}
-	}
-	
+
+    /**
+     * For backwards compatibility of config, sets the hostname into the direct file
+     * transport
+     *
+     * @param s
+     */
+    public void setHostName(String s) {
+        if (fileTransport instanceof DirectFileTransport) {
+            ((DirectFileTransport) fileTransport).setHostName(s);
+        } else {
+            throw new RuntimeException("Not supported");
+        }
+    }
+
     public void onNewFile(File f, File root) {
         try {
             check(f, root);
@@ -68,7 +69,7 @@ public class FileLoader {
         }
     }
 
-    public void onModified(File f,File root) {
+    public void onModified(File f, File root) {
         try {
             check(f, root);
             log.trace("commit modified file");
@@ -93,7 +94,7 @@ public class FileLoader {
                         long t = System.currentTimeMillis();
                         upload(f, root);
                         t = System.currentTimeMillis() - t;
-                        log.info("done upload: " + f.getAbsolutePath() + " in " + t/1000 + "secs");
+                        log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
                     }
                 } else {
                     done = true;
@@ -129,13 +130,9 @@ public class FileLoader {
     public void onRenamed(File f) {
     }
 
-
-
     public boolean isNewOrUpdated(File f, File root) {
-		return fileTransport.isNewOrUpdated(f, root);
+        return fileTransport.isNewOrUpdated(f, root);
     }
-
-
 
     private void upload(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.info("upload: " + f.getAbsolutePath());
@@ -151,5 +148,4 @@ public class FileLoader {
         }
 
     }
-
 }
