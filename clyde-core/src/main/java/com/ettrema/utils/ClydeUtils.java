@@ -5,6 +5,8 @@ import com.ettrema.vfs.NameNode;
 import java.util.UUID;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.vfs.VfsSession;
 import java.util.Calendar;
@@ -41,44 +43,50 @@ public class ClydeUtils {
     }
 
     public static String getUniqueName(CollectionResource col, String name) {
-        Resource r = col.child(name);
-        boolean isFirst = true;
-        while (r != null) {
-            name = com.bradmcevoy.io.FileUtils.incrementFileName(name, isFirst);
-            isFirst = false;
-            r = col.child(name);
+        try {
+            Resource r = col.child(name);
+            boolean isFirst = true;
+            while (r != null) {
+                name = com.bradmcevoy.io.FileUtils.incrementFileName(name, isFirst);
+                isFirst = false;
+                r = col.child(name);
+            }
+            return name.trim();
+        } catch (NotAuthorizedException ex) {
+            throw new RuntimeException(ex);
+        } catch (BadRequestException ex) {
+            throw new RuntimeException(ex);
         }
-        return name.trim();
     }
 
     public static String pad(int i) {
-        if( i < 10 ) {
+        if (i < 10) {
             return "000" + i;
-        } else if( i < 100 ) {
+        } else if (i < 100) {
             return "00" + i;
-        } else if(i < 1000) {
+        } else if (i < 1000) {
             return "0" + i;
         } else {
             return i + "";
         }
     }
-	
-	public static BaseResource loadResource(UUID id) {
-		VfsSession vfs = _(VfsSession.class);
-		NameNode node = vfs.get(id);
-		if( node == null ) {
-			return null;
-		} else {
-			DataNode data = node.getData();
-			if( data == null ) {
-				return null;
-			} else {
-				if( data instanceof BaseResource ) {
-					return (BaseResource) data;
-				} else {
-					throw new RuntimeException("Item is not a " + BaseResource.class + " is a: " + data.getClass());
-				}
-			}
-		}
-	}
+
+    public static BaseResource loadResource(UUID id) {
+        VfsSession vfs = _(VfsSession.class);
+        NameNode node = vfs.get(id);
+        if (node == null) {
+            return null;
+        } else {
+            DataNode data = node.getData();
+            if (data == null) {
+                return null;
+            } else {
+                if (data instanceof BaseResource) {
+                    return (BaseResource) data;
+                } else {
+                    throw new RuntimeException("Item is not a " + BaseResource.class + " is a: " + data.getClass());
+                }
+            }
+        }
+    }
 }

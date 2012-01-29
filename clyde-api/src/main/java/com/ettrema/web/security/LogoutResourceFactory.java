@@ -32,7 +32,8 @@ public class LogoutResourceFactory implements ResourceFactory {
         this.wrapped = wrapped;
     }
 
-    public Resource getResource( String host, String path ) {
+    @Override
+    public Resource getResource( String host, String path ) throws NotAuthorizedException, BadRequestException {
         Path p = Path.path( path );
         if( p.getName().equals( name ) ) {
             Resource r = wrapped.getResource( host, p.getParent().toString() );

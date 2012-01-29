@@ -54,5 +54,5 @@ public interface ISubPage extends Templatable, Redirectable{
      * @param in
      * @param length
      */
-    void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException;
+    void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException, NotAuthorizedException;
 }

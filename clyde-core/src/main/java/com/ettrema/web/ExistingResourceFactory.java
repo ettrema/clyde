@@ -4,7 +4,6 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
@@ -32,7 +31,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 	}
 
 	@Override
-	public Resource getResource(String host, String url) {
+	public Resource getResource(String host, String url) throws NotAuthorizedException, BadRequestException{
 		String sPath = url;
 		Path path = Path.path(sPath);
 
@@ -46,7 +45,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 		return r;
 	}
 
-	public Resource findPage(String host, Path path) {
+	public Resource findPage(String host, Path path) throws NotAuthorizedException, BadRequestException{
 		if (host != null && host.contains(":")) {
 			host = host.substring(0, host.indexOf(":"));
 		}
@@ -59,7 +58,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 		return r;
 	}
 
-	public static Resource findChild(Resource parent, Path path) {
+	public static Resource findChild(Resource parent, Path path) throws NotAuthorizedException, BadRequestException{
 		if (path.isRelative()) {
 			return findChild(parent, path.getParts(), 0);
 		} else {
@@ -68,7 +67,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 		}
 	}
 
-	public static Resource findChild(Resource parent, String childSpec) {
+	public static Resource findChild(Resource parent, String childSpec) throws NotAuthorizedException, BadRequestException {
         LogUtils.trace(log, "findChild: parent", parent.getName(), " - childspec", childSpec);
 		if (childSpec.equals(".")) {
 			return parent;
@@ -98,7 +97,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
 		}
 	}
 
-	public static Resource findChild(Resource parent, String[] arr, int i) {
+	public static Resource findChild(Resource parent, String[] arr, int i) throws NotAuthorizedException, BadRequestException {
 		if (arr.length == 0) {
 			return parent;
 		}

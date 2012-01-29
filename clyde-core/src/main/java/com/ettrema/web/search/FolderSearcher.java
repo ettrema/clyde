@@ -3,6 +3,8 @@ package com.ettrema.web.search;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResourceList;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Templatable;
@@ -19,13 +21,13 @@ public class FolderSearcher {
         return folderSearcher;
     }
 
-    public BaseResourceList search(Templatable from, Path path) {
+    public BaseResourceList search(Templatable from, Path path) throws NotAuthorizedException, BadRequestException{
         BaseResourceList list = new BaseResourceList();
         _search(from, list, path.getParts(), 0);
         return list;
     }
 
-    private void _search(Templatable from, BaseResourceList list, String[] parts, int index) {
+    private void _search(Templatable from, BaseResourceList list, String[] parts, int index) throws NotAuthorizedException, BadRequestException{
         for (int i = 0; i < parts.length; i++) {
             String s = parts[i];
             if (s.equals(".")) {
@@ -57,7 +59,7 @@ public class FolderSearcher {
      * @param parts
      * @param index
      */
-    private void recurse(CollectionResource colFrom, BaseResourceList list, String[] parts, int index) {
+    private void recurse(CollectionResource colFrom, BaseResourceList list, String[] parts, int index) throws NotAuthorizedException, BadRequestException{
         if (index < parts.length - 1) {
             for (Resource r : colFrom.getChildren()) {
                 if (r instanceof CommonTemplated) {
@@ -83,7 +85,7 @@ public class FolderSearcher {
      * @param string
      * @param isTerminal
      */
-    private void process(CollectionResource from, BaseResourceList list, String[] parts, int index) {
+    private void process(CollectionResource from, BaseResourceList list, String[] parts, int index) throws NotAuthorizedException, BadRequestException{
         String childSpec = parts[index];
         boolean isTerminal = (index == parts.length - 1);
         if (childSpec.contains("*") || childSpec.contains("[")) {

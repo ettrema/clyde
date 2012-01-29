@@ -7,6 +7,8 @@ import com.bradmcevoy.http.PropFindableResource;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
@@ -162,7 +164,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public List<? extends Resource> getChildren() {
+    public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException{
         CollectionResource cr = getLinkedTo();
         if (cr == null) {
             log.trace("getChildren: no linked resource");

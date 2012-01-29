@@ -15,6 +15,8 @@ import com.bradmcevoy.http.webdav.WebDavResponseHandler;
 import com.ettrema.web.ajax.AjaxResourceFactory.AjaxPostResource;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
@@ -46,7 +48,14 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
         log.trace("respondUnauthorised");
         String ctHeader = request.getContentTypeHeader();
         if( isPage( resource, ctHeader ) && !excluded( request ) && isGetOrPost( request ) ) {
-            Resource rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
+            Resource rLogin;
+            try {
+                rLogin = resourceFactory.getResource( request.getHostHeader(), loginPage );
+            } catch (NotAuthorizedException ex) {
+                throw new RuntimeException(ex);
+            } catch (BadRequestException ex) {
+                throw new RuntimeException(ex);
+            }
             if( rLogin == null || !( rLogin instanceof GetableResource ) ) {
                 log.trace( "Couldnt find login resource: " + request.getHostHeader() + "/" + loginPage );
                 wrapped.respondUnauthorised( resource, response, request );

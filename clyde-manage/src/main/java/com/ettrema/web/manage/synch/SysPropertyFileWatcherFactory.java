@@ -12,6 +12,9 @@ import java.util.*;
  * @author brad
  */
 public class SysPropertyFileWatcherFactory implements Service {
+    
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SysPropertyFileWatcherFactory.class);
+    
     private final RootContext rootContext;
     private final FileLoader defaultFileLoader;
     private final CodeResourceFactory codeResourceFactory;
@@ -32,7 +35,7 @@ public class SysPropertyFileWatcherFactory implements Service {
     
     @Override
     public void start() {
-        fileWatchers = new ArrayList<FileWatcher>();
+        fileWatchers = new ArrayList<>();
         Properties props = System.getProperties();
         for( String p : props.stringPropertyNames() ) {
             if( p.startsWith(propertyNamePrefix)) {
@@ -43,16 +46,22 @@ public class SysPropertyFileWatcherFactory implements Service {
 
     private void addWatch(Properties props, String propName) throws RuntimeException {
         String watchInfo = props.getProperty(propName);
-        String[] watchInfoArr = watchInfo.split("|");
+        log.info("addWatch: " + watchInfo);
+        String[] watchInfoArr = watchInfo.split(",");
         String path = watchInfoArr[0];
         FileLoader fileLoader = defaultFileLoader;
         if( watchInfoArr.length > 1 ) {
-            fileLoader = getOrCreateFileLoader(watchInfoArr[1]);
+            String loadIntoHost = watchInfoArr[1];
+            log.info("addWatch - loading into host: " + loadIntoHost);
+            fileLoader = getOrCreateFileLoader(loadIntoHost);
         }
         File dirToWatch = new File(path);
+        log.info("addWatch - raw path: " + path + " - absolute path: " + dirToWatch.getAbsolutePath());
         if( dirToWatch.exists() ) {
             if( dirToWatch.isDirectory())  {
                 FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader);
+                fw.setInitialScan(true);
+                fw.setWatchFiles(true);
                 fw.start();
                 fileWatchers.add(fw);
             } else {

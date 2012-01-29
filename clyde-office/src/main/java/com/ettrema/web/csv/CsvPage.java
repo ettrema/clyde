@@ -1,21 +1,23 @@
 package com.ettrema.web.csv;
 
-import com.ettrema.web.query.FieldSource;
-import java.util.ArrayList;
-import java.util.List;
-import com.ettrema.web.*;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.utils.JDomUtils;
+import com.ettrema.web.*;
 import com.ettrema.web.component.ComponentUtils;
 import com.ettrema.web.component.EvaluatableComponent;
 import com.ettrema.web.component.InitUtils;
 import com.ettrema.web.query.Field;
+import com.ettrema.web.query.FieldSource;
 import com.ettrema.web.query.Selectable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -97,7 +99,7 @@ public class CsvPage extends com.ettrema.web.File implements Replaceable {
 
     private Select selectFromXml(Element elSelect) {
         String type = InitUtils.getValue(elSelect, "type");
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
         for (Element elField : JDomUtils.childrenOf(elSelect, "viewfields")) {
             Field f = Field.fromXml(elField,this, NS); 
             fields.add(f);
@@ -120,7 +122,7 @@ public class CsvPage extends com.ettrema.web.File implements Replaceable {
     }
 
     @Override
-    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException {        
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {        
         List<FieldSource> rows;
         if (rootSelect != null) {
             log.trace("sendContent: direct: using view");
@@ -148,7 +150,8 @@ public class CsvPage extends com.ettrema.web.File implements Replaceable {
         }
     }
 
-    public void replaceContent(InputStream in, Long length) {
+    @Override
+    public void replaceContent(InputStream in, Long length) throws NotAuthorizedException, BadRequestException {
         log.trace("replaceContent");
         Folder folder = getSourceFolder();
         try {
@@ -160,9 +163,9 @@ public class CsvPage extends com.ettrema.web.File implements Replaceable {
         }
     }
 
-    private Folder getSourceFolder() {
+    private Folder getSourceFolder() throws NotAuthorizedException, BadRequestException {
         if (sourceFolder == null) {
-            throw new RuntimeException("sourceFolder is null");
+            return this.getParent();
         }
         Resource r = ExistingResourceFactory.findChild(this.getParentFolder(), sourceFolder);
         if (r == null) {

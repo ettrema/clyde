@@ -4,6 +4,8 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
 /**
  * Looks for a special url (eg suffixed with _thumb.jpg) and returns the thumb of the first
@@ -26,7 +28,8 @@ public class ThumbResourceFactory implements ResourceFactory {
         thumbType = "thumb";
     }
 
-    public Resource getResource( String host, String url ) {
+    @Override
+    public Resource getResource( String host, String url ) throws NotAuthorizedException, BadRequestException {
         log.trace("getResource");
         Path path = Path.path( url );
         if( thumbName.equals( path.getName() ) ) {
@@ -61,7 +64,7 @@ public class ThumbResourceFactory implements ResourceFactory {
         }
     }
 
-    private Resource getNoImageResource( String host ) {
+    private Resource getNoImageResource( String host ) throws NotAuthorizedException, BadRequestException {
         NoImageResource noimg = new NoImageResource();
         Resource r = noImgResourceFactory.getResource( host, noimg.getHref() );
         if( r == null ) {

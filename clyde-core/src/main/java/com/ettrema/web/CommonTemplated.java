@@ -46,6 +46,8 @@ import org.jdom.Element;
 
 
 import static com.ettrema.context.RequestContext._;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
@@ -125,7 +127,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     private BaseResourceList search(Path p) {
-        return FolderSearcher.getFolderSearcher().search(this, p);
+        try {
+            return FolderSearcher.getFolderSearcher().search(this, p);
+        } catch (NotAuthorizedException ex) {
+            throw new RuntimeException(ex);
+        } catch (BadRequestException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public String getTitle() {

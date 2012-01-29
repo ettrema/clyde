@@ -6,6 +6,8 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
 /**
  * Implements a mapping from folders onto index pages for GET requests which have
@@ -40,7 +42,7 @@ public class IndexPageResourceFactory implements ResourceFactory {
 	}
 
 	@Override
-	public Resource getResource(String host, String url) {
+	public Resource getResource(String host, String url) throws NotAuthorizedException, BadRequestException{
 		Resource r = wrapped.getResource(host, url);
 		if (r != null) {
 			if (r instanceof CollectionResource && r instanceof Templatable ) {

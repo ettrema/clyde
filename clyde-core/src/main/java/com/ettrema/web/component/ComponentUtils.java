@@ -2,6 +2,8 @@ package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Component;
 import com.ettrema.web.ComponentContainer;
@@ -63,14 +65,20 @@ public class ComponentUtils {
     }
 
     public static Templatable findPageWithRelativePath(Path path, Templatable page) {
-        if (path == null) {
-            return page;
+        try {
+            if (path == null) {
+                return page;
+            }
+            Resource r = ExistingResourceFactory.findChild(page, path);
+            if (r instanceof Templatable) {
+                return (Templatable) r;
+            }
+            return null;
+        } catch (NotAuthorizedException ex) {
+            throw new RuntimeException(ex);
+        } catch (BadRequestException ex) {
+            throw new RuntimeException(ex);
         }
-        Resource r = ExistingResourceFactory.findChild(page, path);
-        if (r instanceof Templatable) {
-            return (Templatable) r;
-        }
-        return null;
     }
 
     public static boolean validateComponents(Object target, RenderContext rc) {
@@ -124,14 +132,20 @@ public class ComponentUtils {
                 return null;
             } else {
                 if (parent instanceof Resource) {
-                    Resource rParent = (Resource) parent;
-                    Resource child = ExistingResourceFactory.findChild(rParent, path.getName());
-                    if (child != null) {
-                        if (child instanceof ComponentContainer) {
-                            return (ComponentContainer) child;
-                        } else {
-                            return null;
+                    try {
+                        Resource rParent = (Resource) parent;
+                        Resource child = ExistingResourceFactory.findChild(rParent, path.getName());
+                        if (child != null) {
+                            if (child instanceof ComponentContainer) {
+                                return (ComponentContainer) child;
+                            } else {
+                                return null;
+                            }
                         }
+                    } catch (NotAuthorizedException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (BadRequestException ex) {
+                        throw new RuntimeException(ex);
                     }
                 }
                 Component c = parent.getAnyComponent(path.getName());

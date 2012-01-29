@@ -9,6 +9,8 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.utils.FileUtils;
 import com.ettrema.web.security.PermissionChecker;
 import com.ettrema.web.security.PermissionRecipient.Role;
@@ -32,6 +34,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.mvel.TemplateInterpreter;
 
 import static com.ettrema.context.RequestContext._;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StatsResourceFactory extends CommonResourceFactory {
 
@@ -166,15 +170,22 @@ public class StatsResourceFactory extends CommonResourceFactory {
             return h.authenticate( user, password );
         }
 
-        public Host host() {
-            Resource r = authResourceFactory.getResource( host, "/" );
-            if( r == null )
-                throw new RuntimeException( "Couldnt locate host: " + host );
-            if( r instanceof Host ) {
-                Host h = (Host) r;
-                return h;
-            } else {
-                throw new RuntimeException( "Couldnt locate host: " + host );
+        @Override
+        public Host host()  {
+            try {
+                Resource r = authResourceFactory.getResource( host, "/" );
+                if( r == null )
+                    throw new RuntimeException( "Couldnt locate host: " + host );
+                if( r instanceof Host ) {
+                    Host h = (Host) r;
+                    return h;
+                } else {
+                    throw new RuntimeException( "Couldnt locate host: " + host );
+                }
+            } catch (NotAuthorizedException ex) {
+                throw new RuntimeException(ex);
+            } catch (BadRequestException ex) {
+                throw new RuntimeException(ex);
             }
         }
 
