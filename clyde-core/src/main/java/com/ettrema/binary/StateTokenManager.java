@@ -1,19 +1,10 @@
 package com.ettrema.binary;
 
 import com.bradmcevoy.http.Resource;
-import com.ettrema.event.ClydeMoveEvent;
-import com.ettrema.event.Event;
-import com.ettrema.event.EventListener;
-import com.ettrema.event.EventManager;
-import com.ettrema.event.PhysicalDeleteEvent;
-import com.ettrema.event.PreSaveEvent;
+import com.ettrema.event.*;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.NameNode;
-import com.ettrema.web.BinaryFile;
-import com.ettrema.web.Folder;
-import com.ettrema.web.Host;
-import com.ettrema.web.LinkedFolder;
-import com.ettrema.web.User;
+import com.ettrema.web.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,7 +41,6 @@ public class StateTokenManager {
     }
 
     private void setStateToken(Folder f, long token) {
-        LogUtils.trace(log, "setStateToken", f.getName(), token);
         StateToken stateToken = getOrCreateStateToken(f, true);
         stateToken.setCrc(token);
     }
@@ -64,23 +54,30 @@ public class StateTokenManager {
 
     private StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
         NameNode nn = f.getNameNode().child(NAMENODE_CRC);
-        StateToken stateToken = null;
+        StateToken stateToken;
         if (nn == null) {
             if (autoCreate) {
                 stateToken = new StateToken();
-                nn = f.getNameNode().add(NAMENODE_CRC, stateToken);
+                f.getNameNode().add(NAMENODE_CRC, stateToken);
                 return stateToken;
             } else {
                 return null;
             }
         } else {
-            return (StateToken) nn.getData();
+            StateToken token = (StateToken) nn.getData();
+            if( token == null ) {
+                nn.delete();
+                stateToken = new StateToken();
+                f.getNameNode().add(NAMENODE_CRC, stateToken);
+                return stateToken;
+            }
+            return token;
         }
     }
 
     public String getStateTokenData(Folder f) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        long crc = _calcBinaryCrc(f, bout, false);
+        long crc = _calcBinaryCrc(f, bout);
         return bout.toString() + " ==> " + crc;
     }
 
@@ -90,25 +87,21 @@ public class StateTokenManager {
      *
      */
     public void calcBinaryCrc(Folder f) {
-        calcBinaryCrc(f, false);
-    }
-
-    public void calcBinaryCrc(Folder f, boolean forceRefresh) {
         NullOutputStream nullOut = new NullOutputStream();
-        long crc = _calcBinaryCrc(f, nullOut, forceRefresh);
+        long crc = _calcBinaryCrc(f, nullOut);
         setStateToken(f, crc);
     }
 
-    private long _calcBinaryCrc(Folder f, OutputStream nullOut, boolean forceRefresh) {
-        LogUtils.trace(log, "_calcBinaryCrc", f.getName());
+    private long _calcBinaryCrc(Folder f, OutputStream nullOut) {
+        LogUtils.trace(log, "calcBinaryCrc", f.getName());
         CheckedOutputStream cout = new CheckedOutputStream(nullOut, new Adler32());
         for (Resource r : f.getChildren()) {
             String line;
             if (r instanceof Folder) {
                 Folder child = (Folder) r;
                 if (!child.isSystemFolder()) {
-                    if (child.getBinaryStateToken() == null || forceRefresh) {
-                        calcBinaryCrc(child, forceRefresh);
+                    if (child.getBinaryStateToken() == null) {
+                        calcBinaryCrc(child);
                     }
                     line = toHashableText(child.getName(), child.getBinaryStateToken());
                 } else {
