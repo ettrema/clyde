@@ -11,7 +11,6 @@ import static com.ettrema.context.RequestContext._;
 import com.ettrema.vfs.VfsSession;
 import com.ettrema.web.ExistingResourceFactory;
 import com.ettrema.web.Web;
-import com.ettrema.web.manage.synch.FileLoader;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,13 +33,13 @@ public class DeployResourceFactory implements ResourceFactory {
     }
 
     @Override
-    public Resource getResource(String host, String spath) {
+    public Resource getResource(String host, String spath) throws NotAuthorizedException, BadRequestException {
         Path path = Path.path(spath);
         Resource r = find(host, path);
         return r;
     }
 
-    private Resource find(String host, Path path) {
+    private Resource find(String host, Path path) throws NotAuthorizedException, BadRequestException {
         if (path.getParent().isRoot()) {
             if (path.getName().equals(deployFolderName)) {
                 Resource r = existingResourceFactory.getResource(host, path.getParent().toString());

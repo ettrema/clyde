@@ -151,7 +151,7 @@ public class DirectFileTransport implements FileTransport {
         Resource r;
         try {
             r = resourceFactory.getResource(hostName, CodeSynchUtils.toCodePath(f, root));
-        } catch (NotAuthorizedException | BadRequestException ex) {
+        } catch (NotAuthorizedException | BadRequestException ex) { 
             throw new RuntimeException(ex);
         }
         if (r == null || r.getModifiedDate() == null) {

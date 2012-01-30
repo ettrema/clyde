@@ -23,128 +23,128 @@ import java.util.UUID;
 
 public class Crawl extends AbstractConsoleCommand {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Crawl.class);
-	private static final long serialVersionUID = 1L;
-	private final AsynchProcessor asynchProcessor;
-	private final StateTokenManager stateTokenManager;
-	private final RootContextLocator rootContextLocator;
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Crawl.class);
+    private static final long serialVersionUID = 1L;
+    private final AsynchProcessor asynchProcessor;
+    private final StateTokenManager stateTokenManager;
+    private final RootContextLocator rootContextLocator;
 
-	Crawl(List<String> args, String host, String currentDir, ResourceFactory resourceFactory, AsynchProcessor asynchProcessor, StateTokenManager stateTokenManager, RootContextLocator rootContextLocator) {
-		super(args, host, currentDir, resourceFactory);
-		this.asynchProcessor = asynchProcessor;
-		this.stateTokenManager = stateTokenManager;
-		this.rootContextLocator = rootContextLocator;
-	}
+    Crawl(List<String> args, String host, String currentDir, ResourceFactory resourceFactory, AsynchProcessor asynchProcessor, StateTokenManager stateTokenManager, RootContextLocator rootContextLocator) {
+        super(args, host, currentDir, resourceFactory);
+        this.asynchProcessor = asynchProcessor;
+        this.stateTokenManager = stateTokenManager;
+        this.rootContextLocator = rootContextLocator;
+    }
 
-	@Override
-	public Result execute() {
-		log.debug("enqueueing host crawl");
-		if (args.contains("cancel")) {
-			if (CrawlFactory.thCrawl != null) {
-				CrawlFactory.thCrawl.interrupt();
-				return result("Cancelled crawl job");
-			} else {
-				return result("No crawl job is running");
-			}
-		} else {
-			Resource cur = currentResource();
-			if (!(cur instanceof CommonTemplated)) {
-				return result("Resource is not compatible: " + cur.getClass());
-			}
-			CommonTemplated ct = (CommonTemplated) cur;
-			Host h = ct.getHost();
-			HostCrawler crawler = new HostCrawler(h.getNameNodeId());
+    @Override
+    public Result execute() {
+        log.debug("enqueueing host crawl");
+        if (args.contains("cancel")) {
+            if (CrawlFactory.thCrawl != null) {
+                CrawlFactory.thCrawl.interrupt();
+                return result("Cancelled crawl job");
+            } else {
+                return result("No crawl job is running");
+            }
+        } else {
+            Resource cur = currentResource();
+            if (!(cur instanceof CommonTemplated)) {
+                return result("Resource is not compatible: " + cur.getClass());
+            }
+            CommonTemplated ct = (CommonTemplated) cur;
+            Host h = ct.getHost();
+            HostCrawler crawler = new HostCrawler(h.getNameNodeId());
 
-			CrawlFactory.thCrawl = new Thread(crawler);
-			CrawlFactory.thCrawl.start();
+            CrawlFactory.thCrawl = new Thread(crawler);
+            CrawlFactory.thCrawl.start();
 
-			log.debug("done enqueueing host crawl");
+            log.debug("done enqueueing host crawl");
 
-			return result("submitted crawl job");
-		}
-	}
+            return result("submitted crawl job");
+        }
+    }
 
-	public class HostCrawler implements Runnable {
+    public class HostCrawler implements Runnable {
 
-		final UUID hostNodeId;
+        final UUID hostNodeId;
 
-		public HostCrawler(UUID hostNodeId) {
-			this.hostNodeId = hostNodeId;
-		}
+        public HostCrawler(UUID hostNodeId) {
+            this.hostNodeId = hostNodeId;
+        }
 
-		@Override
-		public void run() {
-			try {
-				rootContextLocator.getRootContext().execute(new Executable2() {
+        @Override
+        public void run() {
+            try {
+                rootContextLocator.getRootContext().execute(new Executable2() {
 
-					@Override
-					public void execute(Context cntxt) {
-						try {
-							doProcess(cntxt);
-						} catch (InterruptedException ex) {
-							log.warn("Interupted crawl job now exiting");
-						}
-					}
-				});
-			} finally {
-				CrawlFactory.thCrawl = null;
-			}
-		}
+                    @Override
+                    public void execute(Context cntxt) {
+                        try {
+                            doProcess(cntxt);
+                        } catch (InterruptedException ex) {
+                            log.warn("Interupted crawl job now exiting");
+                        }
+                    }
+                });
+            } finally {
+                CrawlFactory.thCrawl = null;
+            }
+        }
 
-		public void doProcess(Context context) throws InterruptedException {
-			VfsSession session = context.get(VfsSession.class);
-			NameNode nHost = session.get(hostNodeId);
-			if (nHost == null) {
-				log.error("Name node for host does not exist: " + hostNodeId);
-				return;
-			}
-			Object data = nHost.getData();
-			if (data == null) {
-				log.error("Data node does not exist. Name node: " + hostNodeId);
-				return;
-			}
-			if (!(data instanceof Host)) {
-				log.error("Node does not reference a Host. Instead references a: " + data.getClass() + " ID:" + hostNodeId);
-				return;
-			}
+        public void doProcess(Context context) throws InterruptedException {
+            VfsSession session = context.get(VfsSession.class);
+            NameNode nHost = session.get(hostNodeId);
+            if (nHost == null) {
+                log.error("Name node for host does not exist: " + hostNodeId);
+                return;
+            }
+            Object data = nHost.getData();
+            if (data == null) {
+                log.error("Data node does not exist. Name node: " + hostNodeId);
+                return;
+            }
+            if (!(data instanceof Host)) {
+                log.error("Node does not reference a Host. Instead references a: " + data.getClass() + " ID:" + hostNodeId);
+                return;
+            }
 
-			Host h = (Host) data;
+            Host h = (Host) data;
 
-			SearchManager sm = RequestContext.getCurrent().get(SearchManager.class);
-			boolean doSearchIndex = (sm != null);
-			
-			crawl(h, doSearchIndex);
-			session.commit();
-		}
+            SearchManager sm = RequestContext.getCurrent().get(SearchManager.class);
+            boolean doSearchIndex = (sm != null);
 
-		private void crawl(BaseResource res, boolean doSearchIndex) throws InterruptedException {
-			log.debug("crawl: " + res.getHref());
-			if (Thread.interrupted()) {
-				log.info("Crawl job has been interrupted");
-				throw new InterruptedException();
-			}
-			if (doSearchIndex) {
-				BaseResourceIndexer indexer = new BaseResourceIndexer(res.getNameNodeId());
-				asynchProcessor.enqueue(indexer);
-			}
-			if (res instanceof Folder) {
-				Folder f = (Folder) res;
-				for (Resource r : f.getChildren()) {
-					if (r instanceof BaseResource) {
-						crawl((BaseResource) r, doSearchIndex);
-					}
-				}
-			}
-			if (res instanceof User) {
-				User u = (User) res;
-				log.info("Calculate CRC for user: " + u.getHref());
-				stateTokenManager.calcBinaryCrc(u, true);
-			}
-		}
+            crawl(h, doSearchIndex);
+            session.commit();
+        }
 
-		@Override
-		public String toString() {
-			return "Crawler: " + hostNodeId;
-		}
-	}
+        private void crawl(BaseResource res, boolean doSearchIndex) throws InterruptedException {
+            log.debug("crawl: " + res.getHref());
+            if (Thread.interrupted()) {
+                log.info("Crawl job has been interrupted");
+                throw new InterruptedException();
+            }
+            if (doSearchIndex) {
+                BaseResourceIndexer indexer = new BaseResourceIndexer(res.getNameNodeId());
+                asynchProcessor.enqueue(indexer);
+            }
+            if (res instanceof Folder) {
+                Folder f = (Folder) res;
+                for (Resource r : f.getChildren()) {
+                    if (r instanceof BaseResource) {
+                        crawl((BaseResource) r, doSearchIndex);
+                    }
+                }
+            }
+            if (res instanceof User) {
+                User u = (User) res;
+                log.info("Calculate CRC for user: " + u.getHref());
+                stateTokenManager.calcBinaryCrc(u);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Crawler: " + hostNodeId;
+        }
+    }
 }
