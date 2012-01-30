@@ -19,7 +19,7 @@ import org.apache.commons.io.IOUtils;
  */
 public class DirectFileTransport implements FileTransport {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileLoader.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DirectFileTransport.class);
     private final CodeResourceFactory resourceFactory;
     private final FileLoadCallback callback;
     private String hostName = "localhost";
@@ -43,7 +43,7 @@ public class DirectFileTransport implements FileTransport {
      * @param f
      */
     @Override
-    public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {        
+    public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.info("put: " + f.getAbsolutePath() + " root: " + root.getAbsolutePath());
         CollectionResource colParent = findCollection(f.getParentFile(), root);
         if (colParent == null) {
@@ -77,10 +77,12 @@ public class DirectFileTransport implements FileTransport {
                     fin = new FileInputStream(f);
                     String ct = ContentTypeUtils.findContentTypes(f);
                     Resource newRes = putable.createNew(f.getName(), fin, f.length(), ct);
-                    if (rExisting != null) {
-                        callback.onModified(newRes);
-                    } else {
-                        callback.onLoaded(newRes);
+                    if (callback != null) {
+                        if (rExisting != null) {
+                            callback.onModified(newRes);
+                        } else {
+                            callback.onLoaded(newRes);
+                        }
                     }
                 } catch (FileNotFoundException ex) {
                     throw new RuntimeException(ex);
@@ -134,7 +136,7 @@ public class DirectFileTransport implements FileTransport {
         } else if (r instanceof DeletableResource) {
             DeletableResource dr = (DeletableResource) r;
             dr.delete();
-            if( callback != null ) {
+            if (callback != null) {
                 callback.onDeleted(dr);
             }
         } else {
@@ -146,7 +148,12 @@ public class DirectFileTransport implements FileTransport {
     @Override
     public boolean isNewOrUpdated(File f, File root) {
         f = CodeSynchUtils.toMetaFile(f);
-        Resource r = resourceFactory.getResource(hostName, CodeSynchUtils.toCodePath(f, root));
+        Resource r;
+        try {
+            r = resourceFactory.getResource(hostName, CodeSynchUtils.toCodePath(f, root));
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            throw new RuntimeException(ex);
+        }
         if (r == null || r.getModifiedDate() == null) {
             return true;
         } else {

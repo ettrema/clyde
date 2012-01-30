@@ -46,8 +46,7 @@ import org.jdom.Element;
 
 
 import static com.ettrema.context.RequestContext._;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.ettrema.logging.LogUtils;
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
@@ -583,13 +582,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (web != null) {
             String templateName = getTemplateName();
             if (templateName == null || templateName.length() == 0 || templateName.equals("null")) {
-                log.debug("empty template name");
+                LogUtils.trace(log, "getTemplate: empty template name for", getName());
                 return null;
             }
             TemplateManager tm = requestContext().get(TemplateManager.class);
             template = tm.lookup(templateName, web);
             if (template == null) {
-                log.warn("no template: " + templateName + " for web: " + web.getName());
+                log.warn("getTemplate: no template: " + templateName + " for web: " + web.getName());
             } else {
                 if (template == this) {
                     throw new RuntimeException("my template is myself");
@@ -612,7 +611,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             return null;
         }
         String s = sel.getValue();
-        log.trace("templatename: " + s + " - " + getClass());
+        log.trace("getTemplateName: got templatename: " + s + " - " + getClass());
         return s;
     }
 
@@ -642,16 +641,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
         RenderContext rc = new RenderContext(t, this, child, false);
         if (t != null) {
-//            log.debug( "render: rendering from template " + t.getName());
+            LogUtils.trace(log, "render: rendering from template ", t.getName());
             return t.render(rc);
         } else {
-//            log.debug( "render: no template, so try to use root parameter" );
+            LogUtils.trace(log, "render: no template, so try to use root parameter" );
             Component cRoot = this.getParams().get("root");
             if (cRoot == null) {
                 log.warn("render: no template " + this.getTemplateName() + " and no root or body component for template: " + this.getHref());
                 return "";
             } else {
-//                log.debug( "render: rendering from root component");
+                LogUtils.trace(log, "render: rendering from root component", cRoot.getClass());
                 return cRoot.render(rc);
             }
         }

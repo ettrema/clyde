@@ -80,6 +80,7 @@ public class CalendarEvent extends Folder implements ICalResource {
         return "text/calendar";
     }
 
+    @Override
     public String getICalData() {
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -95,9 +96,7 @@ public class CalendarEvent extends Folder implements ICalResource {
             Calendar cal = getCalendar();
             CalendarOutputter outputter = new CalendarOutputter();
             outputter.output(cal, out);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (ValidationException ex) {
+        } catch (IOException | ValidationException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -110,9 +109,7 @@ public class CalendarEvent extends Folder implements ICalResource {
             CalendarBuilder builder = new CalendarBuilder();
             Calendar calendar = builder.build(fin);
             setCalendar(calendar);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (ParserException ex) {
+        } catch (IOException | ParserException ex) {
             throw new RuntimeException(ex);
         } finally {
             try {
@@ -137,8 +134,8 @@ public class CalendarEvent extends Folder implements ICalResource {
             registry.getTimeZone(sTimezone); // Eg Pacific/Auckland
         }
         if (timezone == null) {
-            log.warn("Couldnt find timezone: " + sTimezone);
             timezone = registry.getTimeZone("Pacific/Auckland");
+            log.warn("Couldnt find timezone: " + sTimezone + ", using default: " + timezone);            
         }
         VTimeZone tz = timezone.getVTimeZone();
         calendar.getComponents().add(tz);
@@ -341,14 +338,17 @@ public class CalendarEvent extends Folder implements ICalResource {
             return CalendarEvent.this.getModifiedDate();
         }
 
+        @Override
         public String checkRedirect(Request request) {
             return null;
         }
 
+        @Override
         public Object authenticate(DigestResponse digestRequest) {
             return CalendarEvent.this.authenticate(digestRequest);
         }
 
+        @Override
         public boolean isDigestAllowed() {
             return CalendarEvent.this.isDigestAllowed();
         }

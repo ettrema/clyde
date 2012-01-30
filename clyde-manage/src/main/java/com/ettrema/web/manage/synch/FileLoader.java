@@ -140,16 +140,21 @@ public class FileLoader {
     }
 
     private void upload(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        log.info("upload: " + f.getAbsolutePath() + " from root: " + root.getAbsolutePath());
-        File fMeta = CodeSynchUtils.toMetaFile(f);
-        if (fMeta.exists()) {
-            fileTransport.put(fMeta, root);
-        }
-        File fContent = CodeSynchUtils.toContentFile(f);
-        if (fContent.exists()) {
-            if (fContent.isFile()) {
-                fileTransport.put(fContent, root);
+        log.info("upload2: " + f.getAbsolutePath() + " from root: " + root.getAbsolutePath());
+        try {
+            File fMeta = CodeSynchUtils.toMetaFile(f);
+            if (fMeta.exists()) {
+                fileTransport.put(fMeta, root);
             }
+            File fContent = CodeSynchUtils.toContentFile(f);
+            if (fContent.exists()) {
+                if (fContent.isFile()) {
+                    fileTransport.put(fContent, root);
+                }
+            }
+        } catch (Throwable e) {
+            log.error("exception loading: " + f.getAbsolutePath(), e);
+            throw new RuntimeException(e);
         }
     }   
 }

@@ -65,11 +65,18 @@ public class FileWatcher implements Service {
             public void run() {
                 if (doInitial) {
                     log.info("Initial scan is on: " + root.getAbsolutePath());
-                    try {
-                        fileScanner.initialScan(root);
-                    } catch (Exception ex) {
-                        log.error("exception loading files", ex);
-                    }
+
+                    rootContext.execute(new Executable2() {
+
+                        @Override
+                        public void execute(Context cntxt) {
+                            try {
+                                fileScanner.initialScan(root);
+                            } catch (Exception ex) {
+                                log.error("exception loading files", ex);
+                            }
+                        }
+                    });
                 }
                 try {
                     while (running) {
@@ -213,8 +220,6 @@ public class FileWatcher implements Service {
     public void forceReload() throws Exception {
         fileScanner.initialScan(true, root);
     }
-
-
 
     public boolean isWatchFiles() {
         return watchFiles;
