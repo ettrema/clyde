@@ -1,13 +1,8 @@
 package com.ettrema.web.security;
 
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
-import com.bradmcevoy.http.Resource;
-import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import java.io.IOException;
@@ -16,6 +11,8 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * Provides a means of logging out, which will usually invalidate some
+ * token
  *
  * @author brad
  */
@@ -32,7 +29,8 @@ public class LogoutResourceFactory implements ResourceFactory {
         this.wrapped = wrapped;
     }
 
-    public Resource getResource( String host, String path ) {
+    @Override
+    public Resource getResource( String host, String path ) throws NotAuthorizedException, BadRequestException {
         Path p = Path.path( path );
         if( p.getName().equals( name ) ) {
             Resource r = wrapped.getResource( host, p.getParent().toString() );
@@ -104,11 +102,13 @@ public class LogoutResourceFactory implements ResourceFactory {
             return name;
         }
 
+        @Override
         public Object authenticate( String user, String password ) {
             log.trace( "authenticate" );
             return wrapped.authenticate( user, password );
         }
 
+        @Override
         public boolean authorise( Request request, Method method, Auth auth ) {
             if( log.isTraceEnabled() ) {
                 log.trace( "authorise: " + auth );
@@ -117,14 +117,17 @@ public class LogoutResourceFactory implements ResourceFactory {
             return true;
         }
 
+        @Override
         public String getRealm() {
             return wrapped.getRealm();
         }
 
+        @Override
         public Date getModifiedDate() {
             return null;
         }
 
+        @Override
         public String checkRedirect( Request request ) {
             if( auth != null ) {
                 log.trace( "checkRedirect: logging out" );

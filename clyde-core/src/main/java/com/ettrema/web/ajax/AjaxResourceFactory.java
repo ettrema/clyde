@@ -54,7 +54,8 @@ public class AjaxResourceFactory implements ResourceFactory {
         this.wrapped = wrapped;
     }
 
-    public Resource getResource(String host, String path) {
+    @Override
+    public Resource getResource(String host, String path) throws NotAuthorizedException, BadRequestException{
         if (path.endsWith(ENDS_WITH)) {
             Path p = Path.path(path);
             if (p.getParent() == null) {

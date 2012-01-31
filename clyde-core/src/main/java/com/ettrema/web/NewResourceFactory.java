@@ -10,6 +10,7 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.ettrema.utils.LogUtils;
@@ -31,7 +32,7 @@ public class NewResourceFactory extends CommonResourceFactory {
     }
 
     @Override
-    public Resource getResource( String host, String url ) {
+    public Resource getResource( String host, String url ) throws NotAuthorizedException, BadRequestException{
         LogUtils.trace(log, "getResource: host=", host, " url=", url);
         Path path = Path.path( url );
         if( REDIRECT_TO_NEW_PATH.equals( path.getName() ) ) {
@@ -192,6 +193,7 @@ public class NewResourceFactory extends CommonResourceFactory {
             return digestRequest.getUser();
         }
 
+        @Override
         public boolean isDigestAllowed() {
             return true;
         }

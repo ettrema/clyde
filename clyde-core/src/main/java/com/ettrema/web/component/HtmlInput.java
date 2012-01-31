@@ -1,5 +1,6 @@
 package com.ettrema.web.component;
 
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.RenderContext;
 import com.ettrema.web.velocity.VelocityInterpreter;
 import org.apache.velocity.VelocityContext;
@@ -7,6 +8,8 @@ import org.jdom.Element;
 
 public class HtmlInput extends Text {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HtmlInput.class);
+    
     private static final long serialVersionUID = 1L;
     private Boolean disAllowTemplating;
 
@@ -36,11 +39,13 @@ public class HtmlInput extends Text {
         String template = getValue();
         // String s = TemplateInterpreter.evalToString(template,rc);
         if( isDisAllowTemplating() ) {
+            LogUtils.trace(log, "render: templating disabled so use content as is", template);
             return template;
         } else {
             VelocityContext vc = new VelocityContext();
             vc.put( "rc", rc );
             String s = VelocityInterpreter.evalToString( template, vc );
+            LogUtils.trace(log, "render: evaluated template to", s);
             return s;
         }
     }

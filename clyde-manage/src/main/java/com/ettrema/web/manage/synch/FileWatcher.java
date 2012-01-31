@@ -3,251 +3,237 @@ package com.ettrema.web.manage.synch;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
+import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
+import com.ettrema.vfs.VfsSession;
+import com.sun.nio.file.ExtendedWatchEventModifier;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchEvent.Modifier;
+import java.nio.file.*;
 import java.util.concurrent.Executors;
-import net.contentobjects.jnotify.JNotify;
-import net.contentobjects.jnotify.JNotifyException;
-import net.contentobjects.jnotify.JNotifyListener;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
 
 /**
  *
  * @author brad
  */
-public class FileWatcher implements JNotifyListener, Service {
+public class FileWatcher implements Service {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileWatcher.class);
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileWatcher.class);
+    private static Kind<?>[] events = {StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY};
+    private RootContext rootContext;
+    private final File root;
+    private final FileLoader fileLoader;
+    private final FileScanner fileScanner;
+    private WatchService watchService;
+    private WatchKey watchId;
+    private boolean watchFiles = true;
+    private boolean initialScan = false;
+    private boolean running;
+    Thread thScan;
 
-	{
-		String orig = System.getProperty("java.library.path");
-		System.out.println("original library path: " + orig);
-		String userDir = System.getProperty("user.dir");
-		System.out.println("user dir: " + userDir); 
-		String newLibPath = orig + ":" + userDir;
-		System.out.println("new library path: " + newLibPath);
-		System.setProperty("java.library.path", newLibPath);
+    public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
+        this.rootContext = rootContext;
+        this.root = root;
+        this.fileLoader = fileLoader;
+        fileScanner = new FileScanner(rootContext, fileLoader);
+    }
 
-	}
-	private RootContext rootContext;
-	private final File root;
-	private final FileLoader fileLoader;
-	private int watchId = 0;
-	private boolean watchFiles = true;
-	private boolean initialScan = false;
-	Thread thInitialScan;
+    @Override
+    public void start() {
+        if (watchFiles) {
+            try {
+                final Path path = FileSystems.getDefault().getPath(root.getAbsolutePath());
+                watchService = path.getFileSystem().newWatchService();
+                registerWatchDir(FileSystems.getDefault(), root);
+                log.info("Now watching files in: " + path);
+            } catch (Throwable ex) {
+                log.error("error watching: " + root.getAbsolutePath(), ex);
+            }
+        } else {
+            log.info("File watching is off");
+        }
 
-	public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
-		this.rootContext = rootContext;
-		this.root = root;
-		this.fileLoader = fileLoader;
-	}
+        running = true;
+        final boolean doInitial = initialScan;
+        thScan = Executors.defaultThreadFactory().newThread(new Runnable() {
 
-	public void start() {
-		if (watchFiles) {
-			String path = root.getAbsolutePath();
+            @Override
+            public void run() {
+                if (doInitial) {
+                    log.info("Initial scan is on: " + root.getAbsolutePath());
 
-			// watch mask, specify events you care about,
-			// or JNotify.FILE_ANY for all events.
-			int mask = JNotify.FILE_CREATED
-					| JNotify.FILE_DELETED
-					| JNotify.FILE_MODIFIED
-					| JNotify.FILE_RENAMED;
+                    rootContext.execute(new Executable2() {
 
-			// watch subtree?
-			boolean watchSubtree = true;
-			try {
-				// add actual watch
-				watchId = JNotify.addWatch(path, mask, watchSubtree, this);
-				log.info("Now watching files in: " + path);
-			} catch (Throwable ex) {
-				log.error("Library path (sys property) is: " + System.getProperty("java.library.path"));
-				log.error("error watching: " + root.getAbsolutePath(), ex);
-			}
-		}
+                        @Override
+                        public void execute(Context cntxt) {
+                            try {
+                                fileScanner.initialScan(root);
+                            } catch (Exception ex) {
+                                log.error("exception loading files", ex);
+                            }
+                        }
+                    });
+                }
+                try {
+                    while (running) {
+                        log.info("Begin file watch loop: " + root.getAbsolutePath());
+                        doScan();
+                    }
+                } catch (InterruptedException interruptedException) {
+                    System.out.println("Watch interrupted");
+                }
+                log.info("File watcher has exited: " + root.getAbsolutePath());
+            }
+        });
+        thScan.start();
 
-		if (initialScan) {
-			thInitialScan = Executors.defaultThreadFactory().newThread(new Runnable() {
+    }
 
-				public void run() {
-					initialScan();
-				}
-			});
-			thInitialScan.start();
-		}
-	}
+    private void registerWatchDir(final FileSystem fs, final File dir) throws IOException {
+        final Path path = fs.getPath(dir.getAbsolutePath());
+        if (watchService.getClass().getName().contains("Windows")) {
+            Modifier m = ExtendedWatchEventModifier.FILE_TREE;
+            path.register(watchService, events, m);
+        } else {
+            path.register(watchService, events);
+            for (File child : dir.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY)) {
+                registerWatchDir(fs, child);
+            }
+        }
+    }
 
-	public void stop() {
-		if (watchId > 0) {
-			try {
-				JNotify.removeWatch(watchId);
-			} catch (JNotifyException ex) {
-				log.error("Exception stopping jnotify", ex);
-			} finally {
-				watchId = 0;
-			}
-			thInitialScan.interrupt();
-		}
-	}
+    private void doScan() throws InterruptedException {
+        WatchKey watchKey;
+        watchKey = watchService.take(); // this call is blocking until events are present
+        Watchable w = watchKey.watchable();
+        Path watchedPath = (Path) w;
+        // poll for file system events on the WatchKey
+        for (final WatchEvent<?> event : watchKey.pollEvents()) {
+            Kind<?> kind = event.kind();
+            if (kind.equals(StandardWatchEventKinds.ENTRY_CREATE)) {
+                Path pathCreated = (Path) event.context();
+                File f = new File(watchedPath + File.separator + pathCreated);
+                fileCreated(f);
+            } else if (kind.equals(StandardWatchEventKinds.ENTRY_DELETE)) {
+                Path pathDeleted = (Path) event.context();
+                File f = new File(watchedPath + File.separator + pathDeleted);
+                fileDeleted(f);
+            } else if (kind.equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
+                Path pathModified = (Path) event.context();
+                File f = new File(watchedPath + File.separator + pathModified);
+                fileModified(f);
+            }
+        }
 
-	public void fileCreated(int wd, String rootPath, String name) {
-		String path = rootPath + File.separator + name;
-		final File f = new File(path);
-		if (isIgnored(f)) {
-			return;
-		}
+        // if the watched directed gets deleted, get out of run method
+        if (!watchKey.reset()) {
+            log.info("Watch is no longer valid");
+            watchKey.cancel();
+            stop();
+        }
 
-		rootContext.execute(new Executable2() {
+    }
 
-			public void execute(Context context) {
-				fileLoader.onNewFile(f, root);
-			}
-		});
+    @Override
+    public void stop() {
+        running = false;
+        if (thScan != null) {
+            thScan.interrupt();
+            thScan = null;
+        }
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
 
-	}
+    public void fileCreated(final File f) {
+        if (fileScanner.isIgnored(f, root)) {
+            return;
+        }
+        log.info("fileCreated: " + f.getAbsolutePath());
 
-	public void fileDeleted(int wd, String rootPath, String name) {
-		String path = rootPath + File.separator + name;
-		final File f = new File(path);
-		if (isIgnored(f)) {
-			return;
-		}
+        rootContext.execute(new Executable2() {
 
-		rootContext.execute(new Executable2() {
+            @Override
+            public void execute(Context context) {
+                try {
+                    fileLoader.onNewFile(f, root);
+                    _(VfsSession.class).commit();
+                } catch (Exception ex) {
+                    _(VfsSession.class).rollback();
+                }
+            }
+        });
 
-			public void execute(Context context) {
-				fileLoader.onDeleted(f, root);
-			}
-		});
-	}
+    }
 
-	public void fileModified(int wd, String rootPath, String name) {
-		log.trace("fileModified: " + rootPath + " - " + name);
-		String path = rootPath + File.separator + name;
-		final File f = new File(path);
-		if (isIgnored(f)) {
-			return;
-		}
+    public void fileDeleted(final File f) {
+        if (fileScanner.isIgnored(f, root)) {
+            return;
+        }
+        log.info("fileDeleted: " + f.getAbsolutePath());
+        rootContext.execute(new Executable2() {
 
-		rootContext.execute(new Executable2() {
+            @Override
+            public void execute(Context context) {
+                try {
+                    fileLoader.onDeleted(f, root);
+                    _(VfsSession.class).commit();
+                } catch (Exception ex) {
+                    _(VfsSession.class).rollback();
+                }
+            }
+        });
+    }
 
-			public void execute(Context context) {
-				fileLoader.onModified(f, root);
-			}
-		});
+    public void fileModified(final File f) {
+        log.info("fileModified: " + f.getAbsolutePath());
+        if (fileScanner.isIgnored(f, root)) {
+            return;
+        }
 
-	}
+        rootContext.execute(new Executable2() {
 
-	public void fileRenamed(int i, String string, String string1, String string2) {
-	}
+            @Override
+            public void execute(Context context) {
+                try {
+                    fileLoader.onModified(f, root);
+                    _(VfsSession.class).commit();
+                } catch (Exception ex) {
+                    _(VfsSession.class).rollback();
+                }
+            }
+        });
 
-	public void forceReload() {
-		initialScan(true);
-	}
+    }
 
-	public void initialScan() {
-		initialScan(false);
-	}
+    public void fileRenamed(int i, String string, String string1, String string2) {
+    }
 
-	public void initialScan(boolean forceReload) {
-		long t = System.currentTimeMillis();
-		log.info("begin full scan");
-		startScan(this.root, forceReload);
-		log.info("------------------------------------");
-		log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
-		log.info("------------------------------------");
-	}
+    public void forceReload() throws Exception {
+        fileScanner.initialScan(true, root);
+    }
 
-	private void startScan(File root, boolean forceReload) {
-		log.info("scan files in " + root.getAbsolutePath());
-		DirectoryListing listing = new DirectoryListing(root);
-		// First process the templates folder, if present.
-		if (listing.templates != null) {
-			startScan(listing.templates, forceReload);
-		}
-		scanDir(root, forceReload);
-	}
+    public boolean isWatchFiles() {
+        return watchFiles;
+    }
 
-	private void scanDir(File dir, boolean forceReload) {
-		DirectoryListing listing = new DirectoryListing(dir);
+    public void setWatchFiles(boolean watchFiles) {
+        this.watchFiles = watchFiles;
+    }
 
-		processFile(dir, true); // force load of dirs for metadata
+    public boolean isInitialScan() {
+        return initialScan;
+    }
 
-		for (File f : listing.files) {
-			processFile(f, forceReload);
-		}
-
-		for (File f : listing.subdirs) {
-			startScan(f, forceReload);
-		}
-	}
-
-	private void processFile(final File f, final boolean forceReload) {
-		rootContext.execute(new Executable2() {
-
-			public void execute(Context context) {
-				if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
-					fileLoader.onNewFile(f, root);
-				}
-
-			}
-		});
-	}
-
-	private boolean isIgnored(File f) {
-		return isAnyParentHidden(f);
-	}
-
-	private boolean isAnyParentHidden(File f) {
-		if (f.getName().startsWith(".")) {
-			return true;
-		} else {
-			if (!f.getAbsolutePath().contains(root.getAbsolutePath())) { // reached root
-				return false;
-			} else {
-				return isAnyParentHidden(f.getParentFile());
-			}
-		}
-	}
-
-	private class DirectoryListing {
-
-		File templates;
-		final List<File> files = new ArrayList<File>();
-		final List<File> subdirs = new ArrayList<File>();
-
-		public DirectoryListing(File parent) {
-			for (File f : parent.listFiles()) {
-				if (!isIgnored(f)) {
-					if (f.isDirectory()) {
-						if ("templates".equals(f.getName())) {
-							this.templates = f;
-						} else {
-							this.subdirs.add(f);
-						}
-					} else {
-						this.files.add(f);
-					}
-				}
-			}
-
-		}
-	}
-
-	public boolean isWatchFiles() {
-		return watchFiles;
-	}
-
-	public void setWatchFiles(boolean watchFiles) {
-		this.watchFiles = watchFiles;
-	}
-
-	public boolean isInitialScan() {
-		return initialScan;
-	}
-
-	public void setInitialScan(boolean initialScan) {
-		this.initialScan = initialScan;
-	}
+    public void setInitialScan(boolean initialScan) {
+        this.initialScan = initialScan;
+    }
 }

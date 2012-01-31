@@ -23,7 +23,7 @@ import org.jdom.Element;
 
 /**
  * Just a normal templated resource, except that the parent may not be a folder
- * 
+ *
  * @author brad
  */
 public class SubPage extends CommonTemplated implements Component, PostableResource, XmlPersistableResource, ISubPage, Redirectable {
@@ -54,7 +54,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return "text/html";
     }
 
-	@Override
+    @Override
     public void sendContent(WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
         requestedPage.generateContent(out);
     }
@@ -66,8 +66,8 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
      * @param in
      * @param length
      */
-	@Override
-    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+    @Override
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException, NotAuthorizedException {
         log.error("Can't replace a SubPage content");
         throw new BadRequestException(this);
     }
@@ -87,7 +87,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
                 return false;
             }
         }
-        if( publicAccess ) {
+        if (publicAccess) {
             return true;
         }
         return super.authorise(request, method, auth);
@@ -113,7 +113,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
 
     /**
      * For backwards compatibility, same as getParent
-     * 
+     *
      * @return
      */
     public CommonTemplated getFoundParent() {
@@ -155,7 +155,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         params.attributes.put(this.getName() + "_validation", s);
     }
 
-	@Override
+    @Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
         return (String) params.attributes.get(this.getName() + "_validation");
@@ -280,7 +280,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         return getPhysicalParent().getCreateDate();
     }
 
-	@Override
+    @Override
     public boolean isSecure() {
         return secure;
     }
@@ -293,13 +293,12 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
         this.publicAccess = publicAccess;
     }
 
-	@Override
+    @Override
     public boolean isPublicAccess() {
         return publicAccess;
     }
-    
 
-	@Override
+    @Override
     public String getRedirect() {
         return this.redirect;
     }
@@ -315,6 +314,4 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public void setBrowsable(boolean browsable) {
         this.browsable = browsable;
     }
-    
-    
 }

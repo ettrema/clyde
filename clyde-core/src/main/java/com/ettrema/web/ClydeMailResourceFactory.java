@@ -2,6 +2,8 @@ package com.ettrema.web;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.mail.MailResourceFactory;
 import com.ettrema.mail.Mailbox;
 import com.ettrema.mail.MailboxAddress;
@@ -26,19 +28,25 @@ public class ClydeMailResourceFactory implements MailResourceFactory {
 
     @Override
     public Mailbox getMailbox( MailboxAddress add ) {
-        log.debug("getMailbox: " + add);
-        Resource res = wrapped.getResource(add.domain, "users/" + add.user);
-        if( res == null ) {
-            log.debug("mailbox not found: " + add);
-            return null;
-        }
+        try {
+            log.debug("getMailbox: " + add);
+            Resource res = wrapped.getResource(add.domain, "users/" + add.user);
+            if( res == null ) {
+                log.debug("mailbox not found: " + add);
+                return null;
+            }
 
-        if( res instanceof Mailbox ) {
-            Mailbox user = (Mailbox) res;
-            return user;
-        } else {
-            log.warn("resource exists but does not implement Mailbox: " + res.getClass());
-            return null;
+            if( res instanceof Mailbox ) {
+                Mailbox user = (Mailbox) res;
+                return user;
+            } else {
+                log.warn("resource exists but does not implement Mailbox: " + res.getClass());
+                return null;
+            }
+        } catch (NotAuthorizedException ex) {
+            throw new RuntimeException(ex);
+        } catch (BadRequestException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

@@ -1,17 +1,16 @@
 package com.ettrema.web.comments;
 
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.ettrema.web.IUser;
-import com.ettrema.web.security.CurrentUserService;
+import static com.ettrema.context.RequestContext._;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.web.IUser;
+import com.ettrema.web.security.CurrentUserService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.ettrema.context.RequestContext.*;
 import java.util.UUID;
 
 /**
@@ -23,6 +22,7 @@ public class CommentServiceImpl implements CommentService {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommentServiceImpl.class );
     public static final String NODE_NAME_COMMENTS = "_sys_comments";
 
+    @Override
     public List<Comment> comments( NameNode n ) {
         NameNode nComments = n.child( NODE_NAME_COMMENTS );
         if( nComments == null ) {
@@ -40,6 +40,7 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @Override
     public void newComment( NameNode n, String comment ) throws NotAuthorizedException {
         if( log.isTraceEnabled() ) {
             log.trace( "newComment: " + comment );
@@ -52,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         String nm = "c" + System.currentTimeMillis();
         IUser curUser = _( CurrentUserService.class ).getOnBehalfOf();
         if( curUser == null ) {
-            throw new NotAuthorizedException( null );
+            throw new NotAuthorizedException();
         }
         Comment newComment = new Comment( curUser.getNameNodeId() );
         newComment.setComment( comment );

@@ -1,34 +1,20 @@
 package com.ettrema.web;
 
-import com.ettrema.forms.FormProcessor;
-import com.ettrema.utils.GroovyUtils;
-import java.util.HashMap;
-import com.ettrema.web.component.Command;
-import com.ettrema.web.component.ComponentUtils;
-import com.ettrema.event.ClydeEventDispatcher;
 import com.bradmcevoy.common.Path;
-import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.DigestResource;
-import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.PostableResource;
-import com.bradmcevoy.http.PropFindableResource;
-import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Request;
-import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import static com.ettrema.context.RequestContext._;
+import com.ettrema.event.ClydeEventDispatcher;
+import com.ettrema.forms.FormProcessor;
+import com.ettrema.logging.LogUtils;
+import com.ettrema.utils.GroovyUtils;
 import com.ettrema.utils.HrefService;
 import com.ettrema.utils.RedirectService;
 import com.ettrema.vfs.VfsCommon;
-import com.ettrema.web.component.Addressable;
-import com.ettrema.web.component.ComponentDef;
-import com.ettrema.web.component.ComponentValue;
-import com.ettrema.web.component.InitUtils;
-import com.ettrema.web.component.NumberInput;
-import com.ettrema.web.component.TemplateSelect;
+import com.ettrema.web.component.*;
 import com.ettrema.web.error.HtmlExceptionFormatter;
 import com.ettrema.web.eval.EvalUtils;
 import com.ettrema.web.eval.Evaluatable;
@@ -39,21 +25,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.jdom.Element;
-
-
-import static com.ettrema.context.RequestContext._;
 
 public abstract class CommonTemplated extends VfsCommon implements PostableResource, GetableResource, EditableResource, Addressable, Serializable, ComponentContainer, Comparable<Resource>, Templatable, HtmlResource, DigestResource, PropFindableResource {
 
     public static final String MAXAGE_COMP_NAME = "maxAge";
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommonTemplated.class);
     private static final long serialVersionUID = 1L;
-    private static ThreadLocal<CommonTemplated> tlTargetPage = new ThreadLocal<CommonTemplated>();
-    public static ThreadLocal<BaseResource> tlTargetContainer = new ThreadLocal<BaseResource>();
+    private static ThreadLocal<CommonTemplated> tlTargetPage = new ThreadLocal<>();
+    public static ThreadLocal<BaseResource> tlTargetContainer = new ThreadLocal<>();
     protected TemplateSelect templateSelect;
     protected ComponentValueMap valueMap;
     protected ComponentMap componentMap;
@@ -125,7 +109,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     private BaseResourceList search(Path p) {
-        return FolderSearcher.getFolderSearcher().search(this, p);
+        try {
+            return FolderSearcher.getFolderSearcher().search(this, p);
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public String getTitle() {
@@ -208,14 +196,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         log.info("process");
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
-        String redirectTo = null;
 
         for (String paramName : parameters.keySet()) {
             Path path = Path.path(paramName);
             Component c = rc.findComponent(path);
             if (c != null) {
                 log.info("-- processing command: " + c.getClass().getName() + " - " + c.getName());
-                redirectTo = c.onProcess(rc, parameters, files);
+                String redirectTo = c.onProcess(rc, parameters, files);
                 if (redirectTo != null) {
                     log.trace(".. redirecting to: " + redirectTo);
                     return redirectTo;
@@ -407,6 +394,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return f.getHost();
     }
 
+    
+    
     @Override
     public boolean authorise(Request request, Request.Method method, Auth auth) {
         log.trace("start authoirse");
@@ -575,13 +564,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (web != null) {
             String templateName = getTemplateName();
             if (templateName == null || templateName.length() == 0 || templateName.equals("null")) {
-                log.debug("empty template name");
+                LogUtils.trace(log, "getTemplate: empty template name for", getName());
                 return null;
             }
             TemplateManager tm = requestContext().get(TemplateManager.class);
             template = tm.lookup(templateName, web);
             if (template == null) {
-                log.warn("no template: " + templateName + " for web: " + web.getName());
+                log.warn("getTemplate: no template: " + templateName + " for web: " + web.getName());
             } else {
                 if (template == this) {
                     throw new RuntimeException("my template is myself");
@@ -604,7 +593,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             return null;
         }
         String s = sel.getValue();
-        log.trace("templatename: " + s + " - " + getClass());
+        log.trace("getTemplateName: got templatename: " + s + " - " + getClass());
         return s;
     }
 
@@ -634,16 +623,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
         RenderContext rc = new RenderContext(t, this, child, false);
         if (t != null) {
-//            log.debug( "render: rendering from template " + t.getName());
+            LogUtils.trace(log, "render: rendering from template ", t.getName());
             return t.render(rc);
         } else {
-//            log.debug( "render: no template, so try to use root parameter" );
+            LogUtils.trace(log, "render: no template, so try to use root parameter" );
             Component cRoot = this.getParams().get("root");
             if (cRoot == null) {
                 log.warn("render: no template " + this.getTemplateName() + " and no root or body component for template: " + this.getHref());
                 return "";
             } else {
-//                log.debug( "render: rendering from root component");
+                LogUtils.trace(log, "render: rendering from root component", cRoot.getClass());
                 return cRoot.render(rc);
             }
         }
@@ -666,7 +655,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (RequestParams.current() != null) {
             RequestParams.current().attributes.put("targetPage", this);
         }
-        String s = null;
+        String s;
         try {
             s = render(null);
         } catch (Throwable e) {

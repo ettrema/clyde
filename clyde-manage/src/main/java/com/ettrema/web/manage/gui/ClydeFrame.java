@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
@@ -331,10 +333,15 @@ public class ClydeFrame extends javax.swing.JFrame {
         System.out.println("doScan");
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 System.out.println("beginning scan");
                 for (FileWatcher fileWatcher : fileWatchers) {
-                    fileWatcher.initialScan();
+                    try {
+                        fileWatcher.forceReload();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });
@@ -358,10 +365,15 @@ public class ClydeFrame extends javax.swing.JFrame {
         System.out.println("doScan");
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 System.out.println("beginning scan");
                 for (FileWatcher fileWatcher : fileWatchers) {
-                    fileWatcher.forceReload();
+                    try {
+                        fileWatcher.forceReload();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });

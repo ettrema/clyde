@@ -103,7 +103,7 @@ public class ViewSubPage extends SubPage implements Replaceable {
     }
 
     @Override
-    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException {
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException, NotAuthorizedException {
         log.trace("replaceContent");
         Folder folder = getSourceFolder(requestedPage.getParentFolder());
         try {
@@ -115,7 +115,8 @@ public class ViewSubPage extends SubPage implements Replaceable {
         }
     }
 
-    public void replaceContent(InputStream in, Long length) {
+    @Override
+    public void replaceContent(InputStream in, Long length) throws NotAuthorizedException, BadRequestException {
         log.trace("replaceContent");
         Folder folder = getSourceFolder();
         try {
@@ -164,11 +165,11 @@ public class ViewSubPage extends SubPage implements Replaceable {
 
 
 
-    private Folder getSourceFolder() {
+    private Folder getSourceFolder() throws NotAuthorizedException, BadRequestException {
         return getSourceFolder(this.getParentFolder());
     }
 
-    private Folder getSourceFolder(Resource from) {
+    private Folder getSourceFolder(Resource from) throws NotAuthorizedException, BadRequestException {
         Resource r = ExistingResourceFactory.findChild(from, sourceFolder);
         if( r == null ) {
             throw new RuntimeException("From resource not found: path: " + sourceFolder + " from " + from.getName());
@@ -181,7 +182,7 @@ public class ViewSubPage extends SubPage implements Replaceable {
 
     private Select selectFromXml(Element elSelect) {
         String type = InitUtils.getValue(elSelect, "type");
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
         for (Element elField : JDomUtils.childrenOf(elSelect, "viewfields")) {
             fields.add(new Field(elField.getAttributeValue("name")));
         }

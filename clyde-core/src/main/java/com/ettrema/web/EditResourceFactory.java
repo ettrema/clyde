@@ -3,6 +3,8 @@ package com.ettrema.web;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 
 public class EditResourceFactory extends CommonResourceFactory {
     
@@ -16,7 +18,7 @@ public class EditResourceFactory extends CommonResourceFactory {
     }
         
     @Override
-    public Resource getResource(String host, String url) {
+    public Resource getResource(String host, String url) throws NotAuthorizedException, BadRequestException{
         Path path = Path.path(url);        
         if( EditPage.isEditPath(path)) {
             Path editee = EditPage.getEditeePath(path);        

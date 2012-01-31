@@ -34,8 +34,9 @@ public class MvelEvaluatable implements Evaluatable, Serializable {
         if (log.isTraceEnabled()) {
             log.trace("evaluate: " + expr);
         }
-        Templatable parent = getTemplatable(from);
-        return Expression.doCalc((Templatable) from, null, expr, parent);
+        //Templatable parent = getTemplatable(from);
+        Templatable targetPage = rc.getTargetPage();
+        return Expression.doCalc((Templatable) from, null, expr, targetPage);
     }
 
 	@Override

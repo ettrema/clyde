@@ -40,7 +40,7 @@ public class SourceResourceFactory extends CommonResourceFactory {
     }
 
     @Override
-    public Resource getResource( String host, String url ) {
+    public Resource getResource( String host, String url ) throws NotAuthorizedException, BadRequestException{
         LogUtils.trace(log, "getResource: ", url );
         Path path = Path.path( url );
         if( SourcePage.isSourcePath( path ) ) {
