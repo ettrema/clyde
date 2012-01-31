@@ -3,6 +3,7 @@ package com.ettrema.web.security;
 import com.bradmcevoy.http.DigestResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.Host;
 import com.ettrema.web.NameAndAuthority;
 import com.ettrema.web.Templatable;
@@ -29,6 +30,7 @@ public class RecursiveAuthenticator implements ClydeAuthenticator {
             User u = null;
             if( na.authority == null ) {
                 Host h = resource.getHost();
+                LogUtils.trace(log, "authenticate: no authority given, so use current host", h.getName());                
                 u = authenticateRecursive( h, na.name, password );
             } else {
                 Host host = findHost( resource, na.authority );
@@ -37,6 +39,7 @@ public class RecursiveAuthenticator implements ClydeAuthenticator {
                     return null;
                 } else {
                     u = host.doAuthenticate( na.name, password );
+                    LogUtils.trace(log, "authenticate: authenticating on specified host", host.getName(), "result:", u);                
                 }
             }
             if( u == null ) {

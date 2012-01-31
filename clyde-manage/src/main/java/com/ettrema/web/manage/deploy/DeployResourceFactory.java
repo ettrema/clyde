@@ -6,8 +6,10 @@ import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.VfsSession;
 import com.ettrema.web.ExistingResourceFactory;
 import com.ettrema.web.Web;
@@ -15,6 +17,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -22,6 +25,7 @@ import org.apache.commons.io.IOUtils;
  * @author brad
  */
 public class DeployResourceFactory implements ResourceFactory {
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeployResourceFactory.class);
     private final ExistingResourceFactory existingResourceFactory;
     private final DeploymentService deploymentService;
@@ -36,36 +40,39 @@ public class DeployResourceFactory implements ResourceFactory {
     public Resource getResource(String host, String spath) throws NotAuthorizedException, BadRequestException {
         Path path = Path.path(spath);
         Resource r = find(host, path);
+        LogUtils.trace(log, "getResource:", host, spath, r);
         return r;
     }
 
     private Resource find(String host, Path path) throws NotAuthorizedException, BadRequestException {
-        if (path.getParent().isRoot()) {
-            if (path.getName().equals(deployFolderName)) {
-                Resource r = existingResourceFactory.getResource(host, path.getParent().toString());
-                if (r == null) {
-                    return null;
-                } else if (r instanceof Web) {
-                    Web web = (Web) r;
-                    return new DeployFolder(web);
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
+        // if name is _deploy and its parent is a Web (or Host) we have a DeployFolder
+        if (path.getName().equals(deployFolderName)) {
+            return getDeployFolderOrNull(host, path);
         } else {
-            Resource r = find(host, path.getParent());
-            if (r instanceof CollectionResource) {
-                CollectionResource parent = (CollectionResource) r;
-                return parent.child(path.getName());
+            // if parent is a deployfolder then return its child
+            Path parentPath = path.getParent();
+            DeployFolder deployFolder = getDeployFolderOrNull(host, parentPath);
+            if (deployFolder != null) {
+                return deployFolder.child(path.getName());
             } else {
                 return null;
             }
         }
     }
 
-    public class DeployFolder extends AbstractDeploymentResource implements CollectionResource, PutableResource, PropFindableResource, DigestResource {
+    private DeployFolder getDeployFolderOrNull(String host, Path path) throws BadRequestException, NotAuthorizedException {
+        Resource r = existingResourceFactory.getResource(host, path.getParent().toString());
+        if (r == null) {
+            return null;
+        } else if (r instanceof Web) {
+            Web web = (Web) r;
+            return new DeployFolder(web);
+        } else {
+            return null;
+        }
+    }
+
+    public class DeployFolder extends AbstractDeploymentResource implements CollectionResource, PutableResource, PropFindableResource, DigestResource, GetableResource {
 
         private final Web web;
 
@@ -91,6 +98,7 @@ public class DeployResourceFactory implements ResourceFactory {
             for (Deployment d : deployments) {
                 list.add(new DeploymentResource(web, d));
             }
+            LogUtils.trace(log, "DeployFolder.getChildren - size:", list.size());
             return list;
         }
 
@@ -146,6 +154,7 @@ public class DeployResourceFactory implements ResourceFactory {
             }
             try {
                 Deployment deployment = deploymentService.deploy(zippedFile, newName, web);
+                _(VfsSession.class).commit();
                 return new DeploymentResource(web, deployment);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
@@ -157,9 +166,29 @@ public class DeployResourceFactory implements ResourceFactory {
         public Date getCreateDate() {
             return null;
         }
+
+        @Override
+        public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
+            generateContent(this, out, HttpManager.request().getAbsolutePath());
+        }
+
+        @Override
+        public Long getMaxAgeSeconds(Auth auth) {
+            return null;
+        }
+
+        @Override
+        public String getContentType(String accepts) {
+            return "text/html";
+        }
+
+        @Override
+        public Long getContentLength() {
+            return null;
+        }
     }
 
-    public class DeploymentResource extends AbstractDeploymentResource implements DeletableResource, PropFindableResource, ReplaceableResource {
+    public class DeploymentResource extends AbstractDeploymentResource implements DeletableResource, PropFindableResource, ReplaceableResource, GetableResource {
 
         private final Web web;
         private final Deployment deployment;
@@ -212,8 +241,11 @@ public class DeployResourceFactory implements ResourceFactory {
                 try (FileOutputStream fout = new FileOutputStream(zippedFile)) {
                     BufferedOutputStream bufOut = new BufferedOutputStream(fout);
                     IOUtils.copyLarge(in, bufOut);
+                    bufOut.flush();
+                    fout.flush();
                     try {
                         deploymentService.deploy(zippedFile, getName(), web);
+                        _(VfsSession.class).commit();
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }
@@ -225,6 +257,26 @@ public class DeployResourceFactory implements ResourceFactory {
                 throw new RuntimeException(ex);
             }
 
+        }
+
+        @Override
+        public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
+            generateContent(deployment, out, HttpManager.request().getAbsolutePath());
+        }
+
+        @Override
+        public Long getMaxAgeSeconds(Auth auth) {
+            return null;
+        }
+
+        @Override
+        public String getContentType(String accepts) {
+            return "text/html";
+        }
+
+        @Override
+        public Long getContentLength() {
+            return null;
         }
     }
 
@@ -268,5 +320,70 @@ public class DeployResourceFactory implements ResourceFactory {
 
     public void setDeployFolderName(String deployFolderName) {
         this.deployFolderName = deployFolderName;
+    }
+
+    public void generateContent(CollectionResource folder, OutputStream out, String uri) throws NotAuthorizedException, BadRequestException {
+        XmlWriter w = new XmlWriter(out);
+        w.open("html");
+        w.open("head");
+        w.close("head");
+        w.open("body");
+        w.begin("h1").open().writeText(folder.getName()).close();
+        w.open("table");
+        for (Resource r : folder.getChildren()) {
+            w.open("tr");
+
+            w.open("td");
+            String path = buildHref(uri, r.getName());
+            w.begin("a").writeAtt("href", path).open().writeText(r.getName()).close();
+
+            //w.begin("a").writeAtt("href", "#").writeAtt("onclick", "editDocument('" + path + "')").open().writeText("(edit with office)").close();
+
+            w.close("td");
+
+            w.begin("td").open().writeText(r.getModifiedDate() + "").close();
+            w.close("tr");
+        }
+        w.close("table");
+        w.close("body");
+        w.close("html");
+        w.flush();
+    }
+
+    private void generateContent(Deployment deployment, OutputStream out, String absolutePath) {
+        XmlWriter w = new XmlWriter(out);
+        w.open("html");
+        w.open("head");
+        w.close("head");
+        w.open("body");
+        w.begin("h1").open().writeText(deployment.getName()).close();
+        w.begin("p").open().writeText("items: " + deployment.getItems().size()).close();
+        w.open("table");
+        w.open("tr");
+        w.begin("th").open().writeText("Path").close();
+        w.begin("th").open().writeText("Class").close();
+        w.begin("th").open().writeText("Size").close();
+        w.begin("th").open().writeText("Is created?").close();
+        w.close("tr");
+        for (DeploymentItem r : deployment.getItems()) {
+            w.open("tr");
+            w.begin("td").open().writeText(r.getPath()).close();
+            w.begin("td").open().writeText(r.getClazz()).close();
+            w.begin("td").open().writeText(r.getSize() + "").close();
+            w.begin("td").open().writeText(r.isCreated() + "").close();
+            w.close("tr");
+        }
+        w.close("table");
+        w.close("body");
+        w.close("html");
+        w.flush();
+    }
+
+    private String buildHref(String uri, String name) {
+        String abUrl = uri;
+        if (!abUrl.endsWith("/")) {
+            abUrl += "/";
+        }
+        return abUrl + name;
     }
 }
