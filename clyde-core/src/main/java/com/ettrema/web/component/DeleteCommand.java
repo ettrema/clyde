@@ -41,7 +41,7 @@ public class DeleteCommand extends Command {
             return "";
         }
         String pageName = rc.getTargetPage().getName();
-        return "<button type='submit' name='" + name + "' value='" + name + "' onclick=\"return confirm('Are you sure you want to delete " + pageName + "?')\" />" + name + "</button>";
+        return "<button type='submit' name='" + name + "' value='" + name + "' onclick=\"return confirm('Are you sure you want to delete " + pageName + "?')\" >" + name + "</button>";
     }
     
     @Override
@@ -92,11 +92,7 @@ public class DeleteCommand extends Command {
     private void doDelete( BaseResource f ) {
         try {
             f.delete();
-        } catch( NotAuthorizedException ex ) {
-            throw new RuntimeException( ex );
-        } catch( ConflictException ex ) {
-            throw new RuntimeException( ex );
-        } catch( BadRequestException ex ) {
+        } catch( NotAuthorizedException | ConflictException | BadRequestException ex ) {
             throw new RuntimeException( ex );
         }
     }

@@ -1174,4 +1174,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
         return sb.toString();
     }
+    
+    public String getEncodedName() {
+        return com.bradmcevoy.http.Utils.percentEncode(getName());
+    }    
 }

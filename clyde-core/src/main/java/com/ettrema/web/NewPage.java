@@ -65,7 +65,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         }
         ITemplate t = getTemplate(parameters);
         if (t == null) {
-            log.error("didnt locate template");
+            log.error("Can't create page because didnt locate template");
             return null;
         }
         String nameToUse = newName;
@@ -296,6 +296,8 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             } else {
                 return null; // probably invalid input
             }
+        } else if( editee == null ) {
+            throw new RuntimeException("Editee resource is null");
         } else {
             log.debug("..NOT editbale");
             editee.save();
