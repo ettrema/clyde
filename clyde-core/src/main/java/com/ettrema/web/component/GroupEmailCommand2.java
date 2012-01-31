@@ -1,64 +1,45 @@
 package com.ettrema.web.component;
 
-import com.ettrema.web.security.BeanProperty;
-import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.Range;
-import com.bradmcevoy.http.Request;
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Request.Method;
-import com.bradmcevoy.http.http11.auth.DigestResponse;
-import com.ettrema.web.mail.RetryingMailService.DelayMessage;
-import com.ettrema.web.mail.RetryingMailService.EmailResultCallback;
-import com.ettrema.web.mail.RetryingMailService;
-import com.bradmcevoy.http.exceptions.NotFoundException;
-import com.ettrema.web.mail.RetryingMailService.SendJob;
-import com.ettrema.context.Context;
+import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.UUID;
-import org.jdom.Namespace;
-import java.util.Arrays;
-import com.bradmcevoy.http.Resource;
-import com.ettrema.web.Group;
-import com.bradmcevoy.common.Path;
-import com.bradmcevoy.http.DigestResource;
-import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.http.GetableResource;
-import com.bradmcevoy.http.PropFindableResource;
+import com.bradmcevoy.http.exceptions.NotFoundException;
+import com.bradmcevoy.http.http11.auth.DigestResponse;
 import com.bradmcevoy.io.BufferingOutputStream;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.ettrema.utils.ClydeUtils;
-import com.ettrema.utils.LogUtils;
-import com.ettrema.web.BaseResource;
-import com.ettrema.web.IUser;
-import com.ettrema.web.User;
-import com.ettrema.web.security.UserGroup;
-import com.ettrema.web.RenderContext;
-import com.ettrema.web.Templatable;
-import com.ettrema.web.eval.EvalUtils;
-import com.ettrema.web.eval.Evaluatable;
-import com.ettrema.web.groups.GroupService;
-import com.ettrema.web.security.CurrentUserService;
-import com.ettrema.web.security.PermissionRecipient.Role;
+import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
+import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageImpl;
 import com.ettrema.mail.send.MailSender;
+import com.ettrema.utils.ClydeUtils;
+import com.ettrema.utils.LogUtils;
+import com.ettrema.web.*;
+import com.ettrema.web.eval.EvalUtils;
+import com.ettrema.web.eval.Evaluatable;
+import com.ettrema.web.groups.GroupService;
+import com.ettrema.web.mail.RetryingMailService;
+import com.ettrema.web.mail.RetryingMailService.DelayMessage;
+import com.ettrema.web.mail.RetryingMailService.EmailResultCallback;
+import com.ettrema.web.mail.RetryingMailService.SendJob;
+import com.ettrema.web.security.BeanProperty;
+import com.ettrema.web.security.CurrentUserService;
+import com.ettrema.web.security.PermissionRecipient.Role;
+import com.ettrema.web.security.UserGroup;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.OutputStream;
+import java.util.*;
 import javax.mail.MessagingException;
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
-
-import static com.ettrema.context.RequestContext._;
+import org.jdom.Namespace;
 
 /**
  * An email command which sends to a group, rather then a particular user
@@ -66,7 +47,7 @@ import static com.ettrema.context.RequestContext._;
  * @author brad
  */
 @BeanPropertyResource(value = "clyde")
-public final class GroupEmailCommand2 extends Command implements Resource, DigestResource, GetableResource, PropFindableResource {
+public final class GroupEmailCommand2 extends Command implements Resource, DigestResource, GetableResource, PropFindableResource, ComponentEx {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GroupEmailCommand2.class);
     private static final long serialVersionUID = 1L;
@@ -219,7 +200,17 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
         }
     }
 
-    private MailboxAddress getAddress(User user) {
+    /**
+     * If testOnly returns the current user's email address!!!
+     *
+     * @param user - the user to normally return the email address of
+     * @param testOnly
+     * @return
+     */
+    private MailboxAddress getAddress(User user, boolean testOnly) {
+        if (testOnly) {
+            user = (User) _(CurrentUserService.class).getOnBehalfOf();
+        }
         String sEmail = user.getExternalEmailTextV2("default");
         if (sEmail != null && sEmail.length() > 0) {
             MailboxAddress add = null;
@@ -246,7 +237,17 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
     }
 
     @Override
-    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
+        ProcessResult result = onProcessEx(rc, parameters, files);
+        if (result != null) {
+            return result.getRedirect();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ProcessResult onProcessEx(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         log.trace("onProcess");
         String s = parameters.get(this.getName());
         if (s == null) {
@@ -257,14 +258,25 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
             log.debug("validation failed");
             return null;
         }
-        return doProcess(rc, parameters, files);
+        String redirect = doProcess(rc, parameters, files);
+        return new ProcessResult(redirect, null, true);
+    }
+
+    public SendJob getJob(Templatable targetPage) {
+        return _(RetryingMailService.class).getJob(targetPage.getHref());
+
     }
 
     @Override
     protected String doProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        log.trace("doProcess");
+        boolean testOnly = isTestOnly(parameters);
+        if (testOnly) {
+            log.info("doProcess - test Only");
+        } else {
+            log.info("doProcess - real send");
+        }
         try {
-            send(rc);
+            send(rc, testOnly);
             String url = EvalUtils.evalToString(confirmationUrl, rc, container);
             if (url != null && url.length() > 0) {
                 return url;
@@ -282,12 +294,12 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
         return true;
     }
 
-    public void send(RenderContext rc) throws MessagingException {
-        log.debug("send");
+    public void send(RenderContext rc, boolean testOnly) throws MessagingException {
+        log.info("send: test=" + testOnly + " -----------------------------------");
         List<User> recipList = getTo(rc);
         List<StandardMessage> msgs = new ArrayList<StandardMessage>();
         for (User user : recipList) {
-            MailboxAddress address = getAddress(user);
+            MailboxAddress address = getAddress(user, testOnly); // returns current user's email if testObly
             if (address != null) {
                 log.info("send email to: " + address + " ...");
                 StandardMessage sm = new StandardMessageImpl();
@@ -325,7 +337,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
     }
 
     private void addAttachments(StandardMessage sm, RenderContext rc) {
-        Object o = EvalUtils.eval(attachments, rc, container);
+        Object o = EvalUtils.eval(attachments, rc, rc.getTargetPage());
         if (o == null) {
             return;
         } else if (o instanceof List) {
@@ -461,6 +473,15 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
     @Override
     public Date getCreateDate() {
         return null;
+    }
+
+    private boolean isTestOnly(Map<String, String> parameters) {
+        String test = parameters.get("test");
+        if (test != null && test.length() > 0) {
+            return !test.equals("false");
+        } else {
+            return false;
+        }
     }
 
     private static class NotifySenderEmailCallback implements EmailResultCallback {
