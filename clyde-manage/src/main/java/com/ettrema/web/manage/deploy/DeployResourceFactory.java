@@ -201,8 +201,9 @@ public class DeployResourceFactory implements ResourceFactory {
 
         @Override
         public void delete() throws NotAuthorizedException, ConflictException, BadRequestException {
+            log.info("delete: " + getName());
             try {
-                deploymentService.undeploy(web, deployFolderName);
+                deploymentService.undeploy(web, getName());
                 _(VfsSession.class).commit();
             } catch (Exception ex) {
                 _(VfsSession.class).rollback();

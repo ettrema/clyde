@@ -94,13 +94,17 @@ public class DeploymentService {
     public void undeploy(Web web, String name) throws Exception {
         Deployment previousDeployment = getPreviousDeployment(web, name);
         if (previousDeployment != null) {
+            LogUtils.info(log, "undeploy", name, previousDeployment.getId());
             undeploy(previousDeployment);
+            previousDeployment.delete();
+        } else {
+            LogUtils.info(log, "undeploy: previous deployment not found", name);
         }
-        previousDeployment.delete();
     }
 
     private void undeploy(Deployment previousDeployment) throws Exception {
         // First delete any files (not directories) which this deployment created
+        LogUtils.info(log, "undeploy", previousDeployment.getName(), "items:", previousDeployment.getItems().size());
         for (DeploymentItem item : previousDeployment.getItems()) {
             if (!item.isDirectory() && item.isCreated()) {
                 BaseResource res = ClydeUtils.loadResource(item.getItemId());
