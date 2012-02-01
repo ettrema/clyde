@@ -266,7 +266,7 @@ public class CalendarEvent extends Folder implements ICalResource {
     }
 
     public String getSummary() {
-        ComponentValue cv = this.getValues().get("brief");
+        ComponentValue cv = this.getValues().get("title");
         if (cv == null) {
             return null;
         } else {
@@ -281,9 +281,9 @@ public class CalendarEvent extends Folder implements ICalResource {
     }
 
     public void setSummary(String d) {
-        ComponentValue cv = this.getValues().get("brief");
+        ComponentValue cv = this.getValues().get("title");
         if (cv == null) {
-            cv = new ComponentValue("brief", this);
+            cv = new ComponentValue("title", this);
             this.getValues().add(cv);
         }
         cv.setValue(d);
@@ -297,23 +297,28 @@ public class CalendarEvent extends Folder implements ICalResource {
             this.name = name;
         }
 
+        @Override
         public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
             writeData(out);
             out.flush();
         }
 
+        @Override
         public Long getMaxAgeSeconds(Auth auth) {
             return null;
         }
 
+        @Override
         public String getContentType(String accepts) {
             return "text/calendar";
         }
 
+        @Override
         public Long getContentLength() {
             return null;
         }
 
+        @Override
         public String getUniqueId() {
             return null;
         }

@@ -101,7 +101,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
         if (job == null) {
             return null;
         } else {
-            List<SendStatus> list = new ArrayList<SendStatus>();
+            List<SendStatus> list = new ArrayList<>();
             for (RetryingMailService.DelayMessage msg : job.getMsgs()) {
                 String email = toEmail(msg);
                 String status = toStatus(msg);
@@ -158,7 +158,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
         } else {
             LogUtils.trace(log, "getTo: 'to' evaluated to a", o.getClass());
         }
-        List<User> list = new ArrayList<User>();
+        List<User> list = new ArrayList<>();
         appendUsers(list, o);
         return list;
     }
@@ -213,9 +213,8 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
         }
         String sEmail = user.getExternalEmailTextV2("default");
         if (sEmail != null && sEmail.length() > 0) {
-            MailboxAddress add = null;
             try {
-                add = MailboxAddress.parse(sEmail);
+                MailboxAddress add = MailboxAddress.parse(sEmail);
                 return add;
             } catch (IllegalArgumentException e) {
                 log.error("Couldnt parse: " + sEmail, e);
@@ -297,7 +296,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
     public void send(RenderContext rc, boolean testOnly) throws MessagingException {
         log.info("send: test=" + testOnly + " -----------------------------------");
         List<User> recipList = getTo(rc);
-        List<StandardMessage> msgs = new ArrayList<StandardMessage>();
+        List<StandardMessage> msgs = new ArrayList<>();
         for (User user : recipList) {
             MailboxAddress address = getAddress(user, testOnly); // returns current user's email if testObly
             if (address != null) {
@@ -380,13 +379,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
             } finally {
                 IOUtils.closeQuietly(in);
             }
-        } catch (NotFoundException ex) {
-            throw new RuntimeException(ex);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        } catch (NotAuthorizedException ex) {
-            throw new RuntimeException(ex);
-        } catch (BadRequestException ex) {
+        } catch (NotFoundException | IOException | NotAuthorizedException | BadRequestException ex) {
             throw new RuntimeException(ex);
         }
     }
