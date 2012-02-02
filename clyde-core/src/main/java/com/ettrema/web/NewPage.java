@@ -86,13 +86,13 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.getHref() + newName + ".new";
     }
 
-	public String findAutoName(Map<String, String> parameters) {
-		return findAutoName(folder, parameters);
-	}
-	
+    public String findAutoName(Map<String, String> parameters) {
+        return findAutoName(folder, parameters);
+    }
+
     public static String findAutoName(Folder folder, Map<String, String> parameters) {
-        String nameToUse = getImpliedName(parameters);
-        if( nameToUse != null) {
+        String nameToUse = getImpliedName(parameters, folder);
+        if (nameToUse != null) {
             nameToUse = nameToUse.toLowerCase().replace("/", "");
             nameToUse = nameToUse.toLowerCase().replace("'", "");
             nameToUse = nameToUse.toLowerCase().replace("\"", "");
@@ -104,13 +104,25 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         }
         return nameToUse;
     }
-    
-    private static String getImpliedName(Map<String, String> parameters) {
-		if( parameters == null ) {
-			return null;
-		}
+
+    private static String getImpliedName(Map<String, String> parameters, Folder folder) {
+        if (parameters == null) {
+            return null;
+        }
         if (parameters.containsKey("name")) {
-            return parameters.get("name");
+            String name = parameters.get("name");
+            if( name.contains("$[counter]")) {
+                Long l = folder.incrementCounter();
+                name = name.replace("$[counter]", l.toString());
+            }
+            return name;
+        } else if (parameters.containsKey("_counter")) {
+            String name = parameters.get("_counter");
+            if( name.contains("$[counter]")) {
+                Long l = folder.incrementCounter();
+                name = name.replace("$[counter]", l.toString());
+            }
+            return name;            
         } else if (parameters.containsKey("fullName")) {
             return parameters.get("fullName");
         } else if (parameters.containsKey("firstName")) {
@@ -124,7 +136,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             return title;
         } else {
             return null;
-        }        
+        }
     }
 
     private ITemplate getTemplate(Map<String, String> params) {
@@ -173,19 +185,19 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             } else {
                 log.trace("editee already exists");
             }
-            if( editee instanceof EditableResource ) {
+            if (editee instanceof EditableResource) {
                 log.trace("editee is editable");
                 EditableResource er = (EditableResource) editee;
-                er.getEditPage().sendContent( out, range, params, null );
+                er.getEditPage().sendContent(out, range, params, null);
             } else {
                 log.trace("editee is not editable, use rendercontext");
-                RenderContext rc = new RenderContext( t, editee, null, true );
-                String s = t.render( rc );
-                if( s == null ) {
-                    log.warn( "Got null content for editee: " + editee.getHref() );
+                RenderContext rc = new RenderContext(t, editee, null, true);
+                String s = t.render(rc);
+                if (s == null) {
+                    log.warn("Got null content for editee: " + editee.getHref());
                     return;
                 }
-                out.write( s.getBytes() );
+                out.write(s.getBytes());
             }
         }
     }
@@ -232,7 +244,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         return folder.authenticate(digestRequest);
     }
 
-	@Override
+    @Override
     public boolean isDigestAllowed() {
         return true;
     }
@@ -296,7 +308,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             } else {
                 return null; // probably invalid input
             }
-        } else if( editee == null ) {
+        } else if (editee == null) {
             throw new RuntimeException("Editee resource is null");
         } else {
             log.debug("..NOT editbale");

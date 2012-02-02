@@ -120,7 +120,7 @@ public class DeploymentService {
                 }
             }
         }
-        
+
         // Now remove any empty directories which this deploy created
         for (DeploymentItem item : previousDeployment.getItems()) {
             if (item.isDirectory() && item.isCreated()) {
@@ -128,15 +128,24 @@ public class DeploymentService {
                 if (res == null) {
                     LogUtils.trace(log, "undeploy: item not found", item.getItemId());
                 } else {
-                    try {
-                        LogUtils.trace(log, "undeploy: delete previously deployed item", res.getName());
-                        res.deleteNoTx();
-                    } catch (NotAuthorizedException | ConflictException | BadRequestException ex) {
-                        throw new Exception(ex);
+                    if (res instanceof Folder) {
+                        Folder folderToDelete = (Folder) res;
+                        if (folderToDelete.getHasChildren()) {
+                            LogUtils.info(log, "undeploy: not deleting non-empty directory", folderToDelete.getHref());
+                        } else {
+                            try {
+                                LogUtils.trace(log, "undeploy: delete previously deployed item", res.getName());
+                                res.deleteNoTx();
+                            } catch (NotAuthorizedException | ConflictException | BadRequestException ex) {
+                                throw new Exception(ex);
+                            }
+                        }
+                    } else {
+                        log.info("Found a resource which was deployed as a directory, but now isnt. Will not delete: " + res.getHref());
                     }
                 }
             }
-        }        
+        }
     }
 
     private Deployment save(Web web, String name, List<DeploymentItem> items) {
@@ -202,14 +211,14 @@ public class DeploymentService {
                 AbstractCodeResource acr = (AbstractCodeResource) r;
                 BaseResource br = (BaseResource) acr.getWrapped();
                 onLoaded(br);
-            } else if( r instanceof BaseResource) {
-                BaseResource br = (BaseResource)r;
+            } else if (r instanceof BaseResource) {
+                BaseResource br = (BaseResource) r;
                 LogUtils.trace(log, "onLoaded", br.getClass());
                 if (modified.contains(br)) {// should be an impossible situation, but check anyway
                     System.out.println("remove from modified for created");
                     modified.remove(br);
                 }
-                created.add(br);                
+                created.add(br);
             }
         }
 
@@ -223,8 +232,8 @@ public class DeploymentService {
                 AbstractCodeResource acr = (AbstractCodeResource) r;
                 BaseResource br = (BaseResource) acr.getWrapped();
                 onModified(br);
-            } else if(r instanceof BaseResource) {
-                BaseResource br = (BaseResource)r;
+            } else if (r instanceof BaseResource) {
+                BaseResource br = (BaseResource) r;
                 LogUtils.trace(log, "onModified", br.getClass());
                 if (!created.contains(br)) { // if already in created, ignore the modified
                     System.out.println("add to modified because not in created");

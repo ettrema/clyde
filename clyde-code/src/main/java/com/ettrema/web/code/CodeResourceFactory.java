@@ -206,7 +206,8 @@ public final class CodeResourceFactory implements ResourceFactory {
         add(new MigrateResourceMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new TextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new PdfMetaHandler(binaryFileMetaHandler), mapOfAliases);
-
+        add(new CombiningTextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
+        
         // Must be constructed last because uses mapOfAlias, but must be ahead of page because of supports
         add(new TemplateMetaHandler(pageMetaHandler, mapOfAliases, commonTemplatedMetaHandler.getSubPageHandler()), mapOfAliases);
     }

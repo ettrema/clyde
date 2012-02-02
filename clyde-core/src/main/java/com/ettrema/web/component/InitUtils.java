@@ -1,17 +1,13 @@
 package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
-import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
-import com.ettrema.web.Component;
 import com.bradmcevoy.xml.XmlHelper;
+import com.ettrema.utils.JDomUtils;
+import com.ettrema.web.Component;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -31,7 +27,7 @@ public class InitUtils {
 
     public static Boolean getNullableBoolean(Element el, String name) {
         String s = el.getAttributeValue(name);
-        if (s == null) {
+        if (s == null || s.trim().length() == 0) {
             return null;
         }
         return s.equals("true");
@@ -164,7 +160,7 @@ public class InitUtils {
     }
 
     public static void toXml(String name, BooleanInput in, Element e2) {
-        String s = "";
+        String s;
         if (in != null && in.getValue() != null) {
             s = in.getValue() + "";
         } else {
@@ -188,7 +184,7 @@ public class InitUtils {
             return null;
         }
         String[] arr = s.split(",");
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(arr));
         return list;
     }
@@ -241,7 +237,7 @@ public class InitUtils {
      */
     public static String getValue(Element el) {
         Attribute att = el.getAttribute("value");
-        String v = null;
+        String v;
         if (att != null) {
             v = att.getValue();
         } else {
@@ -254,7 +250,7 @@ public class InitUtils {
     }
 
     static Map<String, Component> initChildComponents(Element el, Addressable parent) {
-        Map<String, Component> map = new HashMap<String, Component>();
+        Map<String, Component> map = new HashMap<>();
         for (Object o : el.getChildren()) {
             Element elComp = (Element) o;
             Component c = (Component) XmlUtils2.restoreObject(elComp, parent);
@@ -275,7 +271,7 @@ public class InitUtils {
     }
 
     static Map<String, Field> componentFields(Object parent) {
-        Map<String, Field> map = new HashMap<String, Field>();
+        Map<String, Field> map = new HashMap<>();
         for (Field f : parent.getClass().getDeclaredFields()) {
             if (Component.class.isAssignableFrom(f.getType())) {
                 f.setAccessible(true);
@@ -288,9 +284,7 @@ public class InitUtils {
     static void setField(Field f, Component c, Object parent) {
         try {
             f.set(parent, c);
-        } catch (IllegalArgumentException ex) {
-            throw new RuntimeException("Failed set component on field: " + f.getName(), ex);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
             throw new RuntimeException("Failed set component on field: " + f.getName(), ex);
         }
     }
@@ -298,9 +292,7 @@ public class InitUtils {
     public static Component getComponent(Field f, Object parent) {
         try {
             return (Component) f.get(parent);
-        } catch (IllegalArgumentException ex) {
-            throw new RuntimeException("Failed set component on field: " + f.getName(), ex);
-        } catch (IllegalAccessException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
             throw new RuntimeException("Failed set component on field: " + f.getName(), ex);
         }
     }

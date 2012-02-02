@@ -25,6 +25,7 @@ public class CombiningTextFile extends File {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CombiningTextFile.class );
     private static final long serialVersionUID = 1L;
     private List<Path> includes;
+    private String includeExt;
 
     public CombiningTextFile( String contentType, Folder parentFolder, String newName ) {
         super( contentType, parentFolder, newName );
@@ -48,26 +49,40 @@ public class CombiningTextFile extends File {
 
     @Override
     public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
+        List<GetableResource> list = new ArrayList<>();
+        Folder parent = getParent();
         if( includes != null ) {
-            //ByteArrayOutputStream tempOut = new ByteArrayOutputStream();
-            OutputStream tempOut = out;
             for( Path includeName : includes ) {
-                Resource child = this.getParent().find( includeName );
+                Resource child = parent.find( includeName );
                 if( child == null ) {
                     log.warn("Couldnt find resource to imclude: " + includeName + " in folder: " + this.getParent().getHref());
                 } else if( child instanceof GetableResource ) {
                     GetableResource gr = (GetableResource) child;
-                    gr.sendContent( tempOut, range, params, contentType );
-//                    tempOut.write( "\n".getBytes() ); // write CR
+                    list.add(gr);
                 } else {
                     log.warn("is not getable! " + child.getClass());
                 }
             }
-            //byte[] arr = tempOut.toByteArray();
-            //log.debug( "wrote: " + arr.length);
-            //out.write( arr );// temp hack
         } else {
             log.warn( "no includes defined for combiningtextfile: " + this.getName() );
+        }
+        
+        if( includeExt != null ) {
+            for(Resource r : parent.getChildren()) {
+                if( r.getName().endsWith(includeExt)) {
+                    if( r instanceof GetableResource) {
+                        GetableResource gr = (GetableResource) r;
+                        if( !list.contains(gr)) {
+                            list.add(gr);
+                        }
+                    }
+                }
+            }            
+        }
+        
+        for( GetableResource gr :list ) {
+            gr.sendContent( out, range, params, contentType );
+//                    tempOut.write( "\n".getBytes() ); // write CR            
         }
     }
 
@@ -96,34 +111,7 @@ public class CombiningTextFile extends File {
     @Override
     public Long getContentLength() {
         return null;
-//        log.trace("getContentLength");
-//        if( includes != null ) {
-//            long length = 0;
-//            for( Path includeName : includes ) {
-//                Resource child = this.getParent().find( includeName );
-//                if( child instanceof GetableResource ) {
-//                    GetableResource gr = (GetableResource) child;
-//                    Long l = gr.getContentLength();
-//                    if( l == null ) {
-//                        return null;
-//                    } else {
-//                        log.trace(" add: " + gr.getName() + " - " + l);
-//                        length += l;
-//                    }
-//                } else {
-//                    return null;
-//                }
-//            }
-//            log.trace("getContentLength: " + length);
-//            return length;
-//        } else {
-//            return null;
-//        }
-
     }
-
-
-
 
     public List<Path> getIncludes() {
         return includes;
@@ -151,13 +139,7 @@ public class CombiningTextFile extends File {
     public void loadFromXml( Element el ) {
         super.loadFromXml( el );
         String s = el.getAttributeValue( "includes" );
-        includes = new ArrayList<Path>();
-        if( s != null && s.trim().length() > 0 ) {
-            String[] arr = s.split( "," );
-            for( String name : arr ) {
-                includes.add( Path.path( name ) );
-            }
-        }
+        setIncludes(s);
     }
 
 
@@ -165,6 +147,22 @@ public class CombiningTextFile extends File {
     public boolean isIndexable() {
         return false;
     }
+    
+    public void setIncludes(String s) {
+        includes = new ArrayList<>();
+        if( s != null && s.trim().length() > 0 ) {
+            String[] arr = s.split( "," );
+            for( String name : arr ) {
+                includes.add( Path.path( name ) );
+            }
+        }        
+    }
 
+    public String getIncludeExt() {
+        return includeExt;
+    }
 
+    public void setIncludeExt(String includeExt) {
+        this.includeExt = includeExt;
+    }   
 }

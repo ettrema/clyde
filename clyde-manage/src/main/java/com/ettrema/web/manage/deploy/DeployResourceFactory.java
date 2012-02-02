@@ -61,6 +61,9 @@ public class DeployResourceFactory implements ResourceFactory {
     }
 
     private DeployFolder getDeployFolderOrNull(String host, Path path) throws BadRequestException, NotAuthorizedException {
+        if( path.getParent() == null ) {
+            return null;
+        }
         Resource r = existingResourceFactory.getResource(host, path.getParent().toString());
         if (r == null) {
             return null;

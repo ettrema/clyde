@@ -4,6 +4,7 @@ import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
 import com.ettrema.web.ITemplate;
@@ -139,14 +140,18 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
 
     private boolean isSecure(Templatable templatable) {
         if(templatable == null ) {
+            log.trace("isSecure: null resource so false");
             return false;
         } else if (templatable instanceof Host) {
             Host h = (Host) templatable;
-            return h.isSecureRead();
+            boolean b = h.isSecureRead();
+            LogUtils.trace(log, "isSecure: host says", b);
+            return b;
         } else if (templatable instanceof Folder) {
             Folder folder = (Folder) templatable;
             Boolean bb = folder.isSecureRead2(); // Look for a value defined directly on the folder
             if ( bb != null ) {
+                LogUtils.trace(log, "isSecure: folder", folder.getName() , " secureRead2 says", bb);
                 return bb.booleanValue();
             } else {
                 // there was no value on the folder, so look on the template if there is one
@@ -154,6 +159,7 @@ public class SecureReadAuthoriser implements ClydeAuthoriser {
                 if( t != null ) {
                     Boolean b = t.isSecure();
                     if( b != null ) {
+                        LogUtils.trace(log, "isSecure: folder", folder.getName() , "'s template says", b);
                         return b;
                     }
                 }

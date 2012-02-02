@@ -97,6 +97,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * on LinkedFolder's without always checking to see if there are any.
      */
     private boolean linkedFolders;
+    
+    private Long counter;
 
     /** Create a root folder
      */
@@ -163,6 +165,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     public void setSecureRead(Boolean b) {
+        LogUtils.trace(log, "setSecureRead", b);
         this.secureRead2 = b;
         if (b != null) {
             this.secureRead = b;
@@ -1113,5 +1116,22 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public List<LinkedFolder> getLinkedFolders() {
         return LinkedFolder.getLinkedDestinations(this);
+    }
+
+    public Long getCounter() {
+        return counter;
+    }
+
+    public void setCounter(Long counter) {
+        this.counter = counter;
+    }
+            
+    public synchronized Long incrementCounter() {
+        if( counter == null ) {
+            counter = 0l;
+        }
+        Long c = counter++;
+        save();
+        return c;
     }
 }
