@@ -44,6 +44,7 @@ public class HtmlInput extends Text {
         } else {
             VelocityContext vc = new VelocityContext();
             vc.put( "rc", rc );
+            LogUtils.trace(log, "render: using template", template);
             String s = VelocityInterpreter.evalToString( template, vc );
             LogUtils.trace(log, "render: evaluated template to", s);
             return s;

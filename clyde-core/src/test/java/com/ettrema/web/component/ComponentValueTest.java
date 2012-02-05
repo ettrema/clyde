@@ -19,8 +19,8 @@ public class ComponentValueTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        cv = new ComponentValue( "test", null );
-        cv.setValue( "abc");
+//        cv = new ComponentValue( "test", null );
+//        cv.setValue( "abc");
     }
 
     public void test() {

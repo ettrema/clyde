@@ -290,7 +290,14 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
 
     @Override
     public boolean validate(RenderContext rc) {
-        return true;
+        String s = EvalUtils.evalToString(from, rc, container);
+        try {
+             MailboxAddress.parse(s);
+             return true;
+        } catch(IllegalArgumentException e) {
+            setValidationMessage("The from email address is not valid. Please enter an address like someone@somewhere.com");
+            return false;
+        }        
     }
 
     public void send(RenderContext rc, boolean testOnly) throws MessagingException {

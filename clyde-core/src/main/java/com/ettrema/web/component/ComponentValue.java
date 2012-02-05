@@ -3,15 +3,13 @@ package com.ettrema.web.component;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Request;
-import com.ettrema.web.*;
 import com.bradmcevoy.xml.XmlHelper;
+import com.ettrema.logging.LogUtils;
+import com.ettrema.web.Formatter;
+import com.ettrema.web.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
@@ -23,7 +21,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public Object value;
     private List<OldValue> oldValues;
     private Addressable parent;
-    private transient ThreadLocal<String> thValidationMessage = new ThreadLocal<String>();
+    private transient ThreadLocal<String> thValidationMessage = new ThreadLocal<>();
 
     public ComponentValue(String name, Addressable container) {
         this.name = name;
@@ -31,12 +29,12 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
         if (parent instanceof ComponentValue) {
             throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + name + " parent: " + parent.getName());
         }
-        this.oldValues = new ArrayList<OldValue>();
+        this.oldValues = new ArrayList<>();
     }
 
     public ComponentValue(Element el, Templatable container) {
         this.name = el.getAttributeValue("name");
-        this.oldValues = new ArrayList<OldValue>();
+        this.oldValues = new ArrayList<>();
         this.parent = container;
         if (parent instanceof ComponentValue) {
             throw new RuntimeException("Parent is a ComponentValue. This is probably a mistake: Name: " + name + " parent: " + parent.getName());
@@ -79,7 +77,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     public void setValidationMessage(String validationMessage) {
         log.debug("setValidationMessage: " + name + " -> " + validationMessage);
         if (thValidationMessage == null) {
-            thValidationMessage = new ThreadLocal<String>();
+            thValidationMessage = new ThreadLocal<>();
         }
         thValidationMessage.set(validationMessage);
     }
@@ -260,8 +258,11 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
     }
 
     public void setValue(Object value) {
-        if (log.isTraceEnabled()) {
-            log.trace("setValue: name: " + name + " value: " + value);
+        if(log.isTraceEnabled()) {
+            LogUtils.trace(log, "setValue: name=", name, "parent=", parent.getPath(), "value=", value);
+            if( name.equals("body")) {
+                Thread.dumpStack();
+            }
         }
         // If we've been given another componentvalue just copy its value
         if (value instanceof ComponentValue) {
@@ -335,9 +336,7 @@ public class ComponentValue implements Component, Serializable, ValueHolder {
             }
 
         }
-        if (log.isTraceEnabled()) {
-            log.trace("render CV: " + name + " ::: " + this.getValue());
-        }
+        LogUtils.trace(log, "render: component value name=", name, "def=", def.getName(), "parent=", parent.getPath(), "value=", getValue());
         return def.render(this, rc);
     }
 

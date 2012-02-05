@@ -137,6 +137,7 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
         return newHref;
     }
 
+    @Override
     public Object evaluate(RenderContext rc, Addressable from) {
         if (!validate(rc)) {
             log.debug("validation failed");
@@ -152,6 +153,7 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
         return newHref;
     }
 
+    @Override
     public Object evaluate(Object from) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -169,11 +171,13 @@ public abstract class Command extends VfsCommon implements Component, Addressabl
         params.attributes.put(this.getName() + "_validation", s);
     }
 
+    @Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
         return (String) params.attributes.get(this.getName() + "_validation");
     }
 
+    @Override
     public void pleaseImplementSerializable() {
     }
 

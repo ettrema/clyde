@@ -169,7 +169,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
         if (lTemplate != null) {
-            lTemplate.preProcess(rc, parameters, files);
+            // Commented this out because it means that values will bind to values on templates. Should
+            // only ever bind to the target page
+            
+            // BUT we might need this back to do processing of nested components - perhaps?
+            // If you need to re-enable this line, be sure to test the case of having a page
+            // with nested templates, where you have invalid inputs. If not working you'll get a blank screen
+            
+//            lTemplate.preProcess(rc, parameters, files);
             for (ComponentDef def : lTemplate.getComponentDefs().values()) {
                 ComponentValue cv = this.getValues().get(def.getName());
                 if (cv == null) {
@@ -188,6 +195,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         }
     }
+    
 
     /** Commands should be invoked, if user clicked
      */
@@ -593,7 +601,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             return null;
         }
         String s = sel.getValue();
-        log.trace("getTemplateName: got templatename: " + s + " - " + getClass());
         return s;
     }
 

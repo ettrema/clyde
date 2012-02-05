@@ -47,43 +47,52 @@ public class ForgottenPasswordComponent implements Component {
         fromXml( el );
     }
 
+    @Override
     public void init( Addressable container ) {
         this.container = container;
     }
 
+    @Override
     public Addressable getContainer() {
         return container;
     }
 
+    @Override
     public boolean validate( RenderContext rc ) {
         // Note: not used by this component
         return true;
     }
 
+    @Override
     public String render( RenderContext rc ) {
         return "";
     }
 
+    @Override
     public String renderEdit( RenderContext rc ) {
         return "";
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String onProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
         log.debug( "onProcess" );
         ForgottenPasswordHelper helper = new ForgottenPasswordHelper();
         return helper.onProcess( this, rc, parameters, files );
     }
 
+    @Override
     public void onPreProcess( RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files ) {
         String email = parameters.get( "email" );
         log.debug( "email: " + email );
         rc.addAttribute( name + "_email", email );
     }
 
+    @Override
     public Element toXml( Addressable container, Element el ) {
         Element e2 = new Element( "component" );
         el.addContent( e2 );
@@ -199,6 +208,7 @@ public class ForgottenPasswordComponent implements Component {
         params.attributes.put( this.getName() + "_validation", s );
     }
 
+    @Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
         return (String) params.attributes.get( this.getName() + "_validation" );
