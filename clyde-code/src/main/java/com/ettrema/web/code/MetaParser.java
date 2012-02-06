@@ -72,6 +72,7 @@ public class MetaParser {
         } finally {
             IOUtils.closeQuietly(bout);            
         }
+                
         ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
         try {
             SAXBuilder builder = new SAXBuilder();

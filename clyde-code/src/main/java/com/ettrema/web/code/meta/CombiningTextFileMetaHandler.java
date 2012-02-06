@@ -11,6 +11,7 @@ import com.ettrema.web.code.CodeMeta;
 import com.ettrema.web.code.MetaHandler;
 import java.util.List;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  *
@@ -74,7 +75,7 @@ public class CombiningTextFileMetaHandler implements MetaHandler<CombiningTextFi
         baseResourceMetaHandler.updateFromXml(r, el);
         String includes = JDomUtils.valueOf(el, "includes", CodeMeta.NS);
         r.setIncludes(includes);
-        String includesExt = JDomUtils.valueOf(el, "includesExt", CodeMeta.NS);
+        String includesExt = JDomUtils.valueOf(el, "includeExt", CodeMeta.NS);
         r.setIncludeExt(includesExt);
         r.save();
     }

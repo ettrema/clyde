@@ -1,22 +1,32 @@
 package com.ettrema.web.code.content;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.utils.JDomUtils;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.ettrema.web.Page;
 import com.ettrema.web.code.ContentTypeHandler;
+import com.ettrema.web.code.content.xml.StaxBuilder;
 import com.ettrema.web.component.ComponentValue;
 import com.ettrema.web.component.InitUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import org.apache.commons.io.IOUtils;
 import org.jdom.DocType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.MyXmlOutputter;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -26,10 +36,12 @@ public class PageContentTypeHandler implements ContentTypeHandler {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PageContentTypeHandler.class );
 
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof Page;
     }
 
+    @Override
     public void generateContent( OutputStream out, GetableResource wrapped ) throws IOException {
         Page page = (Page) wrapped;
         // <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -57,13 +69,28 @@ public class PageContentTypeHandler implements ContentTypeHandler {
 
     }
 
+    @Override
     public void replaceContent( InputStream in, Long contentLength, GetableResource wrapped ) {
         log.trace( "replaceContent" );
         Page page = (Page) wrapped;
         try {
             String title;
             XmlUtils2 xmlUtils2 = new XmlUtils2();
-            Document doc = xmlUtils2.getJDomDocument( in );
+            
+            // hack
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        try {
+            IOUtils.copy(in, bout);
+        } catch (IOException ex) {
+            throw new JDOMException("IOException reading data", ex);
+        } finally {
+            IOUtils.closeQuietly(bout);            
+        }
+                         
+            System.out.println("replaceContent: " + bout.toString());
+        
+            Document doc = getJDomDocument( new ByteArrayInputStream(bout.toByteArray()) );
+            //Document doc = xmlUtils2.getJDomDocument( in );
             Element elRoot = doc.getRootElement();
             if( !elRoot.getName().equals( "html" ) ) {
                 throw new RuntimeException( "Document is not an html doc" );
@@ -89,7 +116,44 @@ public class PageContentTypeHandler implements ContentTypeHandler {
         } catch( JDOMException ex ) {
             throw new RuntimeException( ex );
         }
-
-
     }
+    
+    public org.jdom.Document getJDomDocument(InputStream fin) throws JDOMException {
+        try {
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            if( !inputFactory.isPropertySupported(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES)) {
+                throw new RuntimeException(":EEEk");
+            }
+            inputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+            inputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+            inputFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+            inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+            StaxBuilder staxBuilder = new StaxBuilder();
+            XMLStreamReader streamReader = inputFactory.createXMLStreamReader(fin);
+            return staxBuilder.build(streamReader);
+            
+//            SAXBuilder builder = new SAXBuilder();
+//            builder.setExpandEntities(false);
+//            builder.setEntityResolver(new MyEntityResolver());
+//            builder.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+//            //builder.setFeature(  "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+//
+//            return builder.build(fin);
+        } catch (XMLStreamException ex) {
+            throw new RuntimeException(ex);
+//        } catch (IOException ex) {
+//            throw new RuntimeException(ex);
+        }
+    }
+    
+    public class MyEntityResolver implements EntityResolver {
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {            
+            Path p = Path.path(systemId);
+            System.out.println("resolveEntoty: " + p);
+            return null;
+        }
+    }    
+    
 }
