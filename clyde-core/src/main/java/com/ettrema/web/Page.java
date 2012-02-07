@@ -31,15 +31,9 @@ public class Page extends File implements Replaceable {
     @Override
     public String getContentType(String accepts) {
         String s =  super.getContentType(accepts) + "; charset=UTF-8";
-        System.out.println("content typeL " + s);
-        return s;
-            
+        return s;            
     }
-    
-    
-
-    
-   
+             
     @Override
     protected BaseResource newInstance( Folder parent, String newName ) {
         return new Page( parent, newName );

@@ -36,9 +36,17 @@ public class JDomUtils {
         return els;
     }
 
-    public static List<org.jdom.Element> childrenOf( org.jdom.Element e2, String name, Namespace ns ) {
-        Element elNext = e2.getChild( name, ns );
-        List<org.jdom.Element> els = new ArrayList<org.jdom.Element>();
+    /**
+     * Returns all children of the named element of the given element
+     * 
+     * @param el
+     * @param name
+     * @param ns
+     * @return 
+     */
+    public static List<org.jdom.Element> childrenOf( org.jdom.Element el, String name, Namespace ns ) {
+        Element elNext = el.getChild( name, ns );
+        List<org.jdom.Element> els = new ArrayList<>();
         if( elNext != null ) {
             List list = elNext.getChildren();
             for( Object o : list ) {

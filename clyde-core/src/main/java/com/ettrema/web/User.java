@@ -51,6 +51,7 @@ import javax.mail.internet.MimeMessage;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 
 @BeanPropertyResource("clyde")
 public class User extends Folder implements IUser {
@@ -290,12 +291,10 @@ public class User extends Folder implements IUser {
         UserGroup group = _(GroupService.class).getGroup(this, groupName);
         if (group != null) {
             boolean b = group.isInGroup(this);
-            if (log.isTraceEnabled()) {
-                log.trace("isInGroup: " + groupName + " = " + b);
-            }
+            LogUtils.trace(log, "isInGroup: group=", groupName, "result=", b);
             return b;
         } else {
-            log.warn("group not found: " + groupName);
+            LogUtils.trace(log, "isInGroup: group not found", groupName); // can be expected, since is called from is()
             return false;
         }
     }

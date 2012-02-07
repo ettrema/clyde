@@ -5,6 +5,9 @@ import com.ettrema.context.RootContext;
 import com.ettrema.web.code.CodeResourceFactory;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import org.apache.lucene.util.NamedThreadFactory;
 
 /**
  * Creates and initialises other FileWatcher's based on system properties.
@@ -19,7 +22,8 @@ public class SysPropertyFileWatcherFactory implements Service {
     private final FileLoader defaultFileLoader;
     private final CodeResourceFactory codeResourceFactory;
     private final ErrorReporter errorReporter;
-    private final Map<String,FileLoader> mapOfFileLoadersByHost = new HashMap<String, FileLoader>();
+    private final Map<String,FileLoader> mapOfFileLoadersByHost = new HashMap<>();
+    private final ScheduledExecutorService scheduledExecutorService;
     
     private String propertyNamePrefix = "autoloader.";
     
@@ -30,6 +34,7 @@ public class SysPropertyFileWatcherFactory implements Service {
         this.defaultFileLoader = fileLoader;
         this.codeResourceFactory = codeResourceFactory;
         this.errorReporter = errorReporter;
+        scheduledExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory(this.getClass().getCanonicalName()));        
     }
     
     
@@ -59,7 +64,7 @@ public class SysPropertyFileWatcherFactory implements Service {
         log.info("addWatch - raw path: " + path + " - absolute path: " + dirToWatch.getAbsolutePath());
         if( dirToWatch.exists() ) {
             if( dirToWatch.isDirectory())  {
-                FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader);
+                FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader, scheduledExecutorService);
                 fw.setInitialScan(true);
                 fw.setWatchFiles(true);
                 fw.start();

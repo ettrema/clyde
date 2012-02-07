@@ -578,14 +578,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             TemplateManager tm = requestContext().get(TemplateManager.class);
             template = tm.lookup(templateName, web);
             if (template == null) {
-                log.warn("getTemplate: no template: " + templateName + " for web: " + web.getName());
+                LogUtils.trace(log, "getTemplate: no template", templateName, "for web=", web.getName());                
             } else {
                 if (template == this) {
                     throw new RuntimeException("my template is myself");
                 }
             }
         } else {
-            log.warn("no web for: " + this.getName());
+            LogUtils.trace(log, "getTemplate: no web for", this.getName());          
         }
 //        if( template != null ) {
 //            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());

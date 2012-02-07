@@ -4,6 +4,7 @@ import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.VfsSession;
 import java.io.File;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class FileScanner {
     }
 
     private void scanDir(File dir, boolean forceReload, File root) throws Exception {
+        LogUtils.info(log, "scanDir", dir.getAbsolutePath());
         DirectoryListing listing = new DirectoryListing(dir, root);
 
         processFile(dir, true, root); // force load of dirs for metadata

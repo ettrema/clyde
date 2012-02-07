@@ -24,4 +24,14 @@ public interface ClydeGroupHelper {
      * @return
      */
     boolean isInGroup(IUser user, Group group);
+    
+    /**
+     * Get all explicitly stated groups for a user. Does not include automatic
+     * groups like Authenticated
+     * 
+     * 
+     * @param user
+     * @return 
+     */
+    List<Group> getGroups(IUser user);
 }

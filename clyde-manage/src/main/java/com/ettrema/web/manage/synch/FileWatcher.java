@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.*;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 
 /**
@@ -28,23 +30,66 @@ public class FileWatcher implements Service {
     private final File root;
     private final FileLoader fileLoader;
     private final FileScanner fileScanner;
+    private final ScheduledExecutorService scheduledExecutorService;
     private WatchService watchService;
     private WatchKey watchId;
     private boolean watchFiles = true;
     private boolean initialScan = false;
-    private boolean running;
-    Thread thScan;
+    private boolean running;    
+    private ScheduledFuture<?> futureInitial;
+    private ScheduledFuture<?> futureScan;
 
-    public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader) {
+    public FileWatcher(RootContext rootContext, File root, FileLoader fileLoader, ScheduledExecutorService scheduledExecutorService) {
         this.rootContext = rootContext;
         this.root = root;
         this.fileLoader = fileLoader;
+        this.scheduledExecutorService = scheduledExecutorService;
         fileScanner = new FileScanner(rootContext, fileLoader);
     }
 
     @Override
     public void start() {
+        running = true;
+        final boolean doInitial = initialScan;
+
+        if (initialScan) {
+            Runnable rInitialScan = new Runnable() {
+
+                @Override
+                public void run() {
+                    if (doInitial) {
+                        log.info("Starting initial scan for: " + root.getAbsolutePath() + " --------------");
+
+                        rootContext.execute(new Executable2() {
+
+                            @Override
+                            public void execute(Context cntxt) {
+                                try {
+                                    fileScanner.initialScan(root);
+                                    log.info("Finished initial scan for: " + root.getAbsolutePath());
+                                } catch (Exception ex) {
+                                    log.error("exception loading files", ex);
+                                }
+                            }
+                        });
+                    }
+                }
+            };
+
+            futureInitial = scheduledExecutorService.schedule(rInitialScan, 100, TimeUnit.MILLISECONDS);
+        }
+
         if (watchFiles) {
+            Runnable rScan = new Runnable() {
+
+                @Override
+                public void run() {
+                    doScan();
+                }
+            };
+            log.info("Begin file watch loop: " + root.getAbsolutePath());
+            futureScan = scheduledExecutorService.scheduleWithFixedDelay(rScan, 200, 200, TimeUnit.MILLISECONDS);
+
             try {
                 final Path path = FileSystems.getDefault().getPath(root.getAbsolutePath());
                 watchService = path.getFileSystem().newWatchService();
@@ -56,40 +101,6 @@ public class FileWatcher implements Service {
         } else {
             log.info("File watching is off");
         }
-
-        running = true;
-        final boolean doInitial = initialScan;
-        thScan = Executors.defaultThreadFactory().newThread(new Runnable() {
-
-            @Override
-            public void run() {
-                if (doInitial) {
-                    log.info("Initial scan is on: " + root.getAbsolutePath());
-
-                    rootContext.execute(new Executable2() {
-
-                        @Override
-                        public void execute(Context cntxt) {
-                            try {
-                                fileScanner.initialScan(root);
-                            } catch (Exception ex) {
-                                log.error("exception loading files", ex);
-                            }
-                        }
-                    });
-                }
-                try {
-                    while (running) {
-                        log.info("Begin file watch loop: " + root.getAbsolutePath());
-                        doScan();
-                    }
-                } catch (InterruptedException interruptedException) {
-                    System.out.println("Watch interrupted");
-                }
-                log.info("File watcher has exited: " + root.getAbsolutePath());
-            }
-        });
-        thScan.start();
 
     }
 
@@ -106,9 +117,12 @@ public class FileWatcher implements Service {
         }
     }
 
-    private void doScan() throws InterruptedException {
+    private void doScan()  {
         WatchKey watchKey;
-        watchKey = watchService.take(); // this call is blocking until events are present
+        watchKey = watchService.poll(); // this call is blocking until events are present
+        if( watchKey == null ) {
+            return ;
+        }
         Watchable w = watchKey.watchable();
         Path watchedPath = (Path) w;
         // poll for file system events on the WatchKey
@@ -141,15 +155,20 @@ public class FileWatcher implements Service {
     @Override
     public void stop() {
         running = false;
-        if (thScan != null) {
-            thScan.interrupt();
-            thScan = null;
-        }
         if (watchService != null) {
             try {
                 watchService.close();
             } catch (IOException ex) {
             }
+        }
+        
+        if( futureInitial != null ) {
+            futureInitial.cancel(true);
+            futureInitial = null;
+        }
+        if(futureScan != null) {
+            futureScan.cancel(true);
+            futureScan = null;
         }
     }
 

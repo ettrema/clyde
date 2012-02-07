@@ -5,6 +5,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.context.ClassNotInContextException;
+import com.ettrema.logging.LogUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,7 +46,6 @@ public class FileLoader {
     public void onNewFile(File f, File root) throws Exception {
         try {
             check(f, root);
-            log.trace("commit new file");
         } catch (NotAuthorizedException | ConflictException | BadRequestException | IOException | ClassNotInContextException ex) {
             errorReporter.onError(f, ex);
             throw ex;
@@ -55,7 +55,6 @@ public class FileLoader {
     public void onDeleted(File f, File root) throws Exception {
         try {
             check(f, root);
-            log.trace("commit deleted file");
         } catch (NotAuthorizedException | ConflictException | BadRequestException | IOException ex) {
             errorReporter.onError(f, ex);
             throw ex;
@@ -65,7 +64,6 @@ public class FileLoader {
     public void onModified(File f, File root) throws Exception {
         try {
             check(f, root);
-            log.trace("commit modified file");
         } catch (NotAuthorizedException | ConflictException | BadRequestException | IOException ex) {
             errorReporter.onError(f, ex);
             throw ex;
@@ -118,7 +116,6 @@ public class FileLoader {
         try {
             try {
                 fout = new FileOutputStream(file, true);
-                log.trace("not locked");
                 return false;
             } catch (FileNotFoundException ex) {
                 log.info("file doesnt exist: " + file.getAbsolutePath());
@@ -136,11 +133,12 @@ public class FileLoader {
     }
 
     public boolean isNewOrUpdated(File f, File root) {
-        return fileTransport.isNewOrUpdated(f, root);
+        boolean b = fileTransport.isNewOrUpdated(f, root);
+        LogUtils.trace(log, "isNewOrUpdated", f.getAbsolutePath(), b);
+        return b;
     }
 
     private void upload(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        log.info("upload2: " + f.getAbsolutePath() + " from root: " + root.getAbsolutePath());
         try {
             File fMeta = CodeSynchUtils.toMetaFile(f);
             if (fMeta.exists()) {

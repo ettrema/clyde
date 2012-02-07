@@ -94,10 +94,14 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         String nameToUse = getImpliedName(parameters, folder);
         if (nameToUse != null) {
             nameToUse = nameToUse.toLowerCase().replace("/", "");
-            nameToUse = nameToUse.toLowerCase().replace("'", "");
-            nameToUse = nameToUse.toLowerCase().replace("\"", "");
-            nameToUse = nameToUse.toLowerCase().replace("@", "-");
+            nameToUse = nameToUse.replace("'", "");
+            nameToUse = nameToUse.replace("\"", "");
+            nameToUse = nameToUse.replace("@", "-");
             nameToUse = nameToUse.replace(" ", "-");
+            nameToUse = nameToUse.replace("?", "-");
+            nameToUse = nameToUse.replace(":", "-");
+            nameToUse = nameToUse.replace("--", "-");
+            nameToUse = nameToUse.replace("--", "-");
             nameToUse = ClydeUtils.getUniqueName(folder, nameToUse);
         } else {
             nameToUse = ClydeUtils.getDateAsNameUnique(folder);

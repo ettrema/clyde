@@ -47,6 +47,7 @@ public class EditPage implements PostableResource, DigestResource {
         this.editee = editee;
     }
 
+    
     @Override
     public String getUniqueId() {
         return null;
@@ -142,9 +143,10 @@ public class EditPage implements PostableResource, DigestResource {
     }
 
     @Override
-    public String getContentType( String accepts ) {
-        return "text/html";
-    }
+    public String getContentType(String accepts) {
+        String s =  "text/html; charset=UTF-8";
+        return s;            
+    }    
 
     @Override
     public String checkRedirect( Request request ) {
