@@ -958,7 +958,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     @Override
     public String getLink() {
         String text = getLinkText();
-        return "<a href='" + getHref() + "index.html'>" + text + "</a>";
+        return "<a href='" + getUrl() + "index.html'>" + text + "</a>";
     }
 
     /**

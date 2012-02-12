@@ -155,11 +155,6 @@ public class Host extends Web implements BucketOwner {
         return super.createNew(newName, in, length, contentType);
     }
 
-    @Override
-    public String getUrl() {
-        return "/";
-    }
-
     boolean isAlias() {
         return (hostPath != null);
     }

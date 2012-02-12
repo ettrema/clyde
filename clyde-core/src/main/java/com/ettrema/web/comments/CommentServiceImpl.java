@@ -28,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
         if( nComments == null ) {
             return Collections.emptyList();
         } else {
-            List<Comment> list = new ArrayList<Comment>();
+            List<Comment> list = new ArrayList<>();
             for( NameNode child : nComments.children() ) {
                 DataNode dn = child.getData();
                 if( dn instanceof Comment ) {
@@ -61,6 +61,7 @@ public class CommentServiceImpl implements CommentService {
         nNewComment.save();
     }
 
+    @Override
     public UserBean getUser( UUID userNameNodeId ) {
         NameNode nUser = _( VfsSession.class ).get( userNameNodeId );
         if( nUser == null ) {

@@ -16,13 +16,9 @@ import com.ettrema.web.BaseResource;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.RenderContext;
 import com.ettrema.web.SubPage;
-import com.ettrema.context.RequestContext;
-import com.ettrema.vfs.NameNode;
-import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -58,7 +54,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
             throw new RuntimeException( "Excessive rescannign detected, aborting");
         }
         boolean didChange = false;
-        List<ProcessContext> contexts = new ArrayList<ProcessContext>();
+        List<ProcessContext> contexts = new ArrayList<>();
         for (ComponentValue cv : res.getValues().values()) {
             ProcessContext context = createContext(cv, res);
             if( context != null ) {
@@ -116,26 +112,28 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     }
 
     public static BaseResource getTokensResource(ProcessContext processContext) {
-        UUID id = (UUID) processContext.token.getVariables().get(ProcessDef.VAR_RES_ID);
-        if (id == null) {
-            throw new NullPointerException("no resource id was supplied");
-        }
-        RequestContext req = RequestContext.getCurrent();
-        if (processContext == null) {
-            throw new NullPointerException("No RequestContext in scope. Have you done RootContext.execute?");
-        }
-        VfsSession sess = req.get(VfsSession.class);
-        if (sess == null) {
-            throw new NullPointerException("No VfsSession in scope. Have you configured it in catalog.xml?");
-        }
-        NameNode n = sess.get(id);
-        if (n == null) {
-            throw new NullPointerException("Could not find namenode: " + id);
-        }
-        BaseResource res = (BaseResource) n.getData();
-        if (res == null) {
-            throw new NullPointerException("No data node for name node: " + id);
-        }
+        TokenValue tv = (TokenValue) processContext.token;
+        BaseResource res = (BaseResource) tv.getParent();
+//        UUID id = (UUID) processContext.token.getVariables().get(ProcessDef.VAR_RES_ID);
+//        if (id == null) {
+//            throw new NullPointerException("no resource id was supplied");
+//        }
+//        RequestContext req = RequestContext.getCurrent();
+//        if (processContext == null) {
+//            throw new NullPointerException("No RequestContext in scope. Have you done RootContext.execute?");
+//        }
+//        VfsSession sess = req.get(VfsSession.class);
+//        if (sess == null) {
+//            throw new NullPointerException("No VfsSession in scope. Have you configured it in catalog.xml?");
+//        }
+//        NameNode n = sess.get(id);
+//        if (n == null) {
+//            throw new NullPointerException("Could not find namenode: " + id);
+//        }
+//        BaseResource res = (BaseResource) n.getData();
+//        if (res == null) {
+//            throw new NullPointerException("No data node for name node: " + id);
+//        }
         return res;
     }
 
@@ -155,7 +153,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     }
 
     @Override
-    public void loadXml(Element el) {
+    public final void loadXml(Element el) {
         process.loadXml(el);
     }
 
@@ -187,6 +185,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         return null;
     }
 
+    @Override
     public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, com.bradmcevoy.http.FileItem> files) {
         
     }
@@ -195,7 +194,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     public ComponentValue createComponentValue(Templatable tr) {
         BaseResource newRes = (BaseResource) tr;
         TokenValue t = startProcess(newRes);
-        t.getVariables().put(VAR_RES_ID, newRes.getId());
+        //t.getVariables().put(VAR_RES_ID, newRes.getId());
         ComponentValue cv = new ComponentValue(getName(), tr);
         cv.setValue( t );
         t.setComponentValue(cv);
@@ -211,6 +210,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
         return tv;
     }
 
+    @Override
     public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
         String sVal = InitUtils.getValue( elValue );
         // TODO: should parse xml directly
@@ -218,6 +218,7 @@ public class ProcessDef extends SubPage implements ComponentDef, com.bradmcevoy.
     }
 
 
+    @Override
     public Class getValueClass() {
         return TokenValue.class;
     }

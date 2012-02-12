@@ -52,8 +52,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     private String contentType;
 
     /**
-     * 
-     * @return - the page from which the last component was found on this thread - EEK!
+     *
+     * @return - the page from which the last component was found on this thread
+     * - EEK!
      */
     public static BaseResource getTargetContainer() {
         return tlTargetContainer.get();
@@ -71,9 +72,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public abstract Templatable getParent();
 
     /**
-     * Called only when the persisted content type is null, this should be
-     * what we expect the content type of a resource type to be, possibly
-     * considering its file extension
+     * Called only when the persisted content type is null, this should be what
+     * we expect the content type of a resource type to be, possibly considering
+     * its file extension
      *
      * @return
      */
@@ -87,9 +88,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * Find a resource from the given path. If relative, the search is done from this
-     * resource. If absolute, the search is from the host
-     * 
+     * Find a resource from the given path. If relative, the search is done from
+     * this resource. If absolute, the search is from the host
+     *
      * @param path
      * @return
      */
@@ -103,6 +104,19 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return find(p);
     }
 
+    /**
+     * Implements listing files from multiple sub-directories depending on a
+     * search path which can include wild cards and symbols.
+     *
+     * Symbols include: ".", "..", "*" and "**" which have conventional
+     * meannings
+     *
+     * Also supports the following syntax:
+     *
+     * *[templateSpec]
+     *
+     * ... where templateSpec can either be a "*" or the name of a template
+     */
     public BaseResourceList search(String sPath) {
         Path p = Path.path(sPath);
         return search(p);
@@ -162,7 +176,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return _(FormProcessor.class).processForm(this, parameters, files);
     }
 
-    /** Components should read their values from request params
+    /**
+     * Components should read their values from request params
      */
     @Override
     public void preProcess(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) {
@@ -171,11 +186,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (lTemplate != null) {
             // Commented this out because it means that values will bind to values on templates. Should
             // only ever bind to the target page
-            
+
             // BUT we might need this back to do processing of nested components - perhaps?
             // If you need to re-enable this line, be sure to test the case of having a page
             // with nested templates, where you have invalid inputs. If not working you'll get a blank screen
-            
+
 //            lTemplate.preProcess(rc, parameters, files);
             for (ComponentDef def : lTemplate.getComponentDefs().values()) {
                 ComponentValue cv = this.getValues().get(def.getName());
@@ -195,9 +210,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         }
     }
-    
 
-    /** Commands should be invoked, if user clicked
+    /**
+     * Commands should be invoked, if user clicked
      */
     @Override
     public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
@@ -221,7 +236,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     *  Must be absolute
+     * Must be absolute
+     *
      * @return
      */
     @Override
@@ -230,12 +246,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * 
+     *
      * @return - the absolute path of this resource. does not include server
      */
     @Override
-    public String getUrl() {
-        return _(HrefService.class).getUrl(this);
+    public final String getUrl() {
+        String s = _(HrefService.class).getUrl(this);
+        System.out.println("geturl: " + s);
+        return s;
     }
 
     @Override
@@ -280,7 +298,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * 
+     *
      * @return - size in bytes of persisted components and component values
      */
     public long getPersistedSize() {
@@ -316,9 +334,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     /**
      * An alias for getParams, this is to allow a consistent templating syntax:
      *
-     * $file.view.title
-     * ...and...
-     * $view.title
+     * $file.view.title ...and... $view.title
      */
     public Params getView() {
         return getParams();
@@ -402,8 +418,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return f.getHost();
     }
 
-    
-    
     @Override
     public boolean authorise(Request request, Request.Method method, Auth auth) {
         log.trace("start authoirse");
@@ -471,7 +485,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     /**
      * Gets the max age configuration on this instance (non-recursive)
-     * 
+     *
      * @return
      */
     public Long getMaxAgeSecsThis() {
@@ -578,14 +592,14 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             TemplateManager tm = requestContext().get(TemplateManager.class);
             template = tm.lookup(templateName, web);
             if (template == null) {
-                LogUtils.trace(log, "getTemplate: no template", templateName, "for web=", web.getName());                
+                LogUtils.trace(log, "getTemplate: no template", templateName, "for web=", web.getName());
             } else {
                 if (template == this) {
                     throw new RuntimeException("my template is myself");
                 }
             }
         } else {
-            LogUtils.trace(log, "getTemplate: no web for", this.getName());          
+            LogUtils.trace(log, "getTemplate: no web for", this.getName());
         }
 //        if( template != null ) {
 //            log.debug( "end: getTemplate: from:" + this.getName() + " template:" + getTemplateName() + " -->> " + template.getClass() + ": " + template.getName());
@@ -633,7 +647,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             LogUtils.trace(log, "render: rendering from template ", t.getName());
             return t.render(rc);
         } else {
-            LogUtils.trace(log, "render: no template, so try to use root parameter" );
+            LogUtils.trace(log, "render: no template, so try to use root parameter");
             Component cRoot = this.getParams().get("root");
             if (cRoot == null) {
                 log.warn("render: no template " + this.getTemplateName() + " and no root or body component for template: " + this.getHref());
@@ -693,7 +707,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     /**
      * This supports components
-     * 
+     *
      * @param container
      * @param el
      * @return
@@ -778,7 +792,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * 
+     *
      * @param text
      * @return - html to show a link to this file with the supplied text
      */
@@ -790,7 +804,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public String getLink() {
         String text = getLinkText();
-        return link(text);
+        String s = link(text);
+        return s;
     }
 
     public String getLinkText() {
@@ -830,7 +845,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * 
+     *
      * @param childName
      * @return - a component of any type which has the given name
      */
@@ -852,9 +867,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * find a component on this instance or any of its ancestor templates.
-     * If there are multiple components of the same name, the one closest
-     * to the final instance overrides inherited ones
+     * find a component on this instance or any of its ancestor templates. If
+     * there are multiple components of the same name, the one closest to the
+     * final instance overrides inherited ones
      *
      * This will not return component definitions or values
      *
@@ -1128,10 +1143,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * 
+     *
      * @param start - must not be null
      * @param inclusive
-     * @return 
+     * @return
      */
     private BaseResourceList _breadCrumbs(Folder start, boolean inclusive) {
         Folder parent;
@@ -1181,8 +1196,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
         return sb.toString();
     }
-    
+
     public String getEncodedName() {
         return com.bradmcevoy.http.Utils.percentEncode(getName());
-    }    
+    }
 }
