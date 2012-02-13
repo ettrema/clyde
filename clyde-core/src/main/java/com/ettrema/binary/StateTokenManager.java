@@ -52,7 +52,14 @@ public class StateTokenManager {
         }
     }
 
-    private StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
+    /**
+     * Urghh, syncronised...
+     * 
+     * @param f
+     * @param autoCreate
+     * @return 
+     */
+    private synchronized StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
         NameNode nn = f.getNameNode().child(NAMENODE_CRC);
         StateToken stateToken;
         if (nn == null) {
