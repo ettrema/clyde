@@ -32,6 +32,7 @@ public abstract class AbstractFactory  implements ConsoleCommandFactory{
         return description;
     }
 
+    @Override
     public void setConsoleResourceFactory( ConsoleResourceFactory crf ) {
         this.resourceFactory = crf;
     }
