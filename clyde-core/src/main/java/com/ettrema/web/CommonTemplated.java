@@ -252,7 +252,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public final String getUrl() {
         String s = _(HrefService.class).getUrl(this);
-        System.out.println("geturl: " + s);
         return s;
     }
 

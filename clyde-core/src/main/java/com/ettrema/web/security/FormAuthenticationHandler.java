@@ -20,6 +20,7 @@ public class FormAuthenticationHandler implements AuthenticationHandler {
     private String userNameParam = "_loginUserName";
     private String passwordParam = "_loginPassword";
 
+    @Override
     public boolean supports( Resource r, Request request ) {
         // We will support it if its a form POST and a username param is present
         boolean b = isLogin( request );
@@ -43,6 +44,7 @@ public class FormAuthenticationHandler implements AuthenticationHandler {
      * @param request
      * @return
      */
+    @Override
     public Object authenticate( Resource resource, Request request ) {
         String userName = request.getParams().get( userNameParam );
         String pwd = request.getParams().get( passwordParam );
@@ -57,11 +59,13 @@ public class FormAuthenticationHandler implements AuthenticationHandler {
         return o;
     }
 
+    @Override
     public String getChallenge( Resource resource, Request request ) {
         // doesnt do http challenge
         throw new UnsupportedOperationException( "Not supported yet." );
     }
 
+    @Override
     public boolean isCompatible( Resource resource ) {
         // never issue challenge
         return false;

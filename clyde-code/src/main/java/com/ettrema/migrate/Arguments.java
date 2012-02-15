@@ -5,11 +5,7 @@ import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Arguments {
 
@@ -27,7 +23,7 @@ public class Arguments {
     private boolean noUser;
     private boolean forceDisabled; // force export disabled
     private Date sinceDate;
-    private final List<FileExportStatus> statuses = new ArrayList<FileExportStatus>();
+    private final List<FileExportStatus> statuses = new ArrayList<>();
     /**
      * Holds a reference to the thread processing this job, if running in background
      */
@@ -57,7 +53,7 @@ public class Arguments {
     public Arguments(Folder localFolder, List<String> args) throws Exception {
         this.localFolder = localFolder;
         this.ids = null;
-        List<String> list = new ArrayList<String>(args);
+        List<String> list = new ArrayList<>(args);
         Iterator<String> it = list.iterator();
         while (it.hasNext()) {
             String s = it.next();
@@ -228,3 +224,4 @@ public class Arguments {
         }
     }
 }
+

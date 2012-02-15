@@ -248,7 +248,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     public List<Folder> getSubFolders() {
-        List<Folder> list = new ArrayList<Folder>();
+        List<Folder> list = new ArrayList<>();
         for (Resource res : this.getChildren()) {
             if (res instanceof Folder) {
                 list.add((Folder) res);
