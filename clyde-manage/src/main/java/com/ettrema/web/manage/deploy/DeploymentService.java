@@ -9,6 +9,7 @@ import com.ettrema.utils.ClydeUtils;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.EmptyDataNode;
 import com.ettrema.vfs.NameNode;
+import com.ettrema.vfs.Relationship;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.BinaryFile;
 import com.ettrema.web.Folder;
@@ -87,6 +88,8 @@ public class DeploymentService {
         List<DeploymentItem> items = callBack.asList();
         LogUtils.trace(log, "deploy: items", items.size());
 
+        // Now remove redundant items. Ie those 
+
         return save(web, name, items);
 
     }
@@ -106,16 +109,21 @@ public class DeploymentService {
         // First delete any files (not directories) which this deployment created
         LogUtils.info(log, "undeploy", previousDeployment.getName(), "items:", previousDeployment.getItems().size());
         for (DeploymentItem item : previousDeployment.getItems()) {
-            if (!item.isDirectory() && item.isCreated()) {
+            if (canDelete(item)) {
                 BaseResource res = ClydeUtils.loadResource(item.getItemId());
                 if (res == null) {
                     LogUtils.trace(log, "undeploy: item not found", item.getItemId());
                 } else {
-                    try {
-                        LogUtils.trace(log, "undeploy: delete previously deployed item", res.getName());
-                        res.deleteNoTx();
-                    } catch (NotAuthorizedException | ConflictException | BadRequestException ex) {
-                        throw new Exception(ex);
+                    // Check for relationships
+                    if (!hasRelations(res)) {
+                        try {
+                            LogUtils.trace(log, "undeploy: delete previously deployed item", res.getName());
+                            res.deleteNoTx();
+                        } catch (NotAuthorizedException | ConflictException | BadRequestException ex) {
+                            throw new Exception(ex);
+                        }
+                    } else {
+                        LogUtils.trace(log, "undeploy: not deleting item because it has relations", item.getPath());
                     }
                 }
             }
@@ -146,6 +154,10 @@ public class DeploymentService {
                 }
             }
         }
+    }
+
+    private boolean canDelete(DeploymentItem item) {
+        return !item.isDirectory() && item.isCreated();
     }
 
     private Deployment save(Web web, String name, List<DeploymentItem> items) {
@@ -198,6 +210,15 @@ public class DeploymentService {
             }
         }
         return f.delete();
+    }
+
+    private boolean hasRelations(BaseResource res) {
+        List<Relationship> rels = res.getNameNode().findFromRelations(null);
+        if( rels != null && !rels.isEmpty()) {
+            return true;
+        }
+        rels = res.getNameNode().findToRelations(null);
+        return rels != null && !rels.isEmpty();
     }
 
     private class DeploymentFileLoadCallBack implements DirectFileTransport.FileLoadCallback {

@@ -757,6 +757,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public Folder getTrashFolder() {
         return getParent().getTrashFolder();
     }
+    
 
     private Relationship getRelationNode(String relationName) {
         List<Relationship> list = nameNode.findFromRelations(relationName);
