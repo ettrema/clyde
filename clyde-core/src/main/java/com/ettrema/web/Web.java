@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ettrema.context.RequestContext._;
+import java.util.Map;
 
 @BeanPropertyResource( "clyde" )
 public class Web extends Folder {
@@ -230,5 +231,4 @@ public class Web extends Folder {
             return list;
         }
     }
-
 }

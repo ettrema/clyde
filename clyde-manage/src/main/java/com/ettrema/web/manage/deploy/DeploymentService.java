@@ -236,7 +236,6 @@ public class DeploymentService {
                 BaseResource br = (BaseResource) r;
                 LogUtils.trace(log, "onModified", br.getClass());
                 if (!created.contains(br)) { // if already in created, ignore the modified
-                    System.out.println("add to modified because not in created");
                     modified.add(br);
                 }
             }

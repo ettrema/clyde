@@ -50,6 +50,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
+import com.ettrema.utils.FolderMap;
 
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
@@ -1133,5 +1134,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         Long c = counter++;
         save();
         return c;
+    }
+    
+    public FolderMap getMap() {
+        return new FolderMap(this);
     }
 }

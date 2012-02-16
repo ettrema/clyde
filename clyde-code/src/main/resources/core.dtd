@@ -173,7 +173,7 @@ formatter - the standard formatter
   >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable|c:csvsubpage)*>
+<!ELEMENT c:components (c:text|c:html|c:subpage|c:eval|c:forgottenPassword|c:recaptcha|c:singleEmail|c:groupEmail|c:groovy|c:evaluatable|c:csvsubpage|c:groupSelect|c:multiGroupSelect)*>
 
 
 
@@ -198,6 +198,17 @@ formatter - the standard formatter
 
 <!ELEMENT c:groupEmail (c:bodyText|c:bodyHtml|c:from|c:toGroup|c:subject|c:replyTo|c:confirmationUrl|c:attachments)*>
 <!ATTLIST c:groupEmail
+        name CDATA #REQUIRED
+  >
+
+<!ELEMENT c:groupSelect EMPTY>
+<!ATTLIST c:groupSelect
+        name CDATA #REQUIRED
+        group CDATA #REQUIRED
+  >
+
+<!ELEMENT c:multiGroupSelect EMPTY>
+<!ATTLIST c:multiGroupSelect
         name CDATA #REQUIRED
   >
 

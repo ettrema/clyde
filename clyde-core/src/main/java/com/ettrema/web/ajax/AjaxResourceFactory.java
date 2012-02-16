@@ -38,8 +38,8 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Supports invoking components via ajax, with response as JSON data
  *
- * Eg post to /users/_autoname.new/.ajax to create a new user via an ajax
- * call, with any validation errors returned as ajax
+ * Eg post to /users/_autoname.new/.ajax to create a new user via an ajax call,
+ * with any validation errors returned as ajax
  *
  * @author brad
  */
@@ -55,7 +55,7 @@ public class AjaxResourceFactory implements ResourceFactory {
     }
 
     @Override
-    public Resource getResource(String host, String path) throws NotAuthorizedException, BadRequestException{
+    public Resource getResource(String host, String path) throws NotAuthorizedException, BadRequestException {
         if (path.endsWith(ENDS_WITH)) {
             Path p = Path.path(path);
             if (p.getParent() == null) {
@@ -111,26 +111,32 @@ public class AjaxResourceFactory implements ResourceFactory {
             this.res = res;
         }
 
+        @Override
         public CommonTemplated get(Map<String, String> parameters) {
             return res;
         }
 
+        @Override
         public Object authenticate(String user, String password) {
             return res.authenticate(user, password);
         }
 
+        @Override
         public boolean authorise(Request request, Method method, Auth auth) {
             return res.authorise(request, method, auth);
         }
 
+        @Override
         public String getRealm() {
             return res.getRealm();
         }
 
+        @Override
         public Object authenticate(DigestResponse digestRequest) {
             return res.authenticate(digestRequest);
         }
 
+        @Override
         public boolean isDigestAllowed() {
             return res.isDigestAllowed();
         }
@@ -144,26 +150,32 @@ public class AjaxResourceFactory implements ResourceFactory {
             this.newPage = newPage;
         }
 
+        @Override
         public CommonTemplated get(Map<String, String> parameters) {
             return newPage.getEditee(parameters);
         }
 
+        @Override
         public Object authenticate(String user, String password) {
             return newPage.authenticate(user, password);
         }
 
+        @Override
         public boolean authorise(Request request, Method method, Auth auth) {
             return newPage.authorise(request, method, auth);
         }
 
+        @Override
         public String getRealm() {
             return newPage.getRealm();
         }
 
+        @Override
         public Object authenticate(DigestResponse digestRequest) {
             return newPage.authenticate(digestRequest);
         }
 
+        @Override
         public boolean isDigestAllowed() {
             return newPage.isDigestAllowed();
         }
@@ -181,7 +193,7 @@ public class AjaxResourceFactory implements ResourceFactory {
          * Note that we can't just delegate to the underlying page because we
          * need access to the component values, so we can get their validation
          * messages
-         * 
+         *
          * @param parameters
          * @param files
          * @return
@@ -189,6 +201,7 @@ public class AjaxResourceFactory implements ResourceFactory {
          * @throws NotAuthorizedException
          * @throws ConflictException
          */
+        @Override
         public String processForm(Map<String, String> parameters, Map<String, FileItem> files) throws BadRequestException, NotAuthorizedException, ConflictException {
             log.trace("processForm");
             preProcess(null, parameters, files);
@@ -229,7 +242,7 @@ public class AjaxResourceFactory implements ResourceFactory {
             }
         }
 
-        public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {            
+        public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
             CommonTemplated res = accessor.get(parameters);
             log.info("process: resource name: " + res.getName() + " - template: " + res.getTemplateName());
             ITemplate lTemplate = res.getTemplate();
@@ -251,7 +264,7 @@ public class AjaxResourceFactory implements ResourceFactory {
                 }
             }
 
-            if( !componentFound ) {
+            if (!componentFound) {
                 log.warn("form post occurred, but did not process any components. Check that you have sent a component identified");
             }
             return null;
@@ -259,7 +272,7 @@ public class AjaxResourceFactory implements ResourceFactory {
 
         @Override
         public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
-            Map<String, String> errors = new HashMap<String, String>();
+            Map<String, Object> errors = new HashMap<>();
             CommonTemplated res = accessor.get(params);
 
             for (Component c : ComponentUtils.getAllComponents(res)) {
@@ -268,10 +281,24 @@ public class AjaxResourceFactory implements ResourceFactory {
                     errors.put(c.getName(), v);
                 }
             }
-            errors.put("result", errors.size() > 0 ? "err" : "ok");
+            boolean allOk = errors.isEmpty();
+            errors.put("result", allOk ? "ok" : "err");
             JsonConfig cfg = new JsonConfig();
             cfg.setIgnoreTransientFields(true);
             cfg.setCycleDetectionStrategy(CycleDetectionStrategy.LENIENT);
+
+            if (allOk) {
+                Map<String, Object> values = new HashMap<>();
+                for (ComponentValue cv : res.getValues().values()) {
+                    Object o = cv.getValue();
+                    if (o instanceof WorkflowFactor) {
+                        WorkflowFactor factor = (WorkflowFactor) o;
+                        values.put(cv.getName(), factor.getWorkflowAdvice());
+                    }
+                }
+                values.put("url", res.getUrl());
+                errors.put("data", values);
+            }
 
             JSON json = JSONSerializer.toJSON(errors, cfg);
             Writer writer = new PrintWriter(out);
@@ -304,30 +331,37 @@ public class AjaxResourceFactory implements ResourceFactory {
             return NAME;
         }
 
+        @Override
         public Object authenticate(String user, String password) {
             return accessor.authenticate(user, password);
         }
 
+        @Override
         public boolean authorise(Request request, Method method, Auth auth) {
             return accessor.authorise(request, method, auth);
         }
 
+        @Override
         public String getRealm() {
             return accessor.getRealm();
         }
 
+        @Override
         public Date getModifiedDate() {
             return null;
         }
 
+        @Override
         public String checkRedirect(Request request) {
             return null;
         }
 
+        @Override
         public Object authenticate(DigestResponse digestRequest) {
             return accessor.authenticate(digestRequest);
         }
 
+        @Override
         public boolean isDigestAllowed() {
             return accessor.isDigestAllowed();
         }

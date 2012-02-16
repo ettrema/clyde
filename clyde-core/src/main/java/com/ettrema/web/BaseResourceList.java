@@ -2,26 +2,22 @@ package com.ettrema.web;
 
 import com.ettrema.web.calc.Calc;
 import com.ettrema.web.component.ComponentValue;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import org.apache.log4j.Logger;
 
 public class BaseResourceList extends ArrayList<Templatable> {
 
     private static final Logger log = Logger.getLogger(BaseResourceList.class);
     private static final long serialVersionUID = 1L;
-    private final Map<String, Templatable> map = new HashMap<String, Templatable>();
+    private final Map<String, Templatable> map = new HashMap<>();
 
     public BaseResourceList() {
     }
 
+    public BaseResourceList(Templatable[] array) {
+        addAll(Arrays.asList(array));
+    }    
+    
     public BaseResourceList(BaseResourceList copyFrom) {
         super(copyFrom);
     }
@@ -198,7 +194,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
                 ComponentValue cv1 = o1.getValues().get(fieldName);
                 ComponentValue cv2 = o2.getValues().get(fieldName);
                 Object val1 = cv1 == null ? null : cv1.typedValue(o1);
-                Object val2 = cv2 == null ? null : cv2.typedValue(o2); 
+                Object val2 = cv2 == null ? null : cv2.typedValue(o2);
 
                 if (val1 == null) {
                     if (val2 == null) {
@@ -232,7 +228,8 @@ public class BaseResourceList extends ArrayList<Templatable> {
     /**
      * Sort by a MVEL expression
      *
-     * @param expr - the expression, evaluated in the context of each member of the list
+     * @param expr - the expression, evaluated in the context of each member of
+     * the list
      * @return
      */
     public BaseResourceList sortBy(final String expr) {
@@ -278,6 +275,23 @@ public class BaseResourceList extends ArrayList<Templatable> {
         return list;
     }
 
+    public BaseResourceList getRandomSort() {
+        Templatable[] array = new Templatable[this.size()];
+        this.toArray(array);
+        
+        Random rng = new Random();   // i.e., java.util.Random.
+        int n = array.length;        // The number of items left to shuffle (loop invariant).
+        while (n > 1) {
+            int k = rng.nextInt(n);  // 0 <= k < n.
+            n--;                     // n is now the last pertinent index;
+            Templatable temp = array[n];     // swap array[n] with array[k] (does nothing if k == n).
+            array[n] = array[k];
+            array[k] = temp;
+        }
+        BaseResourceList newList = new BaseResourceList(array);
+        return newList;
+    }
+
     public BaseResourceList exclude(String s) {
         return _exclude(s);
     }
@@ -317,6 +331,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
 
     /**
      * Returns a new list where elements satisfy is(s)
+     *
      * @param s
      * @return
      */

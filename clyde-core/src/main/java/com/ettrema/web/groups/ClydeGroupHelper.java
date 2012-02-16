@@ -1,6 +1,7 @@
 package com.ettrema.web.groups;
 
 import com.ettrema.web.Group;
+import com.ettrema.web.Host;
 import com.ettrema.web.IUser;
 import com.ettrema.web.security.CustomUserGroup;
 import com.ettrema.web.security.Subject;
@@ -12,9 +13,12 @@ import java.util.List;
  * @author brad
  */
 public interface ClydeGroupHelper {
-    public List<Subject> getMembers( UserGroup group );
+    
+    List<? extends CustomUserGroup> getAvailableGroups(Host host);
+    
+    List<Subject> getMembers( UserGroup group );
 
-    public void addToGroup( IUser user, CustomUserGroup group );
+    void addToGroup( IUser user, CustomUserGroup group );
 
     /**
      * Called from Group.isInGroup

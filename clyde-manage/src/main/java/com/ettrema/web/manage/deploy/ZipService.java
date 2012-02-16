@@ -35,7 +35,7 @@ public class ZipService {
                 ZipEntry entry = entries.nextElement();
                 File file = new File(dest, entry.getName());
                 if (entry.isDirectory()) {
-                    log.info("unzip: create dir: " + file.getAbsolutePath());
+                    log.trace("unzip: create dir: " + file.getAbsolutePath());
                     if (!file.exists()) {
                         if (!file.mkdirs()) {
                             throw new RuntimeException("Failed to create directory: " + file.getAbsolutePath());
@@ -46,7 +46,7 @@ public class ZipService {
                         }
                     }
                 } else {
-                    log.info("unzip: extract file: " + file.getAbsolutePath());
+                    log.trace("unzip: extract file: " + file.getAbsolutePath());
                     extractFile(zipFile, entry, file);
                 }
             }

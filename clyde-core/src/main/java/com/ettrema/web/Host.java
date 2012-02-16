@@ -20,6 +20,7 @@ import java.util.List;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import java.util.ArrayList;
 
 @BeanPropertyResource("clyde")
 public class Host extends Web implements BucketOwner {
@@ -275,6 +276,16 @@ public class Host extends Web implements BucketOwner {
             log.warn("findGroup: Found a resource which is not a group. Is a: " + r.getClass() + " name=" + r.getName());
             return null;
         }
+    }
+    
+    public List<Group> getGroups() {
+        List<Group> list = new ArrayList<>();
+        for( Resource r : getUsers().getChildren()) {
+            if( r instanceof Group ) {
+                list.add((Group)r);
+            }
+        }
+        return list;
     }
 
     public User createUser(String name, String pwd) {

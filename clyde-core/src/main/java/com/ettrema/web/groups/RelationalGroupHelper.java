@@ -43,6 +43,20 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         this.permissionChecker = permissionChecker;
     }
 
+    /**
+     * Get a list of groups available for selection for a user. Includes
+     * groups which might require particular permissions, even if the current
+     * user does not have permissions to add to those groups.
+     * 
+     * @param web
+     * @return 
+     */
+    @Override
+    public List<? extends CustomUserGroup> getAvailableGroups(Host host) {
+        LogUtils.trace(log, "getAvailableGroups", host.getName());
+        return host.getGroups();
+    }
+    
     @Override
     public List<Subject> getMembers(UserGroup group) {
         log.trace("getMembers");

@@ -5,6 +5,7 @@ import com.ettrema.web.Component;
 import com.ettrema.web.code.CodeMeta;
 import com.ettrema.web.component.GroupSelect;
 import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.component.MultiGroupSelect;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 
@@ -12,25 +13,21 @@ import org.jdom.Element;
  *
  * @author brad
  */
-public class GroupSelectHandler implements ComponentHandler {
+public class MultiGroupSelectHandler implements ComponentHandler {
 
-    public GroupSelectHandler() {
-    }
-    
-    
     @Override
     public Class getComponentClass() {
-        return GroupSelect.class;
+        return MultiGroupSelect.class;
     }
 
     @Override
     public String getAlias() {
-        return "groupSelect";
+        return "multiGroupSelect";
     }
 
     @Override
     public Element toXml( Component c ) {
-        GroupSelect t = (GroupSelect) c;
+        MultiGroupSelect t = (MultiGroupSelect) c;
         Element e2 = new Element( getAlias(), CodeMeta.NS );
         populateXml( e2, t );
         return e2;
@@ -42,18 +39,16 @@ public class GroupSelectHandler implements ComponentHandler {
         if(StringUtils.isEmpty( name )) {
             throw new RuntimeException( "Empty component name");
         }
-        GroupSelect text = new GroupSelect( res, name );
+        MultiGroupSelect text = new MultiGroupSelect( res, name );
         fromXml( text, el );
         return text;
     }
 
-    public void fromXml( GroupSelect text, Element el ) {
-        text.setGroupName( InitUtils.getValue( el, "group" ) );
+    public void fromXml( MultiGroupSelect text, Element el ) {
+
     }
 
-    public void populateXml( Element elThis, GroupSelect t ) {
+    public void populateXml( Element elThis, MultiGroupSelect t ) {
         InitUtils.set( elThis, "name", t.getName() );
-        InitUtils.set( elThis, "group", t.getGroupName() );
-
     }
 }

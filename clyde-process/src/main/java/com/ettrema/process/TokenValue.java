@@ -12,6 +12,7 @@ import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.ITemplate;
 import com.ettrema.web.SubPage;
 import com.ettrema.web.WrappedSubPage;
+import com.ettrema.web.ajax.WorkflowFactor;
 import com.ettrema.web.component.Addressable;
 import com.ettrema.web.component.ComponentDef;
 import com.ettrema.web.component.ComponentValue;
@@ -27,7 +28,7 @@ import org.joda.time.DateTime;
  * 
  * @author brad
  */
-public class TokenValue extends SubPage implements Token, AfterSavable {
+public class TokenValue extends SubPage implements Token, AfterSavable, WorkflowFactor {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TokenValue.class );
     private static final long serialVersionUID = 1L;
@@ -43,6 +44,13 @@ public class TokenValue extends SubPage implements Token, AfterSavable {
         super( newRes, name );
         this.token = t;
     }
+
+    @Override
+    public String getWorkflowAdvice() {
+        return token.getStateName();
+    }
+    
+    
 
     /**
      * Set the componentValue that this instance is a composition of
