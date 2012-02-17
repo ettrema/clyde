@@ -75,7 +75,7 @@ public class GroupMessageSenderImpl implements GroupMessageSender {
         log.debug( "sending to: " + to );
         StandardMessage userMsg = new StandardMessageWrapper( groupMsg );
         templater.doTemplating( userMsg, u );
-        List<MailboxAddress> toList = new ArrayList<MailboxAddress>();
+        List<MailboxAddress> toList = new ArrayList<>();
         toList.add( to );
         userMsg.setTo( toList );
 

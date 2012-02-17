@@ -10,6 +10,7 @@ import static com.ettrema.context.RequestContext._;
 import com.ettrema.event.ClydeEventDispatcher;
 import com.ettrema.forms.FormProcessor;
 import com.ettrema.logging.LogUtils;
+import com.ettrema.utils.BriefFinder;
 import com.ettrema.utils.GroovyUtils;
 import com.ettrema.utils.HrefService;
 import com.ettrema.utils.RedirectService;
@@ -155,13 +156,24 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String getBrief() {
-        ComponentValue cv = this.getValues().get("brief");
-        if (cv != null) {
-            Object o = cv.getValue();
+        ComponentValue cvBrief = this.getValues().get("brief");
+        if (cvBrief != null) {
+            Object o = cvBrief.getValue();
             if (o != null) {
                 return o.toString();
             }
         }
+        ComponentValue cvBody = this.getValues().get("body");
+        if( cvBody != null ) {
+            Object o = cvBody.getValue();
+            if( o instanceof String ) {
+                String b = BriefFinder.findBrief(o.toString(), 200);
+                if( b != null ) {
+                    return b;
+                }
+            }
+        }
+        
         return getTitle();
     }
 

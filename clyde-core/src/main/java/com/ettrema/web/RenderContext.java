@@ -23,47 +23,47 @@ import java.util.Set;
 import org.joda.time.DateTime;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 
 /**
- * What is a RenderContext?
- * When a page is rendered it first calls its template
- * to render it. The template generates the layout and inserts the page's content
- * into that layout.
+ * What is a RenderContext? When a page is rendered it first calls its template
+ * to render it. The template generates the layout and inserts the page's
+ * content into that layout.
  *
  * This means that a template *delegates* to the page it is rendering. However,
- * a template doesnt normally have a reference to the page, because it is the page
- * which has a reference to the template.
+ * a template doesnt normally have a reference to the page, because it is the
+ * page which has a reference to the template.
  *
  * To get around this problem we have a RenderContext (or RC). A RC is just a
- * reference to a page or template, and another RC - called the child - and an edit mode. When
- * rendering a template and an "invoke" instruction is encountered, the RC will
- * find an appropriate component definition, and then use that to render the
- * corresponding component value from the child RC. This is because it is definitions
- * which know how to render values, not the value itself.
+ * reference to a page or template, and another RC - called the child - and an
+ * edit mode. When rendering a template and an "invoke" instruction is
+ * encountered, the RC will find an appropriate component definition, and then
+ * use that to render the corresponding component value from the child RC. This
+ * is because it is definitions which know how to render values, not the value
+ * itself.
  *
- * Edit Mode
- * Components can be rendered in view mode or edit mode. Typically, a page is put
- * into edit mode by accessing it on some special URL pattern and this causes all
- * components to display in edit mode, allowing the content to be edited.
+ * Edit Mode Components can be rendered in view mode or edit mode. Typically, a
+ * page is put into edit mode by accessing it on some special URL pattern and
+ * this causes all components to display in edit mode, allowing the content to
+ * be edited.
  *
- * However, there is a subtle issue about the relationship between RC's, pages and
- * the edit mode. Assume we are rendering page A which has a template B. There
- * will be an RC for each, but only the RC for page A will have its edit mode set.
- * Thats because we don't want to edit the layout in template B, we want to edit
- * the content in page A.
+ * However, there is a subtle issue about the relationship between RC's, pages
+ * and the edit mode. Assume we are rendering page A which has a template B.
+ * There will be an RC for each, but only the RC for page A will have its edit
+ * mode set. Thats because we don't want to edit the layout in template B, we
+ * want to edit the content in page A.
  *
  * But, as discussed above, it is the component definition which renders values,
- * not the value itself. So it is the RC for template B which must make the decision
- * to render in edit mode or view mode, even though the edit mode flag is set to true
- * on the child RC.
+ * not the value itself. So it is the RC for template B which must make the
+ * decision to render in edit mode or view mode, even though the edit mode flag
+ * is set to true on the child RC.
  *
- * However, values don't always have to come from the immediate child, they
- * can come from subsequent children, and in this case the edit mode to be applied
+ * However, values don't always have to come from the immediate child, they can
+ * come from subsequent children, and in this case the edit mode to be applied
  * is that on the RC which contains the value.
  *
- * So rule 1:
- * Edit mode to render with for a component definition is the edit mode of the
- * RC which holds the value.
+ * So rule 1: Edit mode to render with for a component definition is the edit
+ * mode of the RC which holds the value.
  *
  * @author brad
  */
@@ -141,14 +141,14 @@ public class RenderContext implements Map<String, Component> {
 
     /**
      * gets an attribute by key
-     * 
+     *
      * @param key
      * @return
      */
     public Object getAttribute(String key) {
         Object o = attributes.get(key);
         if (o == null) {
-            log.warn("not found: " + key + " size:" + attributes.size());
+            LogUtils.trace(log, "attribute not found: ", key, " in attributes map of size:", attributes.size());
         }
         return o;
     }
@@ -256,7 +256,8 @@ public class RenderContext implements Map<String, Component> {
         return s;
     }
 
-    /** Returns the rendered body component value for this page
+    /**
+     * Returns the rendered body component value for this page
      */
     public String doBody(RenderContext rcChild) {
         //log.debug( "doBody: page: " + rcChild.page.getName());
@@ -338,11 +339,12 @@ public class RenderContext implements Map<String, Component> {
     }
 
     /**
-     *         All sorts of crazy going on with editable and component value location
-    So we want user to define the user fields, but we then want pharmacist and pa
-    to inherit those definitions, and we want values on the pages
-    So when we call rc.invoke('firstName') that won't find a value on pharmacist
-    but it should look for one on the page. It should then be displayed as editable
+     * All sorts of crazy going on with editable and component value location So
+     * we want user to define the user fields, but we then want pharmacist and
+     * pa to inherit those definitions, and we want values on the pages So when
+     * we call rc.invoke('firstName') that won't find a value on pharmacist but
+     * it should look for one on the page. It should then be displayed as
+     * editable
      *
      * @param editable
      * @param def
@@ -401,7 +403,7 @@ public class RenderContext implements Map<String, Component> {
      * the edit mode of the rendering of the component.
      *
      * But if none is given then fallback on the page edit mode
-     * 
+     *
      * @param componentEditable
      * @return
      */
@@ -480,7 +482,8 @@ public class RenderContext implements Map<String, Component> {
         return cv.renderEdit(child);
     }
 
-    /** Return html for the child's body
+    /**
+     * Return html for the child's body
      */
     public String getToolBar() {
         StringBuilder sb = new StringBuilder();
@@ -717,17 +720,16 @@ public class RenderContext implements Map<String, Component> {
             return res;
         }
     }
-    
+
     public BodyProducer getBody() {
         return new BodyProducer();
     }
-    
+
     public class BodyProducer {
 
         @Override
         public String toString() {
             return doBody();
         }
-        
     }
 }

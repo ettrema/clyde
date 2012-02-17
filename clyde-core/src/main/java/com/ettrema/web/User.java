@@ -52,6 +52,7 @@ import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.logging.LogUtils;
+import com.ettrema.web.groups.ClydeGroupHelper;
 
 @BeanPropertyResource("clyde")
 public class User extends Folder implements IUser {
@@ -346,6 +347,10 @@ public class User extends Folder implements IUser {
             throw new RuntimeException("Cant remove group type: " + userGroup.getClass());
         }
     }
+    
+    public List<Group> getGroups() {
+        return _(ClydeGroupHelper.class).getGroups(this);
+    }
 
     public void removeFromGroup(Group group) {
         RelationalGroupHelper groupService = _(RelationalGroupHelper.class);
@@ -383,7 +388,7 @@ public class User extends Folder implements IUser {
     public String createNewAccessKey() {
         UUID newId = UUID.randomUUID();
         if (accessKeys == null) {
-            accessKeys = new ArrayList<String>();
+            accessKeys = new ArrayList<>();
         }
         accessKeys.add(newId.toString());
         return newId.toString();

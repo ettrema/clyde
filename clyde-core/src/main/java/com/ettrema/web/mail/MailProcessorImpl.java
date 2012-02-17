@@ -28,7 +28,7 @@ public class MailProcessorImpl implements MailProcessor {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MailProcessorImpl.class);
 
-    private final Map<String,Date> mapOfRecentEmails = new ConcurrentHashMap<String,Date>();
+    private final Map<String,Date> mapOfRecentEmails = new ConcurrentHashMap<>();
 
     @Override
     public void handleGroupEmail(MimeMessage mm, Folder destFolder, RequestContext context, List<User> members, MailboxAddress groupAddress, String discardSubjects) {
@@ -148,10 +148,10 @@ public class MailProcessorImpl implements MailProcessor {
     }
 
     Map<MailboxAddress, UUID> getMapOfMembers(List<User> members) {
-        Map<MailboxAddress, UUID> map = new HashMap<MailboxAddress, UUID>();
+        Map<MailboxAddress, UUID> map = new HashMap<>();
         for( User u : members) {
             String email = u.getExternalEmailText();
-            if( email != null ) {
+            if( email != null && !u.isEmailDisabled() && !u.isAccountDisabled() ) {
                 try {
                     MailboxAddress toAdd = MailboxAddress.parse(email);
                     map.put(toAdd, u.getNameNodeId());

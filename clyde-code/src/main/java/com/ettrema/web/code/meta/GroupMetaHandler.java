@@ -23,25 +23,30 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         this.folderMetaHandler = folderMetaHandler;
     }
 
+    @Override
     public Class getInstanceType() {
         return Group.class;
     }
 
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof Group;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
 
+    @Override
     public Element toXml( Group r ) {
         Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, r );
         return elRoot;
     }
 
+    @Override
     public Group createFromXml( CollectionResource parent, Element d, String name ) {
         Group f = new Group( (Folder) parent, name );
         updateFromXml( f, d );
@@ -68,7 +73,7 @@ public class GroupMetaHandler implements MetaHandler<Group> {
     @Override
     public void updateFromXml( Group group, Element el ) {
         group.setEmailDisabled( InitUtils.getBoolean( el, "emailDisabled" ) );
-        group.setSecureRead( InitUtils.getBoolean( el, "secure" ) );
+        group.setSecure( InitUtils.getBoolean( el, "secure" ) );
         group.setPassword( InitUtils.getValue( el, "emailPassword" ) );
         group.setEmailDiscardSubjects( InitUtils.getValue( el, "emailDiscardSubject" ) );
         

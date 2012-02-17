@@ -105,34 +105,45 @@ public final class MultiGroupSelect implements WrappableComponent, Component {
     @Override
     public void onPreProcess(Addressable container, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
         log.trace("onPreProcess");
+        
         try {
             GroupService groupService = _(GroupService.class);
             Request request = _(CurrentRequestService.class).request();
             Auth auth = request.getAuthorization();
             PermissionChecker permissionChecker = _(PermissionChecker.class);
             User user = (User) container;
+           
+            boolean canAuthor = user.isNew() || permissionChecker.hasRole(Role.AUTHOR, user, auth);
+            if( !canAuthor ) {
+                setValidationMessage("You cannot edit this user");
+                return ;
+            }
             for (String s : parameters.keySet()) {
                 if (s.endsWith("Group")) {
                     String groupName = s.replace("Group", "");
                     UserGroup group = groupService.getGroup(user, groupName);
                     boolean isSelected = parameters.containsKey(s + "Val");
-                    LogUtils.trace(log, "onPreProcess: group", groupName, "selected:", isSelected);
                     if (group != null) {
-                        if (group instanceof Group) {
+                        if (group instanceof Group) {                                                        
                             Group g = (Group) group;
+                            boolean isInGroup = user.isInGroup(g);
+                            LogUtils.trace(log, "onPreProcess: group", groupName, "selected:", isSelected, "isingroup:", isInGroup);
                             if (isSelected) {
                                 // this parameters presence indicates that the group is selected                                
-                                if( !user.isInGroup(g)) {
-                                    if( userCanAddToGroup(g, permissionChecker, auth)) {
+                                if (!isInGroup) {
+                                    if (userCanAddToGroup(g, permissionChecker, auth)) {
                                         log.trace(" - add to group");
                                         user.addToGroup(g);
                                     } else {
+                                        log.trace(" - user cannot add to this group");
                                         setValidationMessage("You can't add to this group: " + g.getName());
                                         break;
                                     }
+                                } else {
+                                    log.trace(" - user is already in selected group");
                                 }
                             } else {
-                                if( user.isInGroup(g)) {
+                                if (isInGroup) {
                                     log.trace(" - remove from group");
                                     user.removeFromGroup(g);
                                 }
@@ -164,31 +175,35 @@ public final class MultiGroupSelect implements WrappableComponent, Component {
     }
 
     @Override
-    public String renderEdit(Addressable container, RenderContext child) {        
+    public String renderEdit(Addressable container, RenderContext child) {
         User user = (User) child.page;
         List<? extends CustomUserGroup> availableGroups = _(ClydeGroupHelper.class).getAvailableGroups(child.page.getHost());
         StringBuilder sb = new StringBuilder();
+        String err = getValidationMessage();
+        if( err != null ) {
+            sb.append("<div class='validationError'>").append(err).append("</div>");
+        }
+            
         sb.append("<ul>");
-        for( CustomUserGroup g : availableGroups ) {
-            if( g instanceof Group ) {
+        for (CustomUserGroup g : availableGroups) {
+            if (g instanceof Group) {
                 Group group = (Group) g;
                 String checked = user.isInGroup(group) ? "checked='yes'" : "";
                 LogUtils.trace(log, "renderEdit: group", group.getName(), "checked?", checked);
                 String groupName = group.getName();
-                String label = "<label for='" + groupName + "Check'>" + groupName + "</label>";
+                String selection = "<input id='" + groupName + "Check' type='checkbox' name='" + groupName + "GroupVal' value='true' " + checked + " />";
                 String dummy = "<input type='hidden' name='" + groupName + "Group' value='1'/>";
-                String selection = "<input id='" + groupName + "Check' type='checkbox' name='" + groupName + "GroupVal' value='true' " + checked + " />" + dummy;
+                String label = "<label for='" + groupName + "Check'>" + groupName + "</label>";
                 sb.append("<li class='groupSelect'>").append(selection).append(dummy).append(label).append("</li>");
             }
         }
-        sb.append("</ul>");        
+        sb.append("</ul>");
         return sb.toString();
     }
 
     @Override
     public boolean validate(Addressable container, RenderContext rc) {
-        String attName = "validation" + getPath(rc);
-        String validationMessage = (String) rc.getAttribute(attName);
+        String validationMessage = getValidationMessage();
         if (validationMessage != null) {
             log.warn("validation error: " + validationMessage);
             return false;
@@ -225,6 +240,9 @@ public final class MultiGroupSelect implements WrappableComponent, Component {
     }
 
     private boolean userCanAddToGroup(Group g, PermissionChecker permissionChecker, Auth auth) {
+        if( !g.isSecure() ) {
+            return true;
+        }
         return permissionChecker.hasRole(Role.AUTHOR, g, auth);
     }
 }
