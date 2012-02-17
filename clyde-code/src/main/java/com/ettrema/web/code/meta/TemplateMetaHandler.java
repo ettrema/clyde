@@ -57,8 +57,8 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         for (Entry<Class, String> entry : mapOfAliasesByClass.entrySet()) {
             mapOfClassesByAlias.put(entry.getValue(), entry.getKey());
         }
-        mapOfHandlers = new LinkedHashMap<Class, ComponentDefHandler>();
-        mapOfHandlersByAlias = new HashMap<String, ComponentDefHandler>();
+        mapOfHandlers = new LinkedHashMap<>();
+        mapOfHandlersByAlias = new HashMap<>();
         TextDefHandler textDefHandler = new TextDefHandler();
         NumberDefHandler numberDefHandler = new NumberDefHandler(textDefHandler);
         HtmlDefHandler htmlDefHandler = new HtmlDefHandler(textDefHandler);
@@ -89,24 +89,29 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         mapOfHandlersByAlias.put(h.getAlias(), h);
     }
 
+    @Override
     public Class getInstanceType() {
         return Template.class;
     }
 
+    @Override
     public boolean supports(Resource r) {
         return r instanceof Template;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
+    @Override
     public Element toXml(Template r) {
         Element elRoot = new Element(ALIAS, CodeMeta.NS);
         populateXml(elRoot, r);
         return elRoot;
     }
 
+    @Override
     public Template createFromXml(CollectionResource parent, Element d, String name) {
         Template page = new Template((Folder) parent, name);
         updateFromXml(page, d);
@@ -165,6 +170,14 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         }
     }
 
+    @Override
+    public void applyOverrideFromXml(Template r, Element el) {
+        pageMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+
+    
+    @Override
     public void updateFromXml(Template template, Element el) {
         String instanceType = InitUtils.getValue(el, "instanceType");
         if (!StringUtils.isEmpty(instanceType)) {
@@ -173,7 +186,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
                 instanceType = c.getCanonicalName();
             } else {
                 try {
-                    c = Class.forName(instanceType);
+                    Class.forName(instanceType);
                 } catch (ClassNotFoundException e) {
                     log.warn("--- Couldnt find class name for instance type: " + instanceType + " . Listing known types:");
                     for (String alias : mapOfAliasesByClass.values()) {
@@ -247,7 +260,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     }
 
     private void updateThumbSpecsFromXml(Template template, Element el) {
-        List<Thumb> thumbs = new ArrayList<Thumb>();
+        List<Thumb> thumbs = new ArrayList<>();
         for (Element elThumb : JDomUtils.childrenOf(el, "thumbs", CodeMeta.NS)) {
             String suffix = elThumb.getAttributeValue("id");
             int height = InitUtils.getInt(elThumb, "h");

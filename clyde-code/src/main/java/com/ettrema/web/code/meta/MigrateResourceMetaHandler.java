@@ -46,6 +46,14 @@ public class MigrateResourceMetaHandler implements MetaHandler<MigrateResource> 
         return f;
     }
 
+    @Override
+    public void applyOverrideFromXml(MigrateResource r, Element el) {
+        baseResourceMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
+
     private void populateXml(Element el, MigrateResource page) {
         InitUtils.set(el, "remoteHost", page.getRemoteHost());
         InitUtils.set(el, "remotePath", page.getRemotePath());

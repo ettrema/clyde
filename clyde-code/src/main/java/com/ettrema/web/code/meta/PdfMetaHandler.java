@@ -54,4 +54,12 @@ public class PdfMetaHandler implements MetaHandler<Pdf> {
         binaryFileMetaHandler.updateFromXml( r, d );
         r.save();
     }
+
+    @Override
+    public void applyOverrideFromXml(Pdf r, Element el) {
+        binaryFileMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
 }

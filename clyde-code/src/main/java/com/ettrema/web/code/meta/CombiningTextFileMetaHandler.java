@@ -79,5 +79,11 @@ public class CombiningTextFileMetaHandler implements MetaHandler<CombiningTextFi
         r.setIncludeExt(includesExt);
         r.save();
     }
+
+    @Override
+    public void applyOverrideFromXml(CombiningTextFile r, Element el) {
+        baseResourceMetaHandler.updateFromXml(r, el);
+        r.save();
+    }
 	
 }

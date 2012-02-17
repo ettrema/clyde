@@ -51,10 +51,19 @@ public class WebMetaHandler implements MetaHandler<Web> {
         folderMetaHandler.populateXml( el, page );
     }
 
+    @Override
     public void updateFromXml( Web group, Element el ) {
 
         folderMetaHandler._updateFromXml( group, el);
 
         group.save();
     }
+
+    @Override
+    public void applyOverrideFromXml(Web r, Element el) {
+        folderMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
 }

@@ -48,6 +48,14 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         return f;
     }
 
+    @Override
+    public void applyOverrideFromXml(Group r, Element el) {
+        folderMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
+
     private void populateXml( Element el, Group page ) {
         InitUtils.setBoolean( el, "emailDisabled", page.isEmailDisabled() );
         InitUtils.setBoolean( el, "secure", page.isSecure() );
@@ -57,6 +65,7 @@ public class GroupMetaHandler implements MetaHandler<Group> {
         folderMetaHandler.populateXml( el, page );
     }
 
+    @Override
     public void updateFromXml( Group group, Element el ) {
         group.setEmailDisabled( InitUtils.getBoolean( el, "emailDisabled" ) );
         group.setSecureRead( InitUtils.getBoolean( el, "secure" ) );

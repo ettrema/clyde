@@ -22,24 +22,29 @@ public class BinaryFileMetaHandler implements MetaHandler<BinaryFile> {
         this.baseResourceMetaHandler = baseResourceMetaHandler;
     }
 
+    @Override
     public Class getInstanceType() {
         return BinaryFile.class;
     }
 
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof BinaryFile;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
+    @Override
     public Element toXml( BinaryFile r ) {
         Element el = new Element( ALIAS, CodeMeta.NS );
         populateXml( el, r );
         return el;
     }
 
+    @Override
     public BinaryFile createFromXml( CollectionResource parent, Element d, String name ) {
         BinaryFile f = new BinaryFile( (Folder) parent, name );
         updateFromXml( f, d );
@@ -54,8 +59,15 @@ public class BinaryFileMetaHandler implements MetaHandler<BinaryFile> {
         baseResourceMetaHandler.populateXml( el, page );
     }
 
+    @Override
     public void updateFromXml( BinaryFile r, Element d ) {
         baseResourceMetaHandler.updateFromXml( r, d );
+        r.save();
+    }
+
+    @Override
+    public void applyOverrideFromXml(BinaryFile r, Element d) {
+        baseResourceMetaHandler.applyOverrideFromXml( r, d );
         r.save();
     }
 }

@@ -54,8 +54,17 @@ public class TextFileMetaHandler implements MetaHandler<TextFile> {
         baseResourceMetaHandler.populateXml( el, page );
     }
 
+    @Override
     public void updateFromXml( TextFile r, Element d ) {
         baseResourceMetaHandler.updateFromXml( r, d );
         r.save();
     }
+
+    @Override
+    public void applyOverrideFromXml(TextFile r, Element el) {
+        baseResourceMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
 }

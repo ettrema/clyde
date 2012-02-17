@@ -34,7 +34,17 @@ public interface MetaHandler<T extends Resource> {
     T createFromXml(CollectionResource parent, Element d, String name);
 
     /**
-     * Update an existing resource from xml meta
+     * Update an existing resource, only adding or replacing items which exist
+     * in the given XML. Other elements shouldnt be changed.
+     * 
+     * @param t
+     * @param d 
+     */
+    void applyOverrideFromXml(T r, Element el);
+    
+    /**
+     * Update an existing resource from xml meta. This is different to applyOverrideFromXml
+     * because the previous meta information will be completely replaced
      *
      * @param d
      */

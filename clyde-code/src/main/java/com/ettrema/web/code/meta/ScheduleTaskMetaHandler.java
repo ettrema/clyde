@@ -55,5 +55,13 @@ public class ScheduleTaskMetaHandler implements MetaHandler<ScheduleTask> {
         r.loadFieldsFromXml(d);
         r.save();
     }
+
+    @Override
+    public void applyOverrideFromXml(ScheduleTask r, Element el) {
+        pageMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
 	
 }

@@ -20,72 +20,77 @@ import org.jdom.Element;
 public class FolderMetaHandler implements MetaHandler<Folder> {
 
     public static final String ALIAS = "folder";
-
     private final BaseResourceMetaHandler baseResourceMetaHandler;
 
-    public FolderMetaHandler( BaseResourceMetaHandler baseResourceMetaHandler ) {
+    public FolderMetaHandler(BaseResourceMetaHandler baseResourceMetaHandler) {
         this.baseResourceMetaHandler = baseResourceMetaHandler;
     }
 
+    @Override
     public Class getInstanceType() {
         return Folder.class;
     }
 
-
-    public boolean supports( Resource r ) {
+    @Override
+    public boolean supports(Resource r) {
         return r instanceof Folder;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
-
-	@Override
-    public Element toXml( Folder r ) {
-        Element elRoot = new Element( ALIAS, CodeMeta.NS );
-        populateXml( elRoot, r );
+    @Override
+    public Element toXml(Folder r) {
+        Element elRoot = new Element(ALIAS, CodeMeta.NS);
+        populateXml(elRoot, r);
         return elRoot;
     }
 
-	@Override
-    public Folder createFromXml(CollectionResource parent, Element d, String name ) {
-        Folder f = new Folder( (Folder) parent,name);
-        updateFromXml(f, d );
+    @Override
+    public void applyOverrideFromXml(Folder r, Element el) {
+        baseResourceMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+
+    
+    @Override
+    public Folder createFromXml(CollectionResource parent, Element d, String name) {
+        Folder f = new Folder((Folder) parent, name);
+        updateFromXml(f, d);
         return f;
     }
 
-
-
-    public void populateXml( Element el, Folder folder ) {
-        InitUtils.set( el, "secureRead", folder.isSecureRead2() );
-        InitUtils.set( el, "versioningEnabled", folder.isVersioningEnabled() );
+    public void populateXml(Element el, Folder folder) {
+        InitUtils.set(el, "secureRead", folder.isSecureRead2());
+        InitUtils.set(el, "versioningEnabled", folder.isVersioningEnabled());
         TemplateSpecs templateSpecs = folder.getTemplateSpecs();
-        if( templateSpecs == null ) {
-            templateSpecs = new TemplateSpecs( "" );
+        if (templateSpecs == null) {
+            templateSpecs = new TemplateSpecs("");
         }
-        InitUtils.set( el, "allowedTemplates", templateSpecs.format());
-        baseResourceMetaHandler.populateXml( el, folder, true );
+        InitUtils.set(el, "allowedTemplates", templateSpecs.format());
+        baseResourceMetaHandler.populateXml(el, folder, true);
         populateThumbSpecs(el, folder);
 
     }
 
-	@Override
-    public void updateFromXml( Folder folder, Element d ) {
-        _updateFromXml( folder, d );
+    @Override
+    public void updateFromXml(Folder folder, Element d) {
+        _updateFromXml(folder, d);
         folder.save();
     }
 
-    public void _updateFromXml( Folder folder, Element el ) {
-        folder.setSecureRead( InitUtils.getBoolean( el, "secureRead"));
-        folder.setVersioningEnabled( InitUtils.getBoolean( el, "versioningEnabled"));
-        String sAllowedTemplates = el.getAttributeValue( "allowedTemplates" );
-        TemplateSpecs templateSpecs = TemplateSpecs.parse( sAllowedTemplates );
-        folder.setTemplateSpecs( templateSpecs );
+    public void _updateFromXml(Folder folder, Element el) {
+        folder.setSecureRead(InitUtils.getBoolean(el, "secureRead"));
+        folder.setVersioningEnabled(InitUtils.getBoolean(el, "versioningEnabled"));
+        String sAllowedTemplates = el.getAttributeValue("allowedTemplates");
+        TemplateSpecs templateSpecs = TemplateSpecs.parse(sAllowedTemplates);
+        folder.setTemplateSpecs(templateSpecs);
         updateThumbSpecsFromXml(folder, el);
-          
-        baseResourceMetaHandler.updateFromXml( folder, el, false);
-        
+
+        baseResourceMetaHandler.updateFromXml(folder, el, false);
+
     }
 
     private void populateThumbSpecs(Element elRoot, Folder folder) {

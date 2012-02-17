@@ -49,6 +49,14 @@ public class PageMetaHandler implements MetaHandler<Page> {
         return page;
     }
 
+    @Override
+    public void applyOverrideFromXml(Page r, Element el) {
+        baseResourceMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
+
     public void updateFromXml( Page r, Element d ) {
         log.trace( "updateFromXml" );
         baseResourceMetaHandler.updateFromXml( r, d, false );

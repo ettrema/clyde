@@ -77,6 +77,14 @@ public class UserMetaHandler implements MetaHandler<User> {
         folderMetaHandler.updateFromXml(user, el);
     }
 
+    @Override
+    public void applyOverrideFromXml(User r, Element el) {
+        folderMetaHandler.applyOverrideFromXml(r, el);
+        r.save();
+    }
+    
+    
+
     private void populateGroups(Element el, User user) {
         RelationalGroupHelper groupService = _(RelationalGroupHelper.class);
         List<Group> groups = groupService.getGroups(user);
