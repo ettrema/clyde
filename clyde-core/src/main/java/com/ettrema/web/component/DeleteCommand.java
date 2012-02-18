@@ -4,14 +4,14 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.ettrema.web.BaseResource;
-import com.ettrema.web.RenderContext;
-import com.ettrema.web.RequestParams;
-import com.ettrema.web.Templatable;
+import com.ettrema.utils.AuthoringPermissionService;
+import com.ettrema.web.*;
 import com.ettrema.web.security.PermissionChecker;
 import com.ettrema.web.security.PermissionRecipient.Role;
 import java.util.Map;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 public class DeleteCommand extends Command {
 
@@ -45,7 +45,7 @@ public class DeleteCommand extends Command {
     }
     
     @Override
-    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+    public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         // TODO: validate
         String s = parameters.get(this.getName());
         if( s == null ) {
@@ -55,22 +55,23 @@ public class DeleteCommand extends Command {
     }
 
     @Override
-    protected String doProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+    protected String doProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         log.debug("doing delete");
-        PermissionChecker permissionChecker = requestContext().get( PermissionChecker.class);
-		
-        if( !permissionChecker.hasRole( Role.AUTHOR, rc.getTargetPage(), RequestParams.current().getAuth()) ) {
-            throw new RuntimeException( "no permission to delete");
-        }
+
+        Role requiredRole = _(AuthoringPermissionService.class).getEditRole(rc.getTargetPage());
+        log.trace("required role: " + requiredRole);
+        if (!_(PermissionChecker.class).hasRole(requiredRole, rc.getTargetPage(), RequestParams.current().getAuth())) {
+            throw new NotAuthorizedException(rc.getTargetPage());
+        }        
 
         Templatable tr = rc.getTargetPage();
         if( tr instanceof BaseResource ) {
             BaseResource f = (BaseResource)tr;
             String redirectTo;
             if( f.getParent().getIndexPage() == tr ) {
-                redirectTo = f.getWeb().getHref();
+                redirectTo = f.getWeb().getUrl();
             } else {
-                redirectTo = f.getParent().getHref();
+                redirectTo = f.getParent().getUrl();
             }
             doDelete(f);
             commit();

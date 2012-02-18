@@ -11,8 +11,6 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.BufferingOutputStream;
-import com.bradmcevoy.utils.XmlUtils2;
-import com.ettrema.utils.JDomUtils;
 import com.ettrema.web.code.content.CodeUtils;
 import java.io.IOException;
 import java.io.InputStream;

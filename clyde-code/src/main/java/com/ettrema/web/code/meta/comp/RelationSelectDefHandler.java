@@ -15,10 +15,12 @@ public class RelationSelectDefHandler implements ComponentDefHandler {
 
     private final static String ALIAS = "relation";
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
+    @Override
     public ComponentDef fromXml( Template res, Element el ) {
         String name = el.getAttributeValue( "name" );
         RelationSelectDef def = new RelationSelectDef( res, name );
@@ -26,6 +28,7 @@ public class RelationSelectDefHandler implements ComponentDefHandler {
         return def;
     }
 
+    @Override
     public Element toXml( ComponentDef def, Template template ) {
         RelationSelectDef html = (RelationSelectDef) def;
         Element el = new Element( ALIAS, CodeMeta.NS );
@@ -42,6 +45,7 @@ public class RelationSelectDefHandler implements ComponentDefHandler {
         InitUtils.set( el, "selectTemplate", text.getSelectTemplate() );
     }
 
+    @Override
     public Class getDefClass() {
         return RelationSelectDef.class;
     }

@@ -4,6 +4,7 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Resource;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.ExistingResourceFactory;
 import com.ettrema.web.Folder;
@@ -271,14 +272,17 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             return;
         }
         String s = parameters.get(key);
-        Object value = parseValue(componentValue, rc.page, s);
+        updateRelation(componentValue, rc.page, s);
+    }
+
+    public boolean updateRelation(ComponentValue componentValue, Templatable page, String s) {
+        Object value = parseValue(componentValue, page, s);
         if (value != null && !(value instanceof UUID)) {
             log.trace("not a valid uuid, so dont do anything");
             componentValue.setValue(value);
-            return;
+            return true;
         }
         UUID id = (UUID) value;
-//        BaseResource dest =
         BaseResource res = (BaseResource) componentValue.getContainer();
         boolean found = false;
         BaseResource existingBaseRes = res.getRelation(relationName);
@@ -312,6 +316,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 componentValue.setValue(id);
             }
         }
+        return false;
     }
 
     private UUID getRelationIdFromRequest(RenderContext rc, Map<String, String> parameters) {
@@ -374,7 +379,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         this.selectTemplate = selectTemplate;
     }
 
-    private Resource findResource(Object val, Templatable page) {
+    private BaseResource findResource(Object val, Templatable page) {
         UUID id;
         if (val == null) {
             return null;
@@ -384,14 +389,32 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 id = UUID.fromString(sVal);
             } catch (IllegalArgumentException e) {
                 // Not a UUID, so look for name
-                Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-                Resource child = selectFrom.child(sVal);
-                if (child == null) {
-                    log.trace("no child found called: " + sVal);
-                    return null;
+                if (sVal.startsWith("/")) {
+                    Path path = Path.path(sVal);
+                    Resource r = page.find(path);
+                    if( r == null ) {
+                        LogUtils.trace(log, "findResource: Could not find path", path);
+                        return null;
+                    } else if(r instanceof BaseResource) {
+                        return (BaseResource) r;
+                    } else {
+                        LogUtils.trace(log, "findResource: Path did not evaluate to a BaseResource", path, r.getClass());
+                        return null;
+                    }
                 } else {
-                    log.trace("found child");
-                    return child;
+                    Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+                    Resource child = selectFrom.child(sVal);
+                    if (child == null) {
+                        log.trace("no child found called: " + sVal);
+                        return null;
+                    } else {
+                        if( child instanceof BaseResource) {
+                            return (BaseResource) child;
+                        } else {
+                            LogUtils.trace(log, "findResource: Name did not evaluate to a BaseResource", sVal, child.getClass());
+                            return null;
+                        }
+                    }
                 }
             }
         } else if (val instanceof UUID) {

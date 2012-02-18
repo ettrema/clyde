@@ -95,6 +95,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private Date timestamp;
     private Evaluatable roleRules;
     private List<RoleAndGroup> groupPermissions;
+    private Date sourceModDate; // modified date of the source from which this file was created. Used for sync
+    
     protected transient RelationalNameNode nameNode;
     private transient User creator;
     private transient boolean isNew;
@@ -672,15 +674,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public Date getModifiedDate() {
         Date thisModDate = nameNode.getModifiedDate();
         return thisModDate;
-        // using template date messes up resource synchronisation
-
-//        ITemplate t = this.getTemplate();
-//        if( t != null ) {
-//            Date templateModDate = t.getModifiedDate();
-//            return Utils.mostRecent( templateModDate, thisModDate );
-//        } else {
-//            return thisModDate;
-//        }
     }
 
     public String getModifiedDateFormatted() {
@@ -1263,4 +1256,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         System.out.println("map: " + map.size());
         return map.values();
     }
+
+    public Date getSourceModDate() {
+        return sourceModDate;
+    }
+
+    public void setSourceModDate(Date sourceModDate) {
+        this.sourceModDate = sourceModDate;
+    }        
 }

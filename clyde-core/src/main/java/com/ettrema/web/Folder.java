@@ -51,6 +51,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 import com.ettrema.utils.FolderMap;
+import java.util.*;
 
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
@@ -598,7 +599,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             String headerName = HttpManager.request().getHeaders().get("X-Filename");
             Map<String, String> params = null;
             if (headerName != null) {
-                params = new HashMap<String, String>();
+                params = new HashMap<>();
                 params.put("name", headerName);
             }
             newName = NewPage.findAutoName(this, params);
@@ -677,9 +678,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public Resource doCreate(String newName) {
         try {
             return doCreate(newName, null, null, null);
-        } catch (ReadingException ex) {
-            throw new RuntimeException(ex);
-        } catch (WritingException ex) {
+        } catch (ReadingException | WritingException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -823,7 +822,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public List<String> getAllowedTemplateNames() {
         List<Template> templates = getAllowedTemplates();
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         if (templates != null) {
             for (Template t : templates) {
                 names.add(t.getName());
@@ -1138,5 +1137,29 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     
     public FolderMap getMap() {
         return new FolderMap(this);
+    }
+    
+    /**
+     * Returns a map of child items, keyed by the ID of the related item
+     * 
+     * Child items which do not have the specified relation are not included
+     * 
+     * @param relation
+     * @return 
+     */
+    public Map<UUID,BaseResource> childrenByRelation(String relation) {
+        Map<UUID,BaseResource> map = new HashMap<>();
+        for( Resource child :  this.getChildren() ) {
+            if( child instanceof BaseResource) {
+                BaseResource t = (BaseResource) child;
+                BaseResource relatedTo = t.getRelation(relation);
+                if( relatedTo != null ) {
+                    map.put(relatedTo.getNameNodeId(), t);
+                } else {
+                    LogUtils.trace(log, "childrenByRelation: no relation", child.getName());
+                }
+            }
+        }
+        return map;
     }
 }

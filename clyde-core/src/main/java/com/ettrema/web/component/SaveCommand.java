@@ -72,7 +72,7 @@ public class SaveCommand extends Command {
         Templatable ct = doProcess(rc, parameters);
         if (ct != null) {
             //return ct.getHref();// if all ok, force redirect to ensure changes saved
-			return ct.getUrl();
+            return ct.getUrl();
         } else {
             return null;
         }
@@ -115,11 +115,11 @@ public class SaveCommand extends Command {
                     log.trace("do not validate command: " + c.getName());
                 }
             } else {
-                if( paramName.equals("name")) {
+                if (paramName.equals("name")) {
                     String newName = parameters.get(paramName);
-                    if( rcTarget.getPhysicalPage().getParentFolder().hasChild(newName)) {
+                    if (rcTarget.getPhysicalPage().getParentFolder().hasChild(newName)) {
                         RequestParams params = RequestParams.current();
-                        params.attributes.put( paramName + "_validation", "The new name isnt valid, a file with that name already exists" );
+                        params.attributes.put(paramName + "_validation", "The new name isnt valid, a file with that name already exists");
                     } else {
                         rcTarget.getPhysicalPage().rename(newName);
                     }
@@ -155,7 +155,7 @@ public class SaveCommand extends Command {
 
     /**
      * The page to save for the given container. May be the container itself
-     * 
+     *
      * @param container
      * @return
      */
@@ -176,7 +176,7 @@ public class SaveCommand extends Command {
 
     /**
      * Find the page to save for the given component
-     * 
+     *
      * @param c
      * @return - the first physical resource in this components parent hierarchy
      */

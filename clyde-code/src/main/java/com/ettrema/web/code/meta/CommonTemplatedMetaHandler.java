@@ -83,8 +83,8 @@ public class CommonTemplatedMetaHandler {
         add(csvSubPageHandler);
         add(subPageHandler);
 
-        mapOfValueHandlers = new LinkedHashMap<Class, ValueHandler>();
-        mapOfValueAliases = new LinkedHashMap<String, ValueHandler>();
+        mapOfValueHandlers = new LinkedHashMap<>();
+        mapOfValueAliases = new LinkedHashMap<>();
         DefaultValueHandler defaultValueHandler = new DefaultValueHandler();
         add(new DateValueHandler(defaultValueHandler));
         add(new EmailValHandler(defaultValueHandler));
@@ -231,7 +231,6 @@ public class CommonTemplatedMetaHandler {
             while (it.hasNext()) {
                 Entry<String, ComponentValue> entry = it.next();
                 if (!isIgnoredVal(entry.getKey(), includeContentVals)) {
-                    log.trace("remove: " + entry.getKey());
                     it.remove();
                 }
             }

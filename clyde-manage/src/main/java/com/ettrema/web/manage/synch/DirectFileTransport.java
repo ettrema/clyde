@@ -5,6 +5,10 @@ import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.ettrema.logging.LogUtils;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.code.AbstractCodeResource;
+import com.ettrema.web.code.CodeFolder;
 import com.ettrema.web.code.CodeResourceFactory;
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,11 +49,11 @@ public class DirectFileTransport implements FileTransport {
     @Override
     public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
         log.info("put: " + f.getAbsolutePath() + " root: " + root.getAbsolutePath());
-        CollectionResource colParent = findCollection(f.getParentFile(), root);
+        CodeFolder colParent = findCollection(f.getParentFile(), root);
         if (colParent == null) {
             throw new RuntimeException("Couldnt locate parent: " + f.getParentFile().getAbsolutePath() + " for root: " + root.getAbsolutePath());
         }
-        Resource rExisting = colParent.child(f.getName());
+        AbstractCodeResource rExisting = (AbstractCodeResource) colParent.child(f.getName());
         FileInputStream fin = null;
         if (rExisting instanceof ReplaceableResource) {
             log.trace("replace content");
@@ -57,6 +61,7 @@ public class DirectFileTransport implements FileTransport {
             try {
                 fin = new FileInputStream(f);
                 replaceable.replaceContent(fin, f.length());
+                setSourceModDate(replaceable, f.lastModified());
                 if (callback != null) {
                     callback.onModified(replaceable);
                 }
@@ -77,6 +82,7 @@ public class DirectFileTransport implements FileTransport {
                     fin = new FileInputStream(f);
                     String ct = ContentTypeUtils.findContentTypes(f);
                     Resource newRes = putable.createNew(f.getName(), fin, f.length(), ct);
+                    setSourceModDate(newRes, f.lastModified());
                     if (callback != null) {
                         if (rExisting != null) {
                             callback.onModified(newRes);
@@ -95,14 +101,14 @@ public class DirectFileTransport implements FileTransport {
         }
     }
 
-    private CollectionResource findCollection(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
+    private CodeFolder findCollection(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {
         String url = CodeSynchUtils.toCodePath(f, root);
         if (url == null) {
             log.warn("Couldnt calculate url for: " + f.getAbsolutePath() + " from root: " + root.getAbsolutePath());
             return null;
         }
         Resource r = resourceFactory.getResource(hostName, url);
-        CollectionResource col;
+        CodeFolder col;
         if (r == null) {
             log.trace("not found: " + url);
             Resource rParent = findCollection(f.getParentFile(), root);
@@ -110,16 +116,16 @@ public class DirectFileTransport implements FileTransport {
                 throw new RuntimeException("Couldnt get parent: " + f.getAbsolutePath());
             } else if (rParent instanceof MakeCollectionableResource) {
                 MakeCollectionableResource mkcol = (MakeCollectionableResource) rParent;
-                col = mkcol.createCollection(f.getName());
+                col = (CodeFolder) mkcol.createCollection(f.getName());
                 return col;
             } else {
                 throw new RuntimeException("Cant create " + f.getAbsolutePath() + " parent doesnt support MKCOL");
             }
         } else {
-            if (r instanceof CollectionResource) {
-                return (CollectionResource) r;
+            if (r instanceof CodeFolder) {
+                return (CodeFolder) r;
             } else {
-                throw new RuntimeException("Found resource but its not a collection: " + f.getAbsolutePath() + "  maps to a: " + r.getClass());
+                throw new RuntimeException("Found resource but its not a CodeFolder: " + f.getAbsolutePath() + "  maps to a: " + r.getClass());
             }
         }
 
@@ -154,11 +160,18 @@ public class DirectFileTransport implements FileTransport {
         } catch (NotAuthorizedException | BadRequestException ex) { 
             throw new RuntimeException(ex);
         }
-        if (r == null || r.getModifiedDate() == null) {
+        if (r == null ) {
             return true;
         } else {
-            Date fileModDate = new Date(f.lastModified());
-            return fileModDate.after(r.getModifiedDate());
+            Date sourceMod = getSourceModDate(r); // use this in preference to the modifiedDate of the resource            
+            Date mod = sourceMod;
+            if( sourceMod == null ) {
+                mod = r.getModifiedDate();
+            }
+            Date fileModDate = new Date(f.lastModified());            
+            boolean  b = fileModDate.after(mod);
+            LogUtils.trace(log, "isNewOrUpdated", f.getAbsolutePath(), "sourceMod", sourceMod, "resMod", r.getModifiedDate(), "fileMod", fileModDate, "result=", b);
+            return b;
         }
     }
 
@@ -168,6 +181,34 @@ public class DirectFileTransport implements FileTransport {
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
+    }
+
+    private void setSourceModDate(Resource newRes, long lastModified) {
+        if( newRes instanceof BaseResource) {
+            BaseResource r = (BaseResource) newRes;
+            Date dt = new Date(lastModified);
+            r.setSourceModDate(dt);
+            r.save();
+            r.commit();
+            LogUtils.trace(log, "setSourceModDate", newRes.getName(), dt);
+        } else if( newRes instanceof AbstractCodeResource) {
+            AbstractCodeResource acr = (AbstractCodeResource) newRes;
+            Resource wrapped = acr.getWrapped();
+            setSourceModDate(wrapped, lastModified);
+        }
+    }
+    
+    private Date getSourceModDate(Resource newRes) {
+        if( newRes instanceof BaseResource) {
+            BaseResource r = (BaseResource) newRes;
+            return r.getSourceModDate();
+        } else if( newRes instanceof AbstractCodeResource) {
+            AbstractCodeResource acr = (AbstractCodeResource) newRes;
+            Resource wrapped = acr.getWrapped();
+            return getSourceModDate(wrapped);
+        } else {
+            return null;
+        }  
     }
 
     public interface FileLoadCallback {
