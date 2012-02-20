@@ -51,6 +51,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
 import com.ettrema.utils.FolderMap;
+import com.ettrema.web.templates.TemplateMapping;
 import java.util.*;
 
 /**
@@ -101,6 +102,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     private boolean linkedFolders;
     
     private Long counter;
+    
+    private List<TemplateMapping> templateMappings;
 
     /** Create a root folder
      */
@@ -1162,4 +1165,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
         return map;
     }
+
+    public List<TemplateMapping> getTemplateMappings() {
+        return templateMappings;
+    }
+
+    public void setTemplateMappings(List<TemplateMapping> templateMappings) {
+        this.templateMappings = templateMappings;
+    }        
 }

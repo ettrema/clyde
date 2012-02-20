@@ -15,7 +15,7 @@ import java.util.List;
 public class PluggableResourceCreator implements ResourceCreator {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( PluggableResourceCreator.class );
-    private List<Creator> creators = new ArrayList<Creator>();
+    private List<Creator> creators = new ArrayList<>();
     Creator defaultCreator = new BinaryFileCreator();
 
     public PluggableResourceCreator() {

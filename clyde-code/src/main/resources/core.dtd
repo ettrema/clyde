@@ -83,7 +83,7 @@ formatter - the standard formatter
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:folder (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?,c:thumbs?)*>
+<!ELEMENT c:folder (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?,c:thumbs?,c:templateMappings)*>
 <!ATTLIST c:folder
     template CDATA #IMPLIED
     versioningEnabled (true|false) #IMPLIED
@@ -128,6 +128,11 @@ formatter - the standard formatter
     W CDATA #REQUIRED
 >
 
+<!ELEMENT c:templateMappings (c:mapping)*>
+<!ATTLIST c:mapping
+    mime CDATA #REQUIRED
+    template CDATA #REQUIRED
+>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef|c:boolean)*>

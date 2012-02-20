@@ -64,26 +64,27 @@ public class RelativeTemplateManager implements TemplateManager {
         if( log.isTraceEnabled() ) {
             log.trace( "lookup: " + part + " web: " + folder.getName());
         }
-        if( part.equals( ".." ) ) {
-            return lookup( parts, folder.getParent(), partNum + 1 );
-        } else if( part.equals( ".")) {
-            return lookup( parts, folder, partNum + 1 );
-        } else {
-            if( partNum == parts.length-1) {
-                return templateManager.lookup( part, folder );
-            } else {
-                BaseResource child = folder.childRes( part );
-                if( child == null ) {
-                    log.error( "Exception looking up relative tempate. Child: " + part + " not found in folder: " + folder.getHref());
-                    return null;
-                } else if( child instanceof Folder ) {
-                    Folder nextFolder = (Folder) child;
-                    return lookup(parts, nextFolder, partNum+1);
+        switch (part) {
+            case "..":
+                return lookup( parts, folder.getParent(), partNum + 1 );
+            case ".":
+                return lookup( parts, folder, partNum + 1 );
+            default:
+                if( partNum == parts.length-1) {
+                    return templateManager.lookup( part, folder );
                 } else {
-                    log.error( "Exception looking up relative tempate. Not a folder: " + child.getHref());
-                    return null;
+                    BaseResource child = folder.childRes( part );
+                    if( child == null ) {
+                        log.error( "Exception looking up relative tempate. Child: " + part + " not found in folder: " + folder.getHref());
+                        return null;
+                    } else if( child instanceof Folder ) {
+                        Folder nextFolder = (Folder) child;
+                        return lookup(parts, nextFolder, partNum+1);
+                    } else {
+                        log.error( "Exception looking up relative tempate. Not a folder: " + child.getHref());
+                        return null;
+                    }
                 }
-            }
         }
     }
 }

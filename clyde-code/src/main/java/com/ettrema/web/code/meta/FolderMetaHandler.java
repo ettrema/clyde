@@ -9,6 +9,7 @@ import com.ettrema.web.Thumb;
 import com.ettrema.web.code.CodeMeta;
 import com.ettrema.web.code.MetaHandler;
 import com.ettrema.web.component.InitUtils;
+import com.ettrema.web.templates.TemplateMapping;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom.Element;
@@ -72,6 +73,7 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
         InitUtils.set(el, "allowedTemplates", templateSpecs.format());
         baseResourceMetaHandler.populateXml(el, folder, true);
         populateThumbSpecs(el, folder);
+        populateTemplateMappings(el, folder);
 
     }
 
@@ -88,6 +90,7 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
         TemplateSpecs templateSpecs = TemplateSpecs.parse(sAllowedTemplates);
         folder.setTemplateSpecs(templateSpecs);
         updateThumbSpecsFromXml(folder, el);
+        updateTemplateMappings(folder, el);
 
         baseResourceMetaHandler.updateFromXml(folder, el, false);
 
@@ -111,7 +114,7 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
     }
 
     private void updateThumbSpecsFromXml(Folder folder, Element el) {
-        List<Thumb> thumbs = new ArrayList<Thumb>();
+        List<Thumb> thumbs = new ArrayList<>();
         for (Element elThumb : JDomUtils.childrenOf(el, "thumbs", CodeMeta.NS)) {
             String suffix = elThumb.getAttributeValue("id");
             int height = InitUtils.getInt(elThumb, "h");
@@ -120,5 +123,33 @@ public class FolderMetaHandler implements MetaHandler<Folder> {
             thumbs.add(spec);
         }
         Thumb.setThumbSpecs(folder, thumbs);
+    }
+
+    private void populateTemplateMappings(Element el, Folder folder) {
+        if( folder.getTemplateMappings() == null || folder.getTemplateMappings().isEmpty()) {
+            return ;
+        }
+        Element elMappings = new Element("templateMappings", CodeMeta.NS);
+        el.addContent(elMappings);
+        for( TemplateMapping tm : folder.getTemplateMappings()) {
+            Element elTm = new Element("mapping", CodeMeta.NS);
+            elMappings.addContent(elTm);
+            elTm.setAttribute("mime", tm.getMimeType());
+            elTm.setAttribute("template", tm.getTemplateName());
+        }
+    }
+
+    private void updateTemplateMappings(Folder folder, Element el) {
+        List<TemplateMapping> mappings = null;
+        for (Element elTm : JDomUtils.childrenOf(el, "templateMappings", CodeMeta.NS)) {
+            String mime = elTm.getAttributeValue("mime");
+            String template = elTm.getAttributeValue("template");
+            TemplateMapping tm = new TemplateMapping(mime, template);
+            if( mappings == null ) {
+                mappings = new ArrayList<>();
+            }
+            mappings.add(tm);
+        }
+        folder.setTemplateMappings(mappings);
     }
 }

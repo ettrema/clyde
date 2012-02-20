@@ -22,6 +22,7 @@ import com.ettrema.web.eval.Evaluatable;
 import com.ettrema.web.search.FolderSearcher;
 import com.ettrema.web.security.ClydeAuthenticator;
 import com.ettrema.web.security.ClydeAuthoriser;
+import com.ettrema.web.templates.TemplateMapping;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -486,6 +487,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         return ct;
     }
 
+    /**
+     * The content type persisted in meta data for this resource. Might actually be a
+     * comma seperated list of content types.
+     * 
+     * @return 
+     */
     public String getContentType() {
         return this.contentType;
     }
@@ -621,12 +628,18 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public String getTemplateName() {
         TemplateSelect sel = getTemplateSelect();
-        if (sel == null) {
-            log.trace("getTemplateName: no template component`");
-            return null;
+        String templateName;
+        if( sel != null ) {
+            templateName = sel.getValue();
+        } else {
+            templateName = null;
         }
-        String s = sel.getValue();
-        return s;
+        if (templateName == null || templateName.length() == 0 ) {
+            log.trace("getTemplateName: no template component`");
+            templateName = TemplateMapping.findTemplateName(this.getContentType(), this);
+        }
+        
+        return templateName;
     }
 
     public TemplateSelect getTemplateSelect() {
