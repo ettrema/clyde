@@ -603,6 +603,14 @@ public class Formatter {
     public CurrentDateService getCurrentDateService() {
         return currentDateService;
     }
+    
+    public String ifEqual(String ifEqual, String ifNoteEqual, Object o1, Object o2) {
+        if( o1 == null ) {
+            return o2 == null ? ifEqual : ifNoteEqual;
+        } else {
+            return o1.equals(o2) ? ifEqual : ifNoteEqual;
+        }
+    }
 //
 //	/**
 //	 * Constructs a SQL where statement, by only including not null values, and

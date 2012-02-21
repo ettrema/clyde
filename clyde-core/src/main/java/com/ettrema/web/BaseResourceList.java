@@ -1,6 +1,7 @@
 package com.ettrema.web;
 
 import com.ettrema.web.calc.Calc;
+import com.ettrema.web.children.ChildrenOfTypeMap;
 import com.ettrema.web.component.ComponentValue;
 import java.util.*;
 import org.apache.log4j.Logger;
@@ -374,5 +375,9 @@ public class BaseResourceList extends ArrayList<Templatable> {
             list.add(get(i));
         }
         return list;
+    }
+    
+    public Map<String,BaseResourceList> getOfType() {
+        return new ChildrenOfTypeMap(this);
     }
 }
