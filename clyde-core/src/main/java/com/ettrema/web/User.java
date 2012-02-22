@@ -64,6 +64,7 @@ public class User extends Folder implements IUser {
     private boolean emailDisabled;
     private boolean accountDisabled;
     private List<String> accessKeys;
+    private String profilePicHref;
 
     public User(Folder parentFolder, String name) {
         this(parentFolder, name, null);
@@ -604,6 +605,17 @@ public class User extends Folder implements IUser {
     public RelationalNameNode getPermissionsNameNode() {
         return permissions(true).getNameNode();
     }
+
+    @Override
+    public String getProfilePicHref() {
+        return profilePicHref;
+    }
+
+    public void setProfilePicHref(String profilePicHref) {
+        this.profilePicHref = profilePicHref;
+    }
+    
+    
 
     public static class SharedWithMe {
 

@@ -18,13 +18,18 @@ public class InitUtils {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(InitUtils.class);
 
     public static boolean getBoolean(Element el, String name) {
+        return getBoolean(el, name, false);
+    }
+
+    public static boolean getBoolean(Element el, String name, boolean defaultVal) {
         String s = el.getAttributeValue(name);
         if (s == null) {
-            return false;
+            return defaultVal;
         }
         return s.equals("true");
     }
-
+    
+    
     public static Boolean getNullableBoolean(Element el, String name) {
         String s = el.getAttributeValue(name);
         if (s == null || s.trim().length() == 0) {

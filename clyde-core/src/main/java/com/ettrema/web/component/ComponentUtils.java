@@ -48,23 +48,17 @@ public class ComponentUtils {
         return parentPath.child(container.getName());
     }
 
-    public static Templatable find(Templatable from, Path p) {
-        Templatable ct;
-        if (p == null) {
-            throw new NullPointerException("path is null");
-        }
-        if (!p.isRelative()) {
-            if (from == null) {
-                throw new NullPointerException("from is null");
-            }
-            ct = findPageWithRelativePath(p, from.getWeb());
-        } else {
-            ct = findPageWithRelativePath(p, from);
-        }
-        return ct;
-    }
-
-    public static Templatable findPageWithRelativePath(Path path, Templatable page) {
+    /**
+     * Locates a resource, either with an absolute or relative path, using the
+     * given from resource as the context. This is the start of the path for
+     * relative evaluation. Or, if the path is absolute, its used to find
+     * the host from which to evaluate the path
+     * 
+     * @param from
+     * @param p
+     * @return 
+     */
+    public static Templatable find(Templatable page, Path path) {
         try {
             if (path == null) {
                 return page;
@@ -74,9 +68,7 @@ public class ComponentUtils {
                 return (Templatable) r;
             }
             return null;
-        } catch (NotAuthorizedException ex) {
-            throw new RuntimeException(ex);
-        } catch (BadRequestException ex) {
+        } catch (NotAuthorizedException | BadRequestException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -251,6 +243,9 @@ public class ComponentUtils {
     public static boolean isEmpty(Object val) {
         if (val == null) {
             return true;
+        } else if( val instanceof List) {
+            List list = (List) val;
+            return list.isEmpty();
         } else if (val instanceof String) {
             String s = (String) val;
             return StringUtils.isBlank(s);

@@ -5,7 +5,6 @@ import com.bradmcevoy.http.Resource;
 import com.ettrema.http.acl.DiscretePrincipal;
 import com.ettrema.web.security.PermissionRecipient;
 import com.ettrema.mail.Mailbox;
-import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.RelationalNameNode;
 import java.util.UUID;
 import javax.mail.Address;
@@ -18,8 +17,8 @@ public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
 
     /**
      *
-     * @return - the email address for this user on this domain. NOT their specified
-     * external email
+     * @return - the email address for this user on this domain. NOT their
+     * specified external email
      */
     Address getEmailAddress();
 
@@ -29,7 +28,8 @@ public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
 
     /**
      *
-     * @return - the user's specified external email address as a string. Null if not specified
+     * @return - the user's specified external email address as a string. Null
+     * if not specified
      */
     String getExternalEmailText();
 
@@ -46,11 +46,12 @@ public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
     String getHref();
 
     /**
-     * The name of the resource which identifies the user. This is the local name
-     * within the folder
+     * The name of the resource which identifies the user. This is the local
+     * name within the folder
      *
      * @return
      */
+    @Override
     String getName();
 
     /**
@@ -59,17 +60,25 @@ public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
      * @param groupName
      * @return
      */
-    boolean isInGroup( String groupName );
-    
+    boolean isInGroup(String groupName);
+
     /**
      * Can this user author the given resource
-     * 
+     *
      * @param r
      * @return
-     */    
+     */
     boolean canAuthor(Resource r);
+    
+    /**
+     * Return the href to the user's profile pic, or null if none is
+     * available
+     * 
+     * @return 
+     */
+    String getProfilePicHref();
 
-	RelationalNameNode getNameNode();
-	
-	UUID getNameNodeId();
+    RelationalNameNode getNameNode();
+
+    UUID getNameNodeId();
 }

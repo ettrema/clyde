@@ -57,8 +57,8 @@ import java.util.*;
 /**
  * Represents a folder in the Clyde CMS. Implements collection method interfaces
  *
- * Implements DeletableCollectionResource so that delete is not called recursively from
- * milton.
+ * Implements DeletableCollectionResource so that delete is not called
+ * recursively from milton.
  *
  * @author brad
  */
@@ -95,17 +95,17 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     private Boolean versioningEnabled;
     //private transient List<TransientNameNode> transientNameNodes;
     /**
-     * performance optimisation, record the fact that there is (or may be) at least one 
-     * linked folder which links to this one. This allows us to update binary crc's
-     * on LinkedFolder's without always checking to see if there are any.
+     * performance optimisation, record the fact that there is (or may be) at
+     * least one linked folder which links to this one. This allows us to update
+     * binary crc's on LinkedFolder's without always checking to see if there
+     * are any.
      */
     private boolean linkedFolders;
-    
     private Long counter;
-    
     private List<TemplateMapping> templateMappings;
 
-    /** Create a root folder
+    /**
+     * Create a root folder
      */
     public Folder() {
         super();
@@ -145,8 +145,9 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     /**
-     * If this folder is not defined as secureRead, recursively check parents until Web
-     * 
+     * If this folder is not defined as secureRead, recursively check parents
+     * until Web
+     *
      * @return
      */
     public boolean isSecureRead() {
@@ -185,7 +186,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * adds an integer, if necessary, to ensure the name is unque in this folder
      *
      * @param name
-     * @return - a unique name in this folder, equal to or prefixed by the given name
+     * @return - a unique name in this folder, equal to or prefixed by the given
+     * name
      */
     public String buildNonDuplicateName(String name) {
         if (!childExists(name)) {
@@ -323,11 +325,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     /**
      * Copy this folder to the given destination and with the given name
-     * 
+     *
      * Recursively copies children
-     * 
+     *
      * Does not commit
-     * 
+     *
      * @param dest
      * @param name
      */
@@ -575,23 +577,44 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public BaseResourceList getFoldersRecursive() {
         BaseResourceList list = new BaseResourceList();
-        appendFoldersRecursive(list, 0);
+        appendFoldersRecursive(list, 0, null);
         return list;
     }
 
-    private void appendFoldersRecursive(List list, int depth) {
+    /**
+     * Build a list of folders of the given type, but do not go any deeper then
+     * a found folder ie once found, do not look inside a folder for other
+     * matching items
+     *
+     * @param type
+     * @return
+     */
+    public BaseResourceList foldersRecursiveShallow(String type) {
+        BaseResourceList list = new BaseResourceList();
+        appendFoldersRecursive(list, 0, type);
+        return list;
+    }
+
+    private void appendFoldersRecursive(List list, int depth, String type) {
         if (depth > 5) {
             return;
         }
         for (Resource r : this.getChildren()) {
             if (r instanceof Folder) {
                 Folder f = (Folder) r;
-                list.add(r);
                 if (!f.getName().equals("templates")) {
-                    f.appendFoldersRecursive(list, depth++);
+                    if (type == null) {
+                        // not a shallow search, so add and go deeper
+                        list.add(r);
+                        f.appendFoldersRecursive(list, depth++, type);
+                    } else if (f.is(type)) {
+                        // is a shallow search and match found, so add but do not go deeper
+                        list.add(r);
+                    } else {
+                        // shallow search but no match, so go deeper
+                        f.appendFoldersRecursive(list, depth++, type);
+                    }
                 }
-            } else {
-                // do nothing
             }
         }
     }
@@ -651,11 +674,12 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     /**
-     * Return a folder if one exists with the given name. Otherwise, and if
-     * not resource exists, create a generic folder.
-     * 
-     * If a resource does exist which is not a folder it will throw a ConflictException
-     * 
+     * Return a folder if one exists with the given name. Otherwise, and if not
+     * resource exists, create a generic folder.
+     *
+     * If a resource does exist which is not a folder it will throw a
+     * ConflictException
+     *
      * @param name
      * @return
      */
@@ -690,10 +714,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
      * Create a resource from a template
      *
      * Does a save, but does not commit
-     * 
-     * @param name - the name of the resource to create. May be null, which will cause
-     * a unique name to be generated
-     * @param templateName - the name of the template to assign to the resource. Is validated.
+     *
+     * @param name - the name of the resource to create. May be null, which will
+     * cause a unique name to be generated
+     * @param templateName - the name of the template to assign to the resource.
+     * Is validated.
      * @return
      */
     public Resource create(String name, String templateName) {
@@ -792,9 +817,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    /** Called by a child object when it is constructed
+    /**
+     * Called by a child object when it is constructed
      *
-     *  Create and return a suitable NameNode
+     * Create and return a suitable NameNode
      */
     NameNode onChildCreated(String newName, BaseResource baseResource) {
 //        NameNode nn = nameNode.add(newName,baseResource);
@@ -865,8 +891,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     /**
-     * Locates a template suitable for this folder. Eg, enquires
-     * to the web.
+     * Locates a template suitable for this folder. Eg, enquires to the web.
      *
      * @param name
      * @return
@@ -997,15 +1022,16 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     /**
      * Returns true to indicate that this folder and all child resources, except
-     * those which have specified otherwsie, can be versioned if versioning is supported by this installation
+     * those which have specified otherwsie, can be versioned if versioning is
+     * supported by this installation
      *
      * False means they must not be versioned
      *
-     * Null indicates that this folder has not specified a versioning requirement
-     * and it has been delegated to its parent (recursively)
+     * Null indicates that this folder has not specified a versioning
+     * requirement and it has been delegated to its parent (recursively)
      *
-     * Note that this property does not return a recursive value, it only returns
-     * the value defined on this folder
+     * Note that this property does not return a recursive value, it only
+     * returns the value defined on this folder
      *
      * @return - the persisted versioning requirement for this resource
      */
@@ -1038,11 +1064,11 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     /**
-     * Required for calendar support. Doesnt really need to be on Folder, could be
-     * on Calendar, but should also be on the scheduling collections within
+     * Required for calendar support. Doesnt really need to be on Folder, could
+     * be on Calendar, but should also be on the scheduling collections within
      * calendar so is handy to stick it here
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getCTag() {
         int x = this.hashCode();
@@ -1078,15 +1104,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     /**
-     * Get this folder's binary CRC, which is a hash of the binary CRC's of folders
-     * and binary files inside it, and they're names
-     * 
-     * This can be used to give an accurate representation of the state of the 
+     * Get this folder's binary CRC, which is a hash of the binary CRC's of
+     * folders and binary files inside it, and they're names
+     *
+     * This can be used to give an accurate representation of the state of the
      * binary content of this folder and all of its children
-     * 
+     *
      * If the value has not been calculated it will return null.
-     * 
-     * @return 
+     *
+     * @return
      */
     public Long getBinaryStateToken() {
         return _(StateTokenManager.class).getStateToken(this);
@@ -1095,7 +1121,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     /**
      * Alias for getBinaryStateToken so the same property name, crc, can be used
      * for folders and binary files
-     * @return 
+     *
+     * @return
      */
     public Long getCrc() {
         return getBinaryStateToken();
@@ -1107,7 +1134,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     /**
      * True if there are, or may be, linked folders which link to this one
-     * @return 
+     *
+     * @return
      */
     public boolean hasLinkedFolders() {
         return linkedFolders;
@@ -1128,35 +1156,35 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     public void setCounter(Long counter) {
         this.counter = counter;
     }
-            
+
     public synchronized Long incrementCounter() {
-        if( counter == null ) {
+        if (counter == null) {
             counter = 0l;
         }
         Long c = counter++;
         save();
         return c;
     }
-    
+
     public FolderMap getMap() {
         return new FolderMap(this);
     }
-    
+
     /**
      * Returns a map of child items, keyed by the ID of the related item
-     * 
+     *
      * Child items which do not have the specified relation are not included
-     * 
+     *
      * @param relation
-     * @return 
+     * @return
      */
-    public Map<UUID,BaseResource> childrenByRelation(String relation) {
-        Map<UUID,BaseResource> map = new HashMap<>();
-        for( Resource child :  this.getChildren() ) {
-            if( child instanceof BaseResource) {
+    public Map<UUID, BaseResource> childrenByRelation(String relation) {
+        Map<UUID, BaseResource> map = new HashMap<>();
+        for (Resource child : this.getChildren()) {
+            if (child instanceof BaseResource) {
                 BaseResource t = (BaseResource) child;
                 BaseResource relatedTo = t.getRelation(relation);
-                if( relatedTo != null ) {
+                if (relatedTo != null) {
                     map.put(relatedTo.getNameNodeId(), t);
                 } else {
                     LogUtils.trace(log, "childrenByRelation: no relation", child.getName());
@@ -1172,5 +1200,5 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public void setTemplateMappings(List<TemplateMapping> templateMappings) {
         this.templateMappings = templateMappings;
-    }        
+    }
 }

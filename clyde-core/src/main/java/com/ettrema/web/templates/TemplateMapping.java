@@ -29,6 +29,9 @@ public class TemplateMapping implements Serializable {
     }
     
     private static String findTemplateName(String contentType, Folder folder) {
+        if( contentType == null || contentType.length() == 0 ) {
+            return null;
+        }
         String s = findTemplateName(contentType, folder.getTemplateMappings());
         if( s != null ) {
             return s;

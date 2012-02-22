@@ -175,6 +175,7 @@ formatter - the standard formatter
     relation CDATA #IMPLIED
     selectFromFolder CDATA #IMPLIED
     selectTemplate CDATA #IMPLIED
+    multiSelect CDATA #IMPLIED
   >
 
 <!--- Put your DTDDoc comment here. -->

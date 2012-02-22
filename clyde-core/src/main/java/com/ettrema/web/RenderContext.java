@@ -70,12 +70,11 @@ import com.ettrema.logging.LogUtils;
 public class RenderContext implements Map<String, Component> {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RenderContext.class);
-    private static final ReplaceableHtmlParser PARSER = new ReplaceableHtmlParserImpl();
     final public ITemplate template;
     final public Templatable page;
     final public RenderContext child;
     final public boolean pageEditMode;
-    final Map<String, Object> attributes = new HashMap<String, Object>();
+    final Map<String, Object> attributes = new HashMap<>();
 
     public RenderContext(ITemplate template, Templatable page, RenderContext child, boolean editMode) {
         if (page == null) {

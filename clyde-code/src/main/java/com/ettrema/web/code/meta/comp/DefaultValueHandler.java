@@ -66,6 +66,7 @@ public class DefaultValueHandler implements ValueHandler {
         } else {            
             if( def instanceof RelationSelectDef) {                
                 RelationSelectDef rdef = (RelationSelectDef) def;
+                
                 boolean found = rdef.updateRelation(cv, res, sVal);
                 LogUtils.trace(log, "fromXml: set relationship. found=", found);
             } else {

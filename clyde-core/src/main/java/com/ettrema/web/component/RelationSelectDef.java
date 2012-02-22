@@ -3,17 +3,15 @@ package com.ettrema.web.component;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.http.Resource;
-import com.ettrema.logging.LogUtils;
-import com.ettrema.web.BaseResource;
-import com.ettrema.web.ExistingResourceFactory;
-import com.ettrema.web.Folder;
-import com.ettrema.web.RenderContext;
-import com.ettrema.web.Templatable;
+import com.ettrema.web.*;
+import com.ettrema.web.relations.RelationsHelper;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+
+import static com.ettrema.context.RequestContext._;
 
 /**
  * Accepts an input value which is either a name of a resource in the selectFrom
@@ -35,6 +33,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     private String relationName;
     protected String selectFromFolder;
     protected String selectTemplate;
+    protected boolean multiSelect;
 
     public RelationSelectDef(Addressable container, String name) {
         this.container = container;
@@ -49,6 +48,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         relationName = InitUtils.getValue(el, "relationName");
         selectFromFolder = InitUtils.getValue(el, "selectFromFolder");
         selectTemplate = InitUtils.getValue(el, "selectTemplate");
+        multiSelect = InitUtils.getBoolean(el, "multiSelect", false);
     }
 
     @Override
@@ -81,15 +81,15 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 return true;
             }
         }
-        Resource r = findResource(val, rc.getTargetPage());
-        if (r == null) {
-            c.setValidationMessage("Invalid value");
-            log.trace("not valid because no resource was found");
-            return false;
-        } else {
-            return true;
+        if (!ComponentUtils.isEmpty(val)) {
+            List<BaseResource> list = findResources(val, rc.getTargetPage());
+            if (list == null || list.isEmpty()) {
+                c.setValidationMessage("Invalid value");
+                log.trace("not valid because no resource was found");
+                return false;
+            }
         }
-
+        return true;
     }
 
     @Override
@@ -113,6 +113,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         InitUtils.setString(e2, "relationName", relationName);
         InitUtils.setString(e2, "selectFromFolder", selectFromFolder);
         InitUtils.setString(e2, "selectTemplate", selectTemplate);
+        InitUtils.setBoolean(e2, "multiSelect", multiSelect);
         return e2;
     }
 
@@ -168,43 +169,45 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         if (selectFrom == null) {
             return "Error: couldnt find folder: " + selectFromFolder;
         } else if (selectFrom instanceof Folder) {
-            UUID relId = getRelationIdFromRequest(rc, HttpManager.request().getParams());
-            if (relId == null) {
+            Map<String, String> params = null;
+            if (HttpManager.request() != null) {
+                params = HttpManager.request().getParams();
+            }
+            List<UUID> relIds = getRelationIdsFromRequest(rc, params);
+            if (relIds == null || relIds.isEmpty()) {
+                // find previously selected
                 BaseResource page = (BaseResource) c.getContainer();
-                BaseResource dest = page.getRelation(relationName);
-                if (dest != null) {
-                    relId = dest.getNameNodeId();
+                BaseResourceList prevSelected = page.getRelations(relationName);
+                if (prevSelected != null && !prevSelected.isEmpty()) {
+                    relIds = new ArrayList<>();
+                    for (Templatable r : prevSelected) {
+                        if (r instanceof BaseResource) {
+                            relIds.add(((BaseResource) r).getNameNodeId());
+                        }
+                    }
                 }
+
             }
             StringBuilder sb = new StringBuilder();
-            sb.append("<select id='").append(name).append("' name='").append(name).append("'>");
             Folder fSelectFrom = (Folder) selectFrom;
-            log.debug("selectFrom: " + fSelectFrom.getHref() + " - " + selectTemplate);
-            String sel = relId == null ? " selected " : "";
-            sb.append("<option value=''").append(sel).append(">").append("[None]").append("</option>");
-            buildOptions(fSelectFrom, relId, sb, "");
-            sb.append("</select>");
+            if (multiSelect) {
+                _(RelationsHelper.class).buildChecks(fSelectFrom, relIds, sb, "", selectTemplate);
+            } else {
+                UUID relId = relIds == null || relIds.isEmpty() ? null : relIds.get(0);
+                sb.append("<select id='").append(name).append("' name='").append(name).append("'>");
+                log.debug("selectFrom: " + fSelectFrom.getHref() + " - " + selectTemplate);
+                String sel = relId == null ? " selected " : "";
+                sb.append("<option value=''").append(sel).append(">").append("[None]").append("</option>");
+                _(RelationsHelper.class).buildOptions(fSelectFrom, relId, sb, "", selectTemplate);
+                sb.append("</select>");
+            }
+
             return sb.toString();
         } else {
             return "Error: not a folder: " + selectFromFolder;
         }
     }
 
-    private void buildOptions(Folder fSelectFrom, UUID relId, StringBuilder sb, String prefix) {
-        for (Templatable ct : fSelectFrom.getChildren(selectTemplate)) {
-            if (ct instanceof BaseResource) {
-                BaseResource res = (BaseResource) ct;
-                String sel = "";
-                if (relId != null && relId.equals(res.getNameNodeId())) {
-                    sel = " selected ";
-                }
-                sb.append("<option value='").append(res.getNameNodeId().toString()).append("'").append(sel).append(">").append(prefix).append(res.getTitle()).append("</option>");
-            }
-        }
-        for (Folder fChild : fSelectFrom.getSubFolders()) {
-            buildOptions(fChild, relId, sb, prefix + " - " + fSelectFrom.getName());
-        }
-    }
 
     @Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
@@ -220,25 +223,6 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         return parseValue(ct, s);
     }
 
-    public Object parseValue(Templatable ct, String s) {
-        if (StringUtils.isNotBlank(s)) {
-            try {
-                return UUID.fromString(s);
-            } catch (IllegalArgumentException e) {
-                BaseResource res = (BaseResource) findResource(s, ct);
-                if (res != null) {
-                    return res.getNameNodeId();
-                } else {
-                    log.warn("not found: " + s);
-                    // return the invalid value so it can be used in validation. Not that
-                    // efficient, should set some temporary value
-                    return s;
-                }
-            }
-        } else {
-            return null;
-        }
-    }
 
     @Override
     public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
@@ -271,68 +255,11 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         if (!parameters.containsKey(key)) {
             return;
         }
-        String s = parameters.get(key);
-        updateRelation(componentValue, rc.page, s);
+        String paramVal = parameters.get(key);
+        updateRelation(componentValue, rc.page, paramVal);
     }
 
-    public boolean updateRelation(ComponentValue componentValue, Templatable page, String s) {
-        Object value = parseValue(componentValue, page, s);
-        if (value != null && !(value instanceof UUID)) {
-            log.trace("not a valid uuid, so dont do anything");
-            componentValue.setValue(value);
-            return true;
-        }
-        UUID id = (UUID) value;
-        BaseResource res = (BaseResource) componentValue.getContainer();
-        boolean found = false;
-        BaseResource existingBaseRes = res.getRelation(relationName);
-        if (existingBaseRes != null) {
-            if (!existingBaseRes.getNameNodeId().equals(id)) {
-                // same relationship to somewhere else, so remove it
-                if (log.isDebugEnabled()) {
-                    log.debug("remove relationship: " + relationName + " from: " + existingBaseRes.getHref());
-                }
-                res.removeRelationship(relationName);
-            } else {
-                // already exists, do nothing
-                log.trace("relationship exists, so do nothing");
-                found = true;
-            }
-        } else {
-            if (id == null) {
-                log.trace("selected value is null, and no current value. So do nothing");
-                found = true;
-            } else {
-                log.trace("current relationship doesnt exist, but value is selected. Create.");
-            }
-        }
-        if (!found) {
-            if (id != null) {
-                BaseResource dest = res.findByNameNodeId(id);
-                if (log.isDebugEnabled()) {
-                    log.debug("create relationship: " + relationName + " to: " + dest.getHref());
-                }
-                res.createRelationship(relationName, dest);
-                componentValue.setValue(id);
-            }
-        }
-        return false;
-    }
 
-    private UUID getRelationIdFromRequest(RenderContext rc, Map<String, String> parameters) {
-        Path compPath = getPath(rc);
-        String key = compPath.toString();
-        if (!parameters.containsKey(key)) {
-            return null;
-        }
-        String s = parameters.get(key);
-        Object value = parseValue(rc.page, s);
-        if (value != null && !(value instanceof UUID)) {
-            return null;
-        }
-        UUID id = (UUID) value;
-        return id;
-    }
 
     @Override
     public void changedValue(ComponentValue cv) {
@@ -379,58 +306,55 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         this.selectTemplate = selectTemplate;
     }
 
-    private BaseResource findResource(Object val, Templatable page) {
-        UUID id;
-        if (val == null) {
-            return null;
-        } else if (val instanceof String) {
-            String sVal = (String) val;
-            try {
-                id = UUID.fromString(sVal);
-            } catch (IllegalArgumentException e) {
-                // Not a UUID, so look for name
-                if (sVal.startsWith("/")) {
-                    Path path = Path.path(sVal);
-                    Resource r = page.find(path);
-                    if( r == null ) {
-                        LogUtils.trace(log, "findResource: Could not find path", path);
-                        return null;
-                    } else if(r instanceof BaseResource) {
-                        return (BaseResource) r;
-                    } else {
-                        LogUtils.trace(log, "findResource: Path did not evaluate to a BaseResource", path, r.getClass());
-                        return null;
-                    }
-                } else {
-                    Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-                    Resource child = selectFrom.child(sVal);
-                    if (child == null) {
-                        log.trace("no child found called: " + sVal);
-                        return null;
-                    } else {
-                        if( child instanceof BaseResource) {
-                            return (BaseResource) child;
-                        } else {
-                            LogUtils.trace(log, "findResource: Name did not evaluate to a BaseResource", sVal, child.getClass());
-                            return null;
-                        }
-                    }
-                }
-            }
-        } else if (val instanceof UUID) {
-            id = (UUID) val;
-        } else {
-            log.warn("unknown value type: " + val.getClass());
+    public boolean isMultiSelect() {
+        return multiSelect;
+    }
+
+    public void setMultiSelect(boolean multiSelect) {
+        this.multiSelect = multiSelect;
+    }
+
+    private List<BaseResource> findResources(Object val, Templatable ct) {
+        Templatable page = (Templatable) getContainer();
+        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+        if (selectFrom == null) {
+            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
             return null;
         }
-        BaseResource res = ExistingResourceFactory.get(id);
-        if (log.isTraceEnabled()) {
-            if (res == null) {
-                log.warn("no resource found with id: " + id);
-            } else {
-                log.trace("found resource with id: " + id);
-            }
+
+        return _(RelationsHelper.class).findResources(val, page, selectFrom);
+    }
+
+    private List<UUID> getRelationIdsFromRequest(RenderContext rc, Map<String, String> params) {
+        Templatable page = (Templatable) getContainer();
+        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+        if (selectFrom == null) {
+            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
+            return null;
         }
-        return res;
+        
+        Path compPath = getPath(rc);
+        return _(RelationsHelper.class).getRelationIdsFromRequest(rc, params, compPath, selectFrom);
+    }
+    
+    public Object parseValue(Templatable ct, String s) {
+        Templatable page = (Templatable) getContainer();
+        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+        if (selectFrom == null) {
+            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
+            return null;
+        }
+
+        return _(RelationsHelper.class).parseValue(ct, s, selectFrom);
+    }
+
+    public boolean updateRelation(ComponentValue componentValue, Templatable page, String s) {
+        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+        if (selectFrom == null) {
+            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
+            return false;
+        }
+
+        return _(RelationsHelper.class).updateRelation(componentValue, page, s, selectFrom, relationName);        
     }
 }

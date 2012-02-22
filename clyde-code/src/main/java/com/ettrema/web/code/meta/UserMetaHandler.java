@@ -62,6 +62,11 @@ public class UserMetaHandler implements MetaHandler<User> {
         Element elEmail = new Element("email", CodeMeta.NS);
         elEmail.setText(user.getExternalEmailText());
         el.addContent(elEmail);
+        
+        Element elProfilePic = new Element("profilePicHref", CodeMeta.NS);
+        elEmail.setText(user.getProfilePicHref());
+        el.addContent(elProfilePic);
+        
         populateGroups(el, user);
 
         folderMetaHandler.populateXml(el, user);
@@ -72,6 +77,8 @@ public class UserMetaHandler implements MetaHandler<User> {
         user.setEmailDisabled(InitUtils.getBoolean(el, "emailDisabled"));
         String newEmail = JDomUtils.valueOf(el, "email", CodeMeta.NS);
         user.setExternalEmailText(newEmail);
+        String profilePicHref = JDomUtils.valueOf(el, "profilePicHref", CodeMeta.NS);
+        user.setProfilePicHref(profilePicHref);
         updateGroups(el, user);
         user.save();
         folderMetaHandler.updateFromXml(user, el);

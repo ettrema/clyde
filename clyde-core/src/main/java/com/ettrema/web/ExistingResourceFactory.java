@@ -68,7 +68,6 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     }
 
     public static Resource findChild(Resource parent, String childSpec) throws NotAuthorizedException, BadRequestException {
-        LogUtils.trace(log, "findChild: parent", parent.getName(), " - childspec", childSpec);
         if (childSpec.equals(".")) {
             return parent;
         } else if (childSpec.equals("..")) {
