@@ -25,24 +25,24 @@ public class EvalUtils {
     private static final Map<Class, EvaluatableToXml> parsersByClass = new HashMap<Class, EvaluatableToXml>();
 
     static {
-		try {
-			add(new ConstEvaluatableToXml());
-			add(new ComponentReferenceToXml());
-			add(new MvelEvaluatableToXml());
-			add(new GroovyEvaluatableToXml());
-			add(new VelocityEvaluatableToXml());
+        try {
+            add(new ConstEvaluatableToXml());
+            add(new ComponentReferenceToXml());
+            add(new MvelEvaluatableToXml());
+            add(new GroovyEvaluatableToXml());
+            add(new VelocityEvaluatableToXml());
 
-			add(new AndEvaluatableToXml());
-			add(new OrEvaluatableToXml());
-			add(new NotEvaluatableToXml());
+            add(new AndEvaluatableToXml());
+            add(new OrEvaluatableToXml());
+            add(new NotEvaluatableToXml());
 
-			add(new QueryEvaluatableToXml());
-			add(new SqlExportEvaluatableToXml());
-			add(new SqlSelectableToXml());
-		} catch(Throwable e) {
-			e.printStackTrace();
-			throw new RuntimeException("Exception initialising EvalUtils: " + e.getMessage(), e);
-		}
+            add(new QueryEvaluatableToXml());
+            add(new SqlExportEvaluatableToXml());
+            add(new SqlSelectableToXml());
+        } catch (Throwable e) {
+            e.printStackTrace();
+            throw new RuntimeException("Exception initialising EvalUtils: " + e.getMessage(), e);
+        }
     }
 
     private static void add(EvaluatableToXml parser) {
@@ -107,15 +107,16 @@ public class EvalUtils {
     public static Evaluatable getEvalDirect(Element el, Namespace ns, Addressable container) {
         return getEvalDirect(el, ns, true, container);
     }
-	/**
-	 * 
-	 * @param el
-	 * @param ns
-	 * @param defaultIfNull
-	 * @param container
-	 * @param elementName - optional
-	 * @return 
-	 */
+
+    /**
+     *
+     * @param el
+     * @param ns
+     * @param defaultIfNull
+     * @param container
+     * @param elementName - optional
+     * @return
+     */
     public static Evaluatable getEvalDirect(Element el, Namespace ns, boolean defaultIfNull, Addressable container) {
         EvaluatableToXml parser;
         if (el == null) {
@@ -129,7 +130,7 @@ public class EvalUtils {
                 }
             }
             if (elChild == null) {
-                if( defaultIfNull ) {
+                if (defaultIfNull) {
                     return new ConstEvaluatable();
                 } else {
                     return null;
@@ -211,7 +212,7 @@ public class EvalUtils {
         if (list == null || list.isEmpty()) {
             return;
         }
-        for (Evaluatable eval  : list) {
+        for (Evaluatable eval : list) {
             EvaluatableToXml parser = parsersByClass.get(eval.getClass());
             if (parser == null) {
                 log.warn("listing supported classes");

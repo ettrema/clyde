@@ -124,46 +124,22 @@ public class RelationsHelper {
     
     public boolean updateRelation(ComponentValue componentValue, Templatable page, String s, Folder selectFrom, String relationName) {
         Object value = parseValue(page, s, selectFrom);
-        if (value != null && !(value instanceof UUID)) {
-            log.trace("not a valid uuid, so dont do anything");
+        if (value != null && !(value instanceof List)) {
+            LogUtils.trace(log, "not a valid uuid, so dont do anything", value);
             componentValue.setValue(value);
             return true;
         }
-        UUID id = (UUID) value;
-        BaseResource res = (BaseResource) page;
-        boolean found = false;
-        BaseResource existingBaseRes = res.getRelation(relationName);
-        if (existingBaseRes != null) {
-            if (!existingBaseRes.getNameNodeId().equals(id)) {
-                // same relationship to somewhere else, so remove it
-                if (log.isDebugEnabled()) {
-                    log.debug("remove relationship: " + relationName + " from: " + existingBaseRes.getHref());
-                }
-                res.removeRelationship(relationName);
-            } else {
-                // already exists, do nothing
-                log.trace("relationship exists, so do nothing");
-                found = true;
-            }
-        } else {
-            if (id == null) {
-                log.trace("selected value is null, and no current value. So do nothing");
-                found = true;
-            } else {
-                log.trace("current relationship doesnt exist, but value is selected. Create.");
-            }
+        BaseResource res = (BaseResource) page;        
+        List<UUID> requested = (List<UUID>) value;
+        List<UUID> current = getCurrentRelations(res, relationName);
+        boolean didChange = false;
+        if( removeDeselected(requested, current, res, relationName) ) {
+            didChange = true;
         }
-        if (!found) {
-            if (id != null) {
-                BaseResource dest = res.findByNameNodeId(id);
-                if (log.isDebugEnabled()) {
-                    log.debug("create relationship: " + relationName + " to: " + dest.getHref());
-                }
-                res.createRelationship(relationName, dest);
-                componentValue.setValue(id);
-            }
+        if( createNewlySelected(requested, current, res, relationName) ) {
+            didChange = true;
         }
-        return false;
+        return didChange;
     }    
     
     public void buildChecks(Folder fSelectFrom, List<UUID> relIds, StringBuilder sb, String prefix, String selectTemplate) {
@@ -198,6 +174,36 @@ public class RelationsHelper {
         for (Folder fChild : fSelectFrom.getSubFolders()) {
             buildOptions(fChild, relId, sb, prefix + " - " + fSelectFrom.getName(), selectTemplate);
         }
-    }    
+    }
+
+    private List<UUID> getCurrentRelations(BaseResource page, String relationName) {
+        BaseResourceList list = page.getRelations(relationName);
+        return list.toIds();
+    }
+
+    private boolean  removeDeselected(List<UUID> requested, List<UUID> current, BaseResource page, String relationName) {
+        boolean didChange = false;
+        for( UUID id : current ) {
+            if(!requested.contains(id)) {
+                log.trace("removeDeselected: found previously selected relationship to remove");
+                page.removeRelationship(relationName, id);
+                didChange = true;
+            }
+        }
+        return didChange;
+    }
+
+    private boolean  createNewlySelected(List<UUID> requested, List<UUID> current, BaseResource res, String relationName) {
+        boolean didChange = false;
+        for( UUID id : requested ) {
+            if(!current.contains(id)) {
+                log.trace("createNewlySelected: found newly requested relationship to create");
+                BaseResource toRes = ExistingResourceFactory.get(id);
+                res.createRelationship(relationName, toRes);
+                didChange = true;
+            }
+        }
+        return didChange;
+    }
     
 }

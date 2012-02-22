@@ -380,4 +380,15 @@ public class BaseResourceList extends ArrayList<Templatable> {
     public Map<String,BaseResourceList> getOfType() {
         return new ChildrenOfTypeMap(this);
     }
+    
+    public List<UUID> toIds() {
+        List<UUID> list = new ArrayList<>();
+        for(Templatable res : this) {
+            if( res instanceof BaseResource) {
+                BaseResource bres = (BaseResource) res;
+                list.add(bres.getNameNodeId());
+            }
+        }
+        return list;
+    }
 }

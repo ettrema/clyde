@@ -466,7 +466,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         populateXml(e2);
         Element elAtts = new Element("attributes");
         e2.addContent(elAtts);
-        Map<String, String> mapOfAttributes = new HashMap<String, String>();
+        Map<String, String> mapOfAttributes = new HashMap<>();
         for (Map.Entry<String, String> entry : mapOfAttributes.entrySet()) {
             Element elAtt = new Element("attribute");
             elAtts.addContent(elAtt);
@@ -825,6 +825,18 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         r.delete();
     }
+    
+    public void removeRelationship(String relationName, UUID id) {
+        List<Relationship> list = nameNode.findFromRelations(relationName);
+        if (list == null ) {
+            return ;
+        }
+        for( Relationship r : list )     {
+            if( r.to().getId().equals(id)) {
+                r.delete();
+            }
+        }
+    }    
 
     public BaseResource findByNameNodeId(UUID id) {
         NameNode nn = this.vfs().get(id);
@@ -1152,10 +1164,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public List<RoleAndGroup> getGroupPermissions() {
         if (groupPermissions == null) {
-            groupPermissions = new ArrayList<RoleAndGroup>();
+            groupPermissions = new ArrayList<>();
         }
         return groupPermissions;
     }
+
 
     public static class RoleAndGroup implements Serializable {
 
