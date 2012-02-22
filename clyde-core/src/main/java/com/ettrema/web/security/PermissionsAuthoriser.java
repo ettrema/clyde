@@ -21,10 +21,11 @@ import javax.xml.namespace.QName;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
- * Implements role based authorisation, both for page level and field level access.
+ * Implements role based authorisation, both for page level and field level
+ * access.
  *
- * This implements PropertyAuthoriser so it can be used for property access directly
- * from milton's PROPFIND and PROPPATCH support.
+ * This implements PropertyAuthoriser so it can be used for property access
+ * directly from milton's PROPFIND and PROPPATCH support.
  *
  * It implements ClydeAuthoriser so it can authorise page requests.
  *
@@ -42,8 +43,10 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
     /**
      *
-     * @param permissionChecker - used to check if a user has the required permission
-     * @param authoringPermissionService - used to determine what permission is required for a certain action
+     * @param permissionChecker - used to check if a user has the required
+     * permission
+     * @param authoringPermissionService - used to determine what permission is
+     * required for a certain action
      */
     public PermissionsAuthoriser(PermissionChecker permissionChecker, AuthoringPermissionService authoringPermissionService) {
         this.permissionChecker = permissionChecker;
@@ -58,7 +61,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
     @Override
     public Boolean authorise(Resource resource, Request request, Method method, Auth auth) {
         Role requiredRole = findRole(resource, method);
-		LogUtils.trace(log, "authorise: Required role is: " , requiredRole);
+        LogUtils.trace(log, "authorise: Required role is: ", requiredRole);
         if (requiredRole == null) {
             // This means the authoriser has no opinion. Another authoriser might
             // be in the chain, or else we fall through to the default policy
@@ -83,10 +86,10 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
                     log.trace("findRole: templatable: required edit role: " + r);
                 }
                 return r;
-            } else if (isCreate) {                
+            } else if (isCreate) {
                 if (resource instanceof Folder) {
                     Folder f = (Folder) t;
-					log.trace("findRole: look for appropriate template");
+                    log.trace("findRole: look for appropriate template");
                     ITemplate template = FolderCreator.findNewFolderTemplate(f);
                     if (template == null) {
                         log.trace("findRole: isCreate: couldnt locate a folder template, default to AUTHOR");
@@ -142,7 +145,7 @@ public class PermissionsAuthoriser implements ClydeAuthoriser, PropertyAuthorise
 
     /**
      * Check to see if the current user can access the properties
-     * 
+     *
      * @param request
      * @param method
      * @param perm
