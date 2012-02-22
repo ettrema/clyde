@@ -1,10 +1,7 @@
 package com.ettrema.web.search;
 
+import com.ettrema.common.Service;
 import com.ettrema.web.BaseResource;
-import com.ettrema.context.Context;
-import com.ettrema.context.Factory;
-import com.ettrema.context.Registration;
-import com.ettrema.context.RootContext;
 import com.ettrema.grid.AsynchProcessor;
 import com.ettrema.vfs.CommitListener;
 import com.ettrema.vfs.NameNode;
@@ -16,17 +13,22 @@ import com.ettrema.vfs.VfsProvider;
  * 
  * @author brad
  */
-public class SearchIndexingCommitListener implements Factory<Object>, CommitListener {
+public class SearchIndexingCommitListener implements CommitListener, Service {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndexingCommitListener.class);
-    public static Class[] classes = {};
-    private RootContext rootContext;
+    private final VfsProvider vfsProvider;
+    private final AsynchProcessor proc;
+
+    public SearchIndexingCommitListener(VfsProvider vfsProvider, AsynchProcessor proc) {
+        this.vfsProvider = vfsProvider;
+        this.proc = proc;
+    }
+
 
     @Override
     public void onCommit(NameNode n) throws Exception {
         if( n.getData() instanceof BaseResource){
             log.debug("onCommit: " + n.getName());
-            AsynchProcessor proc = rootContext.get(AsynchProcessor.class);
             if (proc != null) {
                 proc.enqueue(new BaseResourceIndexer(n.getId()));
             } else {
@@ -35,27 +37,14 @@ public class SearchIndexingCommitListener implements Factory<Object>, CommitList
         }
     }
 
-    public Class[] keyClasses() {
-        return classes;
-    }
-
-    public String[] keyIds() {
-        return null;
-    }
-
-    public Registration<Object> insert(RootContext context, Context requestContext) {
-        return null;
-    }
-
-    public void init(RootContext rootContext) {
-        this.rootContext = rootContext;
-        VfsProvider vfsProvider = rootContext.get(VfsProvider.class);
+    @Override
+    public void start() {
         vfsProvider.addCommitListener(this);
     }
 
-    public void destroy() {
+    @Override
+    public void stop() {
+        vfsProvider.removeCommitListener(this);
     }
 
-    public void onRemove(Object item) {
-    }
 }

@@ -69,6 +69,9 @@ public class BaseResourceList extends ArrayList<Templatable> {
     }
 
     public Templatable getFirst() {
+        if( isEmpty() ) {
+            return null;
+        }
         return this.get(0);
     }
 
@@ -80,6 +83,12 @@ public class BaseResourceList extends ArrayList<Templatable> {
         }
     }
 
+    /**
+     * Return the first resource of the given type
+     * 
+     * @param type
+     * @return 
+     */
     public Templatable first(String type) {
         for (Templatable res : this) {
             if (res.is(type)) {

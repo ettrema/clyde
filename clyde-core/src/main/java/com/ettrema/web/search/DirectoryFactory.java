@@ -1,6 +1,7 @@
 package com.ettrema.web.search;
 
 import java.io.IOException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.Directory;
 
 /**
@@ -17,6 +18,7 @@ public interface DirectoryFactory {
      * @throws IOException
      */
     Directory open(String name) throws IOException;
+
 
     /**
      * Has the index been created?

@@ -46,7 +46,7 @@ public class SearchCommand extends Command {
 
     public SearchCommand(Addressable container, Element el) {
         super(container, el);
-        Map<String,Component> map = new HashMap<String, Component>();
+        Map<String,Component> map = new HashMap<>();
         for( Object o : el.getChildren() ) {
             Element elComp = (Element) o;
             Component c = (Component) XmlUtils2.restoreObject(elComp,this);
@@ -89,7 +89,7 @@ public class SearchCommand extends Command {
     }
     
     public List<Resource> getResults() {
-        List<Resource> list = new ArrayList<Resource>();
+        List<Resource> list = new ArrayList<>();
         if( hits == null ) return list;
         
         VfsSession session = RequestContext.getCurrent().get(VfsSession.class);
@@ -249,10 +249,8 @@ public class SearchCommand extends Command {
         try {
             hits = sm.search(hostName, exp);
             log.debug("done search: " + hits.length);
-        } catch (CorruptIndexException ex) {
+        } catch (CorruptIndexException | ParseException ex) {
             query.setValidationMessage("Couldnt execute query: " + ex.getMessage()); // TODO, delete index
-        } catch (ParseException ex) {
-            query.setValidationMessage("Couldnt execute query: " + ex.getMessage());
         }
         return null;        
     }

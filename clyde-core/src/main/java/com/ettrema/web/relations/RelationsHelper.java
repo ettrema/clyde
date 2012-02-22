@@ -125,7 +125,7 @@ public class RelationsHelper {
     public boolean updateRelation(ComponentValue componentValue, Templatable page, String s, Folder selectFrom, String relationName) {
         Object value = parseValue(page, s, selectFrom);
         if (value != null && !(value instanceof List)) {
-            LogUtils.trace(log, "not a valid uuid, so dont do anything", value);
+            LogUtils.trace(log, "not a list, so dont do anything", value.getClass());
             componentValue.setValue(value);
             return true;
         }
