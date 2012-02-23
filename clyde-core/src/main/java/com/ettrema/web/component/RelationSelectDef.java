@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 
 /**
  * Accepts an input value which is either a name of a resource in the selectFrom
@@ -82,6 +83,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             }
         }
         if (!ComponentUtils.isEmpty(val)) {
+            LogUtils.trace(log, "validate: check value of type", val.getClass());
             List<BaseResource> list = findResources(val, rc.getTargetPage());
             if (list == null || list.isEmpty()) {
                 c.setValidationMessage("Invalid value");

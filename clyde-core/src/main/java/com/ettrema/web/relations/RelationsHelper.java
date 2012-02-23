@@ -34,7 +34,7 @@ public class RelationsHelper {
             return null;
         }
         List<BaseResource> list = new ArrayList<>();
-        addResources(val.toString(), page, list, selectFrom);
+        addResources(val, page, list, selectFrom);
         return list;
     }
 
@@ -46,7 +46,7 @@ public class RelationsHelper {
             Path path = (Path) val;
             Templatable found = ComponentUtils.find(selectFrom, path);
             if (found == null) {
-                LogUtils.trace(log, "findResource: Could not find path", path);
+                LogUtils.trace(log, "addResources: Could not find path", path);
             } else if (found instanceof BaseResource) {
                 BaseResource res = (BaseResource) found;
                 list.add(res);
@@ -70,7 +70,7 @@ public class RelationsHelper {
             id = (UUID) val;
             BaseResource res = ExistingResourceFactory.get(id);
             if (res == null) {
-                log.warn("no resource found with id: " + id);
+                log.warn("addResources: no resource found with id: " + id);
                 return;
             } else {
                 list.add(res);
@@ -80,7 +80,7 @@ public class RelationsHelper {
                 addResources(listVal, page, list, selectFrom);
             }
         } else {
-            log.warn("unknown value type: " + val.getClass());
+            log.warn("addResources: unknown value type: " + val.getClass());
         }
     }    
     
@@ -123,7 +123,7 @@ public class RelationsHelper {
     }    
     
     public boolean updateRelation(ComponentValue componentValue, Templatable page, String s, Folder selectFrom, String relationName) {
-        Object value = parseValue(page, s, selectFrom);
+        Object value = parseValue(page, s, selectFrom); // will be a list of UUIDs
         if (value != null && !(value instanceof List)) {
             LogUtils.trace(log, "not a list, so dont do anything", value.getClass());
             componentValue.setValue(value);
@@ -138,6 +138,9 @@ public class RelationsHelper {
         }
         if( createNewlySelected(requested, current, res, relationName) ) {
             didChange = true;
+        }
+        if( didChange ) {
+            componentValue.setValue(value);
         }
         return didChange;
     }    
