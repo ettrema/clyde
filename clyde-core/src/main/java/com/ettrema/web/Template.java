@@ -50,6 +50,11 @@ public class Template extends Page implements ITemplate, SimpleEditable {
      */
     private boolean disableExport;
     
+    /**
+     * if true we'll try to render html directly for folders, rather then redirecting to an index page
+     */
+    private Boolean enableGetableFolders;
+    
 
     public Template(Folder parent, String name) {
         super(parent, name);
@@ -503,7 +508,12 @@ public class Template extends Page implements ITemplate, SimpleEditable {
             return cvBody.getFormattedValue(this);
         }
     }
-    
-    
-    
+
+    public Boolean isEnableGetableFolders() {
+        return enableGetableFolders;
+    }
+
+    public void setEnableGetableFolders(Boolean enableGetableFolders) {
+        this.enableGetableFolders = enableGetableFolders;
+    }            
 }

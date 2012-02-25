@@ -16,6 +16,15 @@ public interface ComponentDef extends Component {
 
     String renderEdit(ComponentValue c,RenderContext rc);
     
+    /**
+     * Called prior to validation, this should ensure that any changes
+     * made by the user are loaded
+     * 
+     * @param componentValue
+     * @param rc
+     * @param parameters
+     * @param files 
+     */
     void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files);
 
     ComponentValue createComponentValue(Templatable newRes);

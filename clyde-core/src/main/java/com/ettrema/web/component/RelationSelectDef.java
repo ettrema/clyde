@@ -2,7 +2,6 @@ package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.FileItem;
-import com.bradmcevoy.http.HttpManager;
 import com.ettrema.web.*;
 import com.ettrema.web.relations.RelationsHelper;
 import java.util.ArrayList;
@@ -82,11 +81,13 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
                 return true;
             }
         }
-        if (!ComponentUtils.isEmpty(val)) {
-            LogUtils.trace(log, "validate: check value of type", val.getClass());
-            List<BaseResource> list = findResources(val, rc.getTargetPage());
-            if (list == null || list.isEmpty()) {
-                c.setValidationMessage("Invalid value");
+        if (val instanceof List) {
+            List list = (List) val;
+            LogUtils.trace(log, "validate: check list of size", list.size());
+            Templatable page = (Templatable) getContainer();
+            String valMsg = _(RelationsHelper.class).validate(list, page, _getSelectFromFolder(page));
+            if (valMsg != null) {
+                c.setValidationMessage(valMsg);
                 log.trace("not valid because no resource was found");
                 return false;
             }
@@ -156,9 +157,19 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     @Override
     public String render(ComponentValue c, RenderContext rc) {
         BaseResource res = (BaseResource) c.getContainer();
-        BaseResource related = res.getRelation(relationName);
-        if (related != null) {
-            return related.getLink();
+        BaseResourceList related = res.getRelations(relationName);
+        if (related != null && !related.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (Templatable r : related) {
+                if (r instanceof BaseResource) {
+                    BaseResource relatedRes = (BaseResource) r;
+                    if (sb.length() > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(relatedRes.getLink());
+                }
+            }
+            return sb.toString();
         } else {
             return "";
         }
@@ -167,49 +178,38 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     @Override
     public String renderEdit(ComponentValue c, RenderContext rc) {
         log.debug("renderEdit");
+        BaseResource page = (BaseResource) c.getContainer();
         Templatable selectFrom = rc.getTarget().find(selectFromFolder);
         if (selectFrom == null) {
             return "Error: couldnt find folder: " + selectFromFolder;
         } else if (selectFrom instanceof Folder) {
-            Map<String, String> params = null;
-            if (HttpManager.request() != null) {
-                params = HttpManager.request().getParams();
-            }
-            List<UUID> relIds = getRelationIdsFromRequest(rc, params);
-            if (relIds == null || relIds.isEmpty()) {
-                // find previously selected
-                BaseResource page = (BaseResource) c.getContainer();
+            // If the user has submitted values then use those, otherwise find persisted list
+            Path compPath = getPath(rc);
+            List selected = (List) rc.getAttribute("_user-selected_" + compPath);
+
+            if (selected == null) {
+                // no user selected values, so find previously selected                
                 BaseResourceList prevSelected = page.getRelations(relationName);
+                System.out.println("found prevSelected: " + prevSelected.size());
                 if (prevSelected != null && !prevSelected.isEmpty()) {
-                    relIds = new ArrayList<>();
+                    selected = new ArrayList<>();
                     for (Templatable r : prevSelected) {
                         if (r instanceof BaseResource) {
-                            relIds.add(((BaseResource) r).getNameNodeId());
+                            selected.add(((BaseResource) r).getNameNodeId());
                         }
                     }
                 }
-
             }
-            StringBuilder sb = new StringBuilder();
             Folder fSelectFrom = (Folder) selectFrom;
             if (multiSelect) {
-                _(RelationsHelper.class).buildChecks(fSelectFrom, relIds, sb, "", selectTemplate);
+                return _(RelationsHelper.class).checkBoxesHtml(fSelectFrom, selected, selectTemplate, getPath(rc));
             } else {
-                UUID relId = relIds == null || relIds.isEmpty() ? null : relIds.get(0);
-                sb.append("<select id='").append(name).append("' name='").append(name).append("'>");
-                log.debug("selectFrom: " + fSelectFrom.getHref() + " - " + selectTemplate);
-                String sel = relId == null ? " selected " : "";
-                sb.append("<option value=''").append(sel).append(">").append("[None]").append("</option>");
-                _(RelationsHelper.class).buildOptions(fSelectFrom, relId, sb, "", selectTemplate);
-                sb.append("</select>");
+                return _(RelationsHelper.class).selectHtml(fSelectFrom, selected, selectTemplate, getPath(rc), page);
             }
-
-            return sb.toString();
         } else {
             return "Error: not a folder: " + selectFromFolder;
         }
     }
-
 
     @Override
     public void onPreProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
@@ -217,6 +217,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     @Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
+        LogUtils.info(log, "onProcess");
         return null;
     }
 
@@ -224,7 +225,6 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
     public Object parseValue(ComponentValue cv, Templatable ct, String s) {
         return parseValue(ct, s);
     }
-
 
     @Override
     public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
@@ -247,7 +247,9 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     /**
      * Do pre-processing for child component. This means that it will parse the
-     * request parameter and set the value on the child
+     * request parameter and set the value into the ComponentValue
+     *
+     * The value in this case will be List containing UUID's and/or Path objects
      */
     @Override
     public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
@@ -257,15 +259,35 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
         if (!parameters.containsKey(key)) {
             return;
         }
+
         String paramVal = parameters.get(key);
-        updateRelation(componentValue, rc.page, paramVal);
+        // Just parse it as a comma seperate list of either UUID's or Path's
+        List values = _(RelationsHelper.class).parse(paramVal);
+        componentValue.setValue(values);
+        rc.getAttributes().put("_user-selected_" + key, values);
     }
 
+    public Object parseValue(Templatable ct, String s) {
+        return _(RelationsHelper.class).parse(s);
+    }
 
+    private Folder _getSelectFromFolder(Templatable page) {
+        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
+        if (selectFrom == null) {
+            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
+            return null;
+        }
+        return null;
+    }
 
     @Override
     public void changedValue(ComponentValue cv) {
-        // big whoop
+        Templatable page = (Templatable) cv.getContainer();
+        try {
+            _(RelationsHelper.class).updateRelations(cv, page, _getSelectFromFolder(page), relationName);
+        } catch (Exception e) {
+            throw new RuntimeException("Exception updating relations: from folder=" + selectFromFolder + " relationName=" + relationName, e);
+        }
     }
 
     public boolean isRequired() {
@@ -314,49 +336,5 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     public void setMultiSelect(boolean multiSelect) {
         this.multiSelect = multiSelect;
-    }
-
-    private List<BaseResource> findResources(Object val, Templatable ct) {
-        Templatable page = (Templatable) getContainer();
-        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-        if (selectFrom == null) {
-            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
-            return null;
-        }
-
-        return _(RelationsHelper.class).findResources(val, page, selectFrom);
-    }
-
-    private List<UUID> getRelationIdsFromRequest(RenderContext rc, Map<String, String> params) {
-        Templatable page = (Templatable) getContainer();
-        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-        if (selectFrom == null) {
-            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
-            return null;
-        }
-        
-        Path compPath = getPath(rc);
-        return _(RelationsHelper.class).getRelationIdsFromRequest(rc, params, compPath, selectFrom);
-    }
-    
-    public Object parseValue(Templatable ct, String s) {
-        Templatable page = (Templatable) getContainer();
-        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-        if (selectFrom == null) {
-            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
-            return null;
-        }
-
-        return _(RelationsHelper.class).parseValue(ct, s, selectFrom);
-    }
-
-    public boolean updateRelation(ComponentValue componentValue, Templatable page, String s) {
-        Folder selectFrom = (Folder) ComponentUtils.find(page, Path.path(selectFromFolder));
-        if (selectFrom == null) {
-            log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
-            return false;
-        }
-
-        return _(RelationsHelper.class).updateRelation(componentValue, page, s, selectFrom, relationName);        
     }
 }

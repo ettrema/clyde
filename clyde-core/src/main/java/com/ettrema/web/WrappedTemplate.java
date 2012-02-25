@@ -293,6 +293,11 @@ public class WrappedTemplate implements ITemplate {
         return physicalTemplate.onPost(aThis);
     }
 
+    @Override
+    public Boolean isEnableGetableFolders() {
+        return physicalTemplate.isEnableGetableFolders();
+    }
+
     
     
 }

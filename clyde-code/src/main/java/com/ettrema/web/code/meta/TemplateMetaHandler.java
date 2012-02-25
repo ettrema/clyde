@@ -134,6 +134,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         InitUtils.set(el, "instanceType", cn);
         InitUtils.set(el, "disableExport", template.isDisableExport());
         InitUtils.set(el, "secure", template.isSecure());
+        InitUtils.set(el, "enableGetableFolders", template.isEnableGetableFolders());
 
         String dt = template.getDocType() == null ? null : template.getDocType().name();
         InitUtils.set(el, "docType", dt);
@@ -179,6 +180,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
     
     @Override
     public void updateFromXml(Template template, Element el) {
+        log.trace("updateFromXml");
         String instanceType = InitUtils.getValue(el, "instanceType");
         if (!StringUtils.isEmpty(instanceType)) {
             Class c = mapOfClassesByAlias.get(instanceType);
@@ -202,6 +204,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         template.setDocType(docType);
         
         template.setSecure( InitUtils.getNullableBoolean(el, "secure") );
+        template.setEnableGetableFolders( InitUtils.getNullableBoolean(el, "enableGetableFolders") );
 
         template.setDisableExport(InitUtils.getBoolean(el, "disableExport"));
 
@@ -211,6 +214,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         template.setBeforeSaveScript(beforeSave);
 
         String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
+        System.out.println("aftersave: " + afterSave);
         template.setAfterSaveScript(afterSave);
 
         String onPostPageScript = JDomUtils.valueOf(el, "onPostPageScript", CodeMeta.NS);

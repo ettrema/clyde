@@ -123,4 +123,8 @@ public interface ITemplate extends Templatable{
      */
     Boolean hasRole(Subject user, Role role, CommonTemplated target);
 
+    /**
+     * Non- recursive method to see if this template allows folders to be getable
+     */
+    Boolean isEnableGetableFolders();
 }

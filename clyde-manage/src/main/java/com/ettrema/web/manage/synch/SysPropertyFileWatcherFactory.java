@@ -11,6 +11,25 @@ import org.apache.lucene.util.NamedThreadFactory;
 
 /**
  * Creates and initialises other FileWatcher's based on system properties.
+ * 
+ * Typically you'll set properties in your pom.xml file like this:
+ * 
+ *                                 <systemProperty>
+                                    <name>autoloader.xthis.force</name>
+                                    <value>${basedir}/src/main/webapp/autoload</value>
+                                </systemProperty>                                                                  
+
+* 
+* The name has the following parts - autoloader.[name].[force?]
+* Where
+*   autoloader - this must be the literal "autoloader" to identify the property as representing an autoloader
+*   [name] - any arbitrary name. Autoloaders are ordered alphabetically
+*   [force?] - optional literal "force". If present the autoloader will do an initial scan with forceReload = true. Good for applying overrides
+* 
+* The value has the following parts - [path],[host]
+* Where:
+*   [path] - is the path to autoload and watch
+*   ,[host] - optional, identifies the host name to load into
  *
  * @author brad
  */
@@ -42,7 +61,10 @@ public class SysPropertyFileWatcherFactory implements Service {
     public void start() {
         fileWatchers = new ArrayList<>();
         Properties props = System.getProperties();
-        for( String p : props.stringPropertyNames() ) {
+        // load in alphabetical order so its deterministic
+        List<String> names = new ArrayList<>(props.stringPropertyNames());
+        Collections.sort(names);
+        for( String p : names ) {
             if( p.startsWith(propertyNamePrefix)) {
                 addWatch(props, p);
             }
@@ -61,12 +83,16 @@ public class SysPropertyFileWatcherFactory implements Service {
             fileLoader = getOrCreateFileLoader(loadIntoHost);
         }
         File dirToWatch = new File(path);
+        
+        boolean forceReload = propName.endsWith(".force"); // force reload if the name is like autoloader.something.force
+        
         log.info("addWatch - raw path: " + path + " - absolute path: " + dirToWatch.getAbsolutePath());
         if( dirToWatch.exists() ) {
             if( dirToWatch.isDirectory())  {
                 FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader, scheduledExecutorService);
                 fw.setInitialScan(true);
                 fw.setWatchFiles(true);
+                fw.setForceReload(forceReload);
                 fw.start();
                 fileWatchers.add(fw);
             } else {

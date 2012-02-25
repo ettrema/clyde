@@ -19,6 +19,7 @@ import com.bradmcevoy.http.DeletableCollectionResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.Range;
+import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.io.BufferingOutputStream;
@@ -50,7 +51,7 @@ import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.NullOutputStream;
 import org.jdom.Element;
 import static com.ettrema.context.RequestContext.*;
-import com.ettrema.utils.FolderMap;
+import com.ettrema.utils.*;
 import com.ettrema.web.templates.TemplateMapping;
 import java.util.*;
 
@@ -313,10 +314,6 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         }
     }
 
-    @Override
-    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
-        // Don't have content for folders
-    }
 
     @Override
     public Long getContentLength() {
@@ -905,8 +902,15 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return tm.lookup(name, web);
     }
 
+    
     @Override
     public String getContentType(String accept) {
+        Request req = _(CurrentRequestService.class).request();
+        if( req != null ) {
+            if( req.getMethod().equals(Method.GET) ||  req.getMethod().equals(Method.POST)) {
+                return "text/html";
+            }
+        }
         return "httpd/unix-directory";
     }
 
@@ -917,7 +921,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     void onRemoved(BaseResource aThis) {
-        log.trace("onRemoved: " + aThis);
+        LogUtils.trace(log, "onRemoved: ", aThis.getName());
     }
 
     public boolean hasIndexPage() {
@@ -1200,5 +1204,16 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
 
     public void setTemplateMappings(List<TemplateMapping> templateMappings) {
         this.templateMappings = templateMappings;
+    }
+    
+    public boolean isGetable() {
+        ITemplate t = getTemplate();
+        while(t != null ) {
+            if(t.isEnableGetableFolders() != null) {
+                return t.isEnableGetableFolders();
+            }
+            t = t.getTemplate();
+        }
+        return false;
     }
 }

@@ -518,7 +518,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         elRels.addContent(elTo);
         for (Relationship r : this.getNameNode().findToRelations(null)) {
             Element elRel = new Element("relationship");
-            elFrom.addContent(elRel);
+            elTo.addContent(elRel);
             elRel.setAttribute("relationship", r.relationship());
             NameNode nFrom = r.from();
             if (nFrom != null) {
@@ -805,6 +805,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     /**
      * Create a relationship. Relationships should generaly be one-to-many,
      * and should be made from the many side to the parent.
+     * 
+     * This will remove any previous relationship with the given name from this node
      *
      * Eg if an invoice relates to a customer, you should call createRelationship
      * on the invoice, providing the customer as the To object
@@ -817,6 +819,17 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
         to.nameNode.onNewRelationship(r);
     }
+    
+    /**
+     * Just create a relationship, without removing any previous
+     * 
+     * @param relationName
+     * @param to 
+     */
+    public void createManyToManyRelationship(String relationName, BaseResource to) {
+        Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
+        to.nameNode.onNewRelationship(r);
+    }    
 
     public void removeRelationship(String relationName) {
         Relationship r = getRelationNode(relationName);

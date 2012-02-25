@@ -36,6 +36,7 @@ public class FileWatcher implements Service {
     private boolean watchFiles = true;
     private boolean initialScan = false;
     private boolean running;    
+    private boolean forceReload;
     private ScheduledFuture<?> futureInitial;
     private ScheduledFuture<?> futureScan;
 
@@ -65,7 +66,7 @@ public class FileWatcher implements Service {
                             @Override
                             public void execute(Context cntxt) {
                                 try {
-                                    fileScanner.initialScan(root);
+                                    fileScanner.initialScan(forceReload, root);
                                     log.info("Finished initial scan for: " + root.getAbsolutePath());
                                 } catch (Exception ex) {
                                     log.error("exception loading files", ex);
@@ -255,4 +256,12 @@ public class FileWatcher implements Service {
     public void setInitialScan(boolean initialScan) {
         this.initialScan = initialScan;
     }
+
+    public boolean isForceReload() {
+        return forceReload;
+    }
+
+    public void setForceReload(boolean forceReload) {
+        this.forceReload = forceReload;
+    }        
 }

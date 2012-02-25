@@ -501,6 +501,14 @@ public class RenderContext implements Map<String, Component> {
 
             }
         }
+        if (getEditMode()) {
+            if (page instanceof BaseResource) {
+                BaseResource res = (BaseResource) page;
+                if( !res.isNew()) {
+                    sb.append("<a class='button cancel' href='" + res.getUrl() + "'>Cancel</a>");
+                }
+            }
+        }
         return sb.toString();
     }
 

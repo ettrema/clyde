@@ -298,19 +298,63 @@ public class Formatter {
         } else if (secs < 24 * 60 * 60) {
             return secs / (60 * 60) + " hours ago";
         } else {
-            long days = secs/(60*60*24);
-            if( days < 2) {
+            long days = secs / (60 * 60 * 24);
+            if (days < 2) {
                 return "a day ago";
-            } else if( days < 30) {
+            } else if (days < 30) {
                 return days + " days ago";
-            } else if( days < 40) {
+            } else if (days < 40) {
                 return "a month ago";
-            } else if( days < 7*8) {
-                return days/7 + " weeks ago";
+            } else if (days < 7 * 8) {
+                return days / 7 + " weeks ago";
             } else {
-                return days/30 + " months ago";
+                return days / 30 + " months ago";
             }
         }
+    }
+
+    public String formatMinsAsDuration(Object o) {
+        return formatMinsAsDuration(o, true);
+    }
+    
+    public String formatMinsAsDuration(Object o, boolean numeric) {
+        Long l = toLong(o);
+        if( l == null ) {
+            return "";
+        } else {            
+            long hours = l / 60;
+            long mins = l % 60;
+            if (numeric) {
+                return hours + ":" + pad(mins, 2);
+            } else {
+                if (hours == 0) {
+                    return mins + "mins";
+                } else if( hours == 1) {
+                    return hours + "hr " + mins;
+                } else {
+                    return hours + "hrs " + mins;
+                }                
+            }
+        }
+    }
+    
+    public String pad2(long l) {
+        return pad(l,2);
+    }
+    
+    public String pad(long l, int length) {
+        return padWith("0", l, length);
+    }
+    
+    public String padWith(String padChar, long l, int length) {
+        return _pad(padChar, l + "", length);
+    }
+    
+    private String _pad(String padChar,String val, int length) {        
+        if( val.length() >= length ) {
+            return val;
+        }
+        return _pad(padChar, padChar + val, length);
     }
 
     public org.joda.time.DateTime getDateTime(Object o) {
@@ -603,9 +647,9 @@ public class Formatter {
     public CurrentDateService getCurrentDateService() {
         return currentDateService;
     }
-    
+
     public String ifEqual(String ifEqual, String ifNoteEqual, Object o1, Object o2) {
-        if( o1 == null ) {
+        if (o1 == null) {
             return o2 == null ? ifEqual : ifNoteEqual;
         } else {
             return o1.equals(o2) ? ifEqual : ifNoteEqual;

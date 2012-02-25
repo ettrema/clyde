@@ -43,6 +43,7 @@ public class RelationSelectDefHandler implements ComponentDefHandler {
         InitUtils.set( el, "description", text.getDescription() );
         InitUtils.set( el, "selectFromFolder", text.getSelectFromFolder() );
         InitUtils.set( el, "selectTemplate", text.getSelectTemplate() );
+        InitUtils.set( el, "multiSelect", text.isMultiSelect() );
     }
 
     @Override
@@ -56,5 +57,6 @@ public class RelationSelectDefHandler implements ComponentDefHandler {
         def.setRelationName( InitUtils.getValue( el, "relation" ) );
         def.setSelectFromFolder( InitUtils.getValue( el, "selectFromFolder" ) );
         def.setSelectTemplate( InitUtils.getValue( el, "selectTemplate" ) );
+        def.setMultiSelect( InitUtils.getBoolean( el, "multiSelect" ) );
     }
 }

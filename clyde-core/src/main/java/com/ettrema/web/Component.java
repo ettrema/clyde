@@ -63,6 +63,4 @@ public interface Component extends Serializable {
 
     Element toXml(Addressable container, Element el);
 
-    @Override
-    String toString();
 }

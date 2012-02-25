@@ -114,7 +114,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
             return null;
         }
 
-        List<Templatable> list = new ArrayList<Templatable>();
+        List<Templatable> list = new ArrayList<>();
         for (Templatable res : this) {
             if (type == null || res.is(type)) {
                 list.add(res);
@@ -399,5 +399,29 @@ public class BaseResourceList extends ArrayList<Templatable> {
             }
         }
         return list;
+    }
+    
+    /**
+     * Returns the next item after the one given. If the given argument
+     * is null, returns the first item in the list
+     * 
+     * @param from
+     * @return 
+     */
+    public Templatable next(Templatable from) {
+        if( from == null ) {
+            return getFirst();
+        } else {
+            boolean found = false;
+            for( Templatable r : this) {
+                if( found ) {
+                    return r;
+                }
+                if( r == from) {
+                    found = true;
+                }
+            }
+            return null;
+        }
     }
 }

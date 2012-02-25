@@ -90,7 +90,7 @@ public class SaveCommand extends Command {
 
     protected Templatable doProcess(RenderContext rc, Map<String, String> parameters) {
         RenderContext rcTarget = rc.getTarget();
-        Set<BaseResource> pages = new HashSet<BaseResource>();
+        Set<BaseResource> pages = new HashSet<>();
         if (rcTarget.page instanceof BaseResource) {
             pages.add((BaseResource) rcTarget.page);
         }

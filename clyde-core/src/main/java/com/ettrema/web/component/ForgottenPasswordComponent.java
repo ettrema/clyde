@@ -211,6 +211,10 @@ public class ForgottenPasswordComponent implements Component {
     @Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
-        return (String) params.attributes.get( this.getName() + "_validation" );
+        if( params != null ) {
+            return (String) params.attributes.get( this.getName() + "_validation" );
+        } else {
+            return null;
+        }
     }
 }

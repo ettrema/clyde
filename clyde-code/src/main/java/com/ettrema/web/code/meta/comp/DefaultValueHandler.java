@@ -61,18 +61,12 @@ public class DefaultValueHandler implements ValueHandler {
         String sVal = InitUtils.getValue(eAtt);
         if (def == null) {
 //            throw new RuntimeException( "No definition for : " + cv.getName() + " in template: " + res.getTemplateName());
-            log.warn("No definition for : " + cv.getName() + " in template: " + res.getTemplateName() + " The value will be represented as a string, which might cause errors if its intended to be a structured tye");            
+            log.warn("No definition for : " + cv.getName() + " in template: " + res.getTemplateName() + " The value will be represented as a string, which might cause errors if its intended to be a structured tye");
             cv.setValue(sVal);
-        } else {            
-            if( def instanceof RelationSelectDef) {                
-                RelationSelectDef rdef = (RelationSelectDef) def;
-                
-                boolean found = rdef.updateRelation(cv, res, sVal);
-                LogUtils.trace(log, "fromXml: set relationship. found=", found);
-            } else {
-                LogUtils.trace(log, "fromXml: using def:", def.getName());
-                cv.setValue(def.parseValue(cv, res, eAtt));
-            }
+        } else {
+            LogUtils.trace(log, "fromXml: using def:", def.getName());
+            cv.setValue(def.parseValue(cv, res, eAtt));
+            def.changedValue(cv);
         }
     }
 

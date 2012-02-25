@@ -59,10 +59,12 @@ public class Root extends CommonTemplated implements ITemplate {
     }
 
 
+    @Override
     public Folder createFolderFromTemplate(Folder location, String name) {
         return new Folder(location, name);
     }
 
+    @Override
     public BaseResource createPageFromTemplate(Folder location, String name, InputStream in, Long length) {
         BaseResource res = createPageFromTemplate(location, name);
         res.save();
@@ -70,6 +72,7 @@ public class Root extends CommonTemplated implements ITemplate {
         return res;
     }
 
+    @Override
     public BaseResource createPageFromTemplate(Folder location, String name) {
         return new Page(location, name);
     }
@@ -94,22 +97,27 @@ public class Root extends CommonTemplated implements ITemplate {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public String getUniqueId() {
         return null;
     }
 
+    @Override
     public String getRealm() {
         return templates.getRealm();
     }
 
+    @Override
     public Date getModifiedDate() {
         return null;
     }
 
+    @Override
     public Date getCreateDate() {
         return null;
     }
 
+    @Override
     public ComponentDef getComponentDef(String name) {
         return componentDefs.get(name);
     }
@@ -148,4 +156,10 @@ public class Root extends CommonTemplated implements ITemplate {
         return null;
     }
 
+    @Override
+    public Boolean isEnableGetableFolders() {
+        return false;
+    }
+
+    
 }

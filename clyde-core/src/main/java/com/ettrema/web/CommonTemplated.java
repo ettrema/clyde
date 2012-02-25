@@ -165,16 +165,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             }
         }
         ComponentValue cvBody = this.getValues().get("body");
-        if( cvBody != null ) {
+        if (cvBody != null) {
             Object o = cvBody.getValue();
-            if( o instanceof String ) {
+            if (o instanceof String) {
                 String b = BriefFinder.findBrief(o.toString(), 200);
-                if( b != null ) {
+                if (b != null) {
                     return b;
                 }
             }
         }
-        
+
         return getTitle();
     }
 
@@ -232,6 +232,17 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         log.info("process");
         ITemplate lTemplate = getTemplate();
         RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
+
+        for (String paramName : parameters.keySet()) {
+            Path path = Path.path(paramName);
+            Component c = rc.findComponent(path);
+            if (c instanceof ComponentValue) {
+                ComponentValue cv = (ComponentValue) c;
+                ComponentDef def = cv.getDef(rc);
+                def.changedValue(cv);
+            }
+        }
+
 
         for (String paramName : parameters.keySet()) {
             Path path = Path.path(paramName);
@@ -488,10 +499,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     /**
-     * The content type persisted in meta data for this resource. Might actually be a
-     * comma seperated list of content types.
-     * 
-     * @return 
+     * The content type persisted in meta data for this resource. Might actually
+     * be a comma seperated list of content types.
+     *
+     * @return
      */
     public String getContentType() {
         return this.contentType;
@@ -629,16 +640,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public String getTemplateName() {
         TemplateSelect sel = getTemplateSelect();
         String templateName;
-        if( sel != null ) {
+        if (sel != null) {
             templateName = sel.getValue();
         } else {
             templateName = null;
         }
-        if (templateName == null || templateName.length() == 0 ) {
+        if (templateName == null || templateName.length() == 0) {
             log.trace("getTemplateName: no template component`");
             templateName = TemplateMapping.findTemplateName(this.getContentType(), this);
         }
-        
+
         return templateName;
     }
 

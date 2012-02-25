@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class RequestParams {
 
-    private static final ThreadLocal<RequestParams> tlCurrent = new ThreadLocal<RequestParams>();
+    private static final ThreadLocal<RequestParams> tlCurrent = new ThreadLocal<>();
 
     public static RequestParams current() {
         return tlCurrent.get();
