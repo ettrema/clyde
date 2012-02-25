@@ -44,6 +44,13 @@ public interface IUser extends Mailbox, PermissionRecipient, DiscretePrincipal {
      * @return
      */
     String getHref();
+    
+    /**
+     * A path identifying the user, from the server
+     * 
+     * @return 
+     */
+    String getUrl();
 
     /**
      * The name of the resource which identifies the user. This is the local

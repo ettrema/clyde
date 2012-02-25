@@ -70,7 +70,7 @@ public class CommentServiceImpl implements CommentService {
             DataNode dn = nUser.getData();
             if( dn instanceof IUser ) {
                 IUser user = (IUser) dn;
-                return new UserBeanImpl( user.getNameNode().getName(), user.getHref(), null );
+                return new UserBeanImpl( user.getNameNode().getName(), user.getUrl(), user.getProfilePicHref() );
             } else {
                 return null;
             }

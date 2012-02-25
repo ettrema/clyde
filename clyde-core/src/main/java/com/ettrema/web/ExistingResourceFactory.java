@@ -62,6 +62,9 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         if (path.isRelative()) {
             return findChild(parent, path.getParts(), 0);
         } else {
+            if( parent== null ) {
+                throw new IllegalArgumentException("Parent argument is null");
+            }
             Host host = ((Templatable) parent).getHost();
             return findChild(host, path.getParts(), 0);
         }

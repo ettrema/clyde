@@ -187,6 +187,13 @@ public class RelationsHelper {
             }
         } else if (o instanceof Path) {
             Path p = (Path) o;
+            if (selectFrom == null) {
+                if (p.isRelative()) {
+                    return "The path is relative, but the selectFrom folder is empty. Please use an absolute path";
+                } else {
+                    selectFrom = page.getHost();
+                }
+            }            
             Templatable found = ComponentUtils.find(selectFrom, p);
             if (found == null) {
                 return "Invalid path: " + p;
