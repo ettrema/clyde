@@ -11,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 
-
 /**
  *
  * @author brad
@@ -20,9 +19,8 @@ public class FileLoader {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FileLoader.class);
     private final FileTransport fileTransport;
-    private final ErrorReporter errorReporter;    
+    private final ErrorReporter errorReporter;
     private boolean enableLockWaits = true;
-
 
     public FileLoader(ErrorReporter errorReporter, FileTransport fileTransport) {
         this.errorReporter = errorReporter;
@@ -85,7 +83,11 @@ public class FileLoader {
                             long t = System.currentTimeMillis();
                             upload(f, root);
                             t = System.currentTimeMillis() - t;
-                            log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                            if (t > 2000) {
+                                log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                            } else {
+                                log.info("done upload: " + f.getAbsolutePath() + " in " + t + "msecs");
+                            }
                         }
                     } else {
                         done = true;
@@ -101,7 +103,11 @@ public class FileLoader {
                 long t = System.currentTimeMillis();
                 upload(f, root);
                 t = System.currentTimeMillis() - t;
-                log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                if (t > 2000) {
+                    log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                } else {
+                    log.info("done upload: " + f.getAbsolutePath() + " in " + t + "msecs");
+                }
             } else {
                 fileTransport.delete(f, root);
                 log.info("done delete:" + f.getAbsolutePath());
@@ -109,7 +115,6 @@ public class FileLoader {
 
         }
     }
-    
 
     private boolean isFileOpen(File file) {
         FileOutputStream fout = null;
@@ -154,5 +159,5 @@ public class FileLoader {
             log.error("exception loading: " + f.getAbsolutePath(), e);
             throw new RuntimeException(e);
         }
-    }   
+    }
 }

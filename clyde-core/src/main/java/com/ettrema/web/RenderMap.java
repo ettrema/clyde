@@ -28,13 +28,37 @@ public class RenderMap implements Map<String, Object> {
 
     @Override
     public Object get( Object key ) {
-        return rc.invoke( key.toString(), componentEdit );
+        return new RenderResult(rc.invoke( key.toString(), componentEdit ));
 //        if( key.equals("name")) {
 //            if( componentEdit && rc.)
 //        } else {
 //            return rc.invoke( key.toString(), componentEdit );
 //        }
     }    
+    
+    public class RenderResult {
+        private final String data;
+
+        public RenderResult(String data) {
+            this.data = data;
+        }
+                
+        public String ifEmpty(String message) {
+            if( componentEdit == null || !componentEdit ) {
+                if( data == null || data.length() == 0) {
+                    return message;
+                }
+            }
+            return data;
+        }
+        
+        @Override
+        public String toString() {
+            return data;
+        }
+        
+        
+    }
 
 
     ///////////////////////////////////////////////////////////////////////

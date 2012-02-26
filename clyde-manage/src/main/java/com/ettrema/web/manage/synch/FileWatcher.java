@@ -67,8 +67,10 @@ public class FileWatcher implements Service {
                             public void execute(Context cntxt) {
                                 try {
                                     fileScanner.initialScan(forceReload, root);
+                                    _(VfsSession.class).commit();
                                     log.info("Finished initial scan for: " + root.getAbsolutePath());
                                 } catch (Exception ex) {
+                                    _(VfsSession.class).rollback();
                                     log.error("exception loading files", ex);
                                 }
                             }

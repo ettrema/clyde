@@ -4,6 +4,7 @@ import com.ettrema.web.component.ComponentDef;
 import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.web.security.Subject;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  *
@@ -35,7 +36,15 @@ public interface ITemplate extends Templatable{
 
     Component _invoke(String name);
 
-    String render( RenderContext child );
+    /**
+     * Generate the content
+     * 
+     * @param child - render context for the child in the render chain, where the parent is the template and the child is the
+     * templated page
+     * @param params - may be null, or contains request parameters
+     * @return - usually html
+     */
+    String render( RenderContext child, Map<String,String> params );
 
     ComponentDef getComponentDef( String name );
 

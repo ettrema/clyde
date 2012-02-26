@@ -504,7 +504,7 @@ public class RenderContext implements Map<String, Component> {
         if (child != null && child.getEditMode()) {
             if (page instanceof BaseResource) {
                 BaseResource res = (BaseResource) page;
-                if( !res.isNew()) {                    
+                if (!res.isNew()) {
                     sb.append("<a class='button cancel' href='").append(getTargetPage().getUrl()).append("'>Cancel</a>");
                 }
             }
@@ -738,5 +738,18 @@ public class RenderContext implements Map<String, Component> {
         public String toString() {
             return doBody();
         }
+    }
+
+    @Override
+    public String toString() {
+        String s = "";
+        if (page != null) {
+            s += page.getName();
+        }
+        if (template != null) {
+            s += "(" + template.getName() + ")";
+        }
+        s += hashCode();
+        return s;
     }
 }

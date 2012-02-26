@@ -195,7 +195,11 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public void preProcess(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) {
         ITemplate lTemplate = getTemplate();
-        RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
+        //RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
+        RenderContext rc = rcChild; // Changed to this from above. When using above it was creating a new template representing the same thing as it had been passed
+        // Generally, if a rendercontext is created in here it must be lost (ie cannot take part in rendering or subsequent form processing)
+        // so it must be incorrect to create one here
+        
         if (lTemplate != null) {
             // Commented this out because it means that values will bind to values on templates. Should
             // only ever bind to the target page
@@ -231,7 +235,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         log.info("process");
         ITemplate lTemplate = getTemplate();
-        RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
+        RenderContext rc = rcChild; // see note on preProcess
+        //RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
 
         for (String paramName : parameters.keySet()) {
             Path path = Path.path(paramName);
@@ -672,15 +677,26 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String render(RenderContext child) {
+        return render(child, null);
+    }
+
+    public String render(RenderContext child, Map<String, String> params) {
         _(ClydeEventDispatcher.class).beforeRender(this, child);
         ITemplate t = getTemplate();
         if (t == null) {
 //            log.debug( "render: null template for: " + this.getName());
         }
         RenderContext rc = new RenderContext(t, this, child, false);
+        if(child == null ) {
+            if (params != null && params.size() > 0) {
+                System.out.println("do preprocess");
+                preProcess(child, params, null);
+            }
+        }
+        
         if (t != null) {
             LogUtils.trace(log, "render: rendering from template ", t.getName());
-            return t.render(rc);
+            return t.render(rc, params);
         } else {
             LogUtils.trace(log, "render: no template, so try to use root parameter");
             Component cRoot = this.getParams().get("root");
@@ -700,10 +716,10 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     @Override
     public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException {
-        generateContent(out);
+        generateContent(out, params);
     }
 
-    public void generateContent(OutputStream out) throws IOException {
+    public void generateContent(OutputStream out, Map<String, String> params) throws IOException {
         if (log.isTraceEnabled()) {
             log.trace("sendContent: " + this.getHref());
         }
@@ -713,7 +729,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         }
         String s;
         try {
-            s = render(null);
+            RenderContext rc = new RenderContext(getTemplate(), this, null, false);
+            s = render(rc, params);
         } catch (Throwable e) {
             // TODO move to context
             HtmlExceptionFormatter formatter = new HtmlExceptionFormatter();

@@ -134,13 +134,13 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public String render( RenderContext child ) {
+    public String render( RenderContext child, Map<String,String> params ) {
         log.debug( "wrapped template rending");
         ITemplate t = getTemplate();
         RenderContext rc = new RenderContext( t, this, child, false );
         if( t != null ) {
             log.debug( "wrapped template rending: " + t.getName());
-            return t.render( rc );
+            return t.render( rc, params );
         } else {
             log.debug( "wrapped template - template not found, try to render with root component" );
             Component cRoot = getParams().get( "root" );

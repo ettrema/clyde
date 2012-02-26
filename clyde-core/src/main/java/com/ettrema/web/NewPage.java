@@ -115,18 +115,18 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         }
         if (parameters.containsKey("name")) {
             String name = parameters.get("name");
-            if( name.contains("$[counter]")) {
+            if (name.contains("$[counter]")) {
                 Long l = folder.incrementCounter();
                 name = name.replace("$[counter]", l.toString());
             }
             return name;
         } else if (parameters.containsKey("_counter")) {
             String name = parameters.get("_counter");
-            if( name.contains("$[counter]")) {
+            if (name.contains("$[counter]")) {
                 Long l = folder.incrementCounter();
                 name = name.replace("$[counter]", l.toString());
             }
-            return name;            
+            return name;
         } else if (parameters.containsKey("fullName")) {
             return parameters.get("fullName");
         } else if (parameters.containsKey("firstName")) {
@@ -196,7 +196,11 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
             } else {
                 log.trace("editee is not editable, use rendercontext");
                 RenderContext rc = new RenderContext(t, editee, null, true);
-                String s = t.render(rc);
+                if (params != null && params.size() > 0) {
+                    editee.preProcess(rc, params, null);
+                }
+
+                String s = t.render(rc, params);
                 if (s == null) {
                     log.warn("Got null content for editee: " + editee.getHref());
                     return;

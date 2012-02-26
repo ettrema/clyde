@@ -68,9 +68,12 @@ public class EditPage implements PostableResource, DigestResource {
             VelocityInterpreter.evalToStream( sTemplate, vc, out );
             out.flush();
         } else {
-            log.trace("generate edit page with template: " + template.getName());
+            log.trace("generate edit page with template: " + template.getName());            
             RenderContext rc = new RenderContext( template, editee, null, true );
-            String s = template.render( rc );
+            if( params != null && params.size() > 0 ) {
+                editee.preProcess(rc, params, null);
+            }
+            String s = template.render( rc, params );
             if( s == null ) {
                 log.warn( "Got null content for editee: " + editee.getHref() );
                 return;

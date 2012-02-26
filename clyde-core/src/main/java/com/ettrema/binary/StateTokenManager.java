@@ -59,13 +59,14 @@ public class StateTokenManager {
      * @param autoCreate
      * @return 
      */
-    private synchronized StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
+    private StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
         NameNode nn = f.getNameNode().child(NAMENODE_CRC);
         StateToken stateToken;
         if (nn == null) {
             if (autoCreate) {
                 stateToken = new StateToken();
-                f.getNameNode().add(NAMENODE_CRC, stateToken);
+                nn = f.getNameNode().add(NAMENODE_CRC, stateToken);
+                nn.save();
                 return stateToken;
             } else {
                 return null;

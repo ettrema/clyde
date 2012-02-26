@@ -4,6 +4,8 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.web.CommonTemplated;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.RenderContext;
 import java.util.Map;
 
 /**
@@ -21,8 +23,10 @@ public class DefaultFormProcessor implements FormProcessor {
             LogUtils.info(log, "processForm", target.getName(), "redirecting to", redirect);
             return redirect;
         }
-        target.preProcess(null, parameters, files);
-        String s = target.process(null, parameters, files);
+        ITemplate template = target.getTemplate();
+        RenderContext rc = new RenderContext( template, target, null, true );
+        target.preProcess(rc, parameters, files);
+        String s = target.process(rc, parameters, files);
         LogUtils.info(log, "processForm", target.getName(), "process result", s);
         return s;
     }

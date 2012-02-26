@@ -56,7 +56,7 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
 
     @Override
     public void sendContent(WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
-        requestedPage.generateContent(out);
+        requestedPage.generateContent(out, params);
     }
 
     /**

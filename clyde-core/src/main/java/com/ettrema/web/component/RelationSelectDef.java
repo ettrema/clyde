@@ -186,11 +186,10 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             // If the user has submitted values then use those, otherwise find persisted list
             Path compPath = getPath(rc);
             List selected = (List) rc.getAttribute("_user-selected_" + compPath);
-
-            if (selected == null) {
+            if( selected == null ) {
+                log.trace("renderEdit: nothing selected by user in rc: " + rc + " for comp: " + compPath);
                 // no user selected values, so find previously selected                
                 BaseResourceList prevSelected = page.getRelations(relationName);
-                System.out.println("found prevSelected: " + prevSelected.size());
                 if (prevSelected != null && !prevSelected.isEmpty()) {
                     selected = new ArrayList<>();
                     for (Templatable r : prevSelected) {
@@ -217,7 +216,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
 
     @Override
     public String onProcess(RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        LogUtils.info(log, "onProcess");
+        LogUtils.info(log, "onProcess", this.getName());
         return null;
     }
 
@@ -253,7 +252,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
      */
     @Override
     public void onPreProcess(ComponentValue componentValue, RenderContext rc, Map<String, String> parameters, Map<String, FileItem> files) {
-        log.trace("onPreProcess");
+        LogUtils.trace(log, "onPreProcess", getName());
         Path compPath = getPath(rc);
         String key = compPath.toString();
         if (!parameters.containsKey(key)) {
