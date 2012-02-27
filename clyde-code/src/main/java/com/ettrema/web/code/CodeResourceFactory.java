@@ -10,6 +10,8 @@ import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.Folder;
 import com.ettrema.web.code.content.*;
 import com.ettrema.web.code.meta.*;
+import com.ettrema.web.comments.CommentService;
+import com.ettrema.web.groups.GroupService;
 import java.util.*;
 import org.jdom.Element;
 
@@ -22,13 +24,17 @@ public final class CodeResourceFactory implements ResourceFactory {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CodeResourceFactory.class);
     private final ResourceFactory wrapped;
     private final MetaParser metaParser;
+    private final GroupService groupService;
+    private final CommentService commentService;
     private List<ContentTypeHandler> contentTypeHandlers;
     private List<MetaHandler> metaHandlers;
     private String root = "_code";
     private String metaSuffix = ".meta.xml";
 
-    public CodeResourceFactory(ResourceFactory wrapped) {
+    public CodeResourceFactory(ResourceFactory wrapped, GroupService groupService, CommentService commentService) {
         this.wrapped = wrapped;
+        this.groupService = groupService;
+        this.commentService = commentService;
         PageContentTypeHandler pageContentTypeHandler = new PageContentTypeHandler();
         TemplateContentTypeHandler templateContentTypeHandler = new TemplateContentTypeHandler(pageContentTypeHandler);
         TextFileContentHandler textFileContentHandler = new TextFileContentHandler();
@@ -192,7 +198,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         this.metaHandlers = new ArrayList<>();
 
         CommonTemplatedMetaHandler commonTemplatedMetaHandler = new CommonTemplatedMetaHandler();
-        BaseResourceMetaHandler baseResourceMetaHandler = new BaseResourceMetaHandler(commonTemplatedMetaHandler);
+        BaseResourceMetaHandler baseResourceMetaHandler = new BaseResourceMetaHandler(commonTemplatedMetaHandler, groupService, commentService);
         BinaryFileMetaHandler binaryFileMetaHandler = add(new BinaryFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
         FolderMetaHandler folderMetaHandler = add(new FolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
         PageMetaHandler pageMetaHandler = add(new PageMetaHandler(baseResourceMetaHandler), mapOfAliases);

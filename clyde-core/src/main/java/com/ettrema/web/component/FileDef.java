@@ -5,6 +5,7 @@ import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.ettrema.web.BinaryFile;
 import com.ettrema.web.Folder;
 import com.ettrema.web.RenderContext;
 import com.ettrema.web.Templatable;
@@ -24,6 +25,7 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
     private String name;
     private boolean required;
     private String description;
+    private boolean storeInternally;
 
     public FileDef( Addressable container, String name ) {
         this.container = container;
@@ -158,6 +160,7 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
         return s;
     }
 
+    @Override
     public Object parseValue(ComponentValue cv, Templatable ct, Element elValue) {
         return null;
     }
@@ -186,29 +189,42 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
         if( fitem != null ) {
             if( componentValue.getContainer() instanceof Templatable ) {
                 Templatable res = (Templatable) componentValue.getContainer();
-                if( res instanceof Folder ) {
-                    Folder f = (Folder) res;
-                    try {
-                        f.createNew_notx( fitem.getName(), fitem.getInputStream(), fitem.getSize(), fitem.getContentType() );
-                        componentValue.setValue( fitem );
-                    } catch( NotAuthorizedException ex ) {
-                        log.warn( "Conflict exception writing uploaded file", ex );
-                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
-                    } catch( BadRequestException ex ) {
-                        log.warn( "Conflict exception writing uploaded file", ex );
-                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
-                    } catch( IOException ex ) {
-                        throw new RuntimeException( "Couldnt read file", ex );
-                    } catch( ConflictException ex ) {
-                        log.warn( "Conflict exception writing uploaded file", ex );
-                        componentValue.setValidationMessage( "You dont have permission to write to this location" );
-                    }
+                if( storeInternally ) {
+                    storeInternally(res, fitem, componentValue); // store the binary data directly in res
                 } else {
-                    componentValue.setValidationMessage( "Can't save the file because the new resource isnt a folder" );
+                    storeInFolder(res, fitem, componentValue);
                 }
             } else {
                 componentValue.setValidationMessage( "Can't save the file because the container isnt a Templatable type" );
             }
+        }
+    }
+
+    private void storeInFolder(Templatable res, FileItem fitem, ComponentValue componentValue) throws RuntimeException {
+        if( res instanceof Folder ) {
+            Folder f = (Folder) res;
+            try {
+                f.createNew_notx( fitem.getName(), fitem.getInputStream(), fitem.getSize(), fitem.getContentType() );
+                componentValue.setValue( fitem );
+            } catch(     NotAuthorizedException | BadRequestException | ConflictException ex ) {
+                log.warn( "Exception writing uploaded file", ex );
+                componentValue.setValidationMessage( "You dont have permission to write to this location" );
+            } catch( IOException ex ) {
+                throw new RuntimeException( "Couldnt read file", ex );
+            }
+        } else {
+            componentValue.setValidationMessage( "Can't save the file because the new resource isnt a folder" );
+        }
+    }
+
+    private void storeInternally(Templatable res, FileItem fitem, ComponentValue componentValue) {
+        if( res instanceof BinaryFile ) {
+            BinaryFile bf = (BinaryFile) res;
+            bf.setContent(fitem.getInputStream());
+            bf.save();
+            componentValue.setValue( fitem );
+        } else {
+            componentValue.setValidationMessage( "Can't save the file because the new resource isnt a binary file" );
         }
     }
 
@@ -244,4 +260,28 @@ public class FileDef extends CommonComponent implements ComponentDef, Addressabl
     public void changedValue( ComponentValue cv ) {
         // big whoop
     }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isStoreInternally() {
+        return storeInternally;
+    }
+
+    public void setStoreInternally(boolean storeInternally) {
+        this.storeInternally = storeInternally;
+    }        
 }

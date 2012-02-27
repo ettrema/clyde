@@ -1,25 +1,33 @@
 package com.ettrema.web.code.meta;
 
+import com.bradmcevoy.common.Path;
+import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.ettrema.web.eval.EvalUtils;
 import com.bradmcevoy.http.Resource;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.User;
 import com.ettrema.web.security.Subject;
 import com.ettrema.utils.JDomUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.BaseResource.RoleAndGroup;
+import com.ettrema.web.IUser;
+import com.ettrema.web.Templatable;
 import com.ettrema.web.code.CodeMeta;
+import com.ettrema.web.comments.Comment;
+import com.ettrema.web.comments.CommentService;
 import com.ettrema.web.component.InitUtils;
 import com.ettrema.web.groups.GroupService;
 import com.ettrema.web.security.Permission;
 import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.web.security.Permissions;
 import com.ettrema.web.security.UserGroup;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
-
-import static com.ettrema.context.RequestContext._;
-import com.ettrema.web.BinaryFile;
+import org.jdom.Namespace;
 
 /**
  *
@@ -29,9 +37,13 @@ public class BaseResourceMetaHandler {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BaseResourceMetaHandler.class);
     private final CommonTemplatedMetaHandler commonTemplatedMetaHandler;
+    private final GroupService groupService;
+    private final CommentService commentService;
 
-    public BaseResourceMetaHandler(CommonTemplatedMetaHandler commonTemplatedMetaHandler) {
+    public BaseResourceMetaHandler(CommonTemplatedMetaHandler commonTemplatedMetaHandler, GroupService groupService, CommentService commentService) {
         this.commonTemplatedMetaHandler = commonTemplatedMetaHandler;
+        this.groupService = groupService;
+        this.commentService = commentService;
     }
 
     public void populateXml(Element e2, BaseResource res) {
@@ -43,6 +55,18 @@ public class BaseResourceMetaHandler {
         log.trace("populateXml");
         InitUtils.setString(e2, "redirect", res.getRedirect());
         Element elPerms = null;
+        elPerms = populateGroupPermissions(res, elPerms, e2);
+        populatePermissions(res, elPerms, e2);
+
+        Element elRoleRules = new Element("roleRules", CodeMeta.NS);
+        e2.addContent(elRoleRules);
+        EvalUtils.setEvalDirect(elRoleRules, res.getRoleRules(), CodeMeta.NS);
+
+        commonTemplatedMetaHandler.populateXml(e2, res, includeContentValues);
+        populateComments(e2, res);
+    }
+
+    private Element populateGroupPermissions(BaseResource res, Element elPerms, Element e2) {
         List<RoleAndGroup> groupPermissions = res.getGroupPermissions();
         if (groupPermissions != null && !groupPermissions.isEmpty()) {
             log.trace("add groups");
@@ -57,7 +81,10 @@ public class BaseResourceMetaHandler {
                 elRag.setAttribute("role", rag.getRole().name());
             }
         }
+        return elPerms;
+    }
 
+    private void populatePermissions(BaseResource res, Element elPerms, Element e2) {
         Permissions perms = res.permissions();
         if (perms != null) {
             for (Permission perm : perms) {
@@ -86,12 +113,6 @@ public class BaseResourceMetaHandler {
                 }
             }
         }
-
-        Element elRoleRules = new Element("roleRules", CodeMeta.NS);
-        e2.addContent(elRoleRules);
-        EvalUtils.setEvalDirect(elRoleRules, res.getRoleRules(), CodeMeta.NS);
-
-        commonTemplatedMetaHandler.populateXml(e2, res, includeContentValues);
     }
 
     public void applyOverrideFromXml(BaseResource r, Element d) {
@@ -107,14 +128,15 @@ public class BaseResourceMetaHandler {
 
         res.setRedirect(InitUtils.getValue(el, "redirect"));
 
-        GroupService groupService = _(GroupService.class);
-
         Element elRoleRules = el.getChild("roleRules", CodeMeta.NS);
         if (elRoleRules != null) {
             res.setRoleRules(EvalUtils.getEvalDirect(elRoleRules, CodeMeta.NS, res));
         }
+        updatePermissions(el, res);
+        updateComments(el, res);
+    }
 
-
+    private void updatePermissions(Element el, BaseResource res) throws RuntimeException {
         // Only update permissions if permissions have been specified
         Element elPermissions = el.getChild("permissions", CodeMeta.NS);
         if (elPermissions != null) {
@@ -171,6 +193,57 @@ public class BaseResourceMetaHandler {
                     }
                 }
             }
+        }
+    }
+
+    private void updateComments(Element el, BaseResource res) {
+        Element elComments = el.getChild("comments", CodeMeta.NS);
+        if (elComments == null) {
+            return;
+        }
+        commentService.deleteAll(res.getNameNode());
+        for (Element elComment : JDomUtils.children(el)) {
+            String commentBody = JDomUtils.getInnerXml(elComment);
+            Date date;
+            try {
+                date = InitUtils.getDate(el, "date");
+            } catch (DateParseException ex) {
+                log.error("exception parsing date for comment in resource: " + res.getHref(), ex);
+                date = new Date();
+            }
+            Path userPath = InitUtils.getPath(el, "user");
+            IUser commentUser = null;
+            if (userPath != null) {
+                Templatable ouser = res.find(userPath);
+                if (ouser instanceof IUser) {
+                    commentUser = (IUser) ouser;
+                } else {
+                    log.error("Couldnt locate user: " + userPath);
+                }
+            }
+            try {
+                commentService.newComment(res.getNameNode(), commentBody, date, commentUser);
+            } catch (NotAuthorizedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+    }
+
+    private void populateComments(Element e2, BaseResource res) {
+        List<Comment> comments = commentService.comments(res.getNameNode());
+        if( comments == null || comments.isEmpty()) {
+            return ;
+        }
+        Element elComments = new Element("comments", CodeMeta.NS);
+        e2.addContent(elComments);
+        for(Comment c : comments) {
+            Element el = new Element("comment", CodeMeta.NS);
+            elComments.addContent(el);
+            el.setText(c.getComment());
+            String userPath = c.getUser().getHref();
+            el.setAttribute("user", userPath);
+            InitUtils.set(el, "date", c.getDate());
         }
     }
 }

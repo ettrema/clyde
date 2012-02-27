@@ -2,16 +2,11 @@ package com.ettrema.web.comments;
 
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import static com.ettrema.context.RequestContext._;
-import com.ettrema.vfs.DataNode;
-import com.ettrema.vfs.EmptyDataNode;
-import com.ettrema.vfs.NameNode;
-import com.ettrema.vfs.VfsSession;
+import com.ettrema.utils.CurrentDateService;
+import com.ettrema.vfs.*;
 import com.ettrema.web.IUser;
 import com.ettrema.web.security.CurrentUserService;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *
@@ -21,6 +16,15 @@ public class CommentServiceImpl implements CommentService {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CommentServiceImpl.class );
     public static final String NODE_NAME_COMMENTS = "_sys_comments";
+    
+    private final CurrentUserService currentUserService;
+    
+    private final CurrentDateService currentDateService;
+
+    public CommentServiceImpl(CurrentUserService currentUserService, CurrentDateService currentDateService) {
+        this.currentUserService = currentUserService;
+        this.currentDateService = currentDateService;
+    }       
 
     @Override
     public List<Comment> comments( NameNode n ) {
@@ -42,6 +46,16 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void newComment( NameNode n, String comment ) throws NotAuthorizedException {
+        IUser curUser = currentUserService.getOnBehalfOf();
+        if( curUser == null ) {
+            throw new NotAuthorizedException();
+        }
+        Date now = currentDateService.getNow();
+        newComment(n, comment, now, curUser);
+    }
+    
+    @Override
+    public void newComment( NameNode n, String comment, Date commentDate, IUser curUser ) throws NotAuthorizedException {
         if( log.isTraceEnabled() ) {
             log.trace( "newComment: " + comment );
         }
@@ -51,12 +65,9 @@ public class CommentServiceImpl implements CommentService {
             nComments.save();
         }
         String nm = "c" + System.currentTimeMillis();
-        IUser curUser = _( CurrentUserService.class ).getOnBehalfOf();
-        if( curUser == null ) {
-            throw new NotAuthorizedException();
-        }
         Comment newComment = new Comment( curUser.getNameNodeId() );
         newComment.setComment( comment );
+        newComment.setDate(new Date());
         NameNode nNewComment = nComments.add( nm, newComment );
         nNewComment.save();
     }
@@ -74,6 +85,16 @@ public class CommentServiceImpl implements CommentService {
             } else {
                 return null;
             }
+        }
+    }
+
+    @Override
+    public void deleteAll(RelationalNameNode nameNode) {
+        NameNode nComments = nameNode.child( NODE_NAME_COMMENTS );
+        if( nComments == null ) {
+            return ;
+        } else {
+            nComments.delete();
         }
     }
 }

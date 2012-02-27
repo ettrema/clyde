@@ -24,25 +24,30 @@ public class PageMetaHandler implements MetaHandler<Page> {
         this.baseResourceMetaHandler = baseResourceMetaHandler;
     }
 
+    @Override
     public Class getInstanceType() {
         return Page.class;
     }
 
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof Page;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
 
+    @Override
     public Element toXml( Page page ) {
         Element elRoot = new Element( ALIAS, CodeMeta.NS );
         populateXml( elRoot, page );
         return elRoot;
     }
 
+    @Override
     public Page createFromXml( CollectionResource parent, Element d, String name ) {
         Page page = new Page( (Folder) parent, name );
         updateFromXml( page, d );
@@ -57,6 +62,7 @@ public class PageMetaHandler implements MetaHandler<Page> {
     
     
 
+    @Override
     public void updateFromXml( Page r, Element d ) {
         log.trace( "updateFromXml" );
         baseResourceMetaHandler.updateFromXml( r, d, false );

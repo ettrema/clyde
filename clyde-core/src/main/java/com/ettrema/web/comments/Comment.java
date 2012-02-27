@@ -19,6 +19,7 @@ public class Comment implements DataNode, Serializable{
     private UUID id;
     private UUID userId;
     private String comment;
+    private Date commentDate;
 
     private transient NameNode nameNode;
 
@@ -28,18 +29,22 @@ public class Comment implements DataNode, Serializable{
 
 
 
+    @Override
     public void setId( UUID id ) {
         this.id = id;
     }
 
+    @Override
     public UUID getId() {
         return id;
     }
 
+    @Override
     public void init( NameNode nameNode ) {
         this.nameNode = nameNode;
     }
 
+    @Override
     public void onDeleted( NameNode nameNode ) {
         
     }
@@ -53,7 +58,11 @@ public class Comment implements DataNode, Serializable{
     }
 
     public Date getDate() {
-        return nameNode.getModifiedDate();
+        return commentDate;
+    }
+    
+    public void setDate(Date dt) {
+        commentDate = dt;
     }
 
     public String getComment() {

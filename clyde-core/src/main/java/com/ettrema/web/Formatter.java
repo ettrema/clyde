@@ -655,6 +655,14 @@ public class Formatter {
             return o1.equals(o2) ? ifEqual : ifNoteEqual;
         }
     }
+    
+    public BaseResourceList newList() {
+        return new BaseResourceList();
+    }
+    
+    public BaseResourceList getList() {
+        return new BaseResourceList();
+    }
 //
 //	/**
 //	 * Constructs a SQL where statement, by only including not null values, and

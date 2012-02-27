@@ -52,6 +52,18 @@ public class BaseResourceList extends ArrayList<Templatable> {
         boolean b = super.add(e);
         return b;
     }
+    
+    /**
+     * Just adds the elements in the given list to this list and returns
+     * list to make it suitable for chaining and use from velocity
+     * 
+     * @param otherList
+     * @return 
+     */
+    public BaseResourceList add(BaseResourceList otherList) {
+        addAll(otherList);
+        return this;
+    }
 
     public Templatable get(String name) {
         return map.get(name);

@@ -22,9 +22,16 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder|c:group|c:page)>
+<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary)>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
+  >
+
+<!ELEMENT c:binary (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?)*>
+<!ATTLIST c:binary
+    contentType CDATA #IMPLIED
+    template CDATA #IMPLIED
+    maxAge CDATA #IMPLIED
   >
 
  <!--- Put your DTDDoc comment here. -->
@@ -60,6 +67,15 @@ formatter - the standard formatter
     required (true|false) #IMPLIED
     requestScope (true|false) #IMPLIED
     cols CDATA #IMPLIED
+    description CDATA #IMPLIED
+  >
+
+<!--- An email address value -->
+<!ELEMENT c:file (#PCDATA)>
+<!ATTLIST c:file
+    name CDATA #REQUIRED
+    required (true|false) #IMPLIED
+    storeInternally (true|false) #IMPLIED
     description CDATA #IMPLIED
   >
 
@@ -138,7 +154,7 @@ formatter - the standard formatter
 >
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef|c:boolean)*>
+<!ELEMENT c:fields (c:html|c:text|c:email|c:password|c:relation|c:process|c:numberDef|c:boolean|c:file)*>
 
 <!ELEMENT c:numberDef ANY>
 <!ATTLIST c:numberDef

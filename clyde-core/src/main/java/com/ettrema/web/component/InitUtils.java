@@ -1,6 +1,8 @@
 package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.http.DateUtils;
+import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.bradmcevoy.xml.XmlHelper;
 import com.ettrema.utils.JDomUtils;
@@ -17,6 +19,24 @@ public class InitUtils {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(InitUtils.class);
 
+    public static Date getDate(Element el, String name) throws DateParseException {
+        String s = getValue(el, name);
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+
+        return DateUtils.parseDate(s);
+    }
+
+    public static void set(Element el, String name, Date dt) {
+        if (dt == null) {
+            el.removeAttribute(name);
+        } else {
+            String s = DateUtils.formatDate(dt);
+            el.setAttribute(name, s);
+        }
+    }
+
     public static boolean getBoolean(Element el, String name) {
         return getBoolean(el, name, false);
     }
@@ -28,8 +48,7 @@ public class InitUtils {
         }
         return s.equals("true");
     }
-    
-    
+
     public static Boolean getNullableBoolean(Element el, String name) {
         String s = el.getAttributeValue(name);
         if (s == null || s.trim().length() == 0) {
@@ -119,14 +138,14 @@ public class InitUtils {
         }
     }
 
-    public static void setLong(Element e2,String name, Long l) {
+    public static void setLong(Element e2, String name, Long l) {
         if (l == null) {
             e2.removeAttribute(name);
         } else {
             e2.setAttribute(name, l + "");
-        }        
-    }    
-    
+        }
+    }
+
     public static String getValue(Element el, String name, String def) {
         String s = getValue(el, name);
         if (s == null) {
@@ -328,8 +347,8 @@ public class InitUtils {
     /**
      * sets the given text into a child element of the given name
      *
-     * the value element is first attempted to be parsed into an xml representation
-     * which is set into the xml dom.
+     * the value element is first attempted to be parsed into an xml
+     * representation which is set into the xml dom.
      *
      * If that fails the entire text is wrapped in a CDATA element.
      *
@@ -351,7 +370,9 @@ public class InitUtils {
     }
 
     /**
-     * returns the textual value associated with the child element of the given name
+     * returns the textual value associated with the child element of the given
+     * name
+     *
      * @param el
      * @param name
      * @return
@@ -363,7 +384,4 @@ public class InitUtils {
         }
         return XmlHelper.getAllText(el);
     }
-
-
-
 }

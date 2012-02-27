@@ -27,7 +27,7 @@ public class UserLocator {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UserLocator.class);
     
     public List<User> search(String name, CommonTemplated currentResource) {        
-        Set<User> foundUsers = new HashSet<User>();
+        Set<User> foundUsers = new HashSet<>();
         MailboxAddress add = parse(name);
         if( add != null ) {
             User user = findUserByEmail(add, currentResource);
@@ -39,7 +39,7 @@ public class UserLocator {
         for( User u : list ) {
             foundUsers.add(u);
         }
-        List<User> users = new ArrayList<User>(foundUsers);
+        List<User> users = new ArrayList<>(foundUsers);
         Collections.sort(users);
         return users;        
     }
@@ -107,7 +107,7 @@ public class UserLocator {
     private List<User> findMatchingUsers(MailboxAddress add) {
         VfsSession vfs = RequestContext.getCurrent().get(VfsSession.class);
         List<NameNode> list = vfs.find(EmailAddress.class, add.toPlainAddress());
-        List<User> foundUsers = new ArrayList<User>();
+        List<User> foundUsers = new ArrayList<>();
         if (list == null || list.isEmpty()) {
             log.debug("no nodes found");
         } else {
@@ -128,7 +128,7 @@ public class UserLocator {
     private List<User> findMatchingUsers(String name) {
         VfsSession vfs = RequestContext.getCurrent().get(VfsSession.class);
         List<NameNode> list = vfs.find(User.class, name);
-        List<User> foundUsers = new ArrayList<User>();
+        List<User> foundUsers = new ArrayList<>();
         if (list == null || list.isEmpty()) {
             log.debug("no nodes found");
         } else {

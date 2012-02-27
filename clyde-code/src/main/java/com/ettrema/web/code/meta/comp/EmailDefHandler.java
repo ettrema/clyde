@@ -20,6 +20,7 @@ public class EmailDefHandler implements ComponentDefHandler{
         this.textDefHandler = textDefHandler;
     }
 
+    @Override
     public Element toXml( ComponentDef def, Template template ) {
         EmailDef ddef = (EmailDef) def;
         Element el = new Element(ALIAS, CodeMeta.NS);
@@ -31,14 +32,17 @@ public class EmailDefHandler implements ComponentDefHandler{
         textDefHandler.populateXml( el, ddef );
     }
 
+    @Override
     public Class getDefClass() {
         return EmailDef.class;
     }
 
+    @Override
     public String getAlias() {
         return ALIAS;
     }
 
+    @Override
     public ComponentDef fromXml( Template res, Element el ) {
         String name = el.getAttributeValue( "name");
         EmailDef def = new EmailDef( res, name);
