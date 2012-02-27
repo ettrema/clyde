@@ -203,6 +203,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         FolderMetaHandler folderMetaHandler = add(new FolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
         PageMetaHandler pageMetaHandler = add(new PageMetaHandler(baseResourceMetaHandler), mapOfAliases);
 
+        add(new MessageMetaHandler(folderMetaHandler), mapOfAliases);
         add(new ScheduleTaskMetaHandler(pageMetaHandler), mapOfAliases);
         add(new GroupMetaHandler(folderMetaHandler), mapOfAliases);
         add(new WebMetaHandler(folderMetaHandler), mapOfAliases);

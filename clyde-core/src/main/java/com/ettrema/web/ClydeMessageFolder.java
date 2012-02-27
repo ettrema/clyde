@@ -23,7 +23,7 @@ public class ClydeMessageFolder implements MessageFolder {
 
     @Override
     public Collection<MessageResource> getMessages() {
-        List<MessageResource> list = new ArrayList<MessageResource>();
+        List<MessageResource> list = new ArrayList<>();
         if( this.folder == null ) return list;
         for( Resource r : this.folder.getChildren() ) {
             if( r instanceof MessageResource ) list.add((MessageResource)r);

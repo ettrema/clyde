@@ -3,6 +3,8 @@ package com.ettrema.web;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.bradmcevoy.property.BeanPropertyAccess;
+import com.bradmcevoy.property.BeanPropertyResource;
 import com.ettrema.web.mail.MessageHelper;
 import com.ettrema.web.component.InitUtils;
 import com.ettrema.mail.Attachment;
@@ -10,6 +12,7 @@ import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.MessageResource;
 import com.ettrema.mail.StandardMessage;
 import com.ettrema.mail.StandardMessageFactoryImpl;
+import com.ettrema.web.security.BeanProperty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,13 +27,12 @@ import org.jdom.Element;
 /**
  *
  */
+@BeanPropertyResource(value="clyde", enableByDefault=false)
 public class ClydeStandardMessage extends Folder implements StandardMessage, MessageResource {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ClydeStandardMessage.class);
-
     private static final long serialVersionUID = 1L;
-
-    String subject;
+    private String subject;
     MailboxAddress from;
     MailboxAddress replyTo;
     List<MailboxAddress> to;
@@ -43,13 +45,20 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     int size;
     Map<String, String> headers;
     String disposition;
-
     private boolean hasBeenSaved;
-
+    private boolean hasBeenRead;
 
     public ClydeStandardMessage(Folder parentFolder, String newName) {
         super(parentFolder, newName);
         this.setTemplateName("email");
+    }
+
+    @Override
+    public boolean is(String type) {
+        if ("email".equals(type) || "message".equals(type)) {
+            return true;
+        }
+        return super.is(type);
     }
 
     @Override
@@ -58,28 +67,25 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
         super.save();
     }
 
-
-
+    @Override
     public void deleteMessage() {
         try {
             this.delete();
-        } catch( NotAuthorizedException ex ) {
-            throw new RuntimeException( ex );
-        } catch( ConflictException ex ) {
-            throw new RuntimeException( ex );
-        } catch( BadRequestException ex ) {
-            throw new RuntimeException( ex );
+        } catch (NotAuthorizedException | ConflictException | BadRequestException ex) {
+            throw new RuntimeException(ex);
         }
     }
-
-
 
     @Override
     public void populateXml(Element e2) {
         super.populateXml(e2);
         InitUtils.setString(e2, "subject", subject);
-        InitUtils.setString(e2, "from", from.toString());
-        InitUtils.setString(e2, "replyTo", replyTo.toString());
+        if (from != null) {
+            InitUtils.setString(e2, "from", from.toString());
+        }
+        if (replyTo != null) {
+            InitUtils.setString(e2, "replyTo", replyTo.toString());
+        }
         InitUtils.setString(e2, "encoding", encoding);
         InitUtils.setString(e2, "language", language);
         InitUtils.set(e2, "size", size);
@@ -88,27 +94,27 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
         Element elText = new Element("text");
         e2.addContent(elText);
         elText.setText(text);
-        
+
         Element elHtml = new Element("html");
         e2.addContent(elHtml);
         elHtml.setText(html);
 
-        Element elHeaders = new Element("headers");
-        e2.addContent(elHeaders);
-        for( Map.Entry<String,String> entry : headers.entrySet() ) {
-            Element elHeader = new Element("header");
-            elHeaders.addContent(elHeader);
-            elHeader.setAttribute("name", entry.getKey());
-            elHeader.setText(entry.getValue());
+        if (headers != null) {
+            Element elHeaders = new Element("headers");
+            e2.addContent(elHeaders);
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                Element elHeader = new Element("header");
+                elHeaders.addContent(elHeader);
+                elHeader.setAttribute("name", entry.getKey());
+                elHeader.setText(entry.getValue());
+            }
         }
-        populateAddressList(e2,to,"to");
-        populateAddressList(e2,cc,"cc");
-        populateAddressList(e2,bcc,"bcc");
+        populateAddressList(e2, to, "to");
+        populateAddressList(e2, cc, "cc");
+        populateAddressList(e2, bcc, "bcc");
 
 
     }
-
-
 
     @Override
     public String getSubject() {
@@ -122,9 +128,9 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
 
     @Override
     public List<Attachment> getAttachments() {
-        List<Attachment> list = new ArrayList<Attachment>();
-        for( Templatable res : this.children("attachment") ) {
-            if( res instanceof EmailAttachment ) {
+        List<Attachment> list = new ArrayList<>();
+        for (Templatable res : this.children("attachment")) {
+            if (res instanceof EmailAttachment) {
                 EmailAttachment bf = (EmailAttachment) res;
                 list.add(bf);
             }
@@ -148,11 +154,13 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
         this.replyTo = replyTo;
     }
 
-    @Override
+    @BeanProperty()
+    @Override    
     public void setSubject(String subject) {
         this.subject = subject;
     }
 
+    @BeanProperty()
     @Override
     public String getHtml() {
         return html;
@@ -198,6 +206,7 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
         this.encoding = s;
     }
 
+    @BeanProperty()
     @Override
     public String getEncoding() {
         return this.encoding;
@@ -271,8 +280,8 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     @Override
     public void addAttachment(String name, String ct, String contentId, InputStream in) {
         log.debug("adding attachment: name:" + name + " ct:" + ct);
-        if( isNew() ) {
-            if( !hasBeenSaved ) {  // TODO: this should be moved to baseresource
+        if (isNew()) {
+            if (!hasBeenSaved) {  // TODO: this should be moved to baseresource
                 save();
             }
         }
@@ -285,7 +294,7 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     @Override
     public void writeTo(OutputStream out) {
         StandardMessageFactoryImpl factory = new StandardMessageFactoryImpl();
-        MimeMessage mm = new MimeMessage((Session)null);
+        MimeMessage mm = new MimeMessage((Session) null);
         factory.toMimeMessage(this, mm);
         try {
             mm.writeTo(out);
@@ -297,11 +306,11 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     }
 
     private String formatHtml(String html) {
-        return MessageHelper.formatHtml(html, this.getChildren()); 
+        return MessageHelper.formatHtml(html, this.getChildren());
     }
 
     private void populate(Element el, List<MailboxAddress> to) {
-        for( MailboxAddress add : to ) {
+        for (MailboxAddress add : to) {
             Element elAdd = new Element("address");
             el.addContent(elAdd);
             elAdd.setAttribute("user", add.user);
@@ -310,23 +319,53 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     }
 
     private void populateAddressList(Element e2, List<MailboxAddress> list, String name) {
+        if( list == null) {
+            return ;
+        }        
         Element el = new Element(name);
         e2.addContent(el);
         populate(el, list);
     }
 
     /**
-     * builds html suitable for displaying this message. This will be html, if there is any, otherwise the text
+     * builds html suitable for displaying this message. This will be html, if
+     * there is any, otherwise the text
      *
      * @return
      */
     public String getBody() {
-        if( html != null && html.length() > 0 ) {
+        if (html != null && html.length() > 0) {
             String s = formatHtml(html);
             log.debug("html: " + s);
             return s;
         } else {
             return text;
         }
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+    
+    /**
+     * Has the message been read
+     * 
+     * @return 
+     */
+    @BeanPropertyAccess(true)
+    public boolean getRead() {
+       return hasBeenRead;
+    }
+    @BeanPropertyAccess(true)
+    public boolean isRead() {
+        return getRead();
+    }
+    
+    public void setRead(boolean b) {
+        this.hasBeenRead = b;
     }
 }

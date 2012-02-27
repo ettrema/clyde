@@ -18,6 +18,7 @@ import org.joda.time.Duration;
 
 import static com.ettrema.context.RequestContext._;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
 
 /**
  * Handy functions exposes to rendering logic for formatting.
@@ -245,35 +246,19 @@ public class Formatter {
     }
 
     public String formatDate(Object o) {
-        if (o == null) {
+        DateTime dt = getDateTime(o);                
+        if (dt == null) {
             return "";
-        } else if (o instanceof Date) {
-            return tlSdfUkShort.get().format(o);
-        } else if (o instanceof ComponentValue) {
-            DateVal dv = (DateVal) o;
-            return formatDate(dv.getValue());
-        } else if (o instanceof String) {
-            return (String) o;
-        } else if (o instanceof DateTime) {
-            return formatDate(((DateTime) o).toDate());
-        } else {
-            throw new RuntimeException("Unsupported type: " + o.getClass());
-        }
+        } 
+        return DateTimeFormat.shortDate().print(dt);
     }
 
     public String formatDateLong(Object o) {
-        if (o == null) {
+        DateTime dt = getDateTime(o);                
+        if (dt == null) {
             return "";
-        } else if (o instanceof Date) {
-            return tlSdfUkLong.get().format(o);
-        } else if (o instanceof ComponentValue) {
-            DateVal dv = (DateVal) o;
-            return formatDate(dv.getValue());
-        } else if (o instanceof String) {
-            return (String) o;
-        } else {
-            throw new RuntimeException("Unsupported type: " + o.getClass());
-        }
+        } 
+        return DateTimeFormat.longDateTime().print(dt);
     }
 
     /**
@@ -359,6 +344,11 @@ public class Formatter {
 
     public org.joda.time.DateTime getDateTime(Object o) {
         if (o == null) {
+            return null;
+        } else if( o instanceof BaseResource ) {
+            BaseResource res = (BaseResource) o;
+            return getDateTime(res.getModifiedDate());
+        } else if( o instanceof WrappedSubPage ) {
             return null;
         } else if (o instanceof ComponentValue) {
             ComponentValue cv = (ComponentValue) o;

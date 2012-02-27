@@ -22,7 +22,7 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary)>
+<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary|c:message)>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
   >
@@ -107,6 +107,24 @@ formatter - the standard formatter
     allowedTemplates CDATA #IMPLIED
   >
 
+<!ELEMENT c:message (c:from?,c:replyTo?,c:to?,c:cc?,c:Bcc?,c:subject?,c:html?,c:text?,c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:permissions?,c:thumbs?,c:templateMappings)*>
+<!ATTLIST c:message
+    template CDATA #IMPLIED
+    versioningEnabled (true|false) #IMPLIED
+    secureRead (true|false) #IMPLIED
+    allowedTemplates CDATA #IMPLIED
+    encoding CDATA #IMPLIED
+    language CDATA #IMPLIED
+    size CDATA #IMPLIED
+    disposition CDATA #IMPLIED    
+  >
+
+<!ELEMENT c:from (#PCDATA)>
+<!ELEMENT c:replyTo (#PCDATA)>
+<!ELEMENT c:address (#PCDATA)>
+<!ELEMENT c:to (c:address)*>
+<!ELEMENT c:cc (c:address)*>
+<!ELEMENT c:Bcc (c:address)*>
 
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT c:permissions (c:groupPerm|c:userPerm)*>
