@@ -1,6 +1,7 @@
 package com.ettrema.web.code.meta;
 
 import com.bradmcevoy.http.CollectionResource;
+import com.bradmcevoy.http.DateUtils.DateParseException;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.utils.JDomUtils;
@@ -14,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdom.Element;
 import org.jdom.Namespace;
 
@@ -23,6 +26,8 @@ import org.jdom.Namespace;
  */
 public class MessageMetaHandler implements MetaHandler<ClydeStandardMessage> {
 
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MessageMetaHandler.class);
+    
     public static final String ALIAS = "message";
     private final FolderMetaHandler folderMetaHandler;
 
@@ -72,6 +77,7 @@ public class MessageMetaHandler implements MetaHandler<ClydeStandardMessage> {
         InitUtils.set(el, "language", page.getLanguage());
         InitUtils.set(el, "size", page.getSize());
         InitUtils.set(el, "disposition", page.getDisposition());
+        InitUtils.set(el, "received", page.getMessageDate());
         if (page.getHeaders() != null && !page.getHeaders().isEmpty()) {
             Element elHeaders = new Element("headers", CodeMeta.NS);
             el.addContent(elHeaders);
@@ -98,6 +104,11 @@ public class MessageMetaHandler implements MetaHandler<ClydeStandardMessage> {
         page.setLanguage(InitUtils.getValue(el, "language"));
         page.setSize(InitUtils.getInt(el, "size"));
         page.setDisposition(InitUtils.getValue(el, "disposition"));
+        try {
+            page.setMessageDate(InitUtils.getDate(el, "received"));
+        } catch (DateParseException ex) {
+            log.warn("Invalid date", ex);
+        }
         Element elHeaders = el.getChild("headers", CodeMeta.NS);
         if( elHeaders != null ) {
             Map<String,String> headers = new HashMap<>();

@@ -45,4 +45,25 @@ public class ClydeMessageFolder implements MessageFolder {
         return i;
     }
 
+    public Folder getFolder() {
+        return folder;
+    }
+    
+    public long getNumUnread() {
+        if( this.folder == null ) {
+            return 0;
+        }
+        long count = 0;
+        for( Resource r : folder.getChildren() ) {
+            if( r instanceof ClydeStandardMessage ) {
+                ClydeStandardMessage csm = (ClydeStandardMessage) r;
+                if( !csm.isRead()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
+
 }

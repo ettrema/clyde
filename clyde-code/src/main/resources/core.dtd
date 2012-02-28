@@ -117,6 +117,7 @@ formatter - the standard formatter
     language CDATA #IMPLIED
     size CDATA #IMPLIED
     disposition CDATA #IMPLIED    
+    received CDATA #IMPLIED
   >
 
 <!ELEMENT c:from (#PCDATA)>

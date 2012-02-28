@@ -176,7 +176,7 @@ public class User extends Folder implements IUser {
     }
 
     @Override
-    public MessageFolder getInbox() {
+    public ClydeMessageFolder getInbox() {
         log.debug("getInbox");
         Folder f = getEmailFolder();
         if (f == null) {
@@ -214,11 +214,7 @@ public class User extends Folder implements IUser {
         if (emailFolder == null && create) {
             try {
                 emailFolder = (Folder) createCollection(emailFolderName, false);
-            } catch (ConflictException ex) {
-                throw new RuntimeException(ex);
-            } catch (NotAuthorizedException ex) {
-                throw new RuntimeException(ex);
-            } catch (BadRequestException ex) {
+            } catch (    ConflictException | NotAuthorizedException | BadRequestException ex) {
                 throw new RuntimeException(ex);
             }
         }

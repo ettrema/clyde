@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
@@ -25,6 +26,9 @@ import javax.mail.internet.MimeMessage;
 import org.jdom.Element;
 
 /**
+ * Need seperate message date from lastmod date
+ * 
+ * Need to get number of unread messages
  *
  */
 @BeanPropertyResource(value="clyde", enableByDefault=false)
@@ -47,6 +51,7 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     String disposition;
     private boolean hasBeenSaved;
     private boolean hasBeenRead;
+    private Date messageDate;
 
     public ClydeStandardMessage(Folder parentFolder, String newName) {
         super(parentFolder, newName);
@@ -368,4 +373,14 @@ public class ClydeStandardMessage extends Folder implements StandardMessage, Mes
     public void setRead(boolean b) {
         this.hasBeenRead = b;
     }
+
+    public Date getMessageDate() {
+        return messageDate;
+    }
+
+    public void setMessageDate(Date messageDate) {
+        this.messageDate = messageDate;
+    }
+    
+    
 }

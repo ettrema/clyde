@@ -1,5 +1,8 @@
 package com.ettrema.web.mail;
 
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.ConflictException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.ClydeStandardMessage;
 import com.ettrema.web.Folder;
 import com.ettrema.web.User;
@@ -27,8 +30,8 @@ import javax.mail.internet.MimeMessage;
 public class MailProcessorImpl implements MailProcessor {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MailProcessorImpl.class);
-
-    private final Map<String,Date> mapOfRecentEmails = new ConcurrentHashMap<>();
+    private final Map<String, Date> mapOfRecentEmails = new ConcurrentHashMap<>();
+    private String messagesFolderName = "messages";
 
     @Override
     public void handleGroupEmail(MimeMessage mm, Folder destFolder, RequestContext context, List<User> members, MailboxAddress groupAddress, String discardSubjects) {
@@ -42,27 +45,29 @@ public class MailProcessorImpl implements MailProcessor {
         if (destFolder == null) {
             throw new IllegalArgumentException("destination folder is null");
         }
-        if(isAutoReply(mm)) {
+        if (isAutoReply(mm)) {
             log.warn("DISCARDING autoreply");
-            return ;
+            return;
         }
 
-        if( isDiscarded(discardSubjects, mm)) {
+        if (isDiscarded(discardSubjects, mm)) {
             log.warn("DISCARDING email");
-            return ;
+            return;
         }
-        if( isRecent(mm)) {
+        if (isRecent(mm)) {
             log.warn("discarding previously sent message");
             String add = groupAddress.user + "@" + groupAddress.domain;
             sendDiscardedMessage(mm, "Group email not sent", "You have recently sent a message with the same subject", mailSender, add);
-            return ;
+            return;
         }
         ClydeStandardMessage msg = parser.parseAndPersist(mm, destFolder);
-        if( msg == null ) {
+        if (msg == null) {
             throw new RuntimeException("failed to persist, message cannot be sent");
         } else {
             MailboxAddress from = msg.getFrom();
-            if( from == null ) throw new RuntimeException("from is null");
+            if (from == null) {
+                throw new RuntimeException("from is null");
+            }
             Map<MailboxAddress, UUID> mapOfMembers = getMapOfMembers(members);
             GroupMessageProcessable gms = new GroupMessageProcessable(msg.getNameNodeId(), groupAddress, from, mapOfMembers);
             asynchProcessor.enqueue(gms);
@@ -74,7 +79,6 @@ public class MailProcessorImpl implements MailProcessor {
         MailSender mailSender = context.get(MailSender.class);
         forwardEmail(mm, emailRecip, mailSender);
     }
-
 
     public void forwardEmail(MimeMessage mm, String emailRecip, MailSender mailSender) {
         try {
@@ -104,9 +108,6 @@ public class MailProcessorImpl implements MailProcessor {
         return parser.parseAndPersist(mm, destFolder);
     }
 
-
-
-
     InternetAddress getFrom(MimeMessage mm) {
         Address[] arr;
         try {
@@ -126,14 +127,18 @@ public class MailProcessorImpl implements MailProcessor {
         }
     }
 
-    boolean isDiscarded(String discardSubjects, MimeMessage mm) {        
-        if( discardSubjects == null ) return false;
+    boolean isDiscarded(String discardSubjects, MimeMessage mm) {
+        if (discardSubjects == null) {
+            return false;
+        }
         String subject = getSubject(mm);
         log.debug("isDiscarded: " + discardSubjects + " == " + subject);
         String[] arr = discardSubjects.split(",");
-        for( String discard : arr ) {
-            if( discard.trim().length() > 0 ) {
-                if( subject.contains(discard)) return true;
+        for (String discard : arr) {
+            if (discard.trim().length() > 0) {
+                if (subject.contains(discard)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -149,9 +154,9 @@ public class MailProcessorImpl implements MailProcessor {
 
     Map<MailboxAddress, UUID> getMapOfMembers(List<User> members) {
         Map<MailboxAddress, UUID> map = new HashMap<>();
-        for( User u : members) {
+        for (User u : members) {
             String email = u.getExternalEmailText();
-            if( email != null && !u.isEmailDisabled() && !u.isAccountDisabled() ) {
+            if (email != null && !u.isEmailDisabled() && !u.isAccountDisabled()) {
                 try {
                     MailboxAddress toAdd = MailboxAddress.parse(email);
                     map.put(toAdd, u.getNameNodeId());
@@ -170,8 +175,12 @@ public class MailProcessorImpl implements MailProcessor {
 
     boolean isAutoReply(String sub) {
         sub = sub.toLowerCase();
-        if( sub.contains("autoreply") ) return true;
-        if( sub.contains("out of") && sub.contains("office") ) return true;
+        if (sub.contains("autoreply")) {
+            return true;
+        }
+        if (sub.contains("out of") && sub.contains("office")) {
+            return true;
+        }
         return false;
     }
 
@@ -185,7 +194,7 @@ public class MailProcessorImpl implements MailProcessor {
 
         String key = sFromAddress + "_" + subject;
         Date lastSent = mapOfRecentEmails.get(key);
-        if( lastSent == null ) {
+        if (lastSent == null) {
             // not sent, so record this message
             Date date = new Date();
             mapOfRecentEmails.put(key, date);
@@ -196,7 +205,6 @@ public class MailProcessorImpl implements MailProcessor {
         }
 
     }
-
 
     void sendDiscardedMessage(MimeMessage mmDiscarded, String subject, String message, MailSender mailSender, String groupAddress) {
         try {
@@ -214,8 +222,6 @@ public class MailProcessorImpl implements MailProcessor {
         }
     }
 
-
-
 //    private void sendSmsToUser(String groupAddress, String mobile, String newContent, RequestContext context) {
 //        String smsToTemplate = context.get("sms.to.template");
 //        if( smsToTemplate == null || smsToTemplate.length() == 0 ) throw new IllegalArgumentException("No sms.to.template speficied");
@@ -226,6 +232,20 @@ public class MailProcessorImpl implements MailProcessor {
 //        MailSender mailSender = context.get(MailSender.class);
 //        mailSender.sendMail(groupAddress, null, toList, groupAddress, "", newContent);
 //    }
-
-
+    @Override
+    public Folder getMailFolder(User user, String name, boolean create) throws ConflictException, NotAuthorizedException, BadRequestException {
+        Folder messages = user.getSubFolder(messagesFolderName);
+        if (messages == null && create) {
+            messages = (Folder) user.createCollection(messagesFolderName, false);
+        } else {
+            return null;
+        }
+        Folder emailFolder = messages.getSubFolder(name);
+        if (emailFolder == null && create) {
+            emailFolder = (Folder) messages.createCollection(name, false);
+        } else {
+            return null;
+        }
+        return emailFolder;
+    }
 }
