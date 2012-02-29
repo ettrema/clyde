@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  *
@@ -140,7 +141,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         JDomUtils.setChildText(el, "beforeSaveScript", template.getBeforeSaveScript(), CodeMeta.NS);
 
         JDomUtils.setChildText(el, "afterSaveScript", template.getAfterSaveScript(), CodeMeta.NS);
-        
+
         JDomUtils.setChildText(el, "onPostPageScript", template.getOnPostPageScript(), CodeMeta.NS);
     }
 
@@ -163,11 +164,30 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
     @Override
     public void applyOverrideFromXml(Template r, Element el) {
+        if (el.getChild("afterCreateScript", CodeMeta.NS) != null) {
+            r.setAfterCreateScript(JDomUtils.valueOf(el, "afterCreateScript", CodeMeta.NS));
+        }
+
+        if (el.getChild("beforeSaveScript", CodeMeta.NS) != null) {
+            String beforeSave = JDomUtils.valueOf(el, "beforeSaveScript", CodeMeta.NS);
+            r.setBeforeSaveScript(beforeSave);
+        }
+
+        if (el.getChild("afterSaveScript", CodeMeta.NS) != null) {
+            String afterSave = JDomUtils.valueOf(el, "afterSaveScript", CodeMeta.NS);
+            System.out.println("aftersave: " + afterSave);
+            r.setAfterSaveScript(afterSave);
+        }
+
+        if (el.getChild("onPostPageScript", CodeMeta.NS) != null) {
+            String onPostPageScript = JDomUtils.valueOf(el, "onPostPageScript", CodeMeta.NS);
+            r.setOnPostPageScript(onPostPageScript);
+        }
+
         pageMetaHandler.applyOverrideFromXml(r, el);
         r.save();
     }
 
-    
     @Override
     public void updateFromXml(Template template, Element el) {
         log.trace("updateFromXml");
@@ -192,9 +212,9 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
         String dt = InitUtils.getValue(el, "docType");
         DocType docType = dt == null ? null : DocType.valueOf(dt);
         template.setDocType(docType);
-        
-        template.setSecure( InitUtils.getNullableBoolean(el, "secure") );
-        template.setEnableGetableFolders( InitUtils.getNullableBoolean(el, "enableGetableFolders") );
+
+        template.setSecure(InitUtils.getNullableBoolean(el, "secure"));
+        template.setEnableGetableFolders(InitUtils.getNullableBoolean(el, "enableGetableFolders"));
 
         template.setDisableExport(InitUtils.getBoolean(el, "disableExport"));
 
@@ -209,7 +229,7 @@ public class TemplateMetaHandler implements MetaHandler<Template> {
 
         String onPostPageScript = JDomUtils.valueOf(el, "onPostPageScript", CodeMeta.NS);
         template.setOnPostPageScript(onPostPageScript);
-        
+
         template.setClassToCreate(instanceType);
 
         pageMetaHandler.updateFromXml(template, el);

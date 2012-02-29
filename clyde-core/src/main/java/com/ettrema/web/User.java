@@ -53,6 +53,8 @@ import org.jdom.Element;
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.web.groups.ClydeGroupHelper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @BeanPropertyResource("clyde")
 public class User extends Folder implements IUser {
@@ -209,17 +211,11 @@ public class User extends Folder implements IUser {
 
     @Override
     public Folder getMailFolder(String name, boolean create) {
-        String emailFolderName = "email_" + name;
-        Folder emailFolder = getSubFolder(emailFolderName);
-        if (emailFolder == null && create) {
-            try {
-                emailFolder = (Folder) createCollection(emailFolderName, false);
-            } catch (    ConflictException | NotAuthorizedException | BadRequestException ex) {
-                throw new RuntimeException(ex);
-            }
+        try {
+            return _(MailProcessor.class).getMailFolder(this, name, create);
+        } catch (ConflictException | NotAuthorizedException | BadRequestException ex) {
+            throw new RuntimeException(ex);
         }
-        return emailFolder;
-
     }
 
     @Override

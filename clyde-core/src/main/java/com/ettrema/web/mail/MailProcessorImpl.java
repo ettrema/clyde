@@ -8,6 +8,7 @@ import com.ettrema.web.Folder;
 import com.ettrema.web.User;
 import com.ettrema.context.RequestContext;
 import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.mail.MailboxAddress;
 import com.ettrema.mail.send.MailSender;
 import java.util.ArrayList;
@@ -233,19 +234,28 @@ public class MailProcessorImpl implements MailProcessor {
 //        mailSender.sendMail(groupAddress, null, toList, groupAddress, "", newContent);
 //    }
     @Override
-    public Folder getMailFolder(User user, String name, boolean create) throws ConflictException, NotAuthorizedException, BadRequestException {
+    public Folder getMailFolder(User user, String name, boolean create) throws ConflictException, NotAuthorizedException, BadRequestException {        
         Folder messages = user.getSubFolder(messagesFolderName);
-        if (messages == null && create) {
-            messages = (Folder) user.createCollection(messagesFolderName, false);
-        } else {
-            return null;
+        if (messages == null ) {
+            if( create ) {
+                log.trace("getMailFolder: created messages folder");
+                messages = (Folder) user.createCollection(messagesFolderName, false);
+            } else {
+                log.trace("getMailFolder: no messages folder and create is false");
+                return null;
+            }
         }
         Folder emailFolder = messages.getSubFolder(name);
-        if (emailFolder == null && create) {
-            emailFolder = (Folder) messages.createCollection(name, false);
-        } else {
-            return null;
+        if (emailFolder == null ) {
+            if( create) {
+                log.trace("getMailFolder: creted messages subfolder");
+                emailFolder = (Folder) messages.createCollection(name, false);
+            } else {
+                LogUtils.trace(log, "getMailFolder: no folder:", name, " in messages folder", messages.getName(), " and create is false");
+                return null;
+            }
         }
+        log.trace("getMailFolder: found folder");
         return emailFolder;
     }
 }
