@@ -79,10 +79,7 @@ public class HtmlDef extends TextDef {
     protected String editChildTemplate() {
 //        return "<textarea name='@{path}' rows='@{comp.rows}' cols='@{comp.cols}'>@{value}</textarea>";
         return
-                "<textarea name='${path}' id='${path}' cols='${def.cols}' rows='${def.rows}'  wrap='OFF'>${value}</textarea>\n" +
-                "<script type='text/javascript'>\n" +
-                "create( '${path}',${def.width},${def.height},'${def.toolbarSetName}');\n" +
-                "</script>\n";
+                "<textarea class='htmleditor' name='${path}' id='${path}' cols='${def.cols}' rows='${def.rows}'  wrap='OFF'>${value}</textarea>\n";
     }
     
     @Override    
