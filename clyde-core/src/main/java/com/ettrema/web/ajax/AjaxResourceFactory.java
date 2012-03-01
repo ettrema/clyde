@@ -248,6 +248,19 @@ public class AjaxResourceFactory implements ResourceFactory {
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext(lTemplate, res, rcChild, false);
 
+            for (String paramName : parameters.keySet()) {
+                Path path = Path.path(paramName);
+                Component c = rc.findComponent(path);
+                if (c instanceof ComponentValue) {
+                    ComponentValue cv = (ComponentValue) c;
+                    ComponentDef def = cv.getDef(rc);
+                    if( def != null ) {
+                        def.changedValue(cv);
+                    }
+                }
+            }
+
+
             boolean componentFound = false;
             for (String paramName : parameters.keySet()) {
                 log.info("found request param: " + paramName);

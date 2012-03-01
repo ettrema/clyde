@@ -199,7 +199,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         RenderContext rc = rcChild; // Changed to this from above. When using above it was creating a new template representing the same thing as it had been passed
         // Generally, if a rendercontext is created in here it must be lost (ie cannot take part in rendering or subsequent form processing)
         // so it must be incorrect to create one here
-        
+
         if (lTemplate != null) {
             // Commented this out because it means that values will bind to values on templates. Should
             // only ever bind to the target page
@@ -234,7 +234,6 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     @Override
     public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
         log.info("process");
-        ITemplate lTemplate = getTemplate();
         RenderContext rc = rcChild; // see note on preProcess
         //RenderContext rc = new RenderContext(lTemplate, this, rcChild, false);
 
@@ -244,7 +243,9 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
             if (c instanceof ComponentValue) {
                 ComponentValue cv = (ComponentValue) c;
                 ComponentDef def = cv.getDef(rc);
-                def.changedValue(cv);
+                if (def != null) {
+                    def.changedValue(cv);
+                }
             }
         }
 
@@ -687,13 +688,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 //            log.debug( "render: null template for: " + this.getName());
         }
         RenderContext rc = new RenderContext(t, this, child, false);
-        if(child == null ) {
+        if (child == null) {
             if (params != null && params.size() > 0) {
                 System.out.println("do preprocess");
                 preProcess(child, params, null);
             }
         }
-        
+
         if (t != null) {
             LogUtils.trace(log, "render: rendering from template ", t.getName());
             return t.render(rc, params);

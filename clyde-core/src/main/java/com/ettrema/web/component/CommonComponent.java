@@ -12,6 +12,9 @@ import com.ettrema.web.velocity.VelocityInterpreter;
 import java.io.Serializable;
 import org.apache.velocity.VelocityContext;
 
+import static com.ettrema.context.RequestContext._;
+import com.ettrema.utils.CurrentRequestService;
+
 public abstract class CommonComponent implements Component, Serializable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommonComponent.class);
@@ -40,7 +43,7 @@ public abstract class CommonComponent implements Component, Serializable {
             vc.put("show", new RenderMap(rc, null));
             vc.put("edit", new RenderMap(rc, true));
             vc.put("view", new RenderMap(rc, false));
-            
+
             Templatable page = rc.page;
             if (page != null) {
                 vc.put("page", page);
@@ -101,8 +104,13 @@ public abstract class CommonComponent implements Component, Serializable {
         }
     }
 
+    @Override
     public final String getValidationMessage() {
         RequestParams params = RequestParams.current();
-        return (String) params.attributes.get(this.getName() + "_validation");
+        if (params != null) {
+            return (String) params.attributes.get(this.getName() + "_validation");
+        } else {
+            return null;
+        }
     }
 }
