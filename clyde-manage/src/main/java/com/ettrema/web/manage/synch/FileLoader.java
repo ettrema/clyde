@@ -84,9 +84,9 @@ public class FileLoader {
                             upload(f, root);
                             t = System.currentTimeMillis() - t;
                             if (t > 2000) {
-                                log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                                LogUtils.trace(log, "check: done upload: " , f.getAbsolutePath() , " in " , t / 1000 , "secs");
                             } else {
-                                log.info("done upload: " + f.getAbsolutePath() + " in " + t + "msecs");
+                                LogUtils.trace(log, "check: done upload: " , f.getAbsolutePath() , " in " , t , "msecs");
                             }
                         }
                     } else {
@@ -104,9 +104,9 @@ public class FileLoader {
                 upload(f, root);
                 t = System.currentTimeMillis() - t;
                 if (t > 2000) {
-                    log.info("done upload: " + f.getAbsolutePath() + " in " + t / 1000 + "secs");
+                    LogUtils.trace(log, "check: done upload: " , f.getAbsolutePath() , " in " , t / 1000 , "secs");
                 } else {
-                    log.info("done upload: " + f.getAbsolutePath() + " in " + t + "msecs");
+                    LogUtils.trace(log, "check: done upload: " , f.getAbsolutePath() , " in " , t , "msecs");
                 }
             } else {
                 fileTransport.delete(f, root);

@@ -11,6 +11,7 @@ import com.bradmcevoy.http.http11.auth.DigestResponse;
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import com.ettrema.web.ExistingResourceFactory;
 import com.ettrema.web.Web;
 import java.io.*;
@@ -157,7 +158,7 @@ public class DeployResourceFactory implements ResourceFactory {
             }
             try {
                 Deployment deployment = deploymentService.deploy(zippedFile, newName, web);
-                _(VfsSession.class).commit();
+                VfsTransactionManager.commit();
                 return new DeploymentResource(web, deployment);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
@@ -207,9 +208,9 @@ public class DeployResourceFactory implements ResourceFactory {
             log.info("delete: " + getName());
             try {
                 deploymentService.undeploy(web, getName());
-                _(VfsSession.class).commit();
+                VfsTransactionManager.commit();
             } catch (Exception ex) {
-                _(VfsSession.class).rollback();
+                VfsTransactionManager.rollback();
             }
         }
 
@@ -249,7 +250,7 @@ public class DeployResourceFactory implements ResourceFactory {
                     fout.flush();
                     try {
                         deploymentService.deploy(zippedFile, getName(), web);
-                        _(VfsSession.class).commit();
+                        VfsTransactionManager.commit();
                     } catch (Exception ex) {
                         throw new RuntimeException(ex);
                     }

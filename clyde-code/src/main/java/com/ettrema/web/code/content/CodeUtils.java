@@ -16,6 +16,7 @@ import org.jdom.output.Format;
 import org.jdom.output.MyXmlOutputter;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.vfs.VfsTransactionManager;
 
 /**
  *
@@ -94,6 +95,6 @@ public class CodeUtils {
     }
 
     public static void commit() {
-        _(VfsSession.class).commit();
+        VfsTransactionManager.commit();
     }
 }

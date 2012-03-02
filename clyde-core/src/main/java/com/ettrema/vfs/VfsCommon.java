@@ -21,14 +21,14 @@ public abstract class VfsCommon {
     }    
     
     public void commit() {
-        log.debug("committing");
-        vfs().commit();
+        VfsTransactionManager.commit();
     }
 
     public void rollback() {
 //        log.debug("rolling back");
-        vfs().rollback();
+        VfsTransactionManager.rollback();
     }
+    
     
 
 }

@@ -16,6 +16,7 @@ import com.ettrema.context.RootContextLocator;
 import com.ettrema.grid.AsynchProcessor;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import com.ettrema.web.User;
 import com.ettrema.web.search.SearchManager;
 import java.util.List;
@@ -114,7 +115,7 @@ public class Crawl extends AbstractConsoleCommand {
             boolean doSearchIndex = (sm != null);
 
             crawl(h, doSearchIndex);
-            session.commit();
+            VfsTransactionManager.commit();
         }
 
         private void crawl(BaseResource res, boolean doSearchIndex) throws InterruptedException {

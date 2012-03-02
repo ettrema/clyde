@@ -3,9 +3,8 @@ package com.ettrema.web.manage.synch;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
-import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
-import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import com.sun.nio.file.ExtendedWatchEventModifier;
 import java.io.File;
 import java.io.FileFilter;
@@ -67,10 +66,10 @@ public class FileWatcher implements Service {
                             public void execute(Context cntxt) {
                                 try {
                                     fileScanner.initialScan(forceReload, root);
-                                    _(VfsSession.class).commit();
+                                    VfsTransactionManager.commit();
                                     log.info("Finished initial scan for: " + root.getAbsolutePath());
                                 } catch (Exception ex) {
-                                    _(VfsSession.class).rollback();
+                                    VfsTransactionManager.rollback();
                                     log.error("exception loading files", ex);
                                 }
                             }
@@ -187,9 +186,9 @@ public class FileWatcher implements Service {
             public void execute(Context context) {
                 try {
                     fileLoader.onNewFile(f, root);
-                    _(VfsSession.class).commit();
+                    VfsTransactionManager.commit();
                 } catch (Exception ex) {
-                    _(VfsSession.class).rollback();
+                    VfsTransactionManager.rollback();
                 }
             }
         });
@@ -207,9 +206,9 @@ public class FileWatcher implements Service {
             public void execute(Context context) {
                 try {
                     fileLoader.onDeleted(f, root);
-                    _(VfsSession.class).commit();
+                    VfsTransactionManager.commit();
                 } catch (Exception ex) {
-                    _(VfsSession.class).rollback();
+                    VfsTransactionManager.rollback();
                 }
             }
         });
@@ -227,9 +226,9 @@ public class FileWatcher implements Service {
             public void execute(Context context) {
                 try {
                     fileLoader.onModified(f, root);
-                    _(VfsSession.class).commit();
+                    VfsTransactionManager.commit();
                 } catch (Exception ex) {
-                    _(VfsSession.class).rollback();
+                    VfsTransactionManager.rollback();
                 }
             }
         });

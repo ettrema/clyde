@@ -7,6 +7,7 @@ import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.mail.StandardMessageFactoryImpl;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.mail.MessagingException;
@@ -36,12 +37,12 @@ public class MimeMessageParserImpl implements MimeMessageParser{
         smf.toStandardMessage(mm, sm);
         try {
             sm.save();
-            vfs.commit();
+            VfsTransactionManager.commit();
             log.debug("saved to: " + sm.getNameNodeId());
             return sm;
         } catch (Throwable e) {
             log.error("exception saving message: " + sm.getSubject(), e);
-            vfs.rollback();
+            VfsTransactionManager.rollback();
             return null;
         }        
     }

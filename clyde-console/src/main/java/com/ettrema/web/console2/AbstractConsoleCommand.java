@@ -15,6 +15,7 @@ import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -42,9 +43,8 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         return RequestContext.getCurrent();
     }
     
-    protected void commit() {
-        VfsSession sess = RequestContext.getCurrent().get(VfsSession.class);
-        sess.commit();
+    protected void commit() {        
+        VfsTransactionManager.commit();
     }
     
     protected Resource find(Path p) {

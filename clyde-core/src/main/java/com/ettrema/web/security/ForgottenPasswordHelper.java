@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.mvel.TemplateInterpreter;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.vfs.VfsTransactionManager;
 
 /**
  *
@@ -215,7 +216,7 @@ public class ForgottenPasswordHelper {
         foundUser.setPassword(password);
         foundUser.save();
         log.trace("saved, now commit");
-        _(VfsSession.class).commit();
+        VfsTransactionManager.commit();
         RequestParams.current().getAttributes().put(comp.getName() + "Changed", Boolean.TRUE);
         return checkRedirect(comp.getThankyouPage());
     }

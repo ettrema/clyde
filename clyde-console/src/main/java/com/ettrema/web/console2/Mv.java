@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.vfs.VfsTransactionManager;
 
 /**
  *
@@ -82,22 +83,22 @@ public class Mv extends AbstractConsoleCommand {
                 return result( "No such node: " + uuid );
             }
             sourceNode.move( dest, sourceNode.getName() );
-            sess.commit();
+            VfsTransactionManager.commit();
             return result( "moved: " + uuid );
         } catch( IllegalArgumentException e ) {
             // ok, not a uuid
             Path path = Path.path( sSourcePath );
-            List<BaseResource> list = new ArrayList<BaseResource>();
+            List<BaseResource> list = new ArrayList<>();
             Folder curFolder = currentResource();
             Result resultSearch = findWithRegex( curFolder, path, list );
             if( resultSearch != null ) {
                 return resultSearch;
             }
 
-            if( list.size() == 0 ) {
+            if( list.isEmpty() ) {
                 return result( "source not found: " + sSourcePath );
             }
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for( BaseResource r : list ) {
                 NameNode source = r.getNameNode();
                 source.move( dest, source.getName() );

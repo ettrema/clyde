@@ -6,6 +6,7 @@ import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,10 @@ public class FileScanner {
     public void initialScan(boolean forceReload, File root) throws Exception {
         long t = System.currentTimeMillis();
         log.info("begin full scan");
+        VfsTransactionManager.setRollbackOnly(true);
         startScan(root, forceReload);
+        VfsTransactionManager.setRollbackOnly(false);
+        VfsTransactionManager.commit();
         log.info("------------------------------------");
         log.info("Completed full scan in " + (System.currentTimeMillis() - t) / 1000 + "secs");
         log.info("------------------------------------");
@@ -74,9 +78,9 @@ public class FileScanner {
                     if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
                         try {
                             fileLoader.onNewFile(f, root);
-                            _(VfsSession.class).commit();
+                            VfsTransactionManager.commit();
                         } catch (Exception ex) {
-                            _(VfsSession.class).rollback();
+                            VfsTransactionManager.rollback();
                         }
                     }
 

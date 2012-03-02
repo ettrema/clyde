@@ -11,6 +11,7 @@ import com.ettrema.console.Result;
 import static com.ettrema.context.RequestContext.*;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.vfs.VfsSession;
+import com.ettrema.vfs.VfsTransactionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class Rm extends AbstractConsoleCommand {
             }
             if( !isDry ) {
                 node.delete();
-                sess.commit();
+                VfsTransactionManager.commit();
                 return result( "deleted: " + uuid );
             } else {
                 return result( "would have deleted: " + uuid );
@@ -54,7 +55,7 @@ public class Rm extends AbstractConsoleCommand {
         } catch( IllegalArgumentException e ) {
             // ok, not a uuid
             Path path = Path.path( sPath );
-            List<BaseResource> list = new ArrayList<BaseResource>();
+            List<BaseResource> list = new ArrayList<>();
             Folder curFolder = currentResource();
             Result resultSearch = findWithRegex( curFolder, path, list );
             if( resultSearch != null ) {
