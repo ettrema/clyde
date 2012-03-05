@@ -12,8 +12,6 @@ import com.ettrema.web.velocity.VelocityInterpreter;
 import java.io.Serializable;
 import org.apache.velocity.VelocityContext;
 
-import static com.ettrema.context.RequestContext._;
-import com.ettrema.utils.CurrentRequestService;
 
 public abstract class CommonComponent implements Component, Serializable {
 

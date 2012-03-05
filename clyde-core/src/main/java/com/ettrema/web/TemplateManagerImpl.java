@@ -31,21 +31,9 @@ public class TemplateManagerImpl implements TemplateManager {
         }
         template = (Template) res;
         if (template == null) {
-            log.debug("..not found1");
-            Web parentWeb = web.getParentWeb();
-            if (parentWeb != null && parentWeb != web) {
-                ITemplate t = lookup(templateName, parentWeb);
-                if (t != null) {
-                    log.debug("got wrapped template");
-                    return new WrappedTemplate(t, web);
-                } else {
-                    log.debug("..not found3");
-                    return null;
-                }
-            } else {
-                log.debug("..not found4");
-                return null;
-            }
+            // BM: removed call to load from parent web. Will use overlays instead (when built)
+            log.debug("..not found4");
+            return null;
         } else {
             if (template.getWeb() != web) {
                 return new WrappedTemplate(template, web);
