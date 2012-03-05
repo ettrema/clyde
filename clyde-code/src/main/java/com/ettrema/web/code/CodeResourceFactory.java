@@ -38,8 +38,9 @@ public final class CodeResourceFactory implements ResourceFactory {
         PageContentTypeHandler pageContentTypeHandler = new PageContentTypeHandler();
         TemplateContentTypeHandler templateContentTypeHandler = new TemplateContentTypeHandler(pageContentTypeHandler);
         TextFileContentHandler textFileContentHandler = new TextFileContentHandler();
+        VelocityTextFileContentHandler velocityTextFileContentHandler = new VelocityTextFileContentHandler();
         CsvPageContentTypeHandler csvPageContentTypeHandler = new CsvPageContentTypeHandler();
-        setContentTypeHandlers(Arrays.asList(csvPageContentTypeHandler, templateContentTypeHandler, pageContentTypeHandler, textFileContentHandler, new BinaryContentTypeHandler()));
+        setContentTypeHandlers(Arrays.asList(csvPageContentTypeHandler, templateContentTypeHandler, pageContentTypeHandler, textFileContentHandler, velocityTextFileContentHandler, new BinaryContentTypeHandler()));
         initMetaHandlers();
         this.metaParser = new MetaParser(this);
     }
@@ -212,6 +213,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         add(new CsvPageMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new MigrateResourceMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new TextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
+        add(new VelocityTextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);        
         add(new PdfMetaHandler(binaryFileMetaHandler), mapOfAliases);
         add(new CombiningTextFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
         

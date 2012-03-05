@@ -22,7 +22,7 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary|c:message)>
+<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary|c:message|c:textfile|c:velocitytextfile)>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
   >

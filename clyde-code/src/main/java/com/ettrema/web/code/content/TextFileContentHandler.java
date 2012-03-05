@@ -14,19 +14,25 @@ import java.io.OutputStream;
  */
 public class TextFileContentHandler implements ContentTypeHandler{
 
+    public TextFileContentHandler() {
+    }
+    
+    
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof TextFile;
     }
 
+    @Override
     public void generateContent( OutputStream out, GetableResource wrapped ) throws IOException {
         TextFile tf = (TextFile) wrapped;
         tf.sendContent( out, null, null, null );
     }
 
+    @Override
     public void replaceContent( InputStream in, Long contentLength, GetableResource wrapped ) {
         TextFile tf = (TextFile) wrapped;
         tf.replaceContent( in, contentLength );
         tf.save();
     }
-
 }
