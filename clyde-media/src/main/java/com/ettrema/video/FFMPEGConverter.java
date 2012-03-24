@@ -78,10 +78,12 @@ public class FFMPEGConverter implements Converter, Closeable {
         }
     }
 
+    @Override
     public Long convert( OutputStream out, String outputFormat ) {
         return convert( out, outputFormat, 0, 0, false );
     }
 
+    @Override
     public Long convert( OutputStream out, String outputFormat, int height, int width ) {
         return convert( out, outputFormat, height, width, true );
     }

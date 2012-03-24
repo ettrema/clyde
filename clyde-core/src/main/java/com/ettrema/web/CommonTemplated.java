@@ -1066,9 +1066,13 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
     public class Params implements Map<String, Component> {
 
+        /**
+         * Just return number of values on target page
+         * @return 
+         */
         @Override
         public int size() {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return getValues().size();
         }
 
         @Override

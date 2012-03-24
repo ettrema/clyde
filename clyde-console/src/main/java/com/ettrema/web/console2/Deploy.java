@@ -31,7 +31,7 @@ public class Deploy extends AbstractConsoleCommand {
         String deployUrl = "";
         if (cur instanceof Folder) {
             Folder col = cur;
-            try {
+            try { 
                 if (args.size() == 1) {
                     deployUrl = args.get(0);
 
@@ -53,7 +53,7 @@ public class Deploy extends AbstractConsoleCommand {
             } catch (MalformedURLException ex) {
                 return result("Bad url: " + deployUrl);
             } catch (Exception ex) {
-                return result("IO exception: " + deployUrl);
+                return result("Exception deploying: " + deployUrl, ex);
             }
         } else {
             return result("not a collection: " + cur.getHref());
@@ -94,4 +94,5 @@ public class Deploy extends AbstractConsoleCommand {
     public void setMavenRoot(String mavenRoot) {
         this.mavenRoot = mavenRoot;
     }
+
 }

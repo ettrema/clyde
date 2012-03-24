@@ -51,9 +51,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
             Resource rLogin;
             try {
                 rLogin = resourceFactory.getResource(request.getHostHeader(), loginPage);
-            } catch (NotAuthorizedException ex) {
-                throw new RuntimeException(ex);
-            } catch (BadRequestException ex) {
+            } catch (NotAuthorizedException | BadRequestException ex) {
                 throw new RuntimeException(ex);
             }
             if (rLogin == null || !(rLogin instanceof GetableResource)) {
@@ -75,13 +73,7 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
                         request.getAttributes().put("authReason", "required");
                     }
                     gr.sendContent(response.getOutputStream(), null, null, "text/html");
-                } catch (NotFoundException ex) {
-                    throw new RuntimeException(ex);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                } catch (NotAuthorizedException ex) {
-                    throw new RuntimeException(ex);
-                } catch (BadRequestException ex) {
+                } catch (NotFoundException | IOException | NotAuthorizedException | BadRequestException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -165,5 +157,4 @@ public class LoginResponseHandler extends AbstractWrappingResponseHandler {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-        
 }

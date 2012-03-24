@@ -204,10 +204,16 @@ public final class CodeResourceFactory implements ResourceFactory {
         FolderMetaHandler folderMetaHandler = add(new FolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
         PageMetaHandler pageMetaHandler = add(new PageMetaHandler(baseResourceMetaHandler), mapOfAliases);
 
+        WebMetaHandler webMetaHandler = new WebMetaHandler(folderMetaHandler);
+        HostMetaHandler hostMetaHandler = new HostMetaHandler(webMetaHandler);
+        OrganisationMetaHandler organisationMetaHandler = new OrganisationMetaHandler(hostMetaHandler);
+        
         add(new MessageMetaHandler(folderMetaHandler), mapOfAliases);
         add(new ScheduleTaskMetaHandler(pageMetaHandler), mapOfAliases);
         add(new GroupMetaHandler(folderMetaHandler), mapOfAliases);
-        add(new WebMetaHandler(folderMetaHandler), mapOfAliases);
+        add(webMetaHandler, mapOfAliases);        
+        add(hostMetaHandler, mapOfAliases);        
+        add(organisationMetaHandler, mapOfAliases);        
         add(new UserMetaHandler(folderMetaHandler), mapOfAliases);
         add(new CsvViewMetaHandler(baseResourceMetaHandler), mapOfAliases);
         add(new CsvPageMetaHandler(baseResourceMetaHandler), mapOfAliases);

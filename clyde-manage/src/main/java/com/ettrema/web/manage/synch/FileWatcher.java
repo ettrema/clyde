@@ -65,7 +65,7 @@ public class FileWatcher implements Service {
                             @Override
                             public void execute(Context cntxt) {
                                 try {
-                                    fileScanner.initialScan(forceReload, root);
+                                    fileScanner.initialScanNoTx(forceReload, root);
                                     VfsTransactionManager.commit();
                                     log.info("Finished initial scan for: " + root.getAbsolutePath());
                                 } catch (Exception ex) {
@@ -217,6 +217,7 @@ public class FileWatcher implements Service {
     public void fileModified(final File f) {
         log.info("fileModified: " + f.getAbsolutePath());
         if (fileScanner.isIgnored(f, root)) {
+            log.trace("is ignored");
             return;
         }
 
@@ -225,6 +226,7 @@ public class FileWatcher implements Service {
             @Override
             public void execute(Context context) {
                 try {
+                    log.trace("load file");
                     fileLoader.onModified(f, root);
                     VfsTransactionManager.commit();
                 } catch (Exception ex) {

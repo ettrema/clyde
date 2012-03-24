@@ -22,6 +22,7 @@ import java.util.Set;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 
 public class SaveCommand extends Command {
 
@@ -106,24 +107,15 @@ public class SaveCommand extends Command {
                         pages.add(res);
                     }
                     if (!c.validate(rc)) {
-                        log.info("not valid: " + c.getName());
+                        LogUtils.info(log,"doProcess: is not valid: ", c.getName(), c.getValidationMessage());
                         valid = false;
                     } else {
-                        log.trace("is valid: " + c.getName());
+                        LogUtils.trace(log,"doProcess: is valid: ", c.getName());
                     }
                 } else {
                     log.trace("do not validate command: " + c.getName());
                 }
             } else {
-                if (paramName.equals("name")) {
-                    String newName = parameters.get(paramName);
-                    if (rcTarget.getPhysicalPage().getParentFolder().hasChild(newName)) {
-                        RequestParams params = RequestParams.current();
-                        params.attributes.put(paramName + "_validation", "The new name isnt valid, a file with that name already exists");
-                    } else {
-                        rcTarget.getPhysicalPage().rename(newName);
-                    }
-                }
                 log.debug("Failed to find component: " + path);
             }
         }
@@ -234,6 +226,15 @@ public class SaveCommand extends Command {
                 log.trace("component is not valid: " + cv.getName());
                 valid = false;
             }
+        }
+        String pageName = page.getName();
+        if( pageName.length() == 0 ) {
+            valid = false;
+            log.warn("page name is empty, not valid");
+        }
+        if( !pageName.equals(pageName.trim())) {
+            valid = false;
+            log.warn("page name begins or ends with whitespace, not valid: " + pageName);
         }
         return valid;
     }

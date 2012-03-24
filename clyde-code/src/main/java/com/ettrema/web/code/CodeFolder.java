@@ -33,10 +33,18 @@ public class CodeFolder extends AbstractCodeResource<CollectionResource> impleme
         log.trace("child: " + childName);
         if (rf.isMeta(childName)) {
             String realName = rf.getPageName(childName);
-            Resource realChild = wrapped.child(realName);
+            Resource realChild;
+            if( realName.equals("this")) {
+                realChild = wrapped;
+            } else {
+                realChild = wrapped.child(realName);
+            }
             log.trace("..meta");
             return rf.wrapMeta(realChild, this.wrapped);
         } else {
+            if( childName.equals("this")) {
+                return wrapped;
+            }
             Resource child = wrapped.child(childName);
             if (child == null) {
                 log.trace("..not found");

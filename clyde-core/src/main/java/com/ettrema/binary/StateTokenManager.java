@@ -3,6 +3,7 @@ package com.ettrema.binary;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.event.*;
 import com.ettrema.logging.LogUtils;
+import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import com.ettrema.web.*;
 import java.io.ByteArrayOutputStream;
@@ -53,34 +54,47 @@ public class StateTokenManager {
     }
 
     /**
-     * Urghh, syncronised...
      * 
+     *
      * @param f
      * @param autoCreate
-     * @return 
+     * @return
      */
     private StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
-        NameNode nn = f.getNameNode().child(NAMENODE_CRC);
-        StateToken stateToken;
-        if (nn == null) {
-            if (autoCreate) {
-                stateToken = new StateToken();
-                nn = f.getNameNode().add(NAMENODE_CRC, stateToken);
-                nn.save();
-                return stateToken;
+        NameNode parent = f.getNameNode();
+        NameNode stateTokenNode = null;
+        // Find an existing valid node
+        while (stateTokenNode == null) {
+            stateTokenNode = parent.child(NAMENODE_CRC);
+            if (stateTokenNode != null) {
+                DataNode dn = stateTokenNode.getData();
+                if (dn == null) {
+                    stateTokenNode.delete();
+                } else {
+                    if (dn instanceof StateToken) {
+                        StateToken token = (StateToken) dn;
+                        return token;
+                    } else {
+                        // not valid, remove it
+                        stateTokenNode.delete();
+                    }
+                }
+                stateTokenNode = null;
             } else {
-                return null;
+                // is null, so create one if autoCreate is true
+                if (autoCreate) {
+                    StateToken stateToken = new StateToken();
+                    NameNode nn = parent.add(NAMENODE_CRC, stateToken);
+                    nn.save();
+                    return stateToken;
+                } else {
+                    // no valid node, and autocreate is false
+                    return null;
+                }
             }
-        } else {
-            StateToken token = (StateToken) nn.getData();
-            if( token == null ) {
-                nn.delete();
-                stateToken = new StateToken();
-                f.getNameNode().add(NAMENODE_CRC, stateToken);
-                return stateToken;
-            }
-            return token;
         }
+        throw new RuntimeException("how???");
+        //return null; // should never reach this point
     }
 
     public String getStateTokenData(Folder f) {

@@ -75,6 +75,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 
 import static com.ettrema.context.RequestContext.*;
+import com.ettrema.logging.LogUtils;
 
 /**
  * Base class for all physical resources. Encapsulates a namenode and is a datanode
@@ -585,7 +586,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
      * @param newName
      */
     public void rename(String newName) {
-        log.debug("rename: " + newName);
+        LogUtils.info(log, "rename: " , newName);
         nameNode.setName(newName);
     }
 
@@ -650,6 +651,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             return null;
         }
         if (nameNode.getParent() == null) {
+            log.warn("No parent for " + getName() + " id:" + getId());
             return null;
         }
         return (Folder) nameNode.getParent().getData();
@@ -767,6 +769,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             return null;
         }
         NameNode toNode = r.to();
+        if( toNode == null ) {
+            log.error("Found a relation with no to node. from resource: " + this.getPath() + " - " + this.getNameNodeId() + "  relation: " + relationName);
+            return null;
+        }
         BaseResource toRes = (BaseResource) toNode.getData();
         return toRes;
     }

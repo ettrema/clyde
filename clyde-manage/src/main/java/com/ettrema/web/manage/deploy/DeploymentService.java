@@ -83,7 +83,7 @@ public class DeploymentService {
         FileLoader fl = new FileLoader(errorReporter, fileTransport);
         // null rootContext means it won't do individual transactions per file
         FileScanner fileScanner = new FileScanner(null, fl);
-        fileScanner.initialScan(true, autoload);
+        fileScanner.initialScanNoTx(true, autoload);
 
         List<DeploymentItem> items = callBack.asList();
         LogUtils.trace(log, "deploy: items", items.size());

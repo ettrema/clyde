@@ -2,13 +2,13 @@ package com.ettrema.web.manage.synch;
 
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
-import static com.ettrema.context.RequestContext._;
 import com.ettrema.context.RootContext;
 import com.ettrema.logging.LogUtils;
-import com.ettrema.vfs.VfsSession;
 import com.ettrema.vfs.VfsTransactionManager;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,11 +26,29 @@ public class FileScanner {
         this.fileLoader = fileLoader;
     }
 
-    public void initialScan(File root) throws Exception {
-        initialScan(false, root);
+    /**
+     * Wraps the entire scan in a single transaction
+     *
+     * @param forceReload
+     * @param root
+     * @throws Exception
+     */
+    public void initialScan(final boolean forceReload, final File root) throws Exception {
+        rootContext.execute(new Executable2() {
+
+            @Override
+            public void execute(Context context) {
+                try {
+                    initialScanNoTx(true, root);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+
+            }
+        });
     }
 
-    public void initialScan(boolean forceReload, File root) throws Exception {
+    public void initialScanNoTx(boolean forceReload, File root) throws Exception {
         long t = System.currentTimeMillis();
         log.info("begin full scan");
         VfsTransactionManager.setRollbackOnly(true);
@@ -68,27 +86,12 @@ public class FileScanner {
     }
 
     private void processFile(final File f, final boolean forceReload, final File root) throws Exception {
-        // If we have a rootContext then execute the operation within a new transaction
-        // Otherwise assume we're inside a transaction and just do it
-        if (rootContext != null) {
-            rootContext.execute(new Executable2() {
-
-                @Override
-                public void execute(Context context) {
-                    if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
-                        try {
-                            fileLoader.onNewFile(f, root);
-                            VfsTransactionManager.commit();
-                        } catch (Exception ex) {
-                            VfsTransactionManager.rollback();
-                        }
-                    }
-
-                }
-            });
-        } else {
-            if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
+        if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
+            try {
                 fileLoader.onNewFile(f, root);
+                VfsTransactionManager.commit();
+            } catch (Exception ex) {
+                VfsTransactionManager.rollback();
             }
         }
     }
@@ -98,7 +101,7 @@ public class FileScanner {
     }
 
     private boolean isAnyParentHidden(File f, File root) {
-        if (f.getName().startsWith(".")) {
+        if (f.getName().startsWith(".") && !f.getName().equals(".meta.xml")) {  // special case for file which is meta file of the host, so has no name
             return true;
         } else {
             if (!f.getAbsolutePath().contains(root.getAbsolutePath())) { // reached root
@@ -116,9 +119,11 @@ public class FileScanner {
         final List<File> subdirs = new ArrayList<>();
 
         public DirectoryListing(File parent, File root) {
-            File[] listing = parent.listFiles();
+            File[] listing = parent.listFiles();            
             if (listing != null) {
-                for (File f : listing) {
+                List<File> filesList = Arrays.asList(listing);
+                Collections.sort(filesList);
+                for (File f : filesList) {
                     if (!isIgnored(f, root)) {
                         if (f.isDirectory()) {
                             if ("templates".equals(f.getName())) {

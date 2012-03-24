@@ -53,8 +53,6 @@ import org.jdom.Element;
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.web.groups.ClydeGroupHelper;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @BeanPropertyResource("clyde")
 public class User extends Folder implements IUser {
@@ -76,6 +74,24 @@ public class User extends Folder implements IUser {
         super(parentFolder, name);
     }
 
+    @Override
+    public String getTitle() {
+        String s = getTitleNoName();
+        if( s != null ) {
+            return s;
+        }
+        ComponentValue cv = this.getValues().get("nickName");
+        if (cv != null) {
+            Object o = cv.getValue();
+            if (o != null) {
+                return o.toString();
+            }
+        }
+        return getName();
+    }
+
+    
+    
     @Override
     protected BaseResource copyInstance(Folder parent, String newName) {
         User uNew = (User) super.copyInstance(parent, newName);

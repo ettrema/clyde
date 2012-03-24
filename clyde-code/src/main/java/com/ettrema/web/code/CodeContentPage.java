@@ -27,62 +27,62 @@ import java.util.Map;
  */
 public class CodeContentPage extends AbstractCodeResource<GetableResource> implements GetableResource, Replaceable, MoveableResource {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( CodeContentPage.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CodeContentPage.class);
 
-    public CodeContentPage( CodeResourceFactory rf, String name, GetableResource wrapped ) {
-        super( rf, name, wrapped );
+    public CodeContentPage(CodeResourceFactory rf, String name, GetableResource wrapped) {
+        super(rf, name, wrapped);
     }
 
-	@Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException {
-        ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
-        if( cth != null ) {
-            log.trace( "generate content for: " + wrapped.getClass() + " with " + cth.getClass() );
-            cth.generateContent( out, wrapped );
+    @Override
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        ContentTypeHandler cth = rf.getContentTypeHandler(wrapped);
+        if (cth != null) {
+            log.trace("generate content for: " + wrapped.getClass() + " with " + cth.getClass());
+            cth.generateContent(out, wrapped);
         } else {
-            log.warn( "No content type handler for: " + wrapped.getClass() );
+            log.warn("No content type handler for: " + wrapped.getClass());
         }
     }
 
-	@Override
-    public Long getMaxAgeSeconds( Auth auth ) {
+    @Override
+    public Long getMaxAgeSeconds(Auth auth) {
         return null;
     }
 
-	@Override
-    public String getContentType( String accepts ) {
-        return wrapped.getContentType( accepts );
+    @Override
+    public String getContentType(String accepts) {
+        return wrapped.getContentType(accepts);
     }
 
-	@Override
+    @Override
     public Long getContentLength() {
         return null;
     }
 
-	@Override
-    public void replaceContent( InputStream in, Long l ) {
-        log.trace( "replaceContent" );
-        ContentTypeHandler cth = rf.getContentTypeHandler( wrapped );
-        if( cth != null ) {
-            cth.replaceContent( in, l, wrapped );
+    @Override
+    public void replaceContent(InputStream in, Long l) {
+        log.trace("replaceContent");
+        ContentTypeHandler cth = rf.getContentTypeHandler(wrapped);
+        if (cth != null) {
+            cth.replaceContent(in, l, wrapped);
             CodeUtils.commit();
         } else {
             log.warn("Couldnt get a content type handler!!! " + wrapped.getClass());
         }
     }
 
-	@Override
-    public void moveTo( CollectionResource rDest, String name ) throws ConflictException, NotAuthorizedException, BadRequestException {
-        if( rDest instanceof CodeFolder ) {
-            if( this.wrapped instanceof MoveableResource ) {
+    @Override
+    public void moveTo(CollectionResource rDest, String name) throws ConflictException, NotAuthorizedException, BadRequestException {
+        if (rDest instanceof CodeFolder) {
+            if (this.wrapped instanceof MoveableResource) {
                 MoveableResource source = (MoveableResource) this.wrapped;
                 CodeFolder cfDest = (CodeFolder) rDest;
-                source.moveTo( cfDest.wrapped, name );
+                source.moveTo(cfDest.wrapped, name);
             } else {
-                throw new ConflictException( rDest );
+                throw new ConflictException(rDest);
             }
         } else {
-            throw new ConflictException( rDest );
+            throw new ConflictException(rDest);
         }
     }
 }

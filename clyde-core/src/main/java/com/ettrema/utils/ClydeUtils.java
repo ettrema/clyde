@@ -42,19 +42,18 @@ public class ClydeUtils {
         return getUniqueName(col, name);
     }
 
-    public static String getUniqueName(CollectionResource col, String name) {
+    public static String getUniqueName(CollectionResource col, final String baseName) {
         try {
+            String name = baseName;
             Resource r = col.child(name);
-            boolean isFirst = true;
+            int cnt = 0;            
             while (r != null) {
-                name = com.bradmcevoy.io.FileUtils.incrementFileName(name, isFirst);
-                isFirst = false;
+                cnt++;
+                name = baseName + cnt;
                 r = col.child(name);
             }
-            return name.trim();
-        } catch (NotAuthorizedException ex) {
-            throw new RuntimeException(ex);
-        } catch (BadRequestException ex) {
+            return name;
+        } catch (NotAuthorizedException | BadRequestException ex) {
             throw new RuntimeException(ex);
         }
     }

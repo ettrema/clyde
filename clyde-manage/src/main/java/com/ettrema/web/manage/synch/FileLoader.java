@@ -77,7 +77,7 @@ public class FileLoader {
                     if (f.exists()) {
                         if (isFileOpen(f)) {
                             log.warn("waiting for file to be unlocked: " + f.getAbsolutePath());
-                            Thread.sleep(500);
+                            Thread.sleep(100);
                         } else {
                             done = true;
                             long t = System.currentTimeMillis();

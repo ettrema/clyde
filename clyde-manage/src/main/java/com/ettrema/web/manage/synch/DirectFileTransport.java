@@ -7,6 +7,7 @@ import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.logging.LogUtils;
 import com.ettrema.web.BaseResource;
+import com.ettrema.web.Formatter;
 import com.ettrema.web.code.AbstractCodeResource;
 import com.ettrema.web.code.CodeFolder;
 import com.ettrema.web.code.CodeResourceFactory;
@@ -48,7 +49,8 @@ public class DirectFileTransport implements FileTransport {
      */
     @Override
     public void put(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException, IOException {
-        log.info("put: " + f.getAbsolutePath() + " root: " + root.getAbsolutePath());
+        log.info("put1: " + f.getAbsolutePath());
+        long t = System.currentTimeMillis();
         CodeFolder colParent = findCollection(f.getParentFile(), root);
         if (colParent == null) {
             throw new RuntimeException("Couldnt locate parent: " + f.getParentFile().getAbsolutePath() + " for root: " + root.getAbsolutePath());
@@ -61,6 +63,7 @@ public class DirectFileTransport implements FileTransport {
             try {
                 fin = new FileInputStream(f);
                 replaceable.replaceContent(fin, f.length());
+                log.info("put2a: replace completed in" + (System.currentTimeMillis()-t) + "ms");
                 setSourceModDate(replaceable, f.lastModified());
                 if (callback != null) {
                     callback.onModified(replaceable);
@@ -81,14 +84,18 @@ public class DirectFileTransport implements FileTransport {
                 try {
                     fin = new FileInputStream(f);
                     String ct = ContentTypeUtils.findContentTypes(f);
+                    log.info("put2b: about to put " + (System.currentTimeMillis()-t) + "ms");
                     Resource newRes = putable.createNew(f.getName(), fin, f.length(), ct);
+                    log.info("put2c: create new completed in" + (System.currentTimeMillis()-t) + "ms");
                     setSourceModDate(newRes, f.lastModified());
+                    log.info("put2d: setSourceMod " + (System.currentTimeMillis()-t) + "ms");
                     if (callback != null) {
                         if (rExisting != null) {
                             callback.onModified(newRes);
                         } else {
                             callback.onLoaded(newRes);
                         }
+                        log.info("put2e: callbacks " + (System.currentTimeMillis()-t) + "ms");
                     }
                 } catch (FileNotFoundException ex) {
                     throw new RuntimeException(ex);
@@ -99,6 +106,7 @@ public class DirectFileTransport implements FileTransport {
                 throw new RuntimeException("Can't upload, parent folder doesnt support PUT: " + colParent.getName() + " - " + colParent.getClass());
             }
         }
+        log.info("put3: completed in" + (System.currentTimeMillis()-t) + "ms");
     }
 
     private CodeFolder findCollection(File f, File root) throws NotAuthorizedException, ConflictException, BadRequestException {

@@ -25,6 +25,7 @@ import java.util.Map;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.logging.LogUtils;
 
 public class NewPage implements PostableResource, XmlPersistableResource, DigestResource {
 
@@ -61,6 +62,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
 
     public BaseResource getEditee(Map<String, String> parameters) {
         if (editee != null) {
+            log.trace("getEditee: got existing editee");
             return editee;
         }
         ITemplate t = getTemplate(parameters);
@@ -72,6 +74,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
         if (newName.equals(AUTO_NAME)) {
             nameToUse = findAutoName(parameters);
         }
+        LogUtils.trace(log, "getEditee: create with name: ", nameToUse);
         editee = t.createPageFromTemplate(folder, nameToUse);
         return editee;
     }

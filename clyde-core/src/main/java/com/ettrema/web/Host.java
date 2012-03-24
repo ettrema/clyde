@@ -20,6 +20,7 @@ import java.util.List;
 import org.jdom.Element;
 
 import static com.ettrema.context.RequestContext._;
+import com.ettrema.underlay.UnderlayVector;
 import java.util.ArrayList;
 
 @BeanPropertyResource("clyde")
@@ -29,6 +30,7 @@ public class Host extends Web implements BucketOwner {
     private static final long serialVersionUID = 1L;
     Path hostPath;
     private boolean disabled;
+    private List<UnderlayVector> underlayVectors;
 
     public Host(Folder parent, String name) {
         super(parent, name);
@@ -51,6 +53,24 @@ public class Host extends Web implements BucketOwner {
     }
 
     @Override
+    public void save() {
+        String name = getName();
+        System.out.println("Host save: " + name + " - " + name.length());
+        if( !name.equals(name.trim())) {
+            throw new RuntimeException("Host name starts or ends with whitepsace");
+        }
+        if( name.length() == 0 ) {
+            throw new RuntimeException("Host name is empty");
+        }
+        if( name.contains(" ")) {
+            throw new RuntimeException("Host name contains space(s)");
+        }
+        super.save();
+    }
+
+    
+    
+    @Override
     public List<Template> getAllowedTemplates() {
         if (templateSpecs == null) {
             return TemplateSpecs.findApplicable(this);
@@ -59,8 +79,9 @@ public class Host extends Web implements BucketOwner {
         }
     }
 
-    /**Sets the path to the host that this will be an alias for. Does not save
-     * 
+    /**
+     * Sets the path to the host that this will be an alias for. Does not save
+     *
      * @param pAliasPath
      */
     public void setAliasPath(Path pAliasPath) {
@@ -178,11 +199,7 @@ public class Host extends Web implements BucketOwner {
                     users.templateSpecs.add("+user");
                     users.templateSpecs.add("+group");
                     users.templateSpecs.add("-*");
-                } catch (ConflictException ex) {
-                    throw new RuntimeException(ex);
-                } catch (NotAuthorizedException ex) {
-                    throw new RuntimeException(ex);
-                } catch (BadRequestException ex) {
+                } catch (ConflictException | NotAuthorizedException | BadRequestException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -200,24 +217,24 @@ public class Host extends Web implements BucketOwner {
         // look for a matching email address       
         UserLocator userLocator = _(UserLocator.class);
         MailboxAddress add = userLocator.parse(s);
-        if( add != null ) {            
+        if (add != null) {
             User user = userLocator.findUserByEmail(add, this);
-            if( user != null ) {
+            if (user != null) {
                 return user;
             }
         }
-        return null;        
+        return null;
     }
-    
+
     public List<User> searchForUsers(String s) {
         UserLocator userLocator = _(UserLocator.class);
         return userLocator.search(s, this);
     }
-    
+
     /**
      * Authenticates against this particular domain (non recursive)
-     * 
-     * 
+     *
+     *
      * @param user
      * @param password
      * @return - null if not authenticated. otherwise, the user object
@@ -277,12 +294,12 @@ public class Host extends Web implements BucketOwner {
             return null;
         }
     }
-    
+
     public List<Group> getGroups() {
         List<Group> list = new ArrayList<>();
-        for( Resource r : getUsers().getChildren()) {
-            if( r instanceof Group ) {
-                list.add((Group)r);
+        for (Resource r : getUsers().getChildren()) {
+            if (r instanceof Group) {
+                list.add((Group) r);
             }
         }
         return list;
@@ -293,8 +310,8 @@ public class Host extends Web implements BucketOwner {
     }
 
     /**
-     * Create and save a user. Will create the user from the templateName
-     * if given and it can be found
+     * Create and save a user. Will create the user from the templateName if
+     * given and it can be found
      *
      * @param name
      * @param pwd
@@ -374,4 +391,24 @@ public class Host extends Web implements BucketOwner {
         String baseDomain = this.getName().replace("www.", "");
         return _(StatsService.class).activeHosts(baseDomain, method, numDays);
     }
+
+    public List<UnderlayVector> getUnderlayVectors() {
+        return underlayVectors;
+    }
+
+    public void setUnderlayVectors(List<UnderlayVector> underlayVectors) {
+        this.underlayVectors = underlayVectors;
+    }
+
+    public Path getAliasedHostPath() {
+        return hostPath;
+    }
+
+    public void setAliasedHostPath(Path hostPath) {
+        this.hostPath = hostPath;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }        
 }

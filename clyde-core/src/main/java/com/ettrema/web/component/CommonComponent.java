@@ -1,7 +1,11 @@
 package com.ettrema.web.component;
 
 import com.bradmcevoy.common.Path;
+import com.bradmcevoy.http.Resource;
+import com.ettrema.utils.FolderMap;
+import com.ettrema.utils.SettingsMap;
 import com.ettrema.web.Component;
+import com.ettrema.web.Folder;
 import com.ettrema.web.Formatter;
 import com.ettrema.web.IUser;
 import com.ettrema.web.RenderContext;
@@ -17,6 +21,7 @@ public abstract class CommonComponent implements Component, Serializable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommonComponent.class);
     private static final long serialVersionUID = 1L;
+        
 
     public static Path getPath(Component c, RenderContext rc) {
         // note: changed to name only so that new pages works. might need to re-enable
@@ -30,28 +35,38 @@ public abstract class CommonComponent implements Component, Serializable {
     }
 
     public static VelocityContext velocityContext(RenderContext rc, Object value, Path path, IUser user) {
-        VelocityContext vc = new VelocityContext();
-        vc.put("path", path);
-        if (value == null) {
-            value = "";
+        Templatable page = null;
+        Templatable targetPage = null;
+        if (rc != null) {
+            page = rc.page;
+            targetPage = rc.getTargetPage();
+            
         }
+        VelocityContext vc = velocityContext(targetPage, page, value, path, user);
         if (rc != null) {
             vc.put("rc", rc);
             vc.put("body", rc.getBody());
             vc.put("show", new RenderMap(rc, null));
             vc.put("edit", new RenderMap(rc, true));
             vc.put("view", new RenderMap(rc, false));
-
-            Templatable page = rc.page;
-            if (page != null) {
-                vc.put("page", page);
-            }
-            Templatable targetPage = rc.getTargetPage();
-            if (targetPage != null) {
-                vc.put("targetPage", targetPage);
-                vc.put("folder", targetPage.getParent());
-                vc.put("web", targetPage.getWeb());
-            }
+        }
+        return vc;
+    }
+    
+    public static VelocityContext velocityContext(Templatable targetPage, Templatable page, Object value, Path path, IUser user) {
+        VelocityContext vc = new VelocityContext();
+        vc.put("path", path);
+        if (value == null) {
+            value = "";
+        }
+        if (page != null) {
+            vc.put("page", page);
+        }
+        if (targetPage != null) {
+            vc.put("targetPage", targetPage);
+            vc.put("this", targetPage); // 'this' is more familiar then targetPage
+            vc.put("folder", targetPage.getParent());
+            vc.put("web", targetPage.getWeb());
         }
         RequestParams rq = RequestParams.current();
         if (rq != null) {
@@ -62,6 +77,7 @@ public abstract class CommonComponent implements Component, Serializable {
         RequestParams requestParams = RequestParams.current();
         vc.put("request", requestParams);
         vc.put("user", user);
+        vc.put("settings", new SettingsMap(targetPage));
         return vc;
     }
 

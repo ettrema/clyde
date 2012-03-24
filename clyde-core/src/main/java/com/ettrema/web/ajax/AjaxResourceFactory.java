@@ -14,6 +14,7 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.http.http11.auth.DigestResponse;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Component;
 import com.ettrema.web.ITemplate;
@@ -244,7 +245,7 @@ public class AjaxResourceFactory implements ResourceFactory {
 
         public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
             CommonTemplated res = accessor.get(parameters);
-            log.info("process: resource name: " + res.getName() + " - template: " + res.getTemplateName());
+            LogUtils.info(log, "process. resource name=", res.getName(), "template=", res.getTemplateName(), "class=", res.getClass());
             ITemplate lTemplate = res.getTemplate();
             RenderContext rc = new RenderContext(lTemplate, res, rcChild, false);
 

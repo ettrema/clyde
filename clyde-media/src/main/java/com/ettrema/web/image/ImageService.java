@@ -3,6 +3,7 @@ package com.ettrema.web.image;
 import java.text.ParseException;
 import org.apache.sanselan.*;
 import com.bradmcevoy.common.UnrecoverableException;
+import com.ettrema.logging.LogUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
@@ -301,7 +302,7 @@ public class ImageService implements IImageService {
                 throw new RuntimeException( "got non-positive height: " + height );
             }
         } else {
-            log.warn( "scaleProportionallyWithMax: doing nothing" );
+            LogUtils.trace(log, "scaleProportionallyWithMax: doing nothing");
             // do nothing
         }
         write( image, out, format );

@@ -179,7 +179,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
     }
 
     private List<Folder> crawl( Folder cur ) {
-        List<Folder> list = new ArrayList<Folder>();
+        List<Folder> list = new ArrayList<>();
         list.add(cur);
         for( Resource r : cur.getChildren()) {
             if( r instanceof Folder ) {
@@ -187,5 +187,28 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
             }
         }
         return list;
+    }
+    
+    protected Result result(String msg, Exception ex) {
+        StringBuilder sb = new StringBuilder(msg);
+        formatException(sb, ex);
+        return result(sb.toString());
+    }
+
+    private void formatException(StringBuilder sb, Throwable ex) {
+        sb.append("<br/>");
+        sb.append("<h2>").append(ex.getClass().getCanonicalName());
+        if( ex.getMessage() != null ) {
+            sb.append(ex.getMessage());
+        }
+        sb.append("</h2>");
+        for( StackTraceElement i : ex.getStackTrace()) {
+            sb.append(i.getClassName()).append(" :: ").append(i.getMethodName()).append("(").append(i.getLineNumber()).append(")");
+            sb.append("<br/>");
+        }
+        if( ex.getCause() != null ) {
+            sb.append("<p>caused by...</p>");
+            formatException(sb, ex.getCause());
+        }
     }
 }

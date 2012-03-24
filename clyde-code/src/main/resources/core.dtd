@@ -22,10 +22,27 @@
 
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT c:meta (c:template|c:folder|c:group|c:page|c:binary|c:message|c:textfile|c:velocitytextfile)>
+<!ELEMENT c:meta (c:organisation|c:host|c:web|c:template|c:folder|c:group|c:page|c:binary|c:message|c:textfile|c:velocitytextfile)>
 <!ATTLIST c:meta
     xmlns:c CDATA #IMPLIED
   >
+
+<!ELEMENT c:organisation (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?)*>
+<!ATTLIST c:organisation
+
+  >
+
+<!ELEMENT c:host (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?)*>
+<!ATTLIST c:host
+
+  >
+
+<!ELEMENT c:web (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?,c:underlays)*>
+<!ATTLIST c:web
+    disabled (true|false) #IMPLIED
+    aliasedHostPath CDATA #IMPLIED
+  >
+
 
 <!ELEMENT c:binary (c:attributes?,c:components?,c:beforeSaveScript?,c:afterSaveScript?)*>
 <!ATTLIST c:binary
@@ -50,6 +67,14 @@ formatter - the standard formatter
 <!ELEMENT c:beforeSaveScript (#PCDATA)>
 <!ELEMENT c:afterSaveScript (#PCDATA)>
 
+<!ELEMENT c:underlays (c:underlay)*>
+
+<!ELEMENT c:underlay (#PCDATA)>
+<!ATTLIST c:underlay
+    groupId CDATA #REQUIRED
+    artifactId CDATA #REQUIRED
+    version CDATA #REQUIRED
+  >
 
 <!--- Attribute values for a templated resource. These should correspond to the fields defined on a template-->
 <!ELEMENT c:attributes (c:email|c:value|c:date)*>

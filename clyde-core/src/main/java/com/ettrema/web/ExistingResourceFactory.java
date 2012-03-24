@@ -62,7 +62,7 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
         if (path.isRelative()) {
             return findChild(parent, path.getParts(), 0);
         } else {
-            if( parent== null ) {
+            if( parent== null ) {   
                 throw new IllegalArgumentException("Parent argument is null");
             }
             Host host = ((Templatable) parent).getHost();
@@ -71,31 +71,32 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     }
 
     public static Resource findChild(Resource parent, String childSpec) throws NotAuthorizedException, BadRequestException {
-        if (childSpec.equals(".")) {
-            return parent;
-        } else if (childSpec.equals("..")) {
-            if (parent instanceof Templatable) {
-                Templatable ct = (Templatable) parent;
-                return ct.getParent();
-            } else {
-                log.warn("Can't find parent of non CommonTemplated resource");
-                return null;
-            }
-        } else {
-            Resource child = null;
-            if (parent instanceof CollectionResource) {
-                CollectionResource col = (CollectionResource) parent;
-                child = col.child(childSpec);
-                child = checkAndWrap(child, parent);
-            }
+        switch (childSpec) {
+            case ".":
+                return parent;
+            case "..":
+                if (parent instanceof Templatable) {
+                    Templatable ct = (Templatable) parent;
+                    return ct.getParent();
+                } else {
+                    log.warn("Can't find parent of non CommonTemplated resource");
+                    return null;
+                }
+            default:
+                Resource child = null;
+                if (parent instanceof CollectionResource) {
+                    CollectionResource col = (CollectionResource) parent;
+                    child = col.child(childSpec);
+                    child = checkAndWrap(child, parent);
+                }
 
-            if (child == null && parent instanceof CommonTemplated) {
-                CommonTemplated t = (CommonTemplated) parent;
-                child = t.getChildResource(childSpec);
-                child = checkAndWrap(child, parent);
-            }
+                if (child == null && parent instanceof CommonTemplated) {
+                    CommonTemplated t = (CommonTemplated) parent;
+                    child = t.getChildResource(childSpec);
+                    child = checkAndWrap(child, parent);
+                }
 
-            return child;
+                return child;
         }
     }
 

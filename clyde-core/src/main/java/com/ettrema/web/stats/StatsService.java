@@ -31,7 +31,7 @@ public class StatsService {
         CallableStatement stmt = null;
         String sql = "";
         try {
-            List<Object> params = new ArrayList<Object>();
+            List<Object> params = new ArrayList<>();
             String select = "SELECT count(*) FROM " + tableName;
             String where = whereAndParam( null, "log_date", ">", from, params );
             where = whereAndParam( where, "log_date", "<", to, params );

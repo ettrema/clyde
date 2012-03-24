@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.io.ReadingException;
@@ -71,8 +72,7 @@ public class VelocityTextFile extends File implements SimpleEditPage.SimpleEdita
         } else {
             log.trace( "send content size: " + template.length() );
             IUser user = _(CurrentUserService.class).getOnBehalfOf();
-            VelocityContext vc = CommonComponent.velocityContext(null, null, getPath(), user);
-            vc.put("targetPage", this);
+            VelocityContext vc = CommonComponent.velocityContext(this, this, null, getPath(), user);
             VelocityInterpreter.evalToStream(template, vc, out);
         }
     }

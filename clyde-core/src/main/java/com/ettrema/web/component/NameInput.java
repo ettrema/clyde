@@ -1,5 +1,6 @@
 package com.ettrema.web.component;
 
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.SystemComponent;
 
@@ -19,6 +20,7 @@ public class NameInput extends Text implements SystemComponent {
 
     @Override
     public void setValue(String t) {
+        LogUtils.info(log, "setValue:", t);
         BaseResource page = (BaseResource) this.container;
         String nm = page.getName();
         if( nm.equals(t)) return ;

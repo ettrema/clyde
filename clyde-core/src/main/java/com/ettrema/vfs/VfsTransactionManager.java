@@ -16,7 +16,7 @@ public class VfsTransactionManager {
         VfsSession vfs = _(VfsSession.class);
         Boolean rollbackOnly = (Boolean) vfs.attributes.get(ATT_ROLLBACK_ONLY);
         if(rollbackOnly != null && rollbackOnly) {
-            log.trace("ignore trace because rollback only is set");
+            log.trace("ignore commit because rollback only is set");
         } else {
             _(VfsSession.class).commit();
         }
