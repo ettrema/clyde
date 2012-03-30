@@ -9,6 +9,7 @@ import com.ettrema.web.component.HtmlInput;
 import com.ettrema.web.component.Text;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ public class Page extends File implements Replaceable {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( Page.class );
     private static final long serialVersionUID = 1L;
-
+    
     public Page( Folder parentFolder, String name ) {
         super( "text/html", parentFolder, name );
 
@@ -28,6 +29,8 @@ public class Page extends File implements Replaceable {
         return "text/html";
     }
 
+    
+    
     @Override
     public String getContentType(String accepts) {
         String s =  super.getContentType(accepts) + "; charset=UTF-8";

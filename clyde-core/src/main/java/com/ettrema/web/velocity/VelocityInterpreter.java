@@ -17,10 +17,11 @@ public class VelocityInterpreter {
     static {
         try {
             Velocity.setProperty("resource.loader", "file,yadboro");
-            Velocity.setProperty("yadboro.resource.loader.class", YadboroVelocityResourceLoader.class.getName());
+            Velocity.setProperty("yadboro.resource.loader.class", ClydeVelocityResourceLoader.class.getName());
             Velocity.setProperty("input.encoding", "UTF-8");
             Velocity.setProperty("output.encoding", "UTF-8");
             Velocity.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogSystem");
+            Velocity.setProperty("velocimacro.permissions.allow.inline.local.scope", "true");            
             Velocity.init();
         } catch (Exception e) {
             e.printStackTrace();
@@ -28,7 +29,7 @@ public class VelocityInterpreter {
     }
 
     public static String evalToString(String sTemplate, VelocityContext vc) {
-        YadboroVelocityResourceLoader.setCurrentTemplate(sTemplate);
+        ClydeVelocityResourceLoader.setCurrentTemplate(sTemplate);
         try {
             Template template = null;
 
@@ -61,7 +62,7 @@ public class VelocityInterpreter {
     }
 
     public static void evalToStream(String sTemplate, VelocityContext vc, OutputStream out) {
-        YadboroVelocityResourceLoader.setCurrentTemplate(sTemplate);
+        ClydeVelocityResourceLoader.setCurrentTemplate(sTemplate);
         try {
             Template template = null;
 

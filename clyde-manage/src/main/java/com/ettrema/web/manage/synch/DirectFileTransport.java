@@ -9,6 +9,7 @@ import com.ettrema.logging.LogUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Formatter;
 import com.ettrema.web.code.AbstractCodeResource;
+import com.ettrema.web.code.CodeContentPage;
 import com.ettrema.web.code.CodeFolder;
 import com.ettrema.web.code.CodeResourceFactory;
 import java.io.File;
@@ -133,7 +134,17 @@ public class DirectFileTransport implements FileTransport {
             if (r instanceof CodeFolder) {
                 return (CodeFolder) r;
             } else {
-                throw new RuntimeException("Found resource but its not a CodeFolder: " + f.getAbsolutePath() + "  maps to a: " + r.getClass());
+                if( r instanceof CodeContentPage) {
+                    CodeContentPage ccp = (CodeContentPage) r;
+                    if( ccp.getWrapped() instanceof BaseResource ) {
+                        BaseResource res = (BaseResource) ccp.getWrapped();
+                        throw new RuntimeException("Expected code folder, but found code page wrapping: " + res.getHref() + " with id: " + res.getNameNodeId() + " type: " + res.getClass() + " template: " + res.getTemplateName() + " This might mean you have a meta file like <c:page ...> (or some other non-folder type) and a folder with a corresponding name");
+                    } else {
+                        throw new RuntimeException("Found resource but its not a folder. Is a file of type: " + ccp.getWrapped().getClass());                        
+                    }
+                } else {
+                    throw new RuntimeException("Expected folder, but got a " + r.getClass() + " when mapping from " + f.getAbsolutePath());
+                }
             }
         }
 

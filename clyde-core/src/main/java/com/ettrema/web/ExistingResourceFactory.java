@@ -103,18 +103,20 @@ public class ExistingResourceFactory extends CommonResourceFactory implements Re
     public static Resource findChild(Resource parent, String[] arr, int i) throws NotAuthorizedException, BadRequestException {
         if (arr.length == 0) {
             return parent;
-        }
-//        log.debug("findChild: "  + parent.getName() + " - " + arr[i] + " - " + i);        
+        }        
 
         String childName = arr[i];
-        Resource child = findChild(parent, childName);
+        Resource child = findChild(parent, childName);        
 
         if (child == null) {
+            LogUtils.trace(log, "findChild: parent=" , parent.getName(), "item=", arr[i] , "resource not found");
             return null;
         } else {
             if (i < arr.length - 1) {
+                LogUtils.trace(log, "findChild: parent=" , parent.getName(), "item=", arr[i] , "resource=", child.getName(), " go to next level", i);
                 return findChild(child, arr, i + 1);
             } else {
+                LogUtils.trace(log, "findChild: parent=" , parent.getName(), "item=", arr[i] , "found resource=", child.getName());
                 return child;
             }
         }

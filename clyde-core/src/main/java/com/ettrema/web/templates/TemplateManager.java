@@ -1,4 +1,7 @@
-package com.ettrema.web;
+package com.ettrema.web.templates;
+
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
 
 /**
  * Finds template instances

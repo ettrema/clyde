@@ -1,6 +1,9 @@
-package com.ettrema.web;
+package com.ettrema.web.templates;
 
 import com.bradmcevoy.common.Path;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
 
 /**
  * If the templateName contains a '/' then apply relative processing. The templateName

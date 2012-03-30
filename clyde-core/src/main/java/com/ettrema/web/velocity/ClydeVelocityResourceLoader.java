@@ -15,10 +15,10 @@ import org.apache.commons.collections.ExtendedProperties;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 
-public class YadboroVelocityResourceLoader extends org.apache.velocity.runtime.resource.loader.ResourceLoader {
+public class ClydeVelocityResourceLoader extends org.apache.velocity.runtime.resource.loader.ResourceLoader {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(YadboroVelocityResourceLoader.class);
-    static final ThreadLocal<String> tlCurrentTemplate = new ThreadLocal<String>();
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ClydeVelocityResourceLoader.class);
+    static final ThreadLocal<String> tlCurrentTemplate = new ThreadLocal<>();
 
     static void setCurrentTemplate(String sTemplate) {
         tlCurrentTemplate.set(sTemplate);

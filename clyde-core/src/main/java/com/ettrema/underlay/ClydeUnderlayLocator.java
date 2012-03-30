@@ -31,7 +31,7 @@ public class ClydeUnderlayLocator implements UnderlayLocator {
         }
         // Now look for version.artifcatId.groupId
         String fname = vector.getVersion() + "." + vector.getArtifcatId() + "." + vector.getGroupId();
-        Resource rUnderlay = f.child(fname);
+        Resource rUnderlay = f.childRes(fname);
         if (rUnderlay == null) {
             log.trace("Could not find underlay folder: " + fname + " in " + f.getHref());
             return null;

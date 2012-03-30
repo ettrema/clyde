@@ -2,6 +2,7 @@ package com.ettrema.web.groups;
 
 import com.ettrema.web.Host;
 import com.bradmcevoy.http.Auth;
+import com.bradmcevoy.http.Request;
 import com.ettrema.web.security.PermissionChecker;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.utils.CurrentRequestService;
@@ -89,10 +90,12 @@ public class RelationalGroupHelper implements GroupService, ClydeGroupHelper {
         if (group instanceof Group) {
             Group clydeGroup = (Group) group;
             if (clydeGroup.isSecure()) {
-                Auth auth = _(CurrentRequestService.class).request().getAuthorization();
-
-                if (!permissionChecker.hasRole(Role.AUTHOR, clydeGroup, auth)) {
-                    throw new RuntimeException("The current user does not have permission to add users to this group. You must be an Author of the group");
+                Request req = _(CurrentRequestService.class).request();
+                if( req != null ) {
+                    Auth auth = req.getAuthorization();
+                    if (!permissionChecker.hasRole(Role.AUTHOR, clydeGroup, auth)) {
+                        throw new RuntimeException("The current user does not have permission to add users to this group. You must be an Author of the group");
+                    }
                 }
             }
             if (group.isInGroup(user)) {

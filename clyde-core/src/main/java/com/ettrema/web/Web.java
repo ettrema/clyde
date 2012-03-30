@@ -5,7 +5,6 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.ConflictException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.property.BeanPropertyResource;
-import com.ettrema.web.children.ThemeFinder;
 import com.ettrema.web.component.ThemeSelect;
 import com.ettrema.web.wall.Wall;
 import com.ettrema.web.wall.WallItem;
@@ -136,14 +135,10 @@ public class Web extends Folder {
     }
 
     public Folder getTemplates() {
-        Folder themeFolder = _(ThemeFinder.class).getThemeFolder(this);
-        if (themeFolder != null) {
-            return themeFolder;
-        }
         Folder templates = (Folder) this.childRes("templates");
         if (templates == null) {
 //            log.warn("****** creating new templates folder: " + this.getPath());
-            templates = new Folder(this, "templates");
+//            templates = new Folder(this, "templates");
 //            templates.save();                
         }
         return templates;
@@ -219,7 +214,10 @@ public class Web extends Folder {
     protected void afterSave() {
         super.afterSave();
         Folder templates = this.getTemplates();
-        templates.save();
+        if( templates == null ) {
+            templates = new Folder(this, "templates");
+            templates.save();
+        }
     }
 
     ITemplate createTemplate(String name, String baseTemplate) {

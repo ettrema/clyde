@@ -54,13 +54,16 @@ public class StateTokenManager {
     }
 
     /**
-     * 
+     *
      *
      * @param f
      * @param autoCreate
      * @return
      */
     private StateToken getOrCreateStateToken(Folder f, boolean autoCreate) {
+        if( !tokensEnabled(f)) {
+            return null;
+        }
         NameNode parent = f.getNameNode();
         NameNode stateTokenNode = null;
         // Find an existing valid node
@@ -182,8 +185,11 @@ public class StateTokenManager {
     private void flushBinaryCrc(Folder f, List<Folder> tops) {
         removeStateToken(f);
         if (f.hasLinkedFolders()) {
-            for (LinkedFolder lf : f.getLinkedFolders()) {
-                flushBinaryCrc(lf.getParent(), tops);
+            List<LinkedFolder> list = f.getLinkedFolders();
+            if (list != null && !list.isEmpty()) {
+                for (LinkedFolder lf : f.getLinkedFolders()) {
+                    flushBinaryCrc(lf.getParent(), tops);
+                }
             }
         }
         if (f instanceof Host || f instanceof User) {
@@ -198,33 +204,53 @@ public class StateTokenManager {
         flushBinaryCrc(parent, tops);
     }
 
+    private boolean tokensEnabled(Folder f) {
+        Host h = f.getHost();
+        if( h == null ) {
+            return false;
+        } else {
+            return !h.isStateTokensDisabled();
+        }
+    }
+
     private class StateTokenManagerEventLister implements EventListener {
 
         @Override
         public void onEvent(Event e) {
-            LogUtils.trace(log, "onEvent", e.getClass());
-            List<Folder> tops = new ArrayList<Folder>();
+            LogUtils.trace(log, "onEvent", e.getClass());            
+            List<Folder> tops = new ArrayList<>();
             if (e instanceof PreSaveEvent) {
                 PreSaveEvent pse = (PreSaveEvent) e;
                 if (pse.getResource() instanceof BinaryFile) {
                     BinaryFile bf = (BinaryFile) pse.getResource();
-                    flushBinaryCrc(bf.getParent(), tops);
+                    if( tokensEnabled(bf.getParent())) {
+                        flushBinaryCrc(bf.getParent(), tops);
+                    }
                 } else if (pse.getResource() instanceof Folder) {
                     Folder f = (Folder) pse.getResource();
-                    flushBinaryCrc(f, tops);
+                    if( tokensEnabled(f)) {
+                        flushBinaryCrc(f, tops);
+                    }
                 } else if (pse.getResource() instanceof LinkedFolder) {
                     LinkedFolder lf = (LinkedFolder) pse.getResource();
-                    flushBinaryCrc(lf.getParent(), tops);
+                    if( tokensEnabled(lf.getParent())) {
+                        flushBinaryCrc(lf.getParent(), tops);
+                    }
                 }
             } else if (e instanceof ClydeMoveEvent) {
                 // Updating CRC on the new folder will be taken care of by saving the actual resource
                 // But need to update the old folder too
                 ClydeMoveEvent cme = (ClydeMoveEvent) e;
                 Folder oldParent = cme.getOldParent();
-                flushBinaryCrc(oldParent, tops);
+                if( tokensEnabled(oldParent)) {
+                    flushBinaryCrc(oldParent, tops);
+                }
             } else if (e instanceof PhysicalDeleteEvent) {
                 PhysicalDeleteEvent pde = (PhysicalDeleteEvent) e;
-                flushBinaryCrc(pde.getResource().getParent(), tops);
+                Folder f = pde.getResource().getParent();
+                if( tokensEnabled(f)) {
+                    flushBinaryCrc(f, tops);
+                }
             }
             // If we've found at least one root resource then recalc
             if (!tops.isEmpty()) {

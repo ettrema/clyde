@@ -34,6 +34,7 @@ public class SettingsMap extends AbstractDummyMap<String,Object> {
         if(web == null ) {
             web = target.getWeb();
         }
+        System.out.println("web: " + web.getName());
         if( !settingsLoaded ) {
             settingsLoaded = true;
             Resource rSettingsFolder = web.find(PATH_SETTINGS);

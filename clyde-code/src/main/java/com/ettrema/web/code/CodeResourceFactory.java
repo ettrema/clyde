@@ -7,6 +7,7 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.web.Folder;
 import com.ettrema.web.code.content.*;
 import com.ettrema.web.code.meta.*;
@@ -52,6 +53,7 @@ public final class CodeResourceFactory implements ResourceFactory {
     }
 
     private Resource find(String host, String path) throws NotAuthorizedException, BadRequestException {
+        LogUtils.trace(log, "find", host, path);
         Path p = Path.path(path);
         String first = p.getFirst();
         if (root.equals(first)) {
@@ -91,6 +93,7 @@ public final class CodeResourceFactory implements ResourceFactory {
                 }
             }
         } else {
+            log.trace("Not root");
             return null;
         }
     }
@@ -202,6 +205,7 @@ public final class CodeResourceFactory implements ResourceFactory {
         BaseResourceMetaHandler baseResourceMetaHandler = new BaseResourceMetaHandler(commonTemplatedMetaHandler, groupService, commentService);
         BinaryFileMetaHandler binaryFileMetaHandler = add(new BinaryFileMetaHandler(baseResourceMetaHandler), mapOfAliases);
         FolderMetaHandler folderMetaHandler = add(new FolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
+        add(new LinkedFolderMetaHandler(baseResourceMetaHandler), mapOfAliases);
         PageMetaHandler pageMetaHandler = add(new PageMetaHandler(baseResourceMetaHandler), mapOfAliases);
 
         WebMetaHandler webMetaHandler = new WebMetaHandler(folderMetaHandler);

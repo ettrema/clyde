@@ -78,9 +78,10 @@ import static com.ettrema.context.RequestContext.*;
 import com.ettrema.logging.LogUtils;
 
 /**
- * Base class for all physical resources. Encapsulates a namenode and is a datanode
- * 
- * 
+ * Base class for all physical resources. Encapsulates a namenode and is a
+ * datanode
+ *
+ *
  * @author brad
  */
 @BeanPropertyResource(value = "clyde")
@@ -97,7 +98,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     private Evaluatable roleRules;
     private List<RoleAndGroup> groupPermissions;
     private Date sourceModDate; // modified date of the source from which this file was created. Used for sync
-    
+    private List<WebResource> webResources;
     protected transient RelationalNameNode nameNode;
     private transient User creator;
     private transient boolean isNew;
@@ -112,7 +113,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /**
      * If this should be indexed for searching
-     * 
+     *
      * @return
      */
     public abstract boolean isIndexable();
@@ -127,13 +128,15 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         return res;
     }
 
-    /** For root only
+    /**
+     * For root only
      */
     protected BaseResource() {
         super();
     }
 
-    /** Usual constructor;
+    /**
+     * Usual constructor;
      */
     public BaseResource(String contentType, Folder parentFolder, String newName) {
         if (newName.contains("/")) {
@@ -152,8 +155,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /**
      * A true value indicates that this instance has been created within this
-     * transaction. Note that the object may have been saved, as it can
-     * be saved multiple times within a transaction.
+     * transaction. Note that the object may have been saved, as it can be saved
+     * multiple times within a transaction.
      *
      * See isSaved to determine whether the record has been saved
      *
@@ -227,11 +230,12 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * Move this resource to the given folder (aka collection) with the given name
+     * Move this resource to the given folder (aka collection) with the given
+     * name
      *
-     * The name may be unchanged for a conventional move, or the collection might be
-     * unchanged for a conventional rename operation, but both can be changed
-     * simultaneously
+     * The name may be unchanged for a conventional move, or the collection
+     * might be unchanged for a conventional rename operation, but both can be
+     * changed simultaneously
      *
      * This method commits the transaction
      *
@@ -351,8 +355,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * called from delete(). moves to trash, unless its already in trash or
-     * is a host
+     * called from delete(). moves to trash, unless its already in trash or is a
+     * host
      *
      * we don't put Host's in trash because they define their own Trash folder
      */
@@ -543,13 +547,13 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     // used to detect recursive save calls
     private transient boolean isInPreSave;
 
-    public void save(boolean isTrashed) {        
-        if( isInPreSave ) {
-            return ;
+    public void save(boolean isTrashed) {
+        if (isInPreSave) {
+            return;
         }
         try {
             isInPreSave = true; // prevent infinite recursion
-            
+
             isSaved = true;
             preSave();
             fireEvent(new PreSaveEvent(this));
@@ -560,7 +564,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             // possible these might change the state and actually intend this
             // to be changed
             fireEvent(new PostSaveEvent(this));
-            afterSave();            
+            afterSave();
         }
     }
 
@@ -569,11 +573,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         if (mgr != null) {
             try {
                 mgr.fireEvent(e);
-            } catch (ConflictException ex) {
-                throw new RuntimeException(ex);
-            } catch (BadRequestException ex) {
-                throw new RuntimeException(ex);
-            } catch (NotAuthorizedException ex) {
+            } catch (ConflictException | BadRequestException | NotAuthorizedException ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -582,11 +582,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /**
      * Does not commit or call save
-     * 
+     *
      * @param newName
      */
     public void rename(String newName) {
-        LogUtils.info(log, "rename: " , newName);
+        LogUtils.info(log, "rename: ", newName);
         nameNode.setName(newName);
     }
 
@@ -620,10 +620,11 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         getValues().init(this);
     }
 
-    /** Need to ensure components know who their parents are. this information
-     *  is not persisted, and is only held in transient variables which may
-     *  be lost if passivated to a disk cache
-     * 
+    /**
+     * Need to ensure components know who their parents are. this information is
+     * not persisted, and is only held in transient variables which may be lost
+     * if passivated to a disk cache
+     *
      */
     protected void initComponents() {
         getComponents().init(this);
@@ -752,7 +753,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     public Folder getTrashFolder() {
         return getParent().getTrashFolder();
     }
-    
 
     private Relationship getRelationNode(String relationName) {
         List<Relationship> list = nameNode.findFromRelations(relationName);
@@ -769,7 +769,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             return null;
         }
         NameNode toNode = r.to();
-        if( toNode == null ) {
+        if (toNode == null) {
             log.error("Found a relation with no to node. from resource: " + this.getPath() + " - " + this.getNameNodeId() + "  relation: " + relationName);
             return null;
         }
@@ -809,13 +809,15 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * Create a relationship. Relationships should generaly be one-to-many,
-     * and should be made from the many side to the parent.
-     * 
-     * This will remove any previous relationship with the given name from this node
+     * Create a relationship. Relationships should generaly be one-to-many, and
+     * should be made from the many side to the parent.
      *
-     * Eg if an invoice relates to a customer, you should call createRelationship
-     * on the invoice, providing the customer as the To object
+     * This will remove any previous relationship with the given name from this
+     * node
+     *
+     * Eg if an invoice relates to a customer, you should call
+     * createRelationship on the invoice, providing the customer as the To
+     * object
      *
      * @param relationName
      * @param to
@@ -825,17 +827,17 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
         to.nameNode.onNewRelationship(r);
     }
-    
+
     /**
      * Just create a relationship, without removing any previous
-     * 
+     *
      * @param relationName
-     * @param to 
+     * @param to
      */
     public void createManyToManyRelationship(String relationName, BaseResource to) {
         Relationship r = this.nameNode.makeRelation(to.nameNode, relationName);
         to.nameNode.onNewRelationship(r);
-    }    
+    }
 
     public void removeRelationship(String relationName) {
         Relationship r = getRelationNode(relationName);
@@ -844,18 +846,18 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         r.delete();
     }
-    
+
     public void removeRelationship(String relationName, UUID id) {
         List<Relationship> list = nameNode.findFromRelations(relationName);
-        if (list == null ) {
-            return ;
+        if (list == null) {
+            return;
         }
-        for( Relationship r : list )     {
-            if( r.to().getId().equals(id)) {
+        for (Relationship r : list) {
+            if (r.to().getId().equals(id)) {
                 r.delete();
             }
         }
-    }    
+    }
 
     public BaseResource findByNameNodeId(UUID id) {
         NameNode nn = this.vfs().get(id);
@@ -864,8 +866,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     /**
      * Is this resource 'trashed', ie in the trash folder
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isTrash() {
         for (Templatable t : this.getParents()) {
@@ -944,7 +946,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     @Override
     public Map<Principal, List<Priviledge>> getAccessControlList() {
         System.out.println("getAccessControlList");
-        Map<Principal, List<Priviledge>> map = new HashMap<Principal, List<Priviledge>>();
+        Map<Principal, List<Priviledge>> map = new HashMap<>();
         Permissions perms = this.permissions();
 
         if (perms != null) {
@@ -954,7 +956,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 Principal principal = p.getGrantee();
                 List<Priviledge> privs = map.get(principal);
                 if (privs == null) {
-                    privs = new ArrayList<Priviledge>();
+                    privs = new ArrayList<>();
                     map.put(principal, privs);
                 }
                 privs.addAll(aps.toPriviledges(p.getRole()));
@@ -993,7 +995,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
                 }
             }
         }
-        List<Priviledge> privsList = new ArrayList<Priviledge>(privs);
+        List<Priviledge> privsList = new ArrayList<>(privs);
         return privsList;
     }
 
@@ -1051,7 +1053,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * Get the email address persisted in a child name node for the given category
+     * Get the email address persisted in a child name node for the given
+     * category
      *
      * @param emailCategory - eg default, personal, business
      * @return
@@ -1075,7 +1078,8 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     /**
      * Stores the email address in a child namenode for fast efficient lookups
      *
-     * @param emailCategory - the category of this email address. Eg default, personal, business
+     * @param emailCategory - the category of this email address. Eg default,
+     * personal, business
      * @param email
      */
     public void setExternalEmailTextV2(String emailCategory, String email) {
@@ -1085,7 +1089,7 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
             nEmailContainer = nameNode.add("_email_" + emailCategory, new EmptyDataNode());
             nEmailContainer.save();
         }
-        List<NameNode> children = new ArrayList<NameNode>(nEmailContainer.children());
+        List<NameNode> children = new ArrayList<>(nEmailContainer.children());
         for (NameNode child : children) {
             DataNode childData = child.getData();
             if (childData instanceof EmailAddress) {
@@ -1157,9 +1161,9 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * Allows user-agent defined modified dates. Defaults to modifiedDate if
-     * not set
-     * 
+     * Allows user-agent defined modified dates. Defaults to modifiedDate if not
+     * set
+     *
      * @return
      */
     public Date getTimestamp() {
@@ -1187,7 +1191,6 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         }
         return groupPermissions;
     }
-
 
     public static class RoleAndGroup implements Serializable {
 
@@ -1256,10 +1259,10 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
     }
 
     /**
-     * get a list of all shares for this folder. The map is keyed on the
-     * path identifying the Principal (group or user), and a list of Roles for each
-     * 
-     * @return 
+     * get a list of all shares for this folder. The map is keyed on the path
+     * identifying the Principal (group or user), and a list of Roles for each
+     *
+     * @return
      */
     @BeanProperty
     public Collection<ShareInfo> getShares() {
@@ -1295,5 +1298,14 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
 
     public void setSourceModDate(Date sourceModDate) {
         this.sourceModDate = sourceModDate;
-    }        
+    }
+
+    @Override
+    public List<WebResource> getWebResources() {
+        return webResources;
+    }
+
+    public void setWebResources(List<WebResource> webResources) {
+        this.webResources = webResources;
+    }
 }

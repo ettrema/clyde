@@ -6,20 +6,21 @@ import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.utils.XmlUtils2;
 import com.ettrema.utils.JDomUtils;
 import com.ettrema.web.Page;
+import com.ettrema.web.WebResource;
 import com.ettrema.web.code.ContentTypeHandler;
 import com.ettrema.web.code.content.xml.StaxBuilder;
 import com.ettrema.web.component.ComponentValue;
 import com.ettrema.web.component.InitUtils;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLResolver;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.io.IOUtils;
-import org.jdom.DocType;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom.*;
 import org.jdom.output.Format;
 import org.jdom.output.MyXmlOutputter;
 import org.xml.sax.EntityResolver;
@@ -57,6 +58,7 @@ public class PageContentTypeHandler implements ContentTypeHandler {
         if (title != null) {
             CodeUtils.appendValue(page, title, elTitle);
         }
+        generateWebResourcesAsHtml(elHead, page);
         if (body != null) {
             CodeUtils.appendValue(page, body, elBody);
         }
@@ -97,17 +99,13 @@ public class PageContentTypeHandler implements ContentTypeHandler {
             } else {
                 log.trace("no head element found");
                 title = null;
-                if (log.isTraceEnabled()) {
-                    String xml = xmlUtils2.getXml(doc);
-                    log.trace("processing: " + xml);
-                }
             }
+            parseWebResourcesFromHtml(elHead, page);
 
             String body = InitUtils.getValueOf(elRoot, "body");
             log.trace("title: " + title);
             log.trace("body: " + body);
-            CodeUtils.saveValue(page, "body", body);
-            CodeUtils.saveValue(page, "title", title);
+            CodeUtils.saveValue(page, "body", body);            
             page.save();
         } catch (JDOMException ex) {
             throw new RuntimeException(ex);
@@ -150,6 +148,44 @@ public class PageContentTypeHandler implements ContentTypeHandler {
 //        } catch (IOException ex) {
 //            throw new RuntimeException(ex);
         }
+    }
+
+    private void generateWebResourcesAsHtml(Element elHead, Page page) {
+        if( page.getWebResources() == null || page.getWebResources().isEmpty()) {
+            return ;
+        }
+        for( WebResource wr : page.getWebResources()) {
+            Element elTag = new Element(wr.getTag());
+            elHead.addContent(elTag);
+            if( wr.getAtts() != null ) {
+                for( Entry<String, String> entry : wr.getAtts().entrySet()) {
+                    elTag.setAttribute(entry.getKey(), entry.getValue());
+                }
+            }
+            if( wr.getBody() != null ) {
+                elTag.setText(wr.getBody());
+            }
+        }
+    }
+
+    private void parseWebResourcesFromHtml(Element elHead, Page page) {
+        List<WebResource> webResources = new ArrayList<>();
+        for( Element elHeadTag : JDomUtils.children(elHead)) {
+            if( elHeadTag.getName().equals("title")) {
+                String title = InitUtils.getValueOf(elHead, "title");
+                CodeUtils.saveValue(page, "title", title);
+            } else {
+                WebResource wr = new WebResource();
+                webResources.add(wr);
+                wr.setTag(elHeadTag.getName());
+                wr.setBody(elHeadTag.getText());
+                for( Object oAtt : elHeadTag.getAttributes()) {
+                    Attribute att = (Attribute) oAtt;
+                    wr.getAtts().put(att.getName(), att.getValue());
+                }
+            }
+        }
+        page.setWebResources(webResources);
     }
 
     public class MyEntityResolver implements EntityResolver {

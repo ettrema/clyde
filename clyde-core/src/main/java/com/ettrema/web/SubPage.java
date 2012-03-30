@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import org.jdom.Element;
 
@@ -314,4 +315,11 @@ public class SubPage extends CommonTemplated implements Component, PostableResou
     public void setBrowsable(boolean browsable) {
         this.browsable = browsable;
     }
+
+    @Override
+    public List<WebResource> getWebResources() {
+        return null;
+    }
+    
+    
 }

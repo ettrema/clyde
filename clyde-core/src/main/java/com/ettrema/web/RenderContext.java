@@ -752,4 +752,17 @@ public class RenderContext implements Map<String, Component> {
         s += hashCode();
         return s;
     }
+    
+    public List<WebResource> getAllWebResources() {
+        List<WebResource> list = new ArrayList<>();
+        RenderContext rc = this;
+        while(rc != null ) {
+            List<WebResource> childList = rc.page.getWebResources();
+            if( childList != null ) {
+                list.addAll(childList);
+            }
+            rc = rc.child;
+        }
+        return list;
+    }
 }

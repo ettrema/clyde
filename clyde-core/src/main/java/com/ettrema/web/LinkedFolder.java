@@ -44,7 +44,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         if (rels == null || rels.isEmpty()) {
             return null;
         } else {
-            List<LinkedFolder> list = new ArrayList<LinkedFolder>();
+            List<LinkedFolder> list = new ArrayList<>();
             for (Relationship rel : rels) {
                 NameNode nFrom = rel.from();
                 if (nFrom == null) {

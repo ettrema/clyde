@@ -30,6 +30,7 @@ public class Host extends Web implements BucketOwner {
     private static final long serialVersionUID = 1L;
     Path hostPath;
     private boolean disabled;
+    private boolean stateTokensDisabled;
     private List<UnderlayVector> underlayVectors;
 
     public Host(Folder parent, String name) {
@@ -410,5 +411,13 @@ public class Host extends Web implements BucketOwner {
 
     public void setDisabled(boolean disabled) {
         this.disabled = disabled;
+    }
+
+    public void setStateTokensDisabled(boolean stateTokensDisabled) {
+        this.stateTokensDisabled = stateTokensDisabled;
+    }
+
+    public boolean isStateTokensDisabled() {
+        return stateTokensDisabled;
     }        
 }

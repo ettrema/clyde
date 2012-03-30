@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.ettrema.web.templates.TemplateManager;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.FileItem;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +29,7 @@ import java.util.Map;
  */
 public class WrappedTemplate implements ITemplate {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( WrappedTemplate.class );
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(WrappedTemplate.class);
     private final ITemplate physicalTemplate;
     private final Web web;
 
@@ -36,29 +38,29 @@ public class WrappedTemplate implements ITemplate {
      * @param t - the template to wrap. ie from a parent web
      * @param web - the web which the page using this template is in
      */
-    public WrappedTemplate( ITemplate t, Web web ) {
+    public WrappedTemplate(ITemplate t, Web web) {
         this.physicalTemplate = t;
         this.web = web;
     }
 
     @Override
-    public Folder createFolderFromTemplate( Folder location, String name ) {
-        return physicalTemplate.createFolderFromTemplate( location, name );
+    public Folder createFolderFromTemplate(Folder location, String name) {
+        return physicalTemplate.createFolderFromTemplate(location, name);
     }
 
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name, InputStream in, Long length ) {
-        return physicalTemplate.createPageFromTemplate( location, name, in, length );
+    public BaseResource createPageFromTemplate(Folder location, String name, InputStream in, Long length) {
+        return physicalTemplate.createPageFromTemplate(location, name, in, length);
     }
 
     @Override
-    public BaseResource createPageFromTemplate( Folder location, String name ) {
-        return physicalTemplate.createPageFromTemplate( location, name );
+    public BaseResource createPageFromTemplate(Folder location, String name) {
+        return physicalTemplate.createPageFromTemplate(location, name);
     }
 
     @Override
-    public ComponentDef getComponentDef( String name ) {
-        return physicalTemplate.getComponentDef( name );
+    public ComponentDef getComponentDef(String name) {
+        return physicalTemplate.getComponentDef(name);
     }
 
     @Override
@@ -68,8 +70,8 @@ public class WrappedTemplate implements ITemplate {
 
     @Override
     public ITemplate getTemplate() {
-        TemplateManager tm = RequestContext.getCurrent().get( TemplateManager.class );
-        ITemplate t = tm.lookup( physicalTemplate.getTemplateName(), web );
+        TemplateManager tm = RequestContext.getCurrent().get(TemplateManager.class);
+        ITemplate t = tm.lookup(physicalTemplate.getTemplateName(), web);
         return t;
     }
 
@@ -79,13 +81,13 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public Component getAnyComponent( String childName ) {
-        return physicalTemplate.getAnyComponent( childName );
+    public Component getAnyComponent(String childName) {
+        return physicalTemplate.getAnyComponent(childName);
     }
 
     @Override
-    public boolean is( String type ) {
-        return physicalTemplate.is( type );
+    public boolean is(String type) {
+        return physicalTemplate.is(type);
     }
 
     @Override
@@ -99,13 +101,13 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public Object authenticate( String user, String pwd ) {
-        return web.authenticate( user, pwd );
+    public Object authenticate(String user, String pwd) {
+        return web.authenticate(user, pwd);
     }
 
     @Override
-    public boolean authorise( Request arg0, Method arg1, Auth arg2 ) {
-        return web.authorise( arg0, arg1, arg2 );
+    public boolean authorise(Request arg0, Method arg1, Auth arg2) {
+        return web.authorise(arg0, arg1, arg2);
     }
 
     @Override
@@ -124,39 +126,39 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public String checkRedirect( Request arg0 ) {
-        return physicalTemplate.checkRedirect( arg0 );
+    public String checkRedirect(Request arg0) {
+        return physicalTemplate.checkRedirect(arg0);
     }
 
     @Override
-    public Component _invoke( String name ) {
-        return physicalTemplate._invoke( name );
+    public Component _invoke(String name) {
+        return physicalTemplate._invoke(name);
     }
 
     @Override
-    public String render( RenderContext child, Map<String,String> params ) {
-        log.debug( "wrapped template rending");
+    public String render(RenderContext child, Map<String, String> params) {
+        log.debug("wrapped template rending");
         ITemplate t = getTemplate();
-        RenderContext rc = new RenderContext( t, this, child, false );
-        if( t != null ) {
-            log.debug( "wrapped template rending: " + t.getName());
-            return t.render( rc, params );
+        RenderContext rc = new RenderContext(t, this, child, false);
+        if (t != null) {
+            log.debug("wrapped template rending: " + t.getName());
+            return t.render(rc, params);
         } else {
-            log.debug( "wrapped template - template not found, try to render with root component" );
-            Component cRoot = getParams().get( "root" );
-            if( cRoot == null ) {
-                log.warn( "no root component for template: " + this.getHref() );
+            log.debug("wrapped template - template not found, try to render with root component");
+            Component cRoot = getParams().get("root");
+            if (cRoot == null) {
+                log.warn("no root component for template: " + this.getHref());
                 return "";
             } else {
-                return cRoot.render( rc );
+                return cRoot.render(rc);
             }
         }
 
     }
 
     @Override
-    public Component getComponent( String paramName, boolean includeValues ) {
-        return physicalTemplate.getComponent( paramName, includeValues );
+    public Component getComponent(String paramName, boolean includeValues) {
+        return physicalTemplate.getComponent(paramName, includeValues);
     }
 
     @Override
@@ -170,23 +172,23 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public void preProcess( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) {
-        physicalTemplate.preProcess( rcChild, parameters, files );
+    public void preProcess(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) {
+        physicalTemplate.preProcess(rcChild, parameters, files);
     }
 
     @Override
     public String getHref() {
         return web.getHref() + "/templates/" + physicalTemplate.getName();
     }
-	
-	@Override
-	public String getUrl() {
-		return "/templates/" + physicalTemplate.getName();
-	}	
 
     @Override
-    public String process( RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files ) throws NotAuthorizedException {
-        return this.physicalTemplate.process( rcChild, parameters, files );
+    public String getUrl() {
+        return "/templates/" + physicalTemplate.getName();
+    }
+
+    @Override
+    public String process(RenderContext rcChild, Map<String, String> parameters, Map<String, FileItem> files) throws NotAuthorizedException {
+        return this.physicalTemplate.process(rcChild, parameters, files);
     }
 
     @Override
@@ -205,8 +207,8 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public Templatable find( Path path ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    public Templatable find(Path path) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -226,12 +228,12 @@ public class WrappedTemplate implements ITemplate {
 
     @Override
     public Path getPath() {
-        return getParent().getPath().child( getName() );
+        return getParent().getPath().child(getName());
     }
 
     @Override
     public Host getHost() {
-        if( web instanceof Host ) {
+        if (web instanceof Host) {
             return (Host) web;
         } else {
             return web.getHost();
@@ -239,56 +241,56 @@ public class WrappedTemplate implements ITemplate {
     }
 
     @Override
-    public boolean represents( String type ) {
-        return this.physicalTemplate.represents( type );
+    public boolean represents(String type) {
+        return this.physicalTemplate.represents(type);
     }
 
     @Override
-    public void sendContent( OutputStream out, Range range, Map<String, String> params, String contentType ) throws IOException, NotAuthorizedException {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    public void sendContent(OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public int compareTo( Resource o ) {
-        throw new UnsupportedOperationException( "Not supported yet." );
+    public int compareTo(Resource o) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public String getContentType( String accepts ) {
-        return physicalTemplate.getContentType( accepts );
+    public String getContentType(String accepts) {
+        return physicalTemplate.getContentType(accepts);
     }
 
-	@Override
+    @Override
     public boolean canCreateFolder() {
         return physicalTemplate.canCreateFolder();
     }
 
-	@Override
-    public void onBeforeSave( BaseResource aThis ) {
-        physicalTemplate.onBeforeSave( aThis );
+    @Override
+    public void onBeforeSave(BaseResource aThis) {
+        physicalTemplate.onBeforeSave(aThis);
     }
 
-	@Override
-    public void onAfterSave( BaseResource aThis ) {
-        physicalTemplate.onAfterSave( aThis );
+    @Override
+    public void onAfterSave(BaseResource aThis) {
+        physicalTemplate.onAfterSave(aThis);
     }
 
-	@Override
+    @Override
     public DocType getDocType() {
         return physicalTemplate.getDocType();
     }
 
-	@Override
+    @Override
     public Boolean isSecure() {
         return physicalTemplate.isSecure();
     }
 
-	@Override
+    @Override
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         return physicalTemplate.hasRole(user, role, target);
     }
 
-	@Override
+    @Override
     public String onPost(CommonTemplated aThis) {
         return physicalTemplate.onPost(aThis);
     }
@@ -298,6 +300,8 @@ public class WrappedTemplate implements ITemplate {
         return physicalTemplate.isEnableGetableFolders();
     }
 
-    
-    
+    @Override
+    public List<WebResource> getWebResources() {
+        return physicalTemplate.getWebResources();
+    }
 }

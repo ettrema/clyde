@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -312,4 +313,11 @@ public class WrappedSubPage extends CommonTemplated implements PostableResource,
         log.trace("replaceContent2");
         subPage.replaceContent(this, in, length);
     }
+
+    @Override
+    public List<WebResource> getWebResources() {
+        return subPage.getWebResources();
+    }
+    
+    
 }

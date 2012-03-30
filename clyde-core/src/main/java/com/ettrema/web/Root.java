@@ -10,6 +10,7 @@ import com.ettrema.web.security.PermissionRecipient.Role;
 import com.ettrema.web.security.Subject;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.List;
 
 public class Root extends CommonTemplated implements ITemplate {
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Root.class);
@@ -122,36 +123,44 @@ public class Root extends CommonTemplated implements ITemplate {
         return componentDefs.get(name);
     }
 
+    @Override
     public boolean represents(String type) {
         return false;
     }
 
+    @Override
     public boolean canCreateFolder() {
         return true;
     }
 
+    @Override
     public void onBeforeSave(BaseResource aThis) {
    
     }
 
     
 
+    @Override
     public void onAfterSave(BaseResource aThis) {
 
     }
 
+    @Override
     public DocType getDocType() {
         return null;
     }
 
+    @Override
     public Boolean isSecure() {
         return null;
     }
 
+    @Override
     public Boolean hasRole(Subject user, Role role, CommonTemplated target) {
         return null;
     }
 
+    @Override
     public String onPost(CommonTemplated aThis) {
         return null;
     }
@@ -159,6 +168,11 @@ public class Root extends CommonTemplated implements ITemplate {
     @Override
     public Boolean isEnableGetableFolders() {
         return false;
+    }
+
+    @Override
+    public List<WebResource> getWebResources() {
+        return null;
     }
 
     

@@ -1,4 +1,12 @@
-package com.ettrema.web;
+package com.ettrema.web.templates;
+
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
+import com.ettrema.web.Root;
+import com.ettrema.web.Template;
+import com.ettrema.web.Web;
+import com.ettrema.web.WrappedTemplate;
 
 /**
  *

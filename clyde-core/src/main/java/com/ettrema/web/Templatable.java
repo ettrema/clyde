@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +22,8 @@ import java.util.Map;
  */
 public interface Templatable extends Resource, Addressable, Comparable<Resource>, ComponentContainer {
 
+    List<WebResource> getWebResources();
+    
     void sendContent( OutputStream out, Range range, Map<String,String> params, String contentType ) throws IOException, NotAuthorizedException, BadRequestException, NotFoundException;
 
     String getTemplateName();

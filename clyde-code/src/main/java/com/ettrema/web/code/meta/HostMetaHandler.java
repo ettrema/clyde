@@ -55,8 +55,7 @@ public class HostMetaHandler implements MetaHandler<Host> {
     @Override
     public Host createFromXml( CollectionResource parent, Element d, String name ) {
         Folder fParent = (Folder) parent;
-        System.out.println("------------- creating host: " + name + " - in parent: " + fParent.getPath());
-        System.out.println("parent id: " + fParent.getNameNodeId());
+        log.info("Creating new host: " + name + " in parent: " + fParent.getHref());
         Host f = new Host( fParent, name );
         updateFromXml( f, d );
         return f;
@@ -72,7 +71,9 @@ public class HostMetaHandler implements MetaHandler<Host> {
 
     public void populateXml( Element el, Host host ) {
         InitUtils.setBoolean( el, "disabled", host.isDisabled() );
+        InitUtils.setBoolean( el, "stateTokensDisabled", host.isStateTokensDisabled() );        
         InitUtils.set( el, "aliasedHostPath", host.getAliasedHostPath() );
+        
         populateUnderlays(host, el);
         webMetaHandler.populateXml( el, host );
     }
@@ -80,21 +81,18 @@ public class HostMetaHandler implements MetaHandler<Host> {
     @Override
     public void updateFromXml( Host host, Element el ) {
         host.setDisabled( InitUtils.getBoolean( el, "disabled" ) );
+        host.setStateTokensDisabled( InitUtils.getBoolean( el, "stateTokensDisabled" ) );
         host.setAliasedHostPath( InitUtils.getPath(el, "aliasedHostPath") );
         updateUnderlays(host, el);
         webMetaHandler._updateFromXml( host, el);
-        System.out.println("saving: id" + host.getNameNodeId());
-        System.out.println("parent Id: " + host.getNameNode().getParentId());
         host.save();        
     }
 
     private void populateUnderlays(Host host, Element el) {
         List<UnderlayVector> underlays = host.getUnderlayVectors();
         if( underlays == null || underlays.isEmpty()) {
-            System.out.println("no underlays: " + host.getName() + " - " + host.getUnderlayVectors() + " - " + host.getId());
             return ;
         }
-        System.out.println("underlays: " + underlays.size());
         Element elUnderlays = new Element("underlays", CodeMeta.NS);
         el.addContent(elUnderlays);
         for( UnderlayVector u : underlays ) {
@@ -121,7 +119,6 @@ public class HostMetaHandler implements MetaHandler<Host> {
             v.setArtifcatId(InitUtils.getValue(elUnderlay,"artifactId"));
             v.setVersion(InitUtils.getValue(elUnderlay, "version"));
         }
-        System.out.println("--- underlays: " + underlays + " - " + host.getName() + " - " + host.getId());
         host.setUnderlayVectors(underlays);
     }
 }

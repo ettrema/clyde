@@ -87,6 +87,7 @@ public class MultipleChoiceQaDef implements ComponentDef {
         return true; // todo
     }
 
+    @Override
     public String render(ComponentValue c, RenderContext rc) {
         log.trace("render");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -107,7 +108,7 @@ public class MultipleChoiceQaDef implements ComponentDef {
                 int answerNum = 0;
                 for (String s : i.getAnswers()) {
                     answerNum++;
-                    XmlWriter.Element elAnswerLi = w.begin("li");
+                    XmlWriter.Element elAnswerLi = elInnerOl.begin("li");
                     // <input type="radio" name="q1" value="a1" id="q1a1"/>
                     String id = "q" + questionNum + "a" + answerNum;
                     elAnswerLi.begin("input").writeAtt("type", "radio").writeAtt("name", "q" + questionNum).writeAtt("value", answerNum + "").writeAtt("id", id).close();
@@ -130,6 +131,7 @@ public class MultipleChoiceQaDef implements ComponentDef {
 
     }
 
+    @Override
     public String renderEdit(ComponentValue c, RenderContext rc) {
         log.trace("renderEdit");
         ByteArrayOutputStream out = new ByteArrayOutputStream();

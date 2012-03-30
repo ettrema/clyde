@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.ettrema.web.templates.TemplateManager;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.*;
 import com.bradmcevoy.http.exceptions.BadRequestException;

@@ -3,6 +3,8 @@ package com.ettrema.web;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
@@ -16,10 +18,11 @@ import org.apache.velocity.VelocityContext;
 import static com.ettrema.context.RequestContext._;
 
 /**
+ * Implements ISubPage so that it can be wrapped for underlays
  *
  * @author brad
  */
-public class VelocityTextFile extends File implements SimpleEditPage.SimpleEditable {
+public class VelocityTextFile extends File implements SimpleEditPage.SimpleEditable, ISubPage {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( TextFile.class );
     private static final long serialVersionUID = 1L;
@@ -110,5 +113,31 @@ public class VelocityTextFile extends File implements SimpleEditPage.SimpleEdita
     @Override
     public boolean isIndexable() {
         return false;
+    }
+
+    @Override
+    public boolean isSecure() {
+        return false;
+    }
+
+    @Override
+    public boolean isPublicAccess() {
+        return false;
+    }
+
+    @Override
+    public void sendContent(WrappedSubPage requestedPage, OutputStream out, Range range, Map<String, String> params, String contentType) throws IOException, NotAuthorizedException, BadRequestException {
+        if( template == null ) {
+            log.debug( "no content for: " + this.getPath() );
+        } else {
+            IUser user = _(CurrentUserService.class).getOnBehalfOf();
+            VelocityContext vc = CommonComponent.velocityContext(requestedPage, requestedPage, null, getPath(), user);
+            VelocityInterpreter.evalToStream(template, vc, out);
+        }
+    }
+
+    @Override
+    public void replaceContent(WrappedSubPage requestedPage, InputStream in, Long length) throws BadRequestException, NotAuthorizedException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

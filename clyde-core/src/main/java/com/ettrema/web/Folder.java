@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.ettrema.web.templates.TemplateManager;
 import com.ettrema.forms.FormAction;
 import com.ettrema.forms.FormParameter;
 import com.ettrema.web.security.PermissionRecipient.Role;

@@ -34,7 +34,7 @@ public class FileWatcher implements Service {
     private WatchKey watchId;
     private boolean watchFiles = true;
     private boolean initialScan = false;
-    private boolean running;    
+    private boolean running;
     private boolean forceReload;
     private ScheduledFuture<?> futureInitial;
     private ScheduledFuture<?> futureScan;
@@ -119,11 +119,11 @@ public class FileWatcher implements Service {
         }
     }
 
-    private void doScan()  {
+    private void doScan() {
         WatchKey watchKey;
         watchKey = watchService.poll(); // this call is blocking until events are present
-        if( watchKey == null ) {
-            return ;
+        if (watchKey == null) {
+            return;
         }
         Watchable w = watchKey.watchable();
         Path watchedPath = (Path) w;
@@ -163,12 +163,12 @@ public class FileWatcher implements Service {
             } catch (IOException ex) {
             }
         }
-        
-        if( futureInitial != null ) {
+
+        if (futureInitial != null) {
             futureInitial.cancel(true);
             futureInitial = null;
         }
-        if(futureScan != null) {
+        if (futureScan != null) {
             futureScan.cancel(true);
             futureScan = null;
         }
@@ -266,5 +266,5 @@ public class FileWatcher implements Service {
 
     public void setForceReload(boolean forceReload) {
         this.forceReload = forceReload;
-    }        
+    }
 }

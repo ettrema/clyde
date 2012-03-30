@@ -28,10 +28,12 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
         this.pageContentTypeHandler = pageContentTypeHandler;
     }
 
+    @Override
     public boolean supports( Resource r ) {
         return r instanceof Template;
     }
 
+    @Override
     public void generateContent( OutputStream out, GetableResource wrapped ) throws IOException {
         Template template = (Template) wrapped;
         // <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -53,6 +55,7 @@ public class TemplateContentTypeHandler implements ContentTypeHandler {
         }
     }
 
+    @Override
     public void replaceContent( InputStream in, Long contentLength, GetableResource wrapped ) {
         Template template = (Template) wrapped;
 

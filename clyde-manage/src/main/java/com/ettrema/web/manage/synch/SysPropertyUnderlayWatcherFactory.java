@@ -4,6 +4,8 @@ import com.ettrema.common.Service;
 import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContext;
+import com.ettrema.grid.AsynchProcessor;
+import com.ettrema.grid.Processable;
 import com.ettrema.underlay.UnderlayLocator;
 import com.ettrema.vfs.VfsSession;
 import com.ettrema.web.Folder;
@@ -11,9 +13,6 @@ import com.ettrema.web.Host;
 import com.ettrema.web.code.CodeResourceFactory;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import org.apache.lucene.util.NamedThreadFactory;
 
 /**
  * Creates and initialises other FileWatcher's based on system properties.
@@ -25,36 +24,33 @@ public class SysPropertyUnderlayWatcherFactory implements Service {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SysPropertyUnderlayWatcherFactory.class);
     private final UnderlayLocator underlayLocator;
-    private final RootContext rootContext;
     private final CodeResourceFactory codeResourceFactory;
     private final ErrorReporter errorReporter;
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final RootContext rootContext;
     private String propertyNamePrefix = "underlay.";
     private List<FileWatcher> fileWatchers;
 
-    public SysPropertyUnderlayWatcherFactory(UnderlayLocator underlayLocator, RootContext rootContext, CodeResourceFactory codeResourceFactory, ErrorReporter errorReporter) {
+    public SysPropertyUnderlayWatcherFactory(UnderlayLocator underlayLocator, CodeResourceFactory codeResourceFactory, ErrorReporter errorReporter, RootContext rootContext) {
         this.underlayLocator = underlayLocator;
-        this.rootContext = rootContext;
         this.codeResourceFactory = codeResourceFactory;
+        this.rootContext = rootContext;
         this.errorReporter = errorReporter;
-        scheduledExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory(this.getClass().getCanonicalName()));
     }
 
     @Override
     public void start() {
         System.out.println("Starting SysPropertyUnderlayWatcherFactory");
         fileWatchers = new ArrayList<>();
+        Properties props = System.getProperties();
+        // load in alphabetical order so its deterministic
+
+        final List<String> names = new ArrayList<>(props.stringPropertyNames());
+        Collections.sort(names);
+
         rootContext.execute(new Executable2() {
 
             @Override
             public void execute(Context context) {
-                Properties props = System.getProperties();
-                // load in alphabetical order so its deterministic
-
-                List<String> names = new ArrayList<>(props.stringPropertyNames());
-                Collections.sort(names);
-
-
                 Folder underlaysFolder = underlayLocator.getUnderlaysFolder(true);
                 if (underlaysFolder == null) {
                     throw new RuntimeException("Failed to get an underlays folder");
@@ -65,14 +61,14 @@ public class SysPropertyUnderlayWatcherFactory implements Service {
                     if (p.startsWith(propertyNamePrefix)) {
                         String path = System.getProperty(p);
                         int firstDelim = p.indexOf("-");
-                        p = p.substring(firstDelim+1);
-                        addWatch(props, p, path, underlaysFolder);
+                        p = p.substring(firstDelim + 1);
+                        log.info("Underlay: " + path);
+                        addWatch(p, path, underlaysFolder);
                     }
                 }
                 context.get(VfsSession.class).commit();
             }
         });
-
     }
 
     /**
@@ -82,7 +78,7 @@ public class SysPropertyUnderlayWatcherFactory implements Service {
      * @param underlayName
      * @throws RuntimeException
      */
-    private void addWatch(Properties props, String underlayName, String path, Folder underlaysFolder) throws RuntimeException {
+    private void addWatch(String underlayName, String path, Folder underlaysFolder) throws RuntimeException {
         log.info("addWatch: " + underlayName);
         FileLoader fileLoader = createFileLoader(underlayName, underlaysFolder);
         File dirToWatch = new File(path);
@@ -90,7 +86,7 @@ public class SysPropertyUnderlayWatcherFactory implements Service {
         log.info("addWatch - raw path: " + path + " - absolute path: " + dirToWatch.getAbsolutePath());
         if (dirToWatch.exists()) {
             if (dirToWatch.isDirectory()) {
-                FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader, scheduledExecutorService);
+                FileWatcher fw = new FileWatcher(rootContext, dirToWatch, fileLoader, SysPropertyFileWatcherFactory.scheduledExecutorService);
                 fw.setInitialScan(true);
                 fw.setWatchFiles(true);
                 fw.start();
@@ -118,7 +114,7 @@ public class SysPropertyUnderlayWatcherFactory implements Service {
         Host h = (Host) underlaysFolder.child(hostName);
         if (h == null) {
             h = new Host(underlaysFolder, hostName);
-            System.out.println("create new host: " + h.getNameNodeId());            
+            System.out.println("create new host: " + h.getNameNodeId());
             h.save();
         }
         FileTransport fileTransport = new DirectFileTransport(h.getName(), codeResourceFactory);

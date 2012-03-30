@@ -30,8 +30,9 @@ public class UnderlayUtils {
             List<Host> hosts = new ArrayList<>(); // cache lookups so can re-use in deep search
             for (UnderlayVector v : vectors) {
                 Host u = underlayLocator.find(v);
-                hosts.add(u);
+                                
                 if (u != null) {
+                    hosts.add(u);
                     T o = visitor.visitUnderlay(u);
                     if (o != null) {
                         return o;
@@ -47,7 +48,8 @@ public class UnderlayUtils {
                     return o;
                 }
             }
-
+        } else {
+            log.trace("Null underlays on host");
         }
         return null;
     }
@@ -61,6 +63,6 @@ public class UnderlayUtils {
          * @param underLayFolder
          * @return
          */
-        T visitUnderlay(Web underLayFolder) throws NotAuthorizedException, BadRequestException;
+        T visitUnderlay(Host underLayFolder) throws NotAuthorizedException, BadRequestException;
     }
 }

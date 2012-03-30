@@ -15,7 +15,7 @@ public abstract class CommonResourceFactory extends VfsCommon implements Resourc
     }
     
 
-    protected Host getHost(String hostName) {
+    public Host getHost(String hostName) {
         if( hostName == null ) {
             return null;
         }

@@ -1,6 +1,9 @@
-package com.ettrema.web;
+package com.ettrema.web.templates;
 
+import com.ettrema.web.templates.TemplateManager;
 import com.ettrema.utils.LogUtils;
+import com.ettrema.web.Folder;
+import com.ettrema.web.ITemplate;
 
 /**
  * Loads classes to use as templates

@@ -36,13 +36,15 @@ import org.apache.lucene.util.NamedThreadFactory;
 public class SysPropertyFileWatcherFactory implements Service {
     
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SysPropertyFileWatcherFactory.class);
+
+    public static  final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("SysPropertyProcessors"));    
     
     private final RootContext rootContext;
     private final FileLoader defaultFileLoader;
     private final CodeResourceFactory codeResourceFactory;
     private final ErrorReporter errorReporter;
     private final Map<String,FileLoader> mapOfFileLoadersByHost = new HashMap<>();
-    private final ScheduledExecutorService scheduledExecutorService;
+
     
     private String propertyNamePrefix = "autoloader.";
     
@@ -53,7 +55,6 @@ public class SysPropertyFileWatcherFactory implements Service {
         this.defaultFileLoader = fileLoader;
         this.codeResourceFactory = codeResourceFactory;
         this.errorReporter = errorReporter;
-        scheduledExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory(this.getClass().getCanonicalName()));        
     }
     
     

@@ -89,7 +89,9 @@ public class CombiningTextFile extends File {
 
         for (GetableResource gr : list) {
             LogUtils.trace(log, "sendContent: including file-", gr.getName());
-            gr.sendContent(out, range, params, contentType);
+            if( !(gr instanceof CombiningTextFile) ) { // allowing inclusion of other combiners makes recursion possible - bad news
+                gr.sendContent(out, range, params, contentType);
+            }
 //                    tempOut.write( "\n".getBytes() ); // write CR            
         }
     }
