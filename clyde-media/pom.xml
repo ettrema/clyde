@@ -26,11 +26,13 @@
             <artifactId>endrick-jdbc</artifactId>
             <version>${endrick.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-transcoder</artifactId>
             <version>1.7</version>
         </dependency>
+        -->
         <dependency>
             <groupId>org.apache.sanselan</groupId>
             <artifactId>sanselan</artifactId>
@@ -54,11 +56,13 @@
             <version>2.5.2</version>
             <scope>test</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>img4j</groupId>
             <artifactId>img4j</artifactId>
             <version>1.0</version>
         </dependency>
+        -->
     </dependencies>
 </project>
 
