@@ -127,8 +127,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>endrick-channel</artifactId>
-            <version>${endrick.version}</version>
+            <artifactId>berry-channel</artifactId>
+            <version>${berry.version}</version>
         </dependency>
 
 
