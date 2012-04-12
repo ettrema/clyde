@@ -1,8 +1,9 @@
-
 package com.ettrema.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import com.ettrema.console.Result;
@@ -10,35 +11,38 @@ import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.Relationship;
 import java.util.List;
 
-public class Relate extends AbstractConsoleCommand{
+public class Relate extends AbstractConsoleCommand {
 
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Relate.class);
-    
     public static final int MAX_LENGTH = 100;
-    
+
     Relate(List<String> args, String host, String currentDir, ResourceFactory resourceFactory) {
         super(args, host, currentDir, resourceFactory);
     }
 
     @Override
     public Result execute() {
-        Folder from = this.currentResource();
-        if( args.size() > 0 ) {
-            String relationName = args.get(0);
-            Path toPath = Path.path(args.get(1));
-            Folder to = (Folder) this.find(toPath);
-            if( to == null ) {
-                return result("cant find: " + toPath);
+        try {
+            Folder from = this.currentResource();
+            if (args.size() > 0) {
+                String relationName = args.get(0);
+                Path toPath = Path.path(args.get(1));
+                Folder to = (Folder) this.find(toPath);
+                if (to == null) {
+                    return result("cant find: " + toPath);
+                } else {
+                    Relationship r = from.getNameNode().makeRelation(to.getNameNode(), relationName);
+                    to.getNameNode().onNewRelationship(r);
+                    commit();
+                    return result("created relationship");
+                }
             } else {
-                Relationship r = from.getNameNode().makeRelation(to.getNameNode(), relationName);
-                to.getNameNode().onNewRelationship(r);
-                commit();
-                return result("created relationship");
+                StringBuffer sbFrom = listFromRelations(from);
+                StringBuffer sbTo = listToRelations(from);
+                return result(sbFrom.toString() + sbTo.toString());
             }
-        } else {
-            StringBuffer sbFrom = listFromRelations(from);
-            StringBuffer sbTo = listToRelations(from);
-            return result(sbFrom.toString() + sbTo.toString());
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
         }
     }
 
@@ -75,5 +79,4 @@ public class Relate extends AbstractConsoleCommand{
         sb.append("</ul>");
         return sb;
     }
-
 }

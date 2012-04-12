@@ -14,6 +14,10 @@ public class UnderlayVector implements Serializable {
     private String artifcatId;
     private String version;
 
+    public boolean sameExceptVersion(UnderlayVector v) {
+        return groupId.equals(v.getGroupId()) && artifcatId.equals(v.getArtifcatId());
+    }
+    
     /**
      * @return the groupId
      */

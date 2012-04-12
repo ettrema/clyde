@@ -5,6 +5,8 @@ import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
@@ -32,6 +34,7 @@ public class Mv extends AbstractConsoleCommand {
         super( args, host, currentDir, resourceFactory );
     }
 
+    @Override
     public Result execute() {
         String sSourcePath = args.get( 0 );
         String sDestPath = args.get( 1 );
@@ -50,8 +53,13 @@ public class Mv extends AbstractConsoleCommand {
         } catch( IllegalArgumentException e ) {
             log.debug( "not a valid uuid: " + e.getMessage() + " - " + sDestPath );
             Path path = Path.path( sDestPath );
-            List<BaseResource> list = new ArrayList<BaseResource>();
-            Resource rDest = find( path );
+            List<BaseResource> list = new ArrayList<>();
+            Resource rDest;
+            try {
+                rDest = find( path );
+            } catch (    NotAuthorizedException | BadRequestException ex) {
+                return result("Couldnt change path to: " + path, ex);
+            }
             if( rDest instanceof Folder ) {
                 Folder fDest = (Folder) rDest;
                 dest = fDest.getNameNode();
@@ -63,7 +71,12 @@ public class Mv extends AbstractConsoleCommand {
         Request req = _( CurrentRequestService.class ).request();
         if( req == null ) throw new RuntimeException( "No current request" );
         Auth auth = req.getAuthorization();
-        boolean isSourceAuthor = _( PermissionChecker.class ).hasRole( Role.AUTHOR, currentResource(), auth );
+        boolean isSourceAuthor;
+        try {
+            isSourceAuthor = _( PermissionChecker.class ).hasRole( Role.AUTHOR, currentResource(), auth );
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
         if( !isSourceAuthor ) {
             return result( "You do not have the AUTHOR role on the source" );
         }
@@ -86,25 +99,29 @@ public class Mv extends AbstractConsoleCommand {
             VfsTransactionManager.commit();
             return result( "moved: " + uuid );
         } catch( IllegalArgumentException e ) {
-            // ok, not a uuid
-            Path path = Path.path( sSourcePath );
-            List<BaseResource> list = new ArrayList<>();
-            Folder curFolder = currentResource();
-            Result resultSearch = findWithRegex( curFolder, path, list );
-            if( resultSearch != null ) {
-                return resultSearch;
-            }
+            try {
+                // ok, not a uuid
+                Path path = Path.path( sSourcePath );
+                List<BaseResource> list = new ArrayList<>();
+                Folder curFolder = currentResource();
+                Result resultSearch = findWithRegex( curFolder, path, list );
+                if( resultSearch != null ) {
+                    return resultSearch;
+                }
 
-            if( list.isEmpty() ) {
-                return result( "source not found: " + sSourcePath );
+                if( list.isEmpty() ) {
+                    return result( "source not found: " + sSourcePath );
+                }
+                StringBuilder sb = new StringBuilder();
+                for( BaseResource r : list ) {
+                    NameNode source = r.getNameNode();
+                    source.move( dest, source.getName() );
+                }
+                commit();
+                return result( "moved " + list.size() + " items" );
+            } catch (    NotAuthorizedException | BadRequestException ex) {
+                return result("can't lookup current resource", ex);
             }
-            StringBuilder sb = new StringBuilder();
-            for( BaseResource r : list ) {
-                NameNode source = r.getNameNode();
-                source.move( dest, source.getName() );
-            }
-            commit();
-            return result( "moved " + list.size() + " items" );
         }
 
     }

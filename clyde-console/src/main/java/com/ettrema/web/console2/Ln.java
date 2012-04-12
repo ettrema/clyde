@@ -3,6 +3,8 @@ package com.ettrema.web.console2;
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
@@ -28,7 +30,13 @@ public class Ln extends AbstractConsoleCommand {
         String newName = args.get( 0 );
         String linkTo = args.get( 1 );
         log.debug( "link: " + newName + "->" + linkTo );
-        Folder curFolder = currentResource();
+        Folder curFolder;
+        try {
+            curFolder = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
+
         if( curFolder == null ) {
             log.debug( "current folder not found: " + currentDir );
             return result( "current dir not found: " + currentDir );
@@ -66,7 +74,7 @@ public class Ln extends AbstractConsoleCommand {
         Host h = target.getHost();
         while( h != null ) {
             if( h.getName().equals( userHostName ) ) {
-                List<User> users = new ArrayList<User>();
+                List<User> users = new ArrayList<>();
                 for( Resource r : h.getUsers().getChildren() ) {
                     if( r instanceof User ) {
                         users.add( (User) r );

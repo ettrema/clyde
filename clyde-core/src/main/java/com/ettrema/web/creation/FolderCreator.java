@@ -21,11 +21,13 @@ public class FolderCreator implements Creator {
     public static ITemplate findNewFolderTemplate(Folder parent) {
         LogUtils.trace(log, "findNewFolderTemplate: folder name: ", parent.getName());
         List<Template> templateSpecs = parent.getAllowedTemplates();
-        LogUtils.trace(log, "findNewFolderTemplate: got template specs", templateSpecs.size());
-        for (Template t : templateSpecs) {
-            if (t.represents("folder")) {
-                LogUtils.trace(log, "findNewFolderTemplate: Found template for folder", t.getName());
-                return t;
+        if (templateSpecs != null) {
+            LogUtils.trace(log, "findNewFolderTemplate: got template specs", templateSpecs.size());
+            for (Template t : templateSpecs) {
+                if (t.represents("folder")) {
+                    LogUtils.trace(log, "findNewFolderTemplate: Found template for folder", t.getName());
+                    return t;
+                }
             }
         }
         log.trace("findNewFolderTemplate: couldnt find a folder template");

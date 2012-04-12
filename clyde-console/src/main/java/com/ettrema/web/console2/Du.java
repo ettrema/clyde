@@ -4,6 +4,8 @@ package com.ettrema.web.console2;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import com.ettrema.console.Result;
@@ -23,7 +25,12 @@ public class Du extends AbstractConsoleCommand{
     
     @Override
     public Result execute() {
-        Folder cur = currentResource();
+        Folder cur;
+        try {
+            cur = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
         if( cur == null ) {
             return result("current dir not found: " + currentDir);
         }        

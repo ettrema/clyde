@@ -87,12 +87,7 @@ public class FileScanner {
 
     private void processFile(final File f, final boolean forceReload, final File root) throws Exception {
         if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
-            try {
-                fileLoader.onNewFile(f, root);
-                VfsTransactionManager.commit();
-            } catch (Exception ex) {
-                VfsTransactionManager.rollback();
-            }
+            fileLoader.onNewFile(f, root);
         }
     }
 
@@ -119,7 +114,7 @@ public class FileScanner {
         final List<File> subdirs = new ArrayList<>();
 
         public DirectoryListing(File parent, File root) {
-            File[] listing = parent.listFiles();            
+            File[] listing = parent.listFiles();
             if (listing != null) {
                 List<File> filesList = Arrays.asList(listing);
                 Collections.sort(filesList);

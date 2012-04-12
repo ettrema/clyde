@@ -4,6 +4,8 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
@@ -54,7 +56,13 @@ public class Grant extends AbstractConsoleCommand {
         String srcPath = args.get( 2 );
 
         log.debug( "grant: " + roleName + " - " + sUser + "->" + srcPath );
-        Folder curFolder = currentResource();
+        Folder curFolder;
+        try {
+            curFolder = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
+
         Permissions perms;
         if( curFolder == null ) {
             log.debug( "current folder not found: " + currentDir );
@@ -65,7 +73,7 @@ public class Grant extends AbstractConsoleCommand {
             if( target == null ) {
                 return result( "Couldnt find: " + pSrc );
             }
-            List<Subject> users = new ArrayList<Subject>();
+            List<Subject> users = new ArrayList<>();
             if( userName.equals( "*" ) ) {
                 users = findUsers( target, userHostName );
             } else {

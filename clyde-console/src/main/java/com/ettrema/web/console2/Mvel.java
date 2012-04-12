@@ -2,6 +2,8 @@ package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Expression;
 import com.ettrema.web.Formatter;
@@ -10,6 +12,8 @@ import com.ettrema.console.Result;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +42,12 @@ public class Mvel  extends AbstractConsoleCommand {
 
         log.debug("eval: " + exp);
 
-        Resource r = currentResource();
+        Resource r;
+        try {
+            r = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
         if (r instanceof CommonTemplated) {
             CommonTemplated t = (CommonTemplated) r;
             Map map = new HashMap();
