@@ -223,18 +223,17 @@ public class SaveCommand extends Command {
         boolean valid = true;
         for (ComponentValue cv : page.getValues().values()) {
             if (!cv.validate(rc)) {
-                log.trace("component is not valid: " + cv.getName());
-                valid = false;
+                log.warn("component is not valid: " + cv.getName());                
             }
         }
         String pageName = page.getName();
-        if( pageName.length() == 0 ) {
-            valid = false;
+        if( pageName.length() == 0 ) {            
             log.warn("page name is empty, not valid");
+            return false;
         }
-        if( !pageName.equals(pageName.trim())) {
-            valid = false;
+        if( !pageName.equals(pageName.trim())) {            
             log.warn("page name begins or ends with whitespace, not valid: " + pageName);
+            return false;
         }
         return valid;
     }
