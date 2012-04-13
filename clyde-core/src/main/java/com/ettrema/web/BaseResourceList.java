@@ -32,21 +32,23 @@ public class BaseResourceList extends ArrayList<Templatable> {
             throw new NullPointerException("Attempt to add resource with null name: " + e.getClass().getName());
         }
         if (map.containsKey(e.getName())) {
-//            Exception ex = new Exception("identical child names");
             log.debug("identical child names: " + e.getName());//,ex);
-            Templatable cur = map.get(e.getName());
-            if (cur.getModifiedDate() == null) {
-                remove(cur);
-            } else if (e.getModifiedDate() == null) {
-                // ignore
-                return true;
-            } else {
-                if (e.getModifiedDate().after(cur.getModifiedDate())) {
-                    remove(cur);
-                } else {
-                    return true;
-                }
-            }
+            
+            // BM: can't remove files with identical names because this list is often used across folders, so name is not unique
+            
+//            Templatable cur = map.get(e.getName());
+//            if (cur.getModifiedDate() == null) {
+//                remove(cur);
+//            } else if (e.getModifiedDate() == null) {
+//                // ignore
+//                return true;
+//            } else {
+//                if (e.getModifiedDate().after(cur.getModifiedDate())) {
+//                    remove(cur);
+//                } else {
+//                    return true;
+//                }
+//            }
         }
         map.put(e.getName(), e);
         boolean b = super.add(e);
@@ -370,7 +372,7 @@ public class BaseResourceList extends ArrayList<Templatable> {
     }
 
     public Map<Object, BaseResourceList> groupByField(final String fieldName) {
-        Map<Object, BaseResourceList> groups = new HashMap<Object, BaseResourceList>();
+        Map<Object, BaseResourceList> groups = new HashMap<>();
         for (Templatable t : this) {
             ComponentValue keyCv = t.getValues().get(fieldName);
             Object key = keyCv.getValue();

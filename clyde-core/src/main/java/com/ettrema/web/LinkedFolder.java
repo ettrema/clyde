@@ -21,7 +21,8 @@ import java.util.List;
 import static com.ettrema.context.RequestContext.*;
 
 /**
- * Implements a collectionresource whose children is that of another linked folder
+ * Implements a collectionresource whose children is that of another linked
+ * folder
  *
  * The linked folder is determined by the linkedto property
  *
@@ -35,9 +36,9 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
 
     /**
      * Get all the linked folders that are links to this folder
-     * 
+     *
      * @param from
-     * @return 
+     * @return
      */
     public static List<LinkedFolder> getLinkedDestinations(Folder from) {
         List<Relationship> rels = from.getNameNode().findFromRelations(REL_LINKED_TO);
@@ -113,7 +114,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     public void setLinkedTo(Folder cr) {
-        List<Relationship> rels = this.getNameNode().findToRelations(REL_LINKED_TO);
+        List<Relationship> rels = this.getNameNode().findFromRelations(REL_LINKED_TO);
 
         // delete previous relations
         if (rels != null && rels.size() > 0) {
@@ -138,6 +139,13 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
         } else {
             if (rels.size() > 1) {
                 log.warn("multiple relations found, using first only");
+                if (log.isTraceEnabled()) {
+                    LogUtils.trace(log, "getLinkedTo: listing relationship to nodes");
+                    for (Relationship r : rels) {
+                        NameNode nTo = r.to();
+                        LogUtils.trace(log, " - to: ", nTo.getName(), nTo.getId());
+                    }
+                }
             }
             Relationship rel = rels.get(0);
             NameNode nTo = rel.to();
@@ -164,7 +172,7 @@ public class LinkedFolder extends BaseResource implements CollectionResource, Ge
     }
 
     @Override
-    public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException{
+    public List<? extends Resource> getChildren() throws NotAuthorizedException, BadRequestException {
         CollectionResource cr = getLinkedTo();
         if (cr == null) {
             log.trace("getChildren: no linked resource");

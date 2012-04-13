@@ -1,5 +1,6 @@
 package com.ettrema.web;
 
+import com.bradmcevoy.http.Utils;
 import com.ettrema.utils.CurrentDateService;
 import com.bradmcevoy.utils.FileUtils;
 import com.ettrema.web.component.ComponentUtils;
@@ -484,6 +485,21 @@ public class Formatter {
     public String htmlEncode(ComponentValue cv) {
         String s = cv.toString();
         return htmlEncode(s);
+    }
+    
+    /**
+     * Decode percentage encoded paths. Eg a%20b -> a b
+     * 
+     * @param s
+     * @return 
+     */
+    public String percentDecode(String s) {
+        if( s == null ) {
+            return "";
+        } else if( s.length() == 0 ) {
+            return "";
+        }
+        return Utils.decodePath(s);
     }
 
     /**
