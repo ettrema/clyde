@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.ettrema.context.RequestContext.*;
+import com.ettrema.web.BaseResource;
 
 /**
  * Represents a comment by a user on some resource.
@@ -27,13 +28,20 @@ public class Comment implements DataNode, Serializable{
         this.userId = userId;
     }
 
-
+    public NameNode getNameNode() {
+        return nameNode;
+    }
 
     @Override
     public void setId( UUID id ) {
         this.id = id;
     }
 
+    /**
+     * The data node id
+     * 
+     * @return 
+     */
     @Override
     public UUID getId() {
         return id;
@@ -71,5 +79,9 @@ public class Comment implements DataNode, Serializable{
 
     public void setComment( String comment ) {
         this.comment = comment;
+    }
+    
+    public BaseResource page() {
+        return (BaseResource) nameNode.getParent().getParent().getData();
     }
 }

@@ -24,8 +24,6 @@ import com.ettrema.media.dao.AlbumLogCollector;
 import com.ettrema.media.dao.AlbumLogDao;
 import com.ettrema.web.Formatter;
 import com.ettrema.web.MusicFile;
-import com.ettrema.web.User;
-import com.ettrema.web.Web;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -99,7 +97,7 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 
 	@Override
 	public List<MediaLog> getMedia(BaseResource owner, String folderPath, int page) {
-		final List<MediaLog> list = new ArrayList<MediaLog>();
+		final List<MediaLog> list = new ArrayList<>();
 		searchMedia(owner.getNameNodeId(), folderPath, page, new MediaLogCollector() {
 
 			@Override
@@ -112,7 +110,7 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 
 	@Override
 	public List<AlbumLog> getAlbums(BaseResource owner, String folderPath) {
-		final List<AlbumLog> list = new ArrayList<AlbumLog>();
+		final List<AlbumLog> list = new ArrayList<>();
 		searchAlbums(owner.getNameNodeId(), folderPath, new AlbumLogCollector() {
 
 			@Override
@@ -125,9 +123,9 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 
 	@Override
 	public List<AlbumYear> getAlbumTimeline(BaseResource owner, String folderPath) {
-		List<AlbumYear> list = new ArrayList<AlbumYear>();
+		List<AlbumYear> list = new ArrayList<>();
 		List<AlbumLog> logs = getAlbums(owner, folderPath);
-		Map<Integer, AlbumYear> byYear = new HashMap<Integer, AlbumYear>();
+		Map<Integer, AlbumYear> byYear = new HashMap<>();
 		Formatter f = Formatter.getInstance();
 		for (AlbumLog l : logs) {
 			Integer year = f.getYear(l.getDateStart());
@@ -166,7 +164,7 @@ public class MediaLogServiceImpl implements TableDefinitionSource, EventListener
 
 	@Override
 	public List<Table> getTableDefinitions() {
-		List<Table> list = new ArrayList<Table>();
+		List<Table> list = new ArrayList<>();
 		list.add(MediaLogDao.ALBUM_TABLE);
 		list.add(MediaLogDao.MEDIA_TABLE);
 		return list;
