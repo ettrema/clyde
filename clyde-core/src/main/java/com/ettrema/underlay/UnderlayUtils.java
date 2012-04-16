@@ -2,9 +2,7 @@ package com.ettrema.underlay;
 
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
-import com.ettrema.web.ExistingResourceFactory;
 import com.ettrema.web.Host;
-import com.ettrema.web.Web;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +22,9 @@ public class UnderlayUtils {
      * @param visitor
      */
     public static <T> T walkUnderlays(Host target, UnderlayLocator underlayLocator, UnderlayVisitor<T> visitor) throws NotAuthorizedException, BadRequestException {
+        if( target == null ) {
+            return null;
+        }
         List<UnderlayVector> vectors = target.getUnderlayVectors();
         if (vectors != null) {
             // do shallow search

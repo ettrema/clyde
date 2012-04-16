@@ -44,7 +44,7 @@ public interface ITemplate extends Templatable{
      * @param params - may be null, or contains request parameters
      * @return - usually html
      */
-    String render( RenderContext child, Map<String,String> params );
+    String render( RenderContext child, Map<String,String> params, ITemplate t );
 
     ComponentDef getComponentDef( String name );
 

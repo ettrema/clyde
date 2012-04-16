@@ -6,7 +6,6 @@ import com.ettrema.web.Page;
 import com.ettrema.web.component.ComponentDef;
 import com.ettrema.web.component.ComponentValue;
 import com.bradmcevoy.xml.XmlHelper;
-import com.ettrema.vfs.VfsSession;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.MyXmlOutputter;
 
-import static com.ettrema.context.RequestContext._;
 import com.ettrema.vfs.VfsTransactionManager;
 
 /**
