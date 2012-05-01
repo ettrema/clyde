@@ -21,11 +21,7 @@
             <artifactId>clyde-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>endrick-jdbc</artifactId>
-            <version>${endrick.version}</version>
-        </dependency>
+
         <!--
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
