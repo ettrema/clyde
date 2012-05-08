@@ -63,6 +63,9 @@ public class SqlBackupTask implements Processable, Serializable {
     
     @Override
     public void doProcess(Context context) {
+        if( backupDir == null ) {
+            throw new RuntimeException("No backupDir is configured. Please configure the directory in which to place backups");
+        }
         if( !isConfigured()) {
             log.trace("Backup task is not configured, so will not perform any backups");
             return ;
@@ -80,6 +83,10 @@ public class SqlBackupTask implements Processable, Serializable {
             return ;
         }
         String sqlToRun = applyTemplates(sql); // TODO parameterise for file name, etc
+        if( sqlToRun == null ) {
+            log.warn("Not running backup");
+            return ;
+        }
         LogUtils.info(log, "doProcess: running backup process: " + sqlToRun);
         try {            
             runCommand(con, sqlToRun);
@@ -92,8 +99,11 @@ public class SqlBackupTask implements Processable, Serializable {
     
     private void runCommand(Connection con, String sqlToRun) throws SQLException {
         try (Statement stmt = con.createStatement() ) {
-            stmt.executeQuery(sqlToRun);
-        }        
+            boolean result = stmt.execute(sqlToRun);
+            log.info("Ran backup command. Result=" + result);
+            Date dtNow = _(CurrentDateService.class).getNow();
+            lastRun = new DateTime(dtNow.getTime());
+        }
     }    
 
     public boolean isTimeToRun() {
@@ -150,6 +160,18 @@ public class SqlBackupTask implements Processable, Serializable {
         } else {
             log.warn("Unable to delete old backup file: " + snapshot.getAbsolutePath());
         }
+    }
+
+    private File getNewBackupFile() {
+        Date now = currentDateService.getNow();
+        Calendar calNow = Calendar.getInstance();
+        calNow.setTime(now);
+        String fname = calNow.get(Calendar.YEAR)+"-";
+        fname += calNow.get(Calendar.MONTH)+"-";
+        fname += calNow.get(Calendar.DAY_OF_MONTH)+"-";
+        fname += calNow.get(Calendar.HOUR_OF_DAY)+"-";
+        fname += calNow.get(Calendar.MINUTE)+"-backup.zip";
+        return new File(backupDir, fname);
     }
 
 
@@ -263,17 +285,14 @@ public class SqlBackupTask implements Processable, Serializable {
     }
 
     private String applyTemplates(String sql) {
-        Date now = currentDateService.getNow();
-        Calendar calNow = Calendar.getInstance();
-        calNow.setTime(now);
-        String fname = "backup-" + formatTime() + ".zip";
-        File newBackup = new File(backupDir, fname);
+        File newBackup = getNewBackupFile();
         if( newBackup.exists() ) {            
-            log.warn("New backup file already exists: " + newBackup.getAbsolutePath() + " will append a big random number...");
-            fname = "backup-" + formatTime() + "-" + System.currentTimeMillis() + ".zip";
-            newBackup = new File(backupDir, fname);            
+            log.warn("New backup file already exists: " + newBackup.getAbsolutePath() + " - ignoring backup");
+            return null;            
         }
-        String s = sql.replace("${file}", newBackup.getAbsolutePath());
+        System.out.println("sql: " + sql);
+        String s = sql.replace("[FILE]", newBackup.getAbsolutePath());
+        System.out.println("sql2: " + s);
         return s;
     }
 
@@ -283,11 +302,7 @@ public class SqlBackupTask implements Processable, Serializable {
 
     public void setBackupDir(File backupDir) {
         this.backupDir = backupDir;
-    }
-
-    private String formatTime() {
-        DateFormat sdf = DateFormat.getDateTimeInstance();
-        return sdf.format(new Date());
+        log.info("setBackupDir: " + backupDir.getAbsolutePath());
     }
 
     public List<String> getActions() {

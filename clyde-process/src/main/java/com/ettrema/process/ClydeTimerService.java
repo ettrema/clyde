@@ -9,6 +9,7 @@ import com.ettrema.context.Context;
 import com.ettrema.context.Executable2;
 import com.ettrema.context.RootContextLocator;
 import com.ettrema.grid.Processable;
+import com.ettrema.logging.LogUtils;
 import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import java.io.Serializable;
@@ -118,17 +119,21 @@ public class ClydeTimerService extends VfsCommon implements TimerService, Servic
 
     private void schedule(final Processable p, long period) {
         log.info("scheduling timer task: " + p.getClass() + " at interval: " + period + "ms");
-        Runnable task = new Runnable() {
+        scheduler.scheduleWithFixedDelay(new Runnable() {
 
             @Override
             public void run() {
-                runProcessable(p);
+                try {
+                    runProcessable(p);
+                } catch (Throwable e) {
+                    log.error("Exception executing task: " + p.getClass(), e);
+                }
             }
-        };
-        scheduler.scheduleWithFixedDelay(task, 1000, period, TimeUnit.MILLISECONDS);
+        }, 1000, period, TimeUnit.MILLISECONDS);
     }
 
     void runProcessable(final Processable p) {
+        LogUtils.trace(log, "runProcessable", p.getClass());
         rootContextLocator.getRootContext().execute(new Executable2() {
 
             @Override
@@ -136,7 +141,6 @@ public class ClydeTimerService extends VfsCommon implements TimerService, Servic
                 p.doProcess(context);
             }
         });
-
     }
 
     public List<Processable> getScheduled() {
