@@ -62,11 +62,7 @@ public class FileScanner {
 
     private void startScan(File root, boolean forceReload) throws Exception {
         log.info("scan files in " + root.getAbsolutePath());
-        DirectoryListing listing = new DirectoryListing(root, root);
-        // First process the templates folder, if present.
-        if (listing.templates != null) {
-            scanDir(listing.templates, forceReload, root);
-        }
+        // BM moved listing.templates check to scanDir so is processed for nested hosts (eg idhealth.com, under 3dn learning)
         scanDir(root, forceReload, root);
     }
 
@@ -76,6 +72,12 @@ public class FileScanner {
 
         processFile(dir, true, root); // force load of dirs for metadata
 
+        // First process the templates folder, if present.
+        if (listing.templates != null) {
+            scanDir(listing.templates, forceReload, root);
+        }
+        
+        
         for (File f : listing.files) {
             processFile(f, forceReload, root);
         }
@@ -87,12 +89,7 @@ public class FileScanner {
 
     private void processFile(final File f, final boolean forceReload, final File root) throws Exception {
         if (forceReload || fileLoader.isNewOrUpdated(f, root)) {
-            try {
-                fileLoader.onNewFile(f, root);
-                VfsTransactionManager.commit();
-            } catch (Exception ex) {
-                VfsTransactionManager.rollback();
-            }
+            fileLoader.onNewFile(f, root);
         }
     }
 
@@ -119,7 +116,7 @@ public class FileScanner {
         final List<File> subdirs = new ArrayList<>();
 
         public DirectoryListing(File parent, File root) {
-            File[] listing = parent.listFiles();            
+            File[] listing = parent.listFiles();
             if (listing != null) {
                 List<File> filesList = Arrays.asList(listing);
                 Collections.sort(filesList);

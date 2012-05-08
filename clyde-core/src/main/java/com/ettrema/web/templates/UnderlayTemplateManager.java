@@ -28,29 +28,31 @@ public class UnderlayTemplateManager implements TemplateManager {
 
 
     @Override
-    public ITemplate lookup(final String templateName, Folder web) {
+    public ITemplate lookup(final String templateName, final Folder folder) {
         // First try to get from wrapped template manager
-        ITemplate template = templateManager.lookup(templateName, web);
+        ITemplate template = templateManager.lookup(templateName, folder);
         if( template != null ) {
             LogUtils.trace(log, "lookup: found template from wrapped template manager");
             return template;
         }
         
         // Not directly on this web, so try to get from underlay, if the web is a host (web's dont support underlays)
-        if (web instanceof Host) {
+        if (folder instanceof Host) {
             try {
-                Host theHost = (Host) web;
+                Host theHost = (Host) folder;
                 ITemplate r = UnderlayUtils.walkUnderlays(theHost, underlayLocator, new UnderlayUtils.UnderlayVisitor<ITemplate>() {
 
                     @Override
                     public ITemplate visitUnderlay(Host underLayFolder) throws NotAuthorizedException, BadRequestException {
                         ITemplate t = templateManager.lookup(templateName, underLayFolder);
                         if( t != null ) {
-                            LogUtils.trace(log, "lookup: found template from underlay", underLayFolder.getName());
+                            LogUtils.trace(log, "lookup: found template from underlay", underLayFolder.getName(), "web", folder.getWeb());
+                            //return new WrappedTemplate(t, folder.getWeb());
+                            return t;
                         } else {
                             LogUtils.trace(log, "lookup: did not find template from underlay", underLayFolder.getName());
-                        }
-                        return t;
+                            return null;
+                        }                        
                     }
                 });                                
                 return r;
@@ -58,7 +60,7 @@ public class UnderlayTemplateManager implements TemplateManager {
                 throw new RuntimeException(ex);
             }
         } else {
-            LogUtils.trace(log, "lookup: no template in wrapped, and target is not a host", web.getName());
+            LogUtils.trace(log, "lookup: no template in wrapped, and target is not a host", folder.getName());
             return null; // maybe should go to the web's host?
         }
     }

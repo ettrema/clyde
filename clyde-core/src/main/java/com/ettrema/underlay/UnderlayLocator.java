@@ -9,5 +9,6 @@ import com.ettrema.web.Host;
  */
 public interface UnderlayLocator {
     Host find(UnderlayVector vector);
+    Host createUnderlay(UnderlayVector vector);
     Folder getUnderlaysFolder(boolean autocreate);
 }

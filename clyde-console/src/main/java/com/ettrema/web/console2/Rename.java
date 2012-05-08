@@ -2,6 +2,8 @@ package com.ettrema.web.console2;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
 import com.ettrema.console.Result;
@@ -11,6 +13,8 @@ import com.ettrema.vfs.VfsSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,6 +25,7 @@ public class Rename extends AbstractConsoleCommand{
         super(args, host, currentDir, resourceFactory);
     }
 
+    @Override
     public Result execute() {
         if( args.size() != 2 ) {
             return result( "need two arguments");
@@ -37,21 +42,25 @@ public class Rename extends AbstractConsoleCommand{
                 return result("No such node: " + uuid);
             }
         } catch(IllegalArgumentException e) {
-            // ok, not a uuid
-            Path path = Path.path(sPath);
-            List<BaseResource> list = new ArrayList<BaseResource>();
-            Folder curFolder = currentResource();
-            Result resultSearch = findWithRegex(curFolder, path, list);
-            if (resultSearch != null) {
-                return resultSearch;
-            }
+            try {
+                // ok, not a uuid
+                Path path = Path.path(sPath);
+                List<BaseResource> list = new ArrayList<>();
+                Folder curFolder = currentResource();
+                Result resultSearch = findWithRegex(curFolder, path, list);
+                if (resultSearch != null) {
+                    return resultSearch;
+                }
 
-            if( list.size() == 0 ) {
-                return result("not found: " + sPath);
-            } else if( list.size() > 1) {
-                return result("multiple items found");
+                if( list.isEmpty() ) {
+                    return result("not found: " + sPath);
+                } else if( list.size() > 1) {
+                    return result("multiple items found");
+                }
+                node = list.get(0).getNameNode();
+            } catch (    NotAuthorizedException | BadRequestException ex) {
+                return result("can't lookup current resource", ex);
             }
-            node = list.get(0).getNameNode();
         }
         node.setName( newName );
         node.save();

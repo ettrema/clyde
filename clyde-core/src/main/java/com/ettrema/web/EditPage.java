@@ -73,7 +73,7 @@ public class EditPage implements PostableResource, DigestResource {
             if( params != null && params.size() > 0 ) {
                 editee.preProcess(rc, params, null);
             }
-            String s = template.render( rc, params );
+            String s = template.render( rc, params, template);
             if( s == null ) {
                 log.warn( "Got null content for editee: " + editee.getHref() );
                 return;

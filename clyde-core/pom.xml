@@ -41,6 +41,20 @@
             <artifactId>endrick-jdbc</artifactId>
             <version>${endrick.version}</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kryo</artifactId>
+                    <groupId>com.esotericsoftware</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>reflectasm</artifactId>
+                    <groupId>com.esotericsoftware</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>minilog</artifactId>
+                    <groupId>com.esotericsoftware</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>		
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -127,8 +141,8 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>berry-channel</artifactId>
-            <version>${berry.version}</version>
+            <artifactId>endrick-channel</artifactId>
+            <version>${endrick.version}</version>
         </dependency>
 
 

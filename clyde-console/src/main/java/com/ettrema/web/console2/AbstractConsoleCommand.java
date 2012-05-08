@@ -5,6 +5,8 @@ import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Folder;
@@ -14,7 +16,6 @@ import com.ettrema.console.ConsoleCommand;
 import com.ettrema.console.Result;
 import com.ettrema.context.Context;
 import com.ettrema.context.RequestContext;
-import com.ettrema.vfs.VfsSession;
 import com.ettrema.vfs.VfsTransactionManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +48,11 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         VfsTransactionManager.commit();
     }
     
-    protected Resource find(Path p) {
+    protected Resource find(Path p) throws NotAuthorizedException, BadRequestException {
         return resourceFactory.getResource(host, p.toString());
     }
     
-    protected Folder currentResource() {
+    protected Folder currentResource() throws NotAuthorizedException, BadRequestException {
         return (Folder) resourceFactory.getResource(host, currentDir);
     }
     
@@ -59,7 +60,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         return new Result(currentDir,msg);
     }    
     
-    protected BaseResource find(BaseResource cur, Path path) {
+    protected BaseResource find(BaseResource cur, Path path) throws NotAuthorizedException, BadRequestException {
         log.debug("find: " + cur.getHref() + " - " + path);
         if( path.isRoot() && !path.isRelative() ) {
             return host();
@@ -76,7 +77,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         }
     }
 
-    protected BaseResource move(BaseResource cur, String p) {
+    protected BaseResource move(BaseResource cur, String p) throws NotAuthorizedException, BadRequestException {
         log.debug("move: " + cur.getClass());
         if( p.equals("..")) {
             if( cur instanceof Templatable ) {
@@ -99,7 +100,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         }
     }
     
-    protected Host host() {
+    protected Host host() throws NotAuthorizedException, BadRequestException {
         return (Host) find(Path.root);
     }    
     
@@ -124,7 +125,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
      * @param list
      * @return
      */
-    protected Result findWithRegex(Folder cur, Path path, List<BaseResource> list) {
+    protected Result findWithRegex(Folder cur, Path path, List<BaseResource> list) throws NotAuthorizedException, BadRequestException {
         if(path.getLength() > 1) {
             String first = path.getFirst();
             if( "**".equals( first ) ) {
@@ -141,7 +142,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
         }
     }
 
-    protected Result findInFolderWithRegex(Folder cur, Path path, List<BaseResource> list) {
+    protected Result findInFolderWithRegex(Folder cur, Path path, List<BaseResource> list) throws NotAuthorizedException, BadRequestException {
         log.debug("findWithWildCard");
         Folder start = cur;
         if (path.getLength() > 1) {
@@ -190,6 +191,7 @@ public abstract class AbstractConsoleCommand implements ConsoleCommand{
     }
     
     protected Result result(String msg, Exception ex) {
+        log.error("exception in console commant: " + this.getClass() + " - " + msg, ex);
         StringBuilder sb = new StringBuilder(msg);
         formatException(sb, ex);
         return result(sb.toString());

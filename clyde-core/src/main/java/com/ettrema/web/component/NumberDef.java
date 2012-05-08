@@ -40,7 +40,6 @@ public class NumberDef extends TextDef {
         }
         s = s.replace(",", "");
         try {
-            this.setValidationMessage(null);
             return Double.parseDouble(s);
         } catch (NumberFormatException e) {
             this.setValidationMessage("Please enter a valid number");

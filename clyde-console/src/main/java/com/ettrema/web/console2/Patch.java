@@ -2,6 +2,8 @@
 package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.console.Result;
 import static com.ettrema.context.RequestContext.*;
 import com.ettrema.grid.AsynchProcessor;
@@ -28,7 +30,11 @@ public class Patch extends AbstractConsoleCommand {
             String[] patchArgs = getPatchArgs();
             log.debug("patch args: " + patchArgs);
             p.setArgs(patchArgs);
-            p.setCurrentFolder( currentResource() );
+            try {
+                p.setCurrentFolder( currentResource() );
+            } catch (    NotAuthorizedException | BadRequestException ex) {
+                return result("can't lookup current resource", ex);
+            }
             _(AsynchProcessor.class).enqueue(p);
 
             return new Result(this.currentDir, "executed (or executing) patch " + p);

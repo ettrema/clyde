@@ -30,10 +30,10 @@ public class ClydeUnderlayLocator implements UnderlayLocator {
             return null;
         }
         // Now look for version.artifcatId.groupId
-        String fname = vector.getVersion() + "." + vector.getArtifcatId() + "." + vector.getGroupId();
-        Resource rUnderlay = f.childRes(fname);
+        String underlayHostName = vector.getVersion() + "." + vector.getArtifcatId() + "." + vector.getGroupId();
+        Resource rUnderlay = f.childRes(underlayHostName);
         if (rUnderlay == null) {
-            log.trace("Could not find underlay folder: " + fname + " in " + f.getHref());
+            log.trace("Could not find underlay folder: " + underlayHostName + " in " + f.getHref());
             return null;
         } else if (rUnderlay instanceof Host) {
             return (Host) rUnderlay;
@@ -41,6 +41,23 @@ public class ClydeUnderlayLocator implements UnderlayLocator {
             log.warn("Found an underlay folder, but it is not of type Host. Is a: " + rUnderlay.getClass());
             return null;
         }
+    }
+    
+    @Override
+    public Host createUnderlay(UnderlayVector vector) {
+        Folder f = getUnderlaysFolder(false);
+        if (f == null) {
+            log.trace("Could not find underlays folder");
+            return null;
+        }
+        
+        String underlayHostName = vector.getVersion() + "." + vector.getArtifcatId() + "." + vector.getGroupId();
+        if( f.hasChild(underlayHostName)) {
+            throw new RuntimeException("Already exists: " + underlayHostName + " in " + f.getHref());
+        }
+        Host h = new Host(f, underlayHostName);
+        h.save();
+        return h;
     }
 
     @Override

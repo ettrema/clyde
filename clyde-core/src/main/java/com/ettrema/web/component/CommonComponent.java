@@ -110,11 +110,16 @@ public abstract class CommonComponent implements Component, Serializable {
         }
     }
 
-    public final void setValidationMessage(String s) {
-        log.warn("setValidationMessage: " + this.getName() + " - " + s);
+    public final void setValidationMessage(String s) {        
         RequestParams params = RequestParams.current();
         if (params != null) {
-            params.attributes.put(this.getName() + "_validation", s);
+            if( s != null ) {
+                log.warn("setValidationMessage: " + this.getName() + " - " + s);
+                params.attributes.put(this.getName() + "_validation", s);
+            } else {
+                log.warn("setValidationMessage: " + this.getName() + " - cleared");
+                params.attributes.remove(this.getName() + "_validation");
+            }
         }
     }
 

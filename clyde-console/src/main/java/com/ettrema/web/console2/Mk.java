@@ -3,6 +3,8 @@ package com.ettrema.web.console2;
 
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.bradmcevoy.utils.ReflectionUtils;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
@@ -37,7 +39,13 @@ public class Mk extends AbstractConsoleCommand {
         String sClazz = args.get(0);
         String newName = args.get(1);
         log.debug("mk. execute: " + sClazz + " - " + newName);
-        Folder cur = currentResource();
+        Folder cur;
+        try {
+            cur = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
+
         if (cur == null) {
             log.debug("current resource not found: " + currentDir);
             return result("current dir not found: " + currentDir);

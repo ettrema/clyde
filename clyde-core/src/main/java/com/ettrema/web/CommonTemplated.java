@@ -683,11 +683,12 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
     }
 
     public String render(RenderContext child, Map<String, String> params) {
-        _(ClydeEventDispatcher.class).beforeRender(this, child);
         ITemplate t = getTemplate();
-        if (t == null) {
-//            log.debug( "render: null template for: " + this.getName());
-        }
+        return render(child, params, t);
+    }
+    
+    public String render(RenderContext child, Map<String, String> params, ITemplate t) {
+        _(ClydeEventDispatcher.class).beforeRender(this, child);
         RenderContext rc = new RenderContext(t, this, child, false);
         if (child == null) {
             if (params != null && params.size() > 0) {
@@ -698,7 +699,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
         if (t != null) {
             LogUtils.trace(log, "render: rendering from template ", t.getName());
-            return t.render(rc, params);
+            ITemplate t2 = t.getTemplate();
+            return t.render(rc, params, t2);
         } else {
             LogUtils.trace(log, "render: no template, so try to use root parameter");
             Component cRoot = this.getParams().get("root");

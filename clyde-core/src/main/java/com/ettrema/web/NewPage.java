@@ -203,7 +203,7 @@ public class NewPage implements PostableResource, XmlPersistableResource, Digest
                     editee.preProcess(rc, params, null);
                 }
 
-                String s = t.render(rc, params);
+                String s = t.render(rc, params, t);
                 if (s == null) {
                     log.warn("Got null content for editee: " + editee.getHref());
                     return;

@@ -1,17 +1,21 @@
 package com.ettrema.web;
 
+import com.bradmcevoy.http.HttpManager;
 import com.bradmcevoy.http.PostableResource;
 import com.bradmcevoy.http.Range;
 import com.bradmcevoy.io.ReadingException;
 import com.bradmcevoy.io.StreamUtils;
 import com.bradmcevoy.io.WritingException;
 import com.bradmcevoy.property.BeanPropertyResource;
+import com.ettrema.logging.LogUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 import org.apache.commons.io.IOUtils;
@@ -96,20 +100,29 @@ public class TextFile extends File implements SimpleEditPage.SimpleEditable, Rep
     void setContent( InputStream in ) {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            StreamUtils.readTo( in, out );
-            setContent( out.toString() );
-        } catch( ReadingException ex ) {
-            throw new RuntimeException( ex );
-        } catch( WritingException ex ) {
+            long bytes = StreamUtils.readTo( in, out );
+            try {
+                out.flush();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            String newContent = out.toString();
+            setContent( newContent );
+        } catch( ReadingException | WritingException ex ) {
             throw new RuntimeException( ex );
         }
 
     }
 
     @Override
-    public void replaceContent( InputStream in, Long length ) {
-        log.debug( "replaceContent" );
+    public void replaceContent( InputStream in, Long length ) {        
         setContent( in );
+        LogUtils.trace(log, "replaceContent: expected content length=", length, "content length after set content: ", getContentLength());
+//        if( length != null ) {
+//            if( length != getContentLength() ) {
+//                throw new RuntimeException("Content lengths dont match: " + length + " != " + getContentLength());
+//            }
+//        }
         this.save();
         this.commit();
     }

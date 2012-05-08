@@ -5,7 +5,6 @@ import com.ettrema.forms.FormAction;
 import com.ettrema.forms.FormParameter;
 import com.ettrema.web.security.PermissionRecipient.Role;
 import com.bradmcevoy.http.Auth;
-import com.bradmcevoy.http.exceptions.NotFoundException;
 import com.bradmcevoy.http.values.HrefList;
 import com.ettrema.utils.ClydeUtils;
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import com.bradmcevoy.http.CollectionResource;
 import com.bradmcevoy.http.DeletableCollectionResource;
 import com.bradmcevoy.http.GetableResource;
 import com.bradmcevoy.http.HttpManager;
-import com.bradmcevoy.http.Range;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.exceptions.ConflictException;
@@ -41,7 +39,6 @@ import com.ettrema.vfs.DataNode;
 import com.ettrema.vfs.NameNode;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -545,6 +542,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         return list;
     }
 
+
     private void appendThumbsRecursive(List list, int limit, String thumbSpec) {
         if (list.size() >= limit) {
             log.trace("exceeded max limit");
@@ -600,23 +598,33 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
         for (Resource r : this.getChildren()) {
             if (r instanceof Folder) {
                 Folder f = (Folder) r;
-                if (!f.getName().equals("templates")) {
-                    if (type == null) {
-                        // not a shallow search, so add and go deeper
-                        list.add(r);
-                        f.appendFoldersRecursive(list, depth++, type);
-                    } else if (f.is(type)) {
-                        // is a shallow search and match found, so add but do not go deeper
-                        list.add(r);
-                    } else {
-                        // shallow search but no match, so go deeper
-                        f.appendFoldersRecursive(list, depth++, type);
-                    }
-                }
+                appendFoldersRecursive(f, type, list, depth);
+            } else if( r instanceof LinkedFolder ) {
+                LinkedFolder lf = (LinkedFolder) r;
+                Folder f = lf.getLinkedTo();
+                System.out.println(" - linked to: " + f.getHref());
+                appendFoldersRecursive(f, type, list, depth);
             }
         }
+        System.out.println("list size2: " + list.size());
     }
 
+    private void appendFoldersRecursive(Folder f, String type, List list, int depth) {
+        if (!f.getName().equals("templates")) {
+            if (type == null) {
+                // not a shallow search, so add and go deeper
+                list.add(f);
+                f.appendFoldersRecursive(list, depth++, type);
+            } else if (f.is(type)) {
+                // is a shallow search and match found, so add but do not go deeper
+                list.add(f);                
+            } else {
+                // shallow search but no match, so go deeper
+                f.appendFoldersRecursive(list, depth++, type);
+            }
+        }
+    }    
+    
     @Override
     public Resource createNew(String newName, InputStream in, Long length, String contentType) throws IOException, ConflictException, NotAuthorizedException, BadRequestException {
         if (newName.equals(NewPage.AUTO_NAME)) {

@@ -6,7 +6,6 @@ import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
-import com.ettrema.web.Organisation;
 import com.ettrema.web.RootFolder;
 import com.ettrema.common.Service;
 import com.ettrema.context.Context;
@@ -54,8 +53,8 @@ public class RootHostCreator implements Service {
 
         log.warn("host not found, creating: " + hostName);
         Folder rootFolder = findOrCreateRootFolder(sess);
-        Organisation org = new Organisation(rootFolder, hostName);
-        org.save();
+        Host rootHost = new Host(rootFolder, hostName);
+        rootHost.save();
         sess.commit();
         log.info("Created new host and committed");
     }

@@ -192,7 +192,20 @@ public class Host extends Web implements BucketOwner {
     }
 
     public Folder getUsers(boolean create) {
-        Folder users = (Folder) this.child("users");
+        Resource r = child("users");
+        Folder users;
+        if( r instanceof Folder ) {
+            users = (Folder) r;
+        } else if( r instanceof LinkedFolder ) {
+            LinkedFolder lf = (LinkedFolder) r;
+            users = lf.getLinkedTo();
+        } else {
+            if( r != null ) {
+                throw new RuntimeException("Found a users resource, but is not a folder or linkedfolder. Is a: " + r.getClass());
+            } else {
+                users = null;
+            }
+        }
         if (users == null) {
             if (create) {
                 try {

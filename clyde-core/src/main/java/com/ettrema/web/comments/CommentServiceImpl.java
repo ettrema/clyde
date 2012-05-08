@@ -20,10 +20,13 @@ public class CommentServiceImpl implements CommentService {
     private final CurrentUserService currentUserService;
     
     private final CurrentDateService currentDateService;
+    
+    private final CommentDao commentDao;
 
-    public CommentServiceImpl(CurrentUserService currentUserService, CurrentDateService currentDateService) {
+    public CommentServiceImpl(CurrentUserService currentUserService, CurrentDateService currentDateService, CommentDao commentDao) {
         this.currentUserService = currentUserService;
         this.currentDateService = currentDateService;
+        this.commentDao = commentDao;
     }       
 
     @Override
@@ -70,6 +73,8 @@ public class CommentServiceImpl implements CommentService {
         newComment.setDate(new Date());
         NameNode nNewComment = nComments.add( nm, newComment );
         nNewComment.save();
+        
+        commentDao.insert(newComment);
     }
 
     @Override

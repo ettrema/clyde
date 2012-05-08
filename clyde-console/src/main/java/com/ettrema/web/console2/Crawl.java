@@ -6,6 +6,8 @@ import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.Folder;
 import com.ettrema.web.Host;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.binary.StateTokenManager;
 import com.ettrema.web.search.BaseResourceIndexer;
 import com.ettrema.console.Result;
@@ -21,6 +23,8 @@ import com.ettrema.web.User;
 import com.ettrema.web.search.SearchManager;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Crawl extends AbstractConsoleCommand {
 
@@ -48,7 +52,12 @@ public class Crawl extends AbstractConsoleCommand {
                 return result("No crawl job is running");
             }
         } else {
-            Resource cur = currentResource();
+            Resource cur;
+            try {
+                cur = currentResource();
+            } catch (NotAuthorizedException | BadRequestException ex) {
+                return result("can't lookup current resource", ex);
+            }
             if (!(cur instanceof CommonTemplated)) {
                 return result("Resource is not compatible: " + cur.getClass());
             }

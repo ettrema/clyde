@@ -3,6 +3,8 @@ package com.ettrema.web.console2;
 import com.ettrema.media.ThumbGeneratorService;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.vfs.VfsCommon;
 import com.ettrema.web.BaseResource;
 import com.ettrema.web.Folder;
@@ -40,7 +42,13 @@ public class GenThumbs extends AbstractConsoleCommand {
 
     @Override
     public Result execute() {
-        Resource r = currentResource();
+        Folder r;
+        try {
+            r = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
+
         Folder f = (Folder) r;
         boolean skipIfExists = false;
         List<Thumb> thumbs = null;

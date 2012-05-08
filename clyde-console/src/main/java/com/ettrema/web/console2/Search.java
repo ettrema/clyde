@@ -2,10 +2,14 @@ package com.ettrema.web.console2;
 
 import com.ettrema.web.BaseResource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.console.Result;
 import com.ettrema.web.search.SearchManager;
 import com.ettrema.web.search.SearchUtils;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
@@ -42,10 +46,12 @@ public class Search extends AbstractConsoleCommand {
             }
             sb.append("</ul>");
             return result(sb.toString());
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
         } catch (ParseException ex) {
-            return result("exception: " + ex.getMessage());
+            return result("exception: ", ex);
         } catch (CorruptIndexException ex) {
-            return result("corrupt index: " + ex.getMessage());
+            return result("corrupt index: ", ex);
         }
     }
 }

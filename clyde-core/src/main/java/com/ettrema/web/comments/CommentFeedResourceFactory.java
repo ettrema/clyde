@@ -1,4 +1,4 @@
-package com.ettrema.media;
+package com.ettrema.web.comments;
 
 import com.bradmcevoy.common.Path;
 import com.bradmcevoy.http.Resource;
@@ -6,26 +6,25 @@ import com.bradmcevoy.http.ResourceFactory;
 import com.bradmcevoy.http.exceptions.BadRequestException;
 import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.logging.LogUtils;
-import com.ettrema.web.Folder;
+import com.ettrema.web.BaseResource;
+import com.ettrema.web.LinkedFolder;
 
 /**
  *
  * @author brad
  */
-public class MediaFeedResourceFactory implements ResourceFactory {
+public class CommentFeedResourceFactory implements ResourceFactory {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MediaFeedResourceFactory.class);
-    private final String feedName;
+    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CommentFeedResourceFactory.class);
+    private String feedName = "_comments";
     private final ResourceFactory wrapped;
-    private MediaFeedLinkGenerator linkGenerator;
-    private final MediaLogServiceImpl logService;
+    private final CommentDao commentDao;
     private Long cacheSeconds;
     private boolean secure;
 
-    public MediaFeedResourceFactory(String rssName, ResourceFactory wrapped, MediaLogServiceImpl logService) {
-        this.feedName = rssName;
+    public CommentFeedResourceFactory(ResourceFactory wrapped, CommentDao commentDao) {
         this.wrapped = wrapped;
-        this.logService = logService;
+        this.commentDao = commentDao;
     }
 
     @Override
@@ -35,11 +34,15 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         if (path.getName().equals(feedName)) {
             log.trace("got media feed name");
             Resource parent = wrapped.getResource(host, path.getParent().toString());
-            if (parent instanceof Folder) {
-                Folder folder = (Folder) parent;
+            if (parent instanceof BaseResource) {
+                BaseResource baseResource = (BaseResource) parent;
+                if( baseResource instanceof LinkedFolder ) {
+                    LinkedFolder lf = (LinkedFolder) baseResource;
+                    baseResource = lf.getLinkedTo();
+                }
                 String basePath = buildBasePath(host, path.getParent());
                 log.trace("got media feed resource");
-                return new MediaFeedResource(logService, linkGenerator, feedName, folder, cacheSeconds, basePath);
+                return new CommentFeedResource(commentDao, feedName, baseResource, cacheSeconds, basePath);
             } else {
                 log.trace("did not find: " + path.getParent());
                 return null;
@@ -73,11 +76,11 @@ public class MediaFeedResourceFactory implements ResourceFactory {
         return s;
     }
 
-    public MediaFeedLinkGenerator getLinkGenerator() {
-        return linkGenerator;
+    public String getFeedName() {
+        return feedName;
     }
 
-    public void setLinkGenerator(MediaFeedLinkGenerator linkGenerator) {
-        this.linkGenerator = linkGenerator;
-    }
+    public void setFeedName(String feedName) {
+        this.feedName = feedName;
+    }   
 }

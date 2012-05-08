@@ -3,6 +3,8 @@ package com.ettrema.web.console2;
 import com.bradmcevoy.http.FileItem;
 import com.bradmcevoy.http.Resource;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.web.CommonTemplated;
 import com.ettrema.web.RenderContext;
 import com.ettrema.web.User;
@@ -14,15 +16,14 @@ import java.util.Map;
 import org.jdom.Element;
 
 public class Eval extends AbstractConsoleCommand {
+
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Eval.class);
-    
     User theUser;
-    
+
     Eval(List<String> args, String host, String currentDir, User theUser, ResourceFactory resourceFactory) {
         super(args, host, currentDir, resourceFactory);
         this.theUser = theUser;
     }
-    
 
     @Override
     public Result execute() {
@@ -30,13 +31,18 @@ public class Eval extends AbstractConsoleCommand {
             return result("missing expression");
         }
         String exp = "";
-        for( String s : args ) {
+        for (String s : args) {
             exp += s + " ";
         }
-        
+
         log.debug("eval: " + exp);
-        
-        Resource r = currentResource();
+
+        Resource r;
+        try {
+            r = currentResource();
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("Not authorised, or bad request");
+        }
         if (r instanceof CommonTemplated) {
             CommonTemplated t = (CommonTemplated) r;
             RenderContext rc = new RenderContext(t.getTemplate(), t, null, false);
@@ -48,18 +54,16 @@ public class Eval extends AbstractConsoleCommand {
             return result("cannot eval against this type: " + r.getClass());
         }
     }
-    
-    private class EvalComponent extends CommonComponent {
-        private static final long serialVersionUID = 1L;
 
+    private class EvalComponent extends CommonComponent {
+
+        private static final long serialVersionUID = 1L;
         final String template;
 
         public EvalComponent(String template) {
             this.template = template;
         }
-        
-        
-        
+
         @Override
         public void init(Addressable container) {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -67,7 +71,11 @@ public class Eval extends AbstractConsoleCommand {
 
         @Override
         public Addressable getContainer() {
-            return (Addressable) Eval.this.currentResource();
+            try {
+                return (Addressable) Eval.this.currentResource();
+            } catch (NotAuthorizedException | BadRequestException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         @Override
@@ -104,6 +112,5 @@ public class Eval extends AbstractConsoleCommand {
         public Element toXml(Addressable container, Element el) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-        
     }
 }

@@ -25,9 +25,9 @@ public class JGroupsNonceProvider implements NonceProvider, ChannelListener {
     private final Channel channel;
     private final Map<UUID, Nonce> nonces;
 
-    public JGroupsNonceProvider( Channel channel, int nonceValiditySeconds ) {
-        this.nonces = new ConcurrentHashMap<UUID, Nonce>();
-        this.wrapped = new SimpleMemoryNonceProvider( nonceValiditySeconds, nonces );
+    public JGroupsNonceProvider( Channel channel, int nonceValiditySeconds, SimpleMemoryNonceProvider nonceProvider ) {
+        this.nonces = new ConcurrentHashMap<>();
+        this.wrapped = nonceProvider;
         this.channel = channel;
         channel.registerListener( this );
     }

@@ -94,15 +94,18 @@ public class RecursiveAuthenticator implements ClydeAuthenticator {
     private User authenticateRecursive( Host h, String name, String password ) {
         User u = h.doAuthenticate( name, password );
         if( u != null ) {
-            //log.debug( "found user: " + u.getName());
+            if( log.isTraceEnabled() ) {
+                LogUtils.trace(log, "authenticateRecursive: authenticated ok on host: ", h.getName(), "user", name, password, "->", u.getPath());
+            }
             return u;
         }
 
         Host hParent = h.getParentHost();
         if( hParent == null ) {
-            //log.warn( "authentication failed");
+            LogUtils.trace(log, "authenticateRecursive: reached null host for user name: ", name);
             return null;
         } else {
+            LogUtils.trace(log, "authenticateRecursive: not found here, delegate to parent host");
             return authenticateRecursive( hParent, name, password );
         }
     }

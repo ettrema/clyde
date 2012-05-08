@@ -43,7 +43,9 @@ public class StateTokenManager {
 
     private void setStateToken(Folder f, long token) {
         StateToken stateToken = getOrCreateStateToken(f, true);
-        stateToken.setCrc(token);
+        if( stateToken != null ) {
+            stateToken.setCrc(token);
+        }
     }
 
     private void removeStateToken(Folder f) {

@@ -3,6 +3,8 @@ package com.ettrema.web.console2;
 import com.bradmcevoy.http.Auth;
 import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.ResourceFactory;
+import com.bradmcevoy.http.exceptions.BadRequestException;
+import com.bradmcevoy.http.exceptions.NotAuthorizedException;
 import com.ettrema.utils.CurrentRequestService;
 import com.ettrema.web.User;
 import com.ettrema.web.security.PermissionChecker;
@@ -24,26 +26,31 @@ public class SetPassword extends AbstractConsoleCommand {
         super( args, host, currentDir, resourceFactory );
     }
 
+    @Override
     public Result execute() {
-        String sUser = args.get( 0 );
-        String newPassword = args.get( 1 );
-        User user = currentResource().getHost().findUser( sUser );
-        if( user == null ) {
-            return result( "user not found" );
-        }
+        try {
+            String sUser = args.get( 0 );
+            String newPassword = args.get( 1 );
+            User user = currentResource().getHost().findUser( sUser );
+            if( user == null ) {
+                return result( "user not found" );
+            }
 
-        Request req = _( CurrentRequestService.class ).request();
-        if( req == null ) throw new RuntimeException( "No current request" );
-        Auth auth = req.getAuthorization();
-        boolean isSourceAuthor = _( PermissionChecker.class ).hasRole( Role.AUTHOR, user, auth );
-        if( !isSourceAuthor ) {
-            return result( "You do not have the AUTHOR role on the source" );
-        }
-        user.setPassword( newPassword );
-        user.save();
-        commit();
+            Request req = _( CurrentRequestService.class ).request();
+            if( req == null ) throw new RuntimeException( "No current request" );
+            Auth auth = req.getAuthorization();
+            boolean isSourceAuthor = _( PermissionChecker.class ).hasRole( Role.AUTHOR, user, auth );
+            if( !isSourceAuthor ) {
+                return result( "You do not have the AUTHOR role on the source" );
+            }
+            user.setPassword( newPassword );
+            user.save();
+            commit();
 
-        return result( "updated: " + user.getLink() );
+            return result( "updated: " + user.getLink() );
+        } catch (NotAuthorizedException | BadRequestException ex) {
+            return result("can't lookup current resource", ex);
+        }
 
 
     }
