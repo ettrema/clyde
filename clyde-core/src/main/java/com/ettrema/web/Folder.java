@@ -500,6 +500,7 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
     }
 
     private void appendChildrenRecursive(List list, int depth, String type, Integer limit) {
+        System.out.println("appendChildrenRecursive: " + getName() + " - " + list.size());
         if (depth > 5) {
             log.trace("exceeded max depth");
             return;
@@ -514,9 +515,10 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
             if (r instanceof Folder) {
                 Folder f = (Folder) r;
                 if (!f.getName().equals("templates")) {
-                    f.appendChildrenRecursive(list, depth++, type, limit);
+                    f.appendChildrenRecursive(list, depth+1, type, limit);
                 }
-            } else if (r instanceof BaseResource) {
+            }
+            if (r instanceof BaseResource) {
                 BaseResource p = (BaseResource) r;
                 if (type == null || p.is(type)) {
                     list.add(p);
@@ -525,6 +527,8 @@ public class Folder extends BaseResource implements com.bradmcevoy.http.FolderRe
                             return;
                         }
                     }
+                } else {
+                    //System.out.println("resource not type: " + type + " - " + p.getTemplateName());
                 }
             } else {
                 // do nothing

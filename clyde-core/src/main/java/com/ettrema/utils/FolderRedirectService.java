@@ -4,6 +4,8 @@ import com.bradmcevoy.http.Request;
 import com.bradmcevoy.http.Request.Method;
 import com.bradmcevoy.http.Resource;
 import com.ettrema.web.Folder;
+import com.ettrema.web.Host;
+import com.ettrema.web.Templatable;
 
 /**
  *
@@ -24,6 +26,16 @@ public class FolderRedirectService implements RedirectService {
             String req = request.getHeaders().get("X-Requested-With");
             if (req.equals("XMLHttpRequest")) {
                 return null;
+            }
+        }
+        // Check for a redirect on the host
+        if( resource instanceof Templatable) {
+            Templatable t = (Templatable) resource;
+            Host h = t.getHost();
+            String s = h.getRedirect();
+            if( s != null ) {
+                // host has redirect, so redirect to this path on that host
+                return hostRedirect(s, request.getAbsolutePath());
             }
         }
         if (resource instanceof Folder) {
@@ -56,6 +68,13 @@ public class FolderRedirectService implements RedirectService {
 
     public void setRedirectPage(String redirectPage) {
         this.redirectPage = redirectPage;
+    }
+
+    private String hostRedirect(String hostRedirect, String requestPath) {
+        if( hostRedirect.endsWith("/")) {
+            hostRedirect = hostRedirect.substring(0, hostRedirect.length()-2); // cut off trailing slash
+        }
+        return hostRedirect + requestPath;
     }
 
 }

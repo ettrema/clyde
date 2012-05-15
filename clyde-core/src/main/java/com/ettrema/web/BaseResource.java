@@ -393,6 +393,18 @@ public abstract class BaseResource extends CommonTemplated implements DataNode, 
         if (log.isTraceEnabled()) {
             log.trace("physically delete item: " + getHref());
         }
+        List<Relationship> rels = nameNode.findFromRelations(null);
+        if( rels != null ) {
+            for( Relationship r : rels ) {
+                r.delete();
+            }                
+        }
+        rels = nameNode.findToRelations(null);
+        if( rels != null ) {
+            for( Relationship r : rels ) {
+                r.delete();
+            }                
+        }
         nameNode.delete();
     }
 

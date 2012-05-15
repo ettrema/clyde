@@ -16,12 +16,9 @@ public class DefaultRedirectService implements RedirectService{
             String redirect = r.getRedirect();
             if( redirect != null && redirect.length() > 0 ) {
                 return redirect;
-            } else {
-                return null;
             }
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

@@ -155,7 +155,9 @@ public final class GroupSelect implements WrappableComponent, Component {
 
     public Boolean getValue( Addressable container ) {
         User user = (User) container;
-        return user.isInGroup( groupName );
+        boolean b = user.isInGroup( groupName );
+        System.out.println("isInGroup: " + groupName + " = " + b);
+        return b;
     }
 
     public String getFormattedValue( Addressable container ) {

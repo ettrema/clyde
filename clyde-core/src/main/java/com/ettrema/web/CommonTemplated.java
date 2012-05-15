@@ -686,13 +686,16 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         ITemplate t = getTemplate();
         return render(child, params, t);
     }
-    
+
     public String render(RenderContext child, Map<String, String> params, ITemplate t) {
+        return render(child, params, t, false);
+    }
+    
+    public String render(RenderContext child, Map<String, String> params, ITemplate t, boolean editMode) {
         _(ClydeEventDispatcher.class).beforeRender(this, child);
-        RenderContext rc = new RenderContext(t, this, child, false);
+                        
         if (child == null) {
             if (params != null && params.size() > 0) {
-                System.out.println("do preprocess");
                 preProcess(child, params, null);
             }
         }
@@ -700,6 +703,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
         if (t != null) {
             LogUtils.trace(log, "render: rendering from template ", t.getName());
             ITemplate t2 = t.getTemplate();
+            RenderContext rc = new RenderContext(t2, this, child, editMode);
+
             return t.render(rc, params, t2);
         } else {
             LogUtils.trace(log, "render: no template, so try to use root parameter");
@@ -709,6 +714,7 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
                 return "";
             } else {
                 LogUtils.trace(log, "render: rendering from root component", cRoot.getClass());
+                RenderContext rc = new RenderContext(null, this, child, false);
                 return cRoot.render(rc);
             }
         }
@@ -1071,7 +1077,8 @@ public abstract class CommonTemplated extends VfsCommon implements PostableResou
 
         /**
          * Just return number of values on target page
-         * @return 
+         *
+         * @return
          */
         @Override
         public int size() {

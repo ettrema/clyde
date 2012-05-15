@@ -140,7 +140,7 @@ public class Group extends Folder implements Mailbox, CustomUserGroup, Permissio
      */
     @Override
     public void storeMail(MimeMessage mm) {
-        if( emailDisabled ) {
+        if (emailDisabled) {
             log.warn("Email received to group with disabled email. Ignoring");
         }
         MailProcessor mailProc = requestContext().get(MailProcessor.class);
@@ -158,7 +158,7 @@ public class Group extends Folder implements Mailbox, CustomUserGroup, Permissio
 
     public void setSecure(boolean secure) {
         this.secure = secure;
-    }       
+    }
 
     @Override
     public boolean authenticate(String password) {
@@ -199,18 +199,13 @@ public class Group extends Folder implements Mailbox, CustomUserGroup, Permissio
     }
 
     public List<User> getMembers() {
+        // TODO: if the subject is another gruop probably should iterate over it and add its members
+        List<Subject> subjects = _(ClydeGroupHelper.class).getMembers(this);
         List<User> list = new ArrayList<>();
-        Folder usersFolder = this.getHost().getUsers();
-        if (usersFolder == null) {
-            return list;
-        }
-
-        for (Resource r : usersFolder.getChildren()) {
+        for (Subject r : subjects) {
             if (r instanceof User) {
                 User u = (User) r;
-                if (u.isInGroup(this)) {
-                    list.add(u);
-                }
+                list.add(u);
             }
         }
         return list;

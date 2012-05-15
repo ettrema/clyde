@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 
 import static com.ettrema.context.RequestContext._;
 import com.ettrema.logging.LogUtils;
+import java.util.HashSet;
 
 /**
  * What is a RenderContext? When a page is rendered it first calls its template
@@ -210,6 +211,13 @@ public class RenderContext implements Map<String, Component> {
     public Templatable getMe() {
         return page;
     }
+    
+    /**
+     * Same as getMe(), returns the page for this rendercontext
+     */
+    public Templatable getPage() {
+        return page;
+    }
 
     public RenderContext getTarget() {
         if (child == null) {
@@ -259,7 +267,6 @@ public class RenderContext implements Map<String, Component> {
      * Returns the rendered body component value for this page
      */
     public String doBody(RenderContext rcChild) {
-        //log.debug( "doBody: page: " + rcChild.page.getName());
         Templatable childPage = rcChild.page;
 
         ComponentValue cvBody = childPage.getValues().get("body");
@@ -299,6 +306,33 @@ public class RenderContext implements Map<String, Component> {
 
     public String invoke(String paramName, Boolean editable) {
         return invoke(paramName, editable, editable);
+    }
+
+    /**
+     * Add the WebResource unless there is a corresponding item already in the list
+     * 
+     * A corresponding item is either a script tag with the same src attribute, or a
+     * link tag with the same href
+     * 
+     * @param r
+     * @param noDupes
+     * @param list 
+     */
+    private void checkAndAddWebResource(WebResource r, Set<String> noDupes, List<WebResource> list) {
+        String item = r.getAtts().get("href");
+        if( item == null ) {
+            item = r.getAtts().get("src");
+        }
+        if( item != null ) {
+            String id = r.getTag() + "-" + item;
+            if( !noDupes.contains(id)) {
+                list.add(r);
+                noDupes.add(id);
+            }
+        
+        } else {
+            list.add(r);
+        }
     }
 
     private String invoke(String paramName, Boolean componentEdit, Boolean markers) {
@@ -727,6 +761,19 @@ public class RenderContext implements Map<String, Component> {
             return res;
         }
     }
+    
+    public String getTemplateNames() {
+        StringBuilder sb = new StringBuilder();
+        RenderContext rc = this;
+        while (rc != null) {
+            ITemplate t = rc.getTemplate();
+            if( t != null ) {
+                sb.append(t.getName()).append(" ");
+            }
+            rc = rc.child;
+        }
+        return sb.toString();
+    }
 
     public BodyProducer getBody() {
         return new BodyProducer();
@@ -752,14 +799,17 @@ public class RenderContext implements Map<String, Component> {
         s += hashCode();
         return s;
     }
-    
+
     public List<WebResource> getAllWebResources() {
         List<WebResource> list = new ArrayList<>();
+        Set<String> noDupes = new HashSet<>(); // used to prevent duplicate js and css resources
         RenderContext rc = this;
-        while(rc != null ) {
+        while (rc != null) {
             List<WebResource> childList = rc.page.getWebResources();
-            if( childList != null ) {
-                list.addAll(childList);
+            if (childList != null) {
+                for( WebResource r : childList ) {                    
+                    checkAndAddWebResource(r, noDupes, list);
+                }
             }
             rc = rc.child;
         }

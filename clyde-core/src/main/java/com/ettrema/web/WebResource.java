@@ -64,7 +64,8 @@ public class WebResource implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("<").append(tag).append(" ");
         for( Entry<String, String> entry : atts.entrySet()) {
-            sb.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\" ");
+            String adjustedValue = adjustRelativePath(entry.getKey(), entry.getValue());
+            sb.append(entry.getKey()).append("=\"").append(adjustedValue).append("\" ");
         }
         if( body != null && body.length()>0 ) {
             sb.append(">").append(body).append("</").append(tag).append(">");
@@ -72,5 +73,24 @@ public class WebResource implements Serializable {
             sb.append("/>");
         }
         return sb.toString();
+    }
+
+    /**
+     * If the attribute name is src or href, checks the value to see if
+     * its relative, and if so return an absolute path, assuming webresource
+     * root is /templates
+     * 
+     * @param value
+     * @return 
+     */
+    private String adjustRelativePath(String name, String value) {
+        if( name.equals("href") || name.equals("src")) {
+            if( value != null && value.length() > 0 ) {
+                if( !value.startsWith("/") && !value.startsWith("http")) {
+                    return "/templates/" + value;
+                }
+            }
+        }
+        return value;
     }
 }

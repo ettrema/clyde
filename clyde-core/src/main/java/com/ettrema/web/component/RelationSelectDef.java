@@ -276,7 +276,7 @@ public class RelationSelectDef extends CommonComponent implements ComponentDef, 
             log.warn("Could not find select from path: " + selectFromFolder + " for relation def: " + this.getPath());
             return null;
         }
-        return null;
+        return selectFrom;
     }
 
     @Override

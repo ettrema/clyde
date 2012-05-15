@@ -188,7 +188,11 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
             list.add(g);
         } else if (o instanceof Group) {
             Group g = (Group) o;
-            list.addAll(g.getMembers());
+            List<User> members = g.getMembers();
+            if( members == null || members.isEmpty()) {
+                log.warn("No members in group: " + g.getHref());
+            }
+            list.addAll(members);
         } else if (o instanceof List) {
             List items = (List) o;
             LogUtils.trace(log, "appendTo: list of size", items.size());
@@ -476,7 +480,7 @@ public final class GroupEmailCommand2 extends Command implements Resource, Diges
     }
 
     private boolean isTestOnly(Map<String, String> parameters) {
-        String test = parameters.get("test");
+        String test = parameters != null ? parameters.get("test") : null;
         if (test != null && test.length() > 0) {
             return !test.equals("false");
         } else {
